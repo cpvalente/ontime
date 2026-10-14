@@ -77,10 +77,14 @@ vi.mock('../../restore-service/restore.service.js', () => ({
 
 vi.mock('../../../api-data/automation/automation.service.js', () => ({ triggerAutomations: vi.fn() }));
 vi.mock('../../../api-data/report/report.service.js', () => ({ triggerReportEntry: vi.fn() }));
-vi.mock('../../../classes/Logger.js', () => ({
-  logger: { info: vi.fn(), warning: vi.fn(), error: vi.fn(), crash: vi.fn(), emit: vi.fn() },
+vi.mock('../../../api-data/logs/logs.service.js', () => ({
+  info: vi.fn(),
+  warning: vi.fn(),
+  error: vi.fn(),
+  crash: vi.fn(),
 }));
 
+import * as logger from '../../../api-data/logs/logs.service.js';
 import { getEntryWithId } from '../../../api-data/rundown/rundown.dao.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
 import { restoreService } from '../../restore-service/restore.service.js';
@@ -207,6 +211,8 @@ describe('notifyOfChangedEvents()', () => {
     expect(runtimeState.stop).toHaveBeenCalled();
     // stopping clears the loaded data, there is nothing left to reconcile
     expect(runtimeState.updateAll).not.toHaveBeenCalled();
+    // nothing on screen explains why playback stopped
+    expect(logger.warning).toHaveBeenCalledWith('PLAYBACK', 'Playback stopped', { reason: 'no-playable-events' });
   });
 
   it('reconciles against the rundown data read at call time', () => {
@@ -249,6 +255,22 @@ describe('resume()', () => {
 
     expect(runtimeState.setOffsetMode).not.toHaveBeenCalled();
     expect(runtimeState.resume).not.toHaveBeenCalled();
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore skipped', {
+      reason: 'other-rundown',
+      rundown: 'another-rundown',
+    });
+  });
+
+  it('explains when the restored event no longer exists', () => {
+    vi.mocked(getEntryWithId).mockReturnValue(undefined);
+
+    runtimeService.resume(restorePoint);
+
+    expect(runtimeState.resume).not.toHaveBeenCalled();
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore skipped', {
+      reason: 'event-not-playable',
+      id: 'resume-event',
+    });
   });
 
   it('restores the offset mode and playback of the loaded rundown', () => {
@@ -264,7 +286,7 @@ describe('resume()', () => {
   });
 });
 
-describe('PlayNext end action', () => {
+describe('end actions', () => {
   beforeEach(() => {
     vi.useFakeTimers();
     vi.setSystemTime(1000);
@@ -284,7 +306,7 @@ describe('PlayNext end action', () => {
 
   /** plays an event with PlayNext, followed by an event the runtime can load */
   function playingWithNext() {
-    const now = makeOntimeEvent({ id: 'playnext-now', endAction: EndAction.PlayNext });
+    const now = makeOntimeEvent({ id: 'playnext-now', cue: '12', endAction: EndAction.PlayNext });
     const next = makeOntimeEvent({ id: 'playnext-next' });
     stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
     rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [now.id, next.id] });
@@ -294,6 +316,25 @@ describe('PlayNext end action', () => {
       return true;
     });
   }
+
+  it('loads the next event when the LoadNext end action fires', () => {
+    const now = makeOntimeEvent({ id: 'loadnext-now', endAction: EndAction.LoadNext });
+    const next = makeOntimeEvent({ id: 'loadnext-next' });
+    rundownRef.metadata = makeRundownMetadata({ playableEventOrder: [now.id, next.id] });
+    vi.mocked(getEntryWithId).mockReturnValue(next);
+    stateRef.current = makeRuntimeStateData({ eventNow: now, timer: { playback: Playback.Play } });
+
+    tick({ hasTimerFinished: true, finishedAt: 1010 as Instant, hasSecondaryTimerFinished: false });
+
+    vi.advanceTimersByTime(0);
+
+    expect(runtimeState.load).toHaveBeenCalledWith(next, expect.anything(), rundownRef.metadata, undefined);
+    expect(runtimeState.start).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action triggered', {
+      action: 'load-next',
+      id: 'loadnext-now',
+    });
+  });
 
   it('starts the next event at the instant the previous one ended', () => {
     playingWithNext();
@@ -306,6 +347,7 @@ describe('PlayNext end action', () => {
 
     vi.advanceTimersByTime(1);
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1010);
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action triggered', { action: 'play-next', cue: '12' });
   });
 
   it('starts the next event now when the previous one ended long ago, as after the system slept', () => {
@@ -316,6 +358,11 @@ describe('PlayNext end action', () => {
     vi.advanceTimersByTime(0);
 
     expect(runtimeState.start).toHaveBeenCalledWith(undefined, 1000 + MILLIS_PER_HOUR);
+    expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action triggered', {
+      action: 'play-next',
+      cue: '12',
+      late: true,
+    });
   });
 
   it('does not start the next event if playback stopped before the previous one ended', () => {
@@ -328,5 +375,7 @@ describe('PlayNext end action', () => {
     vi.advanceTimersByTime(10);
     expect(runtimeState.load).not.toHaveBeenCalled();
     expect(runtimeState.start).not.toHaveBeenCalled();
+    // the operator stopped playback, there is no side effect to explain
+    expect(logger.info).not.toHaveBeenCalledWith('PLAYBACK', 'End action triggered', expect.anything());
   });
 });

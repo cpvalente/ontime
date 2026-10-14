@@ -57,7 +57,10 @@ class MockWebSocket {
 }
 
 vi.mock('../../api/utils', () => ({ invalidateAllCaches: vi.fn<() => Promise<void>>() }));
-vi.mock('../../stores/logger', () => ({ addLog: vi.fn() }));
+vi.mock('../../stores/logger', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  addLog: vi.fn(),
+}));
 
 describe('socket connection watchdog', () => {
   let connectSocket: () => void;

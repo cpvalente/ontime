@@ -2,12 +2,23 @@ import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
 import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
+import * as logger from '../../logs/logs.service.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 import { addAutomation, addTrigger, deleteAllTriggers } from '../automation.dao.js';
-import { testConditions, triggerAutomations } from '../automation.service.js';
+import { testConditions, testOutput, triggerAutomations } from '../automation.service.js';
 import * as httpClient from '../clients/http.client.js';
 import * as oscClient from '../clients/osc.client.js';
 import { makeHTTPAction, makeOSCAction } from './testUtils.js';
+
+const environment = vi.hoisted(() => ({ isOntimeCloud: false }));
+vi.mock('../../../setup/environment.js', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  get isOntimeCloud() {
+    return environment.isOntimeCloud;
+  },
+}));
+
+vi.mock('../../logs/logs.service.js', () => ({ info: vi.fn(), warning: vi.fn(), error: vi.fn() }));
 
 vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   // Create a small mock store
@@ -98,6 +109,68 @@ describe('triggerAction()', () => {
     triggerAutomations(TimerLifeCycle.onStop);
     expect(oscSpy).not.toBeCalled();
     expect(httpSpy).not.toBeCalled();
+  });
+
+  it('never sends OSC in Ontime Cloud', () => {
+    environment.isOntimeCloud = true;
+    onTestFinished(() => {
+      environment.isOntimeCloud = false;
+    });
+
+    triggerAutomations(TimerLifeCycle.onLoad);
+    testOutput(makeOSCAction());
+
+    expect(oscSpy).not.toBeCalled();
+  });
+
+  describe('logging', () => {
+    const infoSpy = vi.mocked(logger.info);
+    const warningSpy = vi.mocked(logger.warning);
+
+    beforeEach(() => {
+      infoSpy.mockClear();
+      warningSpy.mockClear();
+    });
+
+    it('says which automation was sent on an event', () => {
+      triggerAutomations(TimerLifeCycle.onLoad);
+
+      expect(infoSpy).toHaveBeenCalledWith('AUTOMATION', 'Automation sent', { title: 'test-osc', trigger: 'onLoad' });
+    });
+
+    it('says when an automation was not sent because its filters were not met', async () => {
+      const filtered = await addAutomation({
+        title: 'test-filtered',
+        filterRule: 'all',
+        filters: [{ field: 'eventNow.title', operator: 'equals', value: 'never this title' }],
+        outputs: [makeHTTPAction()],
+      });
+      await addTrigger({ title: 'test-filtered', trigger: TimerLifeCycle.onStart, automationId: filtered.id });
+
+      triggerAutomations(TimerLifeCycle.onStart);
+
+      expect(httpSpy).not.toBeCalled();
+      expect(infoSpy).toHaveBeenCalledWith('AUTOMATION', 'Automation skipped', {
+        reason: 'filters',
+        title: 'test-filtered',
+        trigger: 'onStart',
+      });
+    });
+
+    it('logs nothing for automations which fire every second', async () => {
+      const everySecond = await addAutomation({
+        title: 'test-every-second',
+        filterRule: 'all',
+        filters: [],
+        outputs: [makeOSCAction()],
+      });
+      await addTrigger({ title: 'test-every-second', trigger: TimerLifeCycle.onUpdate, automationId: everySecond.id });
+
+      triggerAutomations(TimerLifeCycle.onUpdate);
+
+      expect(infoSpy).not.toBeCalled();
+      expect(warningSpy).not.toBeCalled();
+    });
   });
 });
 

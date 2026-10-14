@@ -11,11 +11,12 @@ import { oscServer } from './adapters/OscAdapter.js';
 import { socket } from './adapters/WebsocketAdapter.js';
 // Import Routers
 import { appRouter } from './api-data/index.js';
+import { createSessionLog } from './api-data/logs/logs.dao.js';
+// Services
+import * as logger from './api-data/logs/logs.service.js';
 import { integrationRouter } from './api-integration/integration.router.js';
 import { mcpRouter } from './api-mcp/mcp.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
-// Services
-import { logger } from './classes/Logger.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
 import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
@@ -24,23 +25,24 @@ import { bodyParser } from './middleware/bodyParser.js';
 import { compressData } from './middleware/compression.middleware.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { clearUploadfolder } from './middleware/upload.js';
-import { getShowWelcomeDialog } from './services/app-state-service/appState.service.js';
+import { endSession, getShowWelcomeDialog, startSession } from './services/app-state-service/appState.service.js';
 import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
 import * as messageService from './services/message-service/message.service.js';
 import { initialiseProject } from './services/project-service/project.service.js';
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
-import { timerConfig } from './setup/config.js';
+import { config, timerConfig } from './setup/config.js';
 import { isProduction } from './setup/environment.js';
 // import utils
-import { publicDir, srcFiles } from './setup/index.js';
+import { publicDir, publicFiles, srcFiles } from './setup/index.js';
 import { populateDemo } from './setup/loadDemo.js';
 import { populateStyles } from './setup/loadStyles.js';
 import { populateTranslation } from './setup/loadTranslations.js';
 import { eventStore } from './stores/EventStore.js';
 import { getState } from './stores/runtimeState.js';
 import { consoleSuccess } from './utils/console.js';
+import { ensureDirectory } from './utils/fileManagement.js';
 import { getNetworkInterfaces } from './utils/network.js';
 import { withTimeout } from './utils/withTimeout.js';
 
@@ -166,7 +168,14 @@ let restorePoint: RestorePoint | null = null;
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
   // initialise logging service, escalateErrorFn only exists in electron
-  logger.init(escalateErrorFn);
+  ensureDirectory(publicDir.logsDir);
+  const sessionLog = createSessionLog(publicFiles.logFile, publicFiles.previousLogFile);
+  logger.init(sessionLog, escalateErrorFn);
+
+  const previousEndedCleanly = await startSession();
+  if (!previousEndedCleanly) {
+    logger.warning(LogOrigin.Server, 'Previous session did not end cleanly', { log: config.logs.previous });
+  }
 
   // load restore point if it exists
   restorePoint = await restoreService.load();
@@ -175,8 +184,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   populateStyles();
   populateTranslation();
   await populateDemo();
-  const project = await initialiseProject();
-  logger.info(LogOrigin.Server, `Initialised Ontime with ${project}`);
+  await initialiseProject();
 };
 
 /**
@@ -247,7 +255,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   }
 
   const returnMessage = `Ontime is listening on port ${resultPort}`;
-  logger.info(LogOrigin.Server, returnMessage);
+  logger.info(LogOrigin.Server, 'Server started', { port: resultPort });
 
   return {
     message: returnMessage,
@@ -264,7 +272,7 @@ export const startIntegrations = async () => {
   if (enabledOscIn) {
     oscServer.init(oscPortIn);
   } else {
-    logger.info(LogOrigin.Server, 'Skipping OSC integration');
+    logger.info(LogOrigin.Api, 'OSC input disabled');
   }
 };
 
@@ -301,6 +309,16 @@ export async function stopServices(exitCode: number): Promise<void> {
   isShuttingDown = true;
   runtimeService.shutdown();
 
+  // only a crash leaves the session open, recorded first so a failed cleanup cannot turn a stop into a crash
+  if (exitCode === 0 || exitCode === 3 || exitCode === 99) {
+    await withTimeout(
+      endSession().catch((_error) => {
+        // the next start reports this session as not ended cleanly
+      }),
+      shutdownTimeout,
+    );
+  }
+
   // Block for at most 4 seconds on each shutdown segment
   await withTimeout(
     flushPendingWrites().catch((_error) => {
@@ -324,4 +342,6 @@ export async function stopServices(exitCode: number): Promise<void> {
     Promise.all([closeHttpServer(expressServer), socket.shutdown(), oscServer.shutdown()]),
     shutdownTimeout,
   );
+
+  logger.info(LogOrigin.Server, 'Server stopped', { code: exitCode });
 }

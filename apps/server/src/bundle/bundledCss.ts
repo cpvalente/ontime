@@ -43,7 +43,7 @@ export const defaultCss = `
   /** ---- Colour used for progress bar background */
   --timer-progress-bg-override: #fff;
   /** ---- Colour used for progress bar progress */
-  --timer-progress-override: #202020;
+  --timer-progress-override: #595959;
 
   /** View specific features: /op */
   --operator-customfield-font-size-override: 1.25rem;

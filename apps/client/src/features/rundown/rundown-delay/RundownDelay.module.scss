@@ -15,14 +15,21 @@
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
+    outline-offset: -1px;
   }
 
   &.copyTarget {
     outline: 1px dashed $blue-500;
-    outline-offset: -2px;
+    outline-offset: -1px;
   }
 }
 
 .drag {
   @include drag-style;
+
+  cursor: grab;
+  align-self: stretch;
+  display: grid;
+  place-content: center;
+  background-color: $gray-1100;
 }

@@ -11,14 +11,17 @@ import {
 } from 'ontime-types';
 import { getPropertyFromPath } from 'ontime-utils';
 
-import { logger } from '../../classes/Logger.js';
 import { isOntimeCloud } from '../../setup/environment.js';
 import { eventStore } from '../../stores/EventStore.js';
+import * as logger from '../logs/logs.service.js';
 import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
 import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
 import { emitHTTP } from './clients/http.client.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 import { emitOSC } from './clients/osc.client.js';
+
+/** cycles which fire every second, logging each of their sends would bury every other entry */
+const periodicCycles = new Set<TimerLifeCycle>([TimerLifeCycle.onUpdate, TimerLifeCycle.onClock]);
 
 /**
  * Exposes a method for triggering actions based on a TimerLifeCycle event
@@ -57,12 +60,23 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
 
   uniqueTriggers.forEach((trigger) => {
     const automation = automations[trigger.automationId];
-    if (!automation || automation.outputs.length === 0) {
+    const outputs = automation?.outputs.filter(isAvailable) ?? [];
+    if (outputs.length === 0) {
       return;
     }
     const shouldSend = testConditions(automation.filters, automation.filterRule, store);
+    const shouldLog = !periodicCycles.has(cycle);
     if (shouldSend) {
-      send(automation.outputs, store);
+      if (shouldLog) {
+        logger.info(LogOrigin.Automation, 'Automation sent', { title: automation.title, trigger: cycle });
+      }
+      send(outputs, store);
+    } else if (shouldLog) {
+      logger.info(LogOrigin.Automation, 'Automation skipped', {
+        reason: 'filters',
+        title: automation.title,
+        trigger: cycle,
+      });
     }
   });
 }
@@ -72,7 +86,12 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
  */
 export function testOutput(payload: AutomationOutput) {
   const store = eventStore.poll();
-  send([payload], store);
+  send([payload].filter(isAvailable), store);
+}
+
+/** OSC is always disabled in Ontime Cloud */
+function isAvailable(output: AutomationOutput): boolean {
+  return !(isOntimeCloud && isOSCOutput(output));
 }
 
 /**
@@ -127,14 +146,14 @@ export function testConditions(
  */
 function send(output: AutomationOutput[], store: RuntimeStore) {
   output.forEach((payload) => {
-    if (isOSCOutput(payload) && !isOntimeCloud) {
+    if (isOSCOutput(payload)) {
       emitOSC(payload, store);
     } else if (isHTTPOutput(payload)) {
       emitHTTP(payload, store);
     } else if (isOntimeAction(payload)) {
       toOntimeAction(payload, store);
     } else {
-      logger.warning(LogOrigin.Tx, `Unknown output type: ${payload}`);
+      logger.warning(LogOrigin.Automation, 'Automation output skipped', { reason: 'unknown-type' });
     }
   });
 }

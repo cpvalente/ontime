@@ -26,6 +26,11 @@ export const config = {
     directory: 'sheets',
   },
   restoreFile: 'ontime.restore',
+  logs: {
+    directory: 'logs',
+    filename: 'ontime.log',
+    previous: 'ontime.previous.log',
+  },
   user: 'user',
   styles: {
     directory: 'styles',

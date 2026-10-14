@@ -7,12 +7,12 @@ import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
+import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
-import { logger } from '../../classes/Logger.js';
 import { makeNewProject } from '../../models/dataModel.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
@@ -85,7 +85,7 @@ export async function getCurrentProject(): Promise<{ filename: string; pathToFil
 async function loadProject(projectData: DatabaseModel, fileName: string, rundownId?: string) {
   // change LowDB to point to new file
   await initPersistence(getPathToProject(fileName), projectData);
-  logger.info(LogOrigin.Server, `Loaded project ${fileName}`);
+  logger.info(LogOrigin.Server, 'Project loaded', { project: fileName });
 
   // the aux timers are not part of the runtime reload, see loadNames
   auxTimerService.loadNames(projectData.settings.auxTimerNames);
@@ -191,10 +191,10 @@ export async function initialiseProject(): Promise<string> {
     return projectName;
   } catch (error) {
     // if we are here, most likely the json parsing failed and the file is corrupt
-    logger.warning(
-      LogOrigin.Server,
-      `Unable to load previous project ${lastLoaded.projectName}: ${getErrorMessage(error)}`,
-    );
+    logger.warning(LogOrigin.Server, 'Project load failed', {
+      project: lastLoaded.projectName,
+      error: getErrorMessage(error),
+    });
     try {
       const pathToFile = getPathToProject(lastLoaded.projectName);
       await moveCorruptFile(pathToFile, lastLoaded.projectName);
@@ -226,10 +226,10 @@ export async function loadProjectFile(
   let parsedFileName = fileName;
 
   if (result.migrated) {
-    logger.warning(LogOrigin.Server, 'The imported project is migrate, the original file has been backed up');
+    logger.warning(LogOrigin.Server, 'Project migrated', { project: fileName });
     parsedFileName = await handleMigratedFile(filePath, parsedFileName);
   } else if (result.errors.length > 0) {
-    logger.warning(LogOrigin.Server, 'Project loaded with errors');
+    logger.warning(LogOrigin.Server, 'Project loaded with errors', { project: fileName });
     parsedFileName = await handleCorruptedFile(filePath, parsedFileName);
   }
 

@@ -23,11 +23,11 @@ import {
 import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
-import { logger } from '../../classes/Logger.js';
 import { consoleSubdued } from '../../utils/console.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from '../excel/excel.parser.js';
 import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils.js';
+import * as logger from '../logs/logs.service.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { catchCommonImportXlsxError } from './googleApi.utils.js';
@@ -137,8 +137,6 @@ function verifyConnection(
   expires_in: number,
   postAction: () => Promise<any>,
 ) {
-  logger.info(LogOrigin.Server, 'Start polling for auth...');
-
   // create poller to check for auth
   pollInterval = setInterval(pollForAuth, interval * 1000);
 
@@ -174,13 +172,13 @@ function verifyConnection(
       }
 
       if (!response.ok) {
-        logger.error(LogOrigin.Server, `Authentication poll failed with code: ${response.status}`);
+        logger.error(LogOrigin.Server, 'Sheets auth failed', { status: response.status });
         return;
       }
 
       const auth: Credentials = await response.json();
 
-      logger.info(LogOrigin.Server, 'Successfully Authenticated');
+      logger.info(LogOrigin.Server, 'Sheets authenticated');
       const client = new OAuth2Client({
         clientId: clientSecret.installed.client_id,
         clientSecret: clientSecret.installed.client_secret,
@@ -208,7 +206,7 @@ function verifyConnection(
 
       await postAction();
     } catch (error) {
-      logger.error(LogOrigin.Server, `Authentication poll error: ${(error as Error).message}`);
+      logger.error(LogOrigin.Server, 'Sheets auth failed', { error: getErrorMessage(error) });
     }
   }
 }
@@ -482,7 +480,7 @@ export async function upload(sheetId: string, options: ImportMap) {
   });
 
   if (writeResponse.status === 200) {
-    logger.info(LogOrigin.Server, `Sheet write ${writeResponse.statusText}`);
+    logger.info(LogOrigin.Server, 'Sheet written', { status: writeResponse.status });
   } else {
     throw new Error(`Sheet write failed: ${writeResponse.statusText}`);
   }

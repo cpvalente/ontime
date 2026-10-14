@@ -6,6 +6,7 @@ import { router as customFieldsRouter } from './custom-fields/customFields.route
 import { router as customViewsRouter } from './custom-views/customViews.router.js';
 import { router as dbRouter } from './db/db.router.js';
 import { router as excelRouter } from './excel/excel.router.js';
+import { router as logsRouter } from './logs/logs.router.js';
 import { router as projectRouter } from './project-data/projectData.router.js';
 import { router as reportRouter } from './report/report.router.js';
 import { router as rundownsRouter } from './rundown/rundown.router.js';
@@ -30,6 +31,7 @@ appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/session', sessionRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
 appRouter.use('/report', reportRouter);
+appRouter.use('/logs', logsRouter);
 appRouter.use('/assets', assetsRouter);
 
 // we don't want to redirect to react index when using api routes
