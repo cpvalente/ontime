@@ -1,6 +1,7 @@
 import { EntryId, OntimeEntry, OntimeEvent, OntimeGroup, ProjectRundownsList, Rundown } from 'ontime-types';
-import { MILLIS_PER_HOUR as HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR as HOUR, validateRundownTitle } from 'ontime-utils';
 
+import { parseRundown } from '../api-data/rundown/rundown.parser.js';
 import { type TestServer, startTestServer } from './testServer.js';
 
 /**
@@ -337,6 +338,59 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       await json(await server.send('PUT', `/data/rundowns/${copy.id}/entry`, { id: ids[0], title: 'changed in copy' }));
       expect(titles(await rundown.read())).toStrictEqual(['a', 'b']);
       expect(titles(await readRundown(copy.id))).toStrictEqual(['changed in copy', 'b']);
+    });
+
+    test.each([
+      [55, 55],
+      [56, 56],
+      [57, 56],
+      [64, 56],
+    ])(
+      'duplicates a %i-character title with %i source characters and survives parsing',
+      async (length, copiedLength) => {
+        const title = 'a'.repeat(length);
+        const sourceId = await createRundown(title);
+        const source = await readRundown(sourceId);
+        const before = await listRundowns();
+        const { status, body } = await json<ProjectRundownsList>(
+          server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
+        );
+        const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
+        const duplicated = await readRundown(copy.id);
+        const errors: string[] = [];
+        const parsed = parseRundown(duplicated, {}, (message) => errors.push(message));
+
+        expect(status).toBe(201);
+        expect(duplicated.title).toBe(`Copy of ${'a'.repeat(copiedLength)}`);
+        expect(validateRundownTitle(duplicated.title)).toBeNull();
+        expect(parsed.title).toBe(duplicated.title);
+        expect(errors).toStrictEqual([]);
+        expect(await readRundown(sourceId)).toStrictEqual(source);
+      },
+    );
+
+    test('preserves maximum-length titles through repeated duplication and restart', async () => {
+      let sourceId = await createRundown('b'.repeat(64));
+      const expectedTitles = new Map([[sourceId, 'b'.repeat(64)]]);
+
+      for (let copyNumber = 0; copyNumber < 3; copyNumber++) {
+        const before = await listRundowns();
+        const { status, body } = await json<ProjectRundownsList>(
+          server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
+        );
+        const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
+        expect(status).toBe(201);
+        expect(copy.title).toHaveLength(64);
+        expect(validateRundownTitle(copy.title)).toBeNull();
+        expectedTitles.set(copy.id, copy.title);
+        sourceId = copy.id;
+      }
+
+      await server.stop();
+      server = await startTestServer();
+      for (const [id, expectedTitle] of expectedTitles) {
+        expect((await readRundown(id)).title).toBe(expectedTitle);
+      }
     });
 
     test('loads a rundown, which becomes the current one', async () => {

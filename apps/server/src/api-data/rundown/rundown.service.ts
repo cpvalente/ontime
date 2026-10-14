@@ -18,7 +18,13 @@ import {
   isOntimeEvent,
   isOntimeGroup,
 } from 'ontime-types';
-import { customFieldLabelToKey, generateId, getInsertAfterId, resolveInsertParent } from 'ontime-utils';
+import {
+  customFieldLabelToKey,
+  generateId,
+  getInsertAfterId,
+  resolveInsertParent,
+  RUNDOWN_TITLE_MAX_LENGTH,
+} from 'ontime-utils';
 
 import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -883,7 +889,7 @@ export async function duplicateExistingRundown(id: string) {
 
   const duplicatedRundown: Rundown = cloneRundown(rundown);
   duplicatedRundown.id = generateId();
-  duplicatedRundown.title = `Copy of ${rundown.title}`;
+  duplicatedRundown.title = `Copy of ${rundown.title}`.slice(0, RUNDOWN_TITLE_MAX_LENGTH);
   duplicatedRundown.revision = 0;
 
   await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);
