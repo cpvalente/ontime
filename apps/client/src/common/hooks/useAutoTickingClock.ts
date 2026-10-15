@@ -1,33 +1,54 @@
 import { useEffect, useRef, useState } from 'react';
 
-import { useRuntimeStore } from '../stores/runtime';
-
-const takeOverTimeMs = 1500;
+import { runtimeStore, useRuntimeStore } from '../stores/runtime';
+import { ClockEstimate, getEstimatedClock, getNextTickDelay, updateClockEstimate } from './autoTickingClock.utils';
 
 /**
- * Keeps the clock value ticking if the server drops updates
+ * Counts the clock locally, using server values only to correct drift
+ * The clock freezes while the client is offline
  */
 export function useAutoTickingClock(): number {
-  const clock = useRuntimeStore((state) => state.clock);
+  const isOnline = useRuntimeStore((state) => state.ping > 0);
+  const [tick, setTick] = useState(0);
 
-  const baselineRef = useRef({ clock, time: performance.now() });
-  const [, setTick] = useState(0);
+  const estimateRef = useRef<ClockEstimate | null>(null);
+  const lastClockRef = useRef(runtimeStore.getState().clock);
 
-  // Update baseline when server clock changes
+  // Feeds server clock values to the estimator as they arrive, read outside React to keep the arrival time accurate
   useEffect(() => {
-    baselineRef.current = { clock, time: performance.now() };
-  }, [clock]);
+    let lastServerClock: number | null = null;
 
-  // Force periodic re-renders
-  useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), 1000);
-    return () => clearInterval(id);
+    const handleState = (state: { clock: number; ping: number }) => {
+      if (state.ping <= 0) {
+        // the first value after reconnecting must snap the clock
+        estimateRef.current = null;
+        lastServerClock = null;
+        return;
+      }
+      if (state.clock === lastServerClock) {
+        return;
+      }
+      lastServerClock = state.clock;
+      estimateRef.current = updateClockEstimate(estimateRef.current, state.clock, performance.now());
+      setTick((t) => t + 1);
+    };
+
+    handleState(runtimeStore.getState());
+    return runtimeStore.subscribe(handleState);
   }, []);
 
-  // Always derive from baseline + elapsed at render time
-  const elapsed = performance.now() - baselineRef.current.time;
-  if (elapsed < takeOverTimeMs) {
-    return clock;
+  // Redraws when the estimated clock reaches the next second
+  useEffect(() => {
+    const estimate = estimateRef.current;
+    if (!isOnline || !estimate) {
+      return;
+    }
+    const timeout = setTimeout(() => setTick((t) => t + 1), getNextTickDelay(estimate, performance.now()));
+    return () => clearTimeout(timeout);
+  }, [isOnline, tick]);
+
+  if (isOnline && estimateRef.current) {
+    lastClockRef.current = getEstimatedClock(estimateRef.current, performance.now());
   }
-  return baselineRef.current.clock + Math.round(elapsed);
+  return lastClockRef.current;
 }
