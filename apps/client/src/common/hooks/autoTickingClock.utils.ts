@@ -6,6 +6,8 @@ export const sampleWindowMs = 5000;
 export const slewRate = 0.25;
 /** Differences larger than this are a change in the server clock, not drift */
 export const snapThresholdMs = MILLIS_PER_SECOND;
+/** A server clock behind ours must stay behind this long before we snap back, late packets arrive in bursts */
+export const backwardSnapDelayMs = MILLIS_PER_SECOND;
 /** Draws slightly after the second change so the new second is visible */
 const tickMarginMs = 10;
 
@@ -22,6 +24,8 @@ export type ClockEstimate = {
   slewStart: number;
   /** offset the applied offset is moving towards */
   targetOffset: number;
+  /** local time of the first sample in the current run of samples far behind the estimate */
+  behindSince: number | null;
 };
 
 /** Signed difference between two times of day, taking the shortest way around midnight */
@@ -38,7 +42,13 @@ function getAppliedOffset(estimate: ClockEstimate, now: number): number {
 
 function createClockEstimate(serverClock: number, now: number): ClockEstimate {
   const offset = serverClock - now;
-  return { samples: [{ offset, receivedAt: now }], slewFrom: offset, slewStart: now, targetOffset: offset };
+  return {
+    samples: [{ offset, receivedAt: now }],
+    slewFrom: offset,
+    slewStart: now,
+    targetOffset: offset,
+    behindSince: null,
+  };
 }
 
 /**
@@ -52,15 +62,24 @@ export function updateClockEstimate(estimate: ClockEstimate | null, serverClock:
 
   const appliedOffset = getAppliedOffset(estimate, now);
   const error = wrapDifference(serverClock - (now + appliedOffset));
-  if (Math.abs(error) > snapThresholdMs) {
+  if (error > snapThresholdMs) {
     return createClockEstimate(serverClock, now);
+  }
+
+  // a sample far behind is usually a late packet, we only follow it if the server stays behind
+  if (error < -snapThresholdMs) {
+    const behindSince = estimate.behindSince ?? now;
+    if (now - behindSince >= backwardSnapDelayMs) {
+      return createClockEstimate(serverClock, now);
+    }
+    return { ...estimate, behindSince };
   }
 
   const samples = estimate.samples.filter((sample) => now - sample.receivedAt < sampleWindowMs);
   samples.push({ offset: appliedOffset + error, receivedAt: now });
   const targetOffset = Math.max(...samples.map((sample) => sample.offset));
 
-  return { samples, slewFrom: appliedOffset, slewStart: now, targetOffset };
+  return { samples, slewFrom: appliedOffset, slewStart: now, targetOffset, behindSince: null };
 }
 
 /** Clock in ms since midnight at local time `now` */

@@ -60,13 +60,32 @@ describe('updateClockEstimate', () => {
     expect(getEstimatedClock(ahead, localStart + 2000)).toBe(serverStart + 2100);
   });
 
-  it.each([
-    ['forwards', 5000],
-    ['backwards', -5000],
-  ])('snaps when the server clock jumps %s', (_, jump) => {
+  it('snaps when the server clock jumps forwards', () => {
     const estimate = updateClockEstimate(null, serverStart, localStart);
-    const jumped = updateClockEstimate(estimate, serverStart + 1000 + jump, localStart + 1000);
-    expect(getEstimatedClock(jumped, localStart + 1000)).toBe(serverStart + 1000 + jump);
+    const jumped = updateClockEstimate(estimate, serverStart + 6000, localStart + 1000);
+    expect(getEstimatedClock(jumped, localStart + 1000)).toBe(serverStart + 6000);
+  });
+
+  it('snaps back only once the server clock stays behind', () => {
+    let estimate = updateClockEstimate(null, serverStart, localStart);
+
+    estimate = updateClockEstimate(estimate, serverStart - 4000, localStart + 1000);
+    expect(getEstimatedClock(estimate, localStart + 1000)).toBe(serverStart + 1000);
+
+    estimate = updateClockEstimate(estimate, serverStart - 3000, localStart + 2000);
+    expect(getEstimatedClock(estimate, localStart + 2000)).toBe(serverStart - 3000);
+  });
+
+  it('keeps counting through a burst of packets delayed by a stall', () => {
+    let estimate = updateClockEstimate(null, serverStart, localStart);
+
+    // the connection stalls for 3 seconds, then the queued packets arrive together
+    const burstAt = localStart + 4000;
+    [1000, 2000, 3000, 4000].forEach((second, index) => {
+      estimate = updateClockEstimate(estimate, serverStart + second, burstAt + index);
+    });
+
+    expect(getEstimatedClock(estimate, burstAt + 10)).toBe(serverStart + 4010);
   });
 
   it('wraps at midnight', () => {
