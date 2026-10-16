@@ -1,4 +1,4 @@
-import { HTMLAttributes, PropsWithChildren, forwardRef, memo, useImperativeHandle, useRef } from 'react';
+import { HTMLAttributes, PropsWithChildren, forwardRef, useImperativeHandle, useRef } from 'react';
 
 import { cx } from '../../../../common/utils/styleUtils';
 
@@ -15,6 +15,7 @@ const TextLikeInput = forwardRef(
     { offset, muted, disabled, children, className, ...elementProps }: PropsWithChildren<TextLikeInputProps>,
     textRef,
   ) => {
+    'use memo';
     const ref = useRef<HTMLDivElement | null>(null);
     const classes = cx([
       style.textInput,
@@ -42,4 +43,4 @@ const TextLikeInput = forwardRef(
 
 TextLikeInput.displayName = 'TextLikeInput';
 
-export default memo(TextLikeInput);
+export default TextLikeInput;

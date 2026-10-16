@@ -1,5 +1,5 @@
 import { millisToString, parseUserTime } from 'ontime-utils';
-import { PropsWithChildren, memo, useCallback, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 
 import SingleLineCell from './SingleLineCell';
 import TextLikeInput from './TextLikeInput';
@@ -15,15 +15,14 @@ interface ParentFocusableInput extends HTMLInputElement {
   focusParentElement: () => void;
 }
 
-export default memo(DurationInput);
-
-function DurationInput({
+export default function DurationInput({
   initialValue,
   lockedValue,
   delayed,
   onSubmit,
   children,
 }: PropsWithChildren<DurationInputProps>) {
+  'use memo';
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const inputRef = useRef<ParentFocusableInput>(null);
