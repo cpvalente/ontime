@@ -70,6 +70,7 @@ export default function ServerPortSettings() {
         <Panel.SubHeader>
           Server port
           <Panel.InlineElements>
+            <Panel.ScopeTag>This computer</Panel.ScopeTag>
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>

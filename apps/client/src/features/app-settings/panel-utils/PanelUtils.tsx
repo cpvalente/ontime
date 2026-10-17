@@ -1,5 +1,6 @@
 import { HTMLAttributes, PropsWithChildren, ReactNode } from 'react';
 
+import Tag from '../../../common/components/tag/Tag';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './PanelUtils.module.scss';
@@ -10,6 +11,11 @@ export function Header({ children }: { children: ReactNode }) {
 
 export function SubHeader({ children }: { children: ReactNode }) {
   return <h3 className={style.subheader}>{children}</h3>;
+}
+
+/** Indicates where the settings in a card are stored */
+export function ScopeTag({ children }: { children: ReactNode }) {
+  return <Tag>{children}</Tag>;
 }
 
 export function Title({ children }: { children: ReactNode }) {

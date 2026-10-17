@@ -34,7 +34,10 @@ export default function RundownDefaultSettings() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Rundown defaults</Panel.SubHeader>
+        <Panel.SubHeader>
+          Rundown defaults
+          <Panel.ScopeTag>This browser only</Panel.ScopeTag>
+        </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
           <Panel.Title>Default settings for new events</Panel.Title>
