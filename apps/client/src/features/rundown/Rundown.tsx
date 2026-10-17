@@ -19,6 +19,7 @@ import useAutomationSettings from '../../common/hooks-query/useAutomationSetting
 import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
+import useAppSettingsNavigation from '../app-settings/useAppSettingsNavigation';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import { useRundownCommands } from './hooks/useRundownCommands';
@@ -70,6 +71,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
+  const { setLocation } = useAppSettingsNavigation();
   const setEntryCopyId = useSetEntryCopy();
 
   // cursor
@@ -335,7 +337,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   if (sortableData.length < 1) {
     return (
-      <EmptyRundown handleAddNew={isEditMode ? (type: SupportedEntry) => entryActions.addEntry({ type }) : undefined} />
+      <EmptyRundown
+        handleAddNew={isEditMode ? (type: SupportedEntry) => entryActions.addEntry({ type }) : undefined}
+        handleImport={isEditMode ? () => setLocation('manage__sheets') : undefined}
+      />
     );
   }
 
