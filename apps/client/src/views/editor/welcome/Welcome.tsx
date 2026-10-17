@@ -1,13 +1,15 @@
+import { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
 import { postShowWelcomeDialog } from '../../../common/api/settings';
-import { invalidateAllCaches } from '../../../common/api/utils';
+import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
 import Checkbox from '../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../common/components/info/Info';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
 import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
@@ -22,26 +24,29 @@ interface WelcomeProps {
 
 export default function Welcome({ onClose }: WelcomeProps) {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
+    setErrorMessage(null);
     try {
       await loadProject(filename);
       await invalidateAllCaches();
       onClose();
-    } catch (_error) {
-      /** no error handling for now */
+    } catch (error) {
+      setErrorMessage(maybeAxiosError(error));
     }
   };
 
   /** handle loading the demo project */
   const handleLoadDemo = async () => {
+    setErrorMessage(null);
     try {
       await loadDemo();
       await invalidateAllCaches();
       onClose();
-    } catch (_error) {
-      /** no error handling for now */
+    } catch (error) {
+      setErrorMessage(maybeAxiosError(error));
     }
   };
 
@@ -89,6 +94,7 @@ export default function Welcome({ onClose }: WelcomeProps) {
       }
       footerElements={
         <div className={style.column}>
+          {errorMessage && <Info type='error'>{errorMessage}</Info>}
           <div className={style.buttonRow}>
             <Button onClick={handleLoadDemo}>Load demo project</Button>
             <ImportProjectButton onFinish={() => onClose()} />
