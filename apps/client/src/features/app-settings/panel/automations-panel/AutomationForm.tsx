@@ -1,5 +1,5 @@
 import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
@@ -28,7 +28,6 @@ import style from './AutomationForm.module.scss';
 
 const integrationsDocsUrl = 'https://docs.getontime.no/api/automation/#using-variables-in-automation';
 const formId = 'automation-form';
-const testFeedbackDuration = 2000;
 
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
@@ -42,7 +41,6 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
   const fieldList = useMemo(() => makeFieldList(data), [data]);
   const [testResults, setTestResults] = useState<Record<string, TestState>>({});
   const [submitError, setSubmitError] = useState<string>();
-  const feedbackTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const {
     control,
@@ -89,24 +87,8 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     setFocus('title');
   }, [setFocus]);
 
-  // Clear delayed output-test feedback when the modal unmounts.
-  useEffect(() => {
-    const timers = feedbackTimers.current;
-    return () => Object.values(timers).forEach(clearTimeout);
-  }, []);
-
   const reportTest = (key: string, state: TestState) => {
     setTestResults((prev) => ({ ...prev, [key]: state }));
-    clearTimeout(feedbackTimers.current[key]);
-
-    if (state.status === 'ok') {
-      feedbackTimers.current[key] = setTimeout(() => {
-        setTestResults((prev) => {
-          const { [key]: _discarded, ...rest } = prev;
-          return rest;
-        });
-      }, testFeedbackDuration);
-    }
   };
 
   const getOutputErrors = (index: number) => errors.outputs?.[index] as OutputErrors | undefined;
