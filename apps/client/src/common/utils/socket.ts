@@ -37,14 +37,19 @@ import {
   setClientRedirect,
   setClients,
 } from '../stores/clientStore';
+import { setMeasuredClockOffset, setPublishedClock } from '../stores/clockStore';
 import { setConnectionEstablished, setConnectionLost, setConnectionStale } from '../stores/connectionStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog, createLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
+import { type ClockSample, clockSampleCount, measurePong } from './clockSync';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let watchdogInterval: NodeJS.Timeout | null = null;
+let pingTimer: NodeJS.Timeout | null = null;
+let pendingPingSentAt: number | null = null;
+let clockSamples: ClockSample[] = [];
 export const socketConfig = {
   reconnectBaseInterval: 1000,
   reconnectMaxInterval: 30000,
@@ -55,6 +60,9 @@ export const socketConfig = {
   watchdogInterval: 2000,
   silenceTimeout: 10000,
   connectTimeout: 10000,
+  pingInterval: 1000,
+  pingIdleInterval: 30000,
+  pingTimeout: 10000,
 } as const;
 
 export const getConnectionState = () => hasConnected;
@@ -109,6 +117,7 @@ export const connectSocket = () => {
     }
     setOnlineStatus(true);
     setConnectionEstablished();
+    startPinging();
   };
 
   socket.onclose = () => {
@@ -142,10 +151,18 @@ export const connectSocket = () => {
 
       switch (tag) {
         case MessageTag.Pong: {
-          // a round trip can be faster than the clock resolution, we keep the value positive since a ping <= 0 means offline
-          const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);
-          patchRuntimeProperty('ping', offset);
-          updateDevTools({ ping: offset });
+          const measurement = measurePong(data, pendingPingSentAt, clockSamples, performance.now());
+          if (!measurement) {
+            break;
+          }
+          const { ping, samples, offset } = measurement;
+          pendingPingSentAt = null;
+          clockSamples = samples;
+          setMeasuredClockOffset(offset);
+          // the interval depends on the samples, which a clock jump resets
+          scheduleNextPing();
+          patchRuntimeProperty('ping', ping);
+          updateDevTools({ ping });
           break;
         }
         case MessageTag.ClientInit: {
@@ -188,6 +205,9 @@ export const connectSocket = () => {
         }
 
         case MessageTag.RuntimeData: {
+          if (payload.clock !== undefined && setPublishedClock(payload.clock)) {
+            sendPing();
+          }
           patchRuntime(payload);
           updateDevTools(payload);
           break;
@@ -252,6 +272,7 @@ export const connectSocket = () => {
 };
 
 function scheduleReconnect() {
+  stopPinging();
   if (reconnectTimeout) {
     clearTimeout(reconnectTimeout);
     reconnectTimeout = null;
@@ -305,6 +326,44 @@ function detachSocket() {
   } catch (_) {
     // The socket is unusable either way.
   }
+}
+
+function sendPing() {
+  if (websocket?.readyState !== WebSocket.OPEN) {
+    return;
+  }
+  const now = performance.now();
+  // Allow a slow reply across polling intervals, but retry if the sample expires.
+  if (pendingPingSentAt !== null && now - pendingPingSentAt < socketConfig.pingTimeout) {
+    return;
+  }
+  pendingPingSentAt = now;
+  sendSocket(MessageTag.Ping, now);
+}
+
+function stopPinging() {
+  if (pingTimer) {
+    clearTimeout(pingTimer);
+    pingTimer = null;
+  }
+  pendingPingSentAt = null;
+  clockSamples = [];
+}
+
+function startPinging() {
+  stopPinging();
+  sendPing();
+  scheduleNextPing();
+}
+
+/** Samples quickly until the estimate has enough samples, eg: after connecting or a clock jump, then rarely. */
+function scheduleNextPing() {
+  clearTimeout(pingTimer ?? undefined);
+  const interval = clockSamples.length < clockSampleCount ? socketConfig.pingInterval : socketConfig.pingIdleInterval;
+  pingTimer = setTimeout(() => {
+    sendPing();
+    scheduleNextPing();
+  }, interval);
 }
 
 function registerContact() {
