@@ -55,7 +55,6 @@ export default function GeneralSettings() {
 
   const disableInputs = status === 'pending';
   const disableSubmit = isSubmitting || !isDirty || !isValid;
-  const submitError = '';
 
   const onReset = () => {
     reset(data);
@@ -91,7 +90,7 @@ export default function GeneralSettings() {
               </Button>
             </Panel.InlineElements>
           </Panel.SubHeader>
-          {submitError && <Panel.Error>{submitError}</Panel.Error>}
+          {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.Divider />
           <Panel.Section>
             <Info>Changes to the views language does not affect the editor view</Info>
