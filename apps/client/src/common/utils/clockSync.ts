@@ -12,16 +12,15 @@ export const clockSampleCount = 5;
 const clockJumpToleranceMs = 1000;
 
 export type ClockSample = { offset: number; roundTrip: number };
-export type PendingPing = { payload: Date; sentAt: number };
 
-/** Measures a Pong matching the pending Ping: the latency and the updated offset estimate. */
+/** Measures a Pong echoing the send time of the pending Ping: the latency and the updated offset estimate. */
 export function measurePong(
   pong: Extract<WsPacketToClient, { tag: MessageTag.Pong }>,
-  pendingPing: PendingPing | null,
+  sentAt: number | null,
   samples: readonly ClockSample[],
   receivedAt: number,
 ) {
-  if (!pendingPing || new Date(pong.payload).getTime() !== pendingPing.payload.getTime()) {
+  if (sentAt === null || pong.payload !== sentAt) {
     return null;
   }
   // The reply comes off the network: without a valid server clock it is not a sample.
@@ -30,8 +29,8 @@ export function measurePong(
   }
 
   // A zero-delay reply still means online: non-positive ping values are status sentinels.
-  const ping = Math.max(1, (receivedAt - pendingPing.sentAt) / 2);
-  return { ping, ...sampleClockOffset(samples, pong.clock, pendingPing.sentAt, receivedAt) };
+  const ping = Math.max(1, (receivedAt - sentAt) / 2);
+  return { ping, ...sampleClockOffset(samples, pong.clock, sentAt, receivedAt) };
 }
 
 /** Maps the client's monotonic clock to server time, assuming symmetric network delay. */
