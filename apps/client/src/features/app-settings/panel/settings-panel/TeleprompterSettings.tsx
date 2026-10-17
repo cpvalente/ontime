@@ -11,6 +11,7 @@ import Select from '../../../../common/components/select/Select';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import useTeleprompterSettings from '../../../../common/hooks-query/useTeleprompterSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
+import { makeScriptSourceOptions } from '../../../../common/utils/teleprompterScriptSource';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 const headingOptions: { value: TeleprompterHeading; label: string }[] = [
@@ -20,7 +21,7 @@ const headingOptions: { value: TeleprompterHeading; label: string }[] = [
   { value: 'none', label: 'None' },
 ];
 
-/** What every teleprompter view reads, kept with the project */
+/** What the shared teleprompter playback reads, kept with the project */
 export default function TeleprompterSettings() {
   const { data, status, mutateAsync } = useTeleprompterSettings();
   const { data: customFields } = useCustomFields();
@@ -53,13 +54,7 @@ export default function TeleprompterSettings() {
 
   const onReset = () => reset(data);
 
-  const scriptOptions = [
-    { value: 'note', label: 'Note' },
-    { value: 'title', label: 'Title' },
-    ...Object.entries(customFields)
-      .filter(([, field]) => field.type === 'text')
-      .map(([key, field]) => ({ value: `custom-${key}`, label: field.label })),
-  ];
+  const scriptOptions = makeScriptSourceOptions(customFields);
 
   return (
     <Panel.Section
@@ -83,8 +78,9 @@ export default function TeleprompterSettings() {
         <Panel.Divider />
         <Panel.Section>
           <Info>
-            Every teleprompter view, Companion and the integration API read the script these settings make, so all of
-            them count the same lines. How each view shows it is set in the view's options.
+            Teleprompter controllers, the views following them, Companion and the integration API read the script these
+            settings make, so all of them count the same lines. A view which plays on its own can read another field,
+            and how each view shows the script is set in the view's options.
           </Info>
           <Panel.Loader isLoading={status === 'pending'} />
           <Panel.Error>{errors.root?.message}</Panel.Error>

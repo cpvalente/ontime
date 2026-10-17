@@ -331,3 +331,26 @@ test('a local view keeps its place when a smaller window shrinks the text', asyn
   await frames();
   expect(await readingRow(page)).toBeCloseTo(before, 0);
 });
+
+test('a view playing on its own reads the field it names, while the shared playback keeps the project field', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/teleprompter?source=title');
+  // the demo project's headings are titles, so each event's script is its own heading
+  const heading = page.locator('.teleprompter__row--heading').first();
+  await expect(heading).toBeVisible();
+  await expect(page.locator('.teleprompter__row--text').first()).toHaveText((await heading.textContent()) ?? '');
+
+  // the view options say which field the shared playback reads, and where to change it
+  await page.mouse.move(20, 20);
+  await page.getByTestId('navigation__toggle-settings').click();
+  await expect(page.getByText('This view reads Title.')).toBeVisible();
+  const settings = context.waitForEvent('page');
+  await page.getByRole('link', { name: 'Open project settings' }).click();
+  await expect(await settings).toHaveURL(/\/editor\/?\?settings=settings__teleprompter$/);
+
+  const remote = await context.newPage();
+  await remote.goto(`${remoteUrl}&source=title`);
+  await expect(remote.getByText('Music plays, holding slide on', { exact: true })).toBeVisible();
+});

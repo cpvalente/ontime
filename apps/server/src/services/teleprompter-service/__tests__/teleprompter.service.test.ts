@@ -102,6 +102,22 @@ describe('teleprompter script', () => {
     expect(service.getSharedScript()).toBe(before);
     expect(buildScriptEvents).toHaveBeenCalledTimes(2);
   });
+
+  test('a view reads another field without changing the shared script, which keeps its revision while it reads the same', async () => {
+    const service = await loadService();
+    const shared = service.getSharedScript();
+    expect(service.getScript('note')).toBe(shared);
+
+    vi.mocked(buildScriptEvents).mockReturnValue([makeEvent('a', 'own')]);
+    const own = service.getScript('custom-Prompt');
+    expect(own).toMatchObject({ revision: 1, events: [makeEvent('a', 'own')] });
+    expect(vi.mocked(buildScriptEvents).mock.lastCall?.[2]).toMatchObject({ script: 'custom-Prompt' });
+    expect(service.getScript('custom-Prompt')).toBe(own);
+
+    vi.mocked(buildScriptEvents).mockReturnValue([makeEvent('a', 'edited')]);
+    expect(service.getScript('custom-Prompt')).toMatchObject({ revision: 2, events: [makeEvent('a', 'edited')] });
+    expect(service.getSharedScript()).toBe(shared);
+  });
 });
 
 describe('teleprompter commands', () => {

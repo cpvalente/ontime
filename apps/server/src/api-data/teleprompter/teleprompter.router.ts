@@ -4,10 +4,7 @@ import type { ErrorResponse, TeleprompterScript, TeleprompterSettings } from 'on
 import { getErrorMessage } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import {
-  applyTeleprompterSettings,
-  getSharedScript,
-} from '../../services/teleprompter-service/teleprompter.service.js';
+import { applyTeleprompterSettings, getScript } from '../../services/teleprompter-service/teleprompter.service.js';
 
 export const router: Router = express.Router();
 
@@ -23,7 +20,11 @@ router.post('/settings', async (req: Request, res: Response<TeleprompterSettings
   }
 });
 
-/** The script every teleprompter view reads, built from the project's settings */
-router.get('/script', (_req: Request, res: Response<TeleprompterScript>) => {
-  res.status(200).send(getSharedScript());
+/**
+ * The script a teleprompter view reads, built from the project's settings
+ * A view which plays on its own can name another field as its source
+ */
+router.get('/script', (req: Request, res: Response<TeleprompterScript>) => {
+  const { source } = req.query;
+  res.status(200).send(getScript(typeof source === 'string' ? source : undefined));
 });

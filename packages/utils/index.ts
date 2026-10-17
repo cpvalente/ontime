@@ -110,7 +110,12 @@ export {
   rowOfAnchor,
   type TeleprompterLayout,
 } from './src/teleprompter/teleprompterPosition.js';
-export { defaultTeleprompterSettings, teleprompterCharsPerLine } from './src/teleprompter/teleprompterSettings.js';
+export {
+  customFieldOfScriptSource,
+  defaultTeleprompterSettings,
+  scriptSourceOfCustomField,
+  teleprompterCharsPerLine,
+} from './src/teleprompter/teleprompterSettings.js';
 export {
   applyTransportCommand,
   describeSync,

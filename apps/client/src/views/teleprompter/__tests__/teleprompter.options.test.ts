@@ -20,6 +20,12 @@ describe('getOptionsFromParams()', () => {
     expect(parse('role=controller').role).toBe('controller');
     expect(parse('role=both').role).toBe('local');
   });
+
+  test('reads the project field unless the view names another', () => {
+    expect(parse('').source).toBe('project');
+    expect(parse('source=').source).toBe('project');
+    expect(parse('source=custom-Host').source).toBe('custom-Host');
+  });
 });
 
 describe('getTeleprompterOptions()', () => {

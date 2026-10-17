@@ -46,7 +46,7 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 ## Teleprompter
 
 - The server cuts the script into rows; screens render rows and only size the text, so every screen counts the same lines.
-- There is one script, shaped only by the project's teleprompter settings. View options change how a view shows it, never what it holds or where its lines break.
+- There is one shared script, shaped only by the project's teleprompter settings, which the shared transport, controllers, the screens following them, Companion and the integration API all read. A local view may read another field, built on request with the project's other settings and never followed by the shared transport. Other view options change how a view shows the script, never what it holds or where its lines break.
 - Events which are skipped or have no script do not exist for the teleprompter: the script leaves them out, and every way of naming an event (index, cue, id, the loaded event) resolves in the script, so an index counts its events.
 - The mode (`event`, event by event: stops at the end of each event and follows the event Ontime loads; or `script`, the whole script) belongs to the transport, like speed, and only commands change it. A local view's options set where its own transport starts; views never assert the shared transport's state when they load or connect.
 - The shared teleprompter publishes two runtime store keys, together when both change. `teleprompter` is the readable contract for people and integrations, in the words of the commands (`playback`, `mode`, the event being read, time left), described from the transport by one pure function every view uses; it is sent with the clock each second while playing. `teleprompterSync` is internal: the reading position the server calculates for following screens, in rows of a named script revision (`row` at time `at`, moving at `speed` until `until`), changing only on commands, script rebuilds and the end of playback, never with time.
@@ -58,6 +58,7 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 - The script is derived from the rundown and the teleprompter settings, so screens refetch it on those refetches.
 - Teleprompter settings changed in an open project, from the settings endpoint or a project patch, go through `applyTeleprompterSettings`, which parses them and invalidates the script. A loaded project file is parsed with the rest of the project.
 - The script field follows a custom field whose key changes with its label, and falls back to the note when that field is deleted.
+- A script source stores a custom field as `custom-{key}`. Only `scriptSourceOfCustomField` and `customFieldOfScriptSource` in `ontime-utils` read or write that form.
 
 ## Reports
 

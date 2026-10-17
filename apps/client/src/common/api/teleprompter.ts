@@ -8,9 +8,10 @@ const teleprompterPath = `${apiEntryUrl}/teleprompter`;
 
 /**
  * HTTP request to fetch the teleprompter script
+ * @param source - the field to read instead of the project's, for a view which plays on its own
  */
-export async function getTeleprompterScript(options?: RequestOptions): Promise<TeleprompterScript> {
-  const res = await axios.get(`${teleprompterPath}/script`, { signal: options?.signal });
+export async function getTeleprompterScript(source?: string, options?: RequestOptions): Promise<TeleprompterScript> {
+  const res = await axios.get(`${teleprompterPath}/script`, { params: { source }, signal: options?.signal });
   return res.data;
 }
 

@@ -9,6 +9,8 @@ import {
 import { makeTeleprompterLayout } from 'ontime-utils';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import Info from '../../common/components/info/Info';
+import ExternalLink from '../../common/components/link/external-link/ExternalLink';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useViewParamsEditorStore } from '../../common/components/view-params-editor/viewParamsEditor.store';
@@ -18,8 +20,10 @@ import useTeleprompterSettings from '../../common/hooks-query/useTeleprompterSet
 import { useSelectedEventId, useTeleprompterState, useTeleprompterSync } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useViewOptionsStore } from '../../common/stores/viewOptions';
+import { getAppUrl } from '../../common/utils/linkUtils';
 import { sendSocket } from '../../common/utils/socket';
 import { cx } from '../../common/utils/styleUtils';
+import { getScriptSourceLabel } from '../../common/utils/teleprompterScriptSource';
 import Loader from '../common/loader/Loader';
 import ControlOverlay, { type LoadedEvent } from './control-overlay/ControlOverlay';
 import HelpOverlay from './help-overlay/HelpOverlay';
@@ -27,6 +31,7 @@ import TransportShortcuts from './help-overlay/TransportShortcuts';
 import type { TeleprompterViewCommand } from './teleprompter.keymap';
 import {
   getTeleprompterOptions,
+  projectSource,
   type TeleprompterOptions,
   type TeleprompterRole,
   useTeleprompterOptions,
@@ -58,17 +63,38 @@ export default function Teleprompter() {
   const { role } = options;
   const flip = composeFlip(options.flipH, options.flipV, isMirrored);
   const toggleHelp = () => setShowHelp((current) => !current);
+  // only a view playing on its own reads a field of its own, so the shared playback shows the same lines everywhere
+  const ownSource = role === 'local' && options.source !== projectSource ? options.source : undefined;
+  const sourceLabel = getScriptSourceLabel(ownSource ?? settings.script, customFields);
+  const emptyText = ownSource
+    ? `There is no script in ${sourceLabel}. Choose another field in the view options`
+    : `There is no script in ${sourceLabel}. Change the field in the project settings`;
 
   return (
     <div
       className={cx(['teleprompter', flip.flipH && 'teleprompter--flip-h', flip.flipV && 'teleprompter--flip-v'])}
       data-testid='teleprompter-view'
     >
-      <ViewParamsEditor target={OntimeView.Teleprompter} viewOptions={getTeleprompterOptions(customFields, settings)} />
+      <ViewParamsEditor
+        target={OntimeView.Teleprompter}
+        viewOptions={getTeleprompterOptions(customFields, settings)}
+        notice={
+          <>
+            <Info.Body>
+              {ownSource
+                ? `This view reads ${sourceLabel}. Controllers and the views following them read the field set in the project settings.`
+                : `This view reads ${sourceLabel}, the field controllers and the views following them share. It is set in the project settings.`}
+            </Info.Body>
+            <ExternalLink href={getAppUrl('editor?settings=settings__teleprompter')}>
+              Open project settings
+            </ExternalLink>
+          </>
+        }
+      />
       {role === 'local' ? (
-        <LocalTeleprompter options={options} onToggleHelp={toggleHelp} />
+        <LocalTeleprompter options={options} source={ownSource} emptyText={emptyText} onToggleHelp={toggleHelp} />
       ) : (
-        <SharedTeleprompter options={options} onToggleHelp={toggleHelp} />
+        <SharedTeleprompter options={options} emptyText={emptyText} onToggleHelp={toggleHelp} />
       )}
       {role === 'controller' && (
         <div className='teleprompter__badge' data-testid='teleprompter-badge'>
@@ -84,6 +110,8 @@ export default function Teleprompter() {
 
 interface TeleprompterViewProps {
   options: TeleprompterOptions;
+  /** what the view says when the field it reads holds no script */
+  emptyText: string;
   onToggleHelp: () => void;
 }
 
@@ -94,7 +122,7 @@ const sendCommand = (command: TeleprompterViewCommand) => sendSocket('teleprompt
  * It shows what the server publishes, and reads from the position the server calculates, in rows of the script
  * A controller also sends commands, which reach every following view
  */
-function SharedTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
+function SharedTeleprompter({ options, emptyText, onToggleHelp }: TeleprompterViewProps) {
   const { data: script, status } = useTeleprompterScript();
   const state = useTeleprompterState();
   const sync = useTeleprompterSync();
@@ -109,15 +137,24 @@ function SharedTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
       // until the script and the sync count the same rows, the screen holds its place
       isBehind={script?.revision !== sync.revision}
       options={options}
+      emptyText={emptyText}
       onCommand={isController ? sendCommand : undefined}
       onToggleHelp={onToggleHelp}
     />
   );
 }
 
-/** Runs the same transport in the browser, over the same script */
-function LocalTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
-  const { data: script, status } = useTeleprompterScript();
+/**
+ * Runs the same transport in the browser, over the same script or one read from another field
+ * @param source - the field to read instead of the project's
+ */
+function LocalTeleprompter({
+  options,
+  source,
+  emptyText,
+  onToggleHelp,
+}: TeleprompterViewProps & { source: string | undefined }) {
+  const { data: script, status } = useTeleprompterScript(source);
   const loadedEventId = useSelectedEventId();
   const { sync, isBehind, state, handleCommand, moveToAnchor } = useLocalTransport({
     events: script?.events ?? noEvents,
@@ -135,6 +172,7 @@ function LocalTeleprompter({ options, onToggleHelp }: TeleprompterViewProps) {
       sync={sync}
       isBehind={isBehind}
       options={options}
+      emptyText={emptyText}
       onCommand={handleCommand}
       onUserScroll={moveToAnchor}
       onToggleHelp={onToggleHelp}
@@ -159,6 +197,7 @@ interface ScriptContentProps {
   /** the sync refers to a script the view has not received yet */
   isBehind: boolean;
   options: TeleprompterOptions;
+  emptyText: string;
   onCommand?: (command: TeleprompterViewCommand) => void;
   onUserScroll?: (anchor: TeleprompterAnchor) => void;
   onToggleHelp: () => void;
@@ -171,6 +210,7 @@ function ScriptContent({
   sync,
   isBehind,
   options,
+  emptyText,
   onCommand,
   onUserScroll,
   onToggleHelp,
@@ -209,7 +249,7 @@ function ScriptContent({
       </>
     );
   }
-  if (shown.events.length === 0) return <EmptyPage text='There is no script in the field the teleprompter reads' />;
+  if (shown.events.length === 0) return <EmptyPage text={emptyText} />;
 
   return (
     <TeleprompterScreen

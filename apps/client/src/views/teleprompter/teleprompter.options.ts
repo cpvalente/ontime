@@ -12,17 +12,23 @@ import { useSearchParams } from 'react-router';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import type { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import { PresetContext } from '../../common/context/PresetContext';
+import { getScriptSourceLabel, makeScriptSourceOptions } from '../../common/utils/teleprompterScriptSource';
 import { isStringBoolean } from '../common/viewUtils';
 
 /** Whose playback a view shows: its own, or the one the controllers and Companion drive */
 export type TeleprompterRole = 'local' | 'remote' | 'controller';
 
+/** A view which reads the field set in the project settings, as the shared playback does */
+export const projectSource = 'project';
+
 /**
  * How a view shows the script
- * What the script holds and where its lines break is set once, in the project settings, for every view
+ * Where its lines break is set once, in the project settings, for every view
  */
 export type TeleprompterOptions = {
   role: TeleprompterRole;
+  /** the field a local view reads, or the project's field */
+  source: string;
   onlyLoaded: boolean;
   lineHeight: number;
   textWidth: number;
@@ -38,6 +44,7 @@ export type TeleprompterOptions = {
 
 export const defaults: TeleprompterOptions = {
   role: 'local',
+  source: projectSource,
   onlyLoaded: false,
   lineHeight: 1.3,
   textWidth: 80,
@@ -82,12 +89,29 @@ const modes = (['event', 'script'] as const).map((value) => ({ value, label: mod
 export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
   return [
     {
+      title: OptionTitle.DataSources,
+      options: [
+        {
+          id: 'source',
+          title: 'Script field',
+          description: `Only for ${roleLabels.local}. Controllers and the views following them read the field set in the project settings, so they show the same lines: ${describeShared(shared, customFields)}`,
+          type: 'option',
+          values: [
+            { value: projectSource, label: `Project setting: ${getScriptSourceLabel(shared.script, customFields)}` },
+            ...makeScriptSourceOptions(customFields),
+          ],
+          defaultValue: defaults.source,
+        },
+      ],
+    },
+    {
       title: OptionTitle.BehaviourOptions,
       options: [
         {
           id: 'role',
           title: 'Playback',
-          description: `This view only plays on its own. A controller drives the shared playback, which views following it show. Every view reads the script set in the project settings: ${describeShared(shared, customFields)}`,
+          description:
+            'This view only plays on its own. A controller drives the shared playback, which views following it show',
           type: 'option',
           values: roles,
           defaultValue: defaults.role,
@@ -178,13 +202,8 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
 
 /** The project's script settings, in a line */
 function describeShared(shared: TeleprompterSettings, customFields: CustomFields): string {
-  const field = (() => {
-    if (shared.script === 'note') return 'Note';
-    if (shared.script === 'title') return 'Title';
-    return customFields[shared.script.replace(/^custom-/, '')]?.label ?? shared.script;
-  })();
   return [
-    `${field} field`,
+    `${getScriptSourceLabel(shared.script, customFields)} field`,
     `${headingLabels[shared.heading]} heading`,
     `${shared.charsPerLine} characters per line`,
   ].join(', ');
@@ -209,6 +228,7 @@ export function getOptionsFromParams(
 
   return {
     role: roles.find(({ value }) => value === getParam('role'))?.value ?? defaults.role,
+    source: getParam('source') || defaults.source,
     onlyLoaded: toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),

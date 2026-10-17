@@ -19,6 +19,7 @@ import {
   getErrorMessage,
   makeTeleprompterLayout,
   reanchorTransport,
+  scriptSourceOfCustomField,
   settle,
   type TeleprompterCommand,
   type TeleprompterLayout,
@@ -70,6 +71,28 @@ function getSharedSettings(): TeleprompterSettings {
 export function getSharedScript(): TeleprompterScript {
   ensureScript();
   return sharedScript;
+}
+
+/** Scripts a local view read from another field, which only keep their revision for the next read */
+const ownScripts = new Map<string, TeleprompterScript>();
+
+/**
+ * The script a view reads: the shared one, or one built from another field for a view which plays on its own
+ * Nothing follows a script from another field, so it is built when a view reads it rather than kept up to date
+ */
+export function getScript(source?: string): TeleprompterScript {
+  const settings = getSharedSettings();
+  if (!source || source === settings.script) return getSharedScript();
+
+  const events = buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), { ...settings, script: source });
+  const previous = ownScripts.get(source);
+  if (previous && previous.charsPerLine === settings.charsPerLine && deepEqual(previous.events, events)) {
+    return previous;
+  }
+  const script = { revision: (previous?.revision ?? 0) + 1, charsPerLine: settings.charsPerLine, events };
+  // a source which reads nothing is not kept, so a request cannot grow the cache past the project's fields
+  if (events.length > 0) ownScripts.set(source, script);
+  return script;
 }
 
 /** The teleprompter as it reads now, for the runtime store to start from */
@@ -147,8 +170,10 @@ export async function applyTeleprompterSettings(input: unknown): Promise<Telepro
  * Keeps the script on a custom field whose key changed with its label, or moves it to the note when it was deleted
  */
 export async function followCustomFieldKey(oldKey: string, newKey: string | null) {
-  if (getSharedSettings().script !== `custom-${oldKey}`) return;
-  await applyTeleprompterSettings({ script: newKey ? `custom-${newKey}` : defaultTeleprompterSettings.script });
+  if (getSharedSettings().script !== scriptSourceOfCustomField(oldKey)) return;
+  await applyTeleprompterSettings({
+    script: newKey ? scriptSourceOfCustomField(newKey) : defaultTeleprompterSettings.script,
+  });
 }
 
 /**

@@ -1,6 +1,6 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { OntimeView } from 'ontime-types';
-import { FormEvent, memo } from 'react';
+import { FormEvent, memo, type ReactNode } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
@@ -22,10 +22,12 @@ import style from './ViewParamsEditor.module.scss';
 interface EditFormDrawerProps {
   target: OntimeView;
   viewOptions: ViewOption[];
+  /** what the view wants known before its options, such as settings it reads from elsewhere */
+  notice?: ReactNode;
 }
 
 export default memo(ViewParamsEditor);
-function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
+function ViewParamsEditor({ target, viewOptions, notice }: EditFormDrawerProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: viewSettings } = useViewSettings();
   const { isOpen, close } = useViewParamsEditorStore();
@@ -90,6 +92,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             {viewSettings.overrideStyles && (
               <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
             )}
+            {notice && <Info className={style.info}>{notice}</Info>}
             <ViewParamsPresets target={target} />
             <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
               {viewOptions.map((section) => (

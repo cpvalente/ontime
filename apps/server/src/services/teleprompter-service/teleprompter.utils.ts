@@ -8,7 +8,7 @@ import {
   type TeleprompterScriptEvent,
   type TeleprompterSettings,
 } from 'ontime-types';
-import { wrapText } from 'ontime-utils';
+import { customFieldOfScriptSource, wrapText } from 'ontime-utils';
 
 /**
  * Builds the script from the rundown, in rundown order, as the rows every screen shows
@@ -51,7 +51,7 @@ function getTextReader(script: string, customFields: Readonly<CustomFields>): ((
   if (script === 'note') return (event: OntimeEvent) => event.note;
   if (script === 'title') return (event: OntimeEvent) => event.title;
 
-  const key = script.startsWith('custom-') ? script.slice('custom-'.length) : null;
+  const key = customFieldOfScriptSource(script);
   if (key && Object.hasOwn(customFields, key) && customFields[key].type === 'text') {
     return (event: OntimeEvent) => (event.custom && Object.hasOwn(event.custom, key) ? event.custom[key] : '');
   }
