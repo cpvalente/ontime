@@ -101,3 +101,28 @@ describe('test parseDatabaseModel() edge cases', () => {
     expect(data.settings.auxTimerNames).toStrictEqual(['', '', '']);
   });
 });
+
+describe('project custom field collection', () => {
+  const fields = {
+    Notes: { label: 'Notes', type: 'text', colour: '' },
+    '2': { label: '2', type: 'text', colour: '' },
+  };
+
+  it.each([
+    { source: { customFields: fields }, order: ['2', 'Notes'] },
+    { source: { customFields: fields, customFieldOrder: ['Notes', '2'] }, order: ['Notes', '2'] },
+    { source: { customFields: { fields, order: ['Notes', '2'] } }, order: ['Notes', '2'] },
+  ])('loads legacy and nested custom fields without mutating the source', ({ source, order }) => {
+    const project = { ...structuredClone(demoDb), ...source };
+    const original = structuredClone(project);
+    // @ts-expect-error -- also exercises legacy project file shapes
+    const { data } = parseDatabaseModel(project);
+
+    expect(data.customFields).toEqual({
+      fields,
+      order,
+    });
+    expect(data).not.toHaveProperty('customFieldOrder');
+    expect(project).toEqual(original);
+  });
+});

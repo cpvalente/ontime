@@ -20,7 +20,7 @@ interface MilestoneEditorProps {
   milestone: OntimeMilestone;
 }
 export default function MilestoneEditor({ milestone }: MilestoneEditorProps) {
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
   const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = useCallback(
@@ -69,7 +69,7 @@ export default function MilestoneEditor({ milestone }: MilestoneEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={milestone} />
+        <EntryEditorCustomFields orderedFields={orderedFields} handleSubmit={handleSubmit} entry={milestone} />
       </div>
     </div>
   );

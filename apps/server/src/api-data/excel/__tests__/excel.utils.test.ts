@@ -165,7 +165,7 @@ describe('getCustomFieldData()', () => {
 describe('rundownToTabular()', () => {
   it('returns an array of arrays describing a rundown', () => {
     const testRundown = demoDb.rundowns['default'];
-    const testCustomFields = demoDb.customFields;
+    const testCustomFields = demoDb.customFields.fields;
 
     const result = rundownToTabular(testRundown, testCustomFields);
     expect(result).toMatchSnapshot();

@@ -24,7 +24,7 @@ import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { consoleSubdued } from '../../utils/console.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import { parseProjectCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from '../excel/excel.parser.js';
 import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils.js';
 import * as logger from '../logs/logs.service.js';
@@ -528,10 +528,10 @@ export async function download(
     rundowns: {
       [rundownId]: dataFromSheet.rundown,
     },
-    customFields: dataFromSheet.customFields,
+    customFields: { fields: dataFromSheet.customFields, order: Object.keys(dataFromSheet.customFields) },
   };
 
-  const customFields = parseCustomFields(dataModel);
+  const { fields: customFields } = parseProjectCustomFields(dataModel);
   const parsedRundown = parseRundowns(dataModel, customFields);
 
   const importedRundown = parsedRundown[rundownId];

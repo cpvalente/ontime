@@ -1,3 +1,13 @@
+import {
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import { SortableContext, type SortingStrategy, arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { CustomField, CustomFieldKey } from 'ontime-types';
 import { useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
@@ -7,7 +17,7 @@ import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import AppLink from '../../../../common/components/link/app-link/AppLink';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
-import useCustomFields from '../../../../common/hooks-query/useCustomFields';
+import useCustomFields, { useReorderCustomFields } from '../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CustomFieldEntry from './composite/CustomFieldEntry';
@@ -21,8 +31,14 @@ type FormState = {
 };
 
 export default function CustomFieldSettings() {
-  const { data, refetch } = useCustomFields();
+  const { orderedFields, refetch } = useCustomFields();
+  const reorder = useReorderCustomFields();
   const [formState, setFormState] = useState<FormState>({ isOpen: false, field: undefined });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
 
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (field: CustomFieldEntity) => setFormState({ isOpen: true, field });
@@ -48,7 +64,15 @@ export default function CustomFieldSettings() {
     }
   };
 
-  const entries = Object.entries(data);
+  const order = orderedFields.map(([key]) => key);
+
+  const handleDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const fromIndex = order.indexOf(String(active.id));
+    const toIndex = order.indexOf(String(over.id));
+    if (fromIndex === -1 || toIndex === -1) return;
+    reorder(arrayMove(order, fromIndex, toIndex));
+  };
 
   return (
     <Panel.Section>
@@ -74,6 +98,10 @@ export default function CustomFieldSettings() {
           <Info>
             <span>Custom fields allow for additional information to be added to an event.</span>
             <span>
+              Drag the fields to set their order in the entry editor, which is also the default column order in the
+              cuesheet.
+            </span>
+            <span>
               To use custom fields as a data source in an{' '}
               <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
             </span>
@@ -81,45 +109,53 @@ export default function CustomFieldSettings() {
           </Info>
         </Panel.Section>
         <Panel.Section>
-          <Panel.Table>
-            <thead>
-              <tr>
-                <th>Colour</th>
-                <th>Type</th>
-                <th>Name</th>
-                <th>Key (used in Automations)</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {entries.length === 0 && (
-                <Panel.TableEmpty
-                  title='No custom fields yet'
-                  description='Custom fields add your own columns to the rundown, and can be shown in views or used in automations.'
-                  action={
-                    <Button variant='primary' onClick={openNewForm}>
-                      Create custom field <IoAdd />
-                    </Button>
-                  }
-                />
-              )}
-              {entries.map(([key, { colour, label, type }]) => {
-                return (
-                  <CustomFieldEntry
-                    key={key}
-                    fieldKey={key}
-                    colour={colour}
-                    label={label}
-                    type={type}
-                    onEdit={() => openEditForm({ key, colour, label, type })}
-                    onDelete={handleDelete}
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <Panel.Table>
+              <thead>
+                <tr>
+                  <th aria-label='Order' />
+                  <th>Colour</th>
+                  <th>Type</th>
+                  <th>Name</th>
+                  <th>Key (used in Automations)</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {orderedFields.length === 0 && (
+                  <Panel.TableEmpty
+                    title='No custom fields yet'
+                    description='Custom fields add your own columns to the rundown, and can be shown in views or used in automations.'
+                    action={
+                      <Button variant='primary' onClick={openNewForm}>
+                        Create custom field <IoAdd />
+                      </Button>
+                    }
                   />
-                );
-              })}
-            </tbody>
-          </Panel.Table>
+                )}
+                <SortableContext items={order} strategy={noSortingStrategy}>
+                  {orderedFields.map(([key, { colour, label, type }]) => {
+                    return (
+                      <CustomFieldEntry
+                        key={key}
+                        fieldKey={key}
+                        colour={colour}
+                        label={label}
+                        type={type}
+                        onEdit={() => openEditForm({ key, colour, label, type })}
+                        onDelete={handleDelete}
+                      />
+                    );
+                  })}
+                </SortableContext>
+              </tbody>
+            </Panel.Table>
+          </DndContext>
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>
   );
 }
+
+// Keep rows static; the insertion line indicates the destination.
+const noSortingStrategy: SortingStrategy = () => null;

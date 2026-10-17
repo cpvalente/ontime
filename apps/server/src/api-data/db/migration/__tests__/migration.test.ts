@@ -577,7 +577,7 @@ describe('v4 remove server port', () => {
   });
 
   it('remove server port from project', () => {
-    const { db: result, serverPort } = v4.migrateServerPort(demoDb as DatabaseModel);
+    const { db: result, serverPort } = v4.migrateServerPort(demoDb as unknown as DatabaseModel);
     expect(result).not.toHaveProperty('settings.serverPort');
     expect(serverPort).toBe(4001);
     expect(result.automation).toMatchObject(demoDb.automation);

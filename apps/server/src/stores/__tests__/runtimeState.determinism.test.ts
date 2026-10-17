@@ -40,7 +40,7 @@ function loadEvent() {
 describe('runtime driven by the instant things happened', () => {
   beforeEach(async () => {
     vi.useFakeTimers();
-    await initRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }), {});
+    await initRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }), { fields: {}, order: [] });
     vi.runAllTimers();
   });
 

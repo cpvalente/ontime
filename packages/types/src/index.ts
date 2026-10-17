@@ -63,6 +63,8 @@ export type {
   CustomField,
   CustomFieldKey,
   EntryCustomFields,
+  OrderedCustomFields,
+  ProjectCustomFields,
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES

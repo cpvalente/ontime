@@ -10,7 +10,7 @@ describe('generateExcelFile()', () => {
         ...demoDb.rundowns.default,
         title: 'This is a very long name with many characters and weird things: like [Main]/?*',
       },
-      demoDb.customFields,
+      demoDb.customFields.fields,
     );
 
     const workbook = xlsx.read(buffer, { type: 'buffer' });
@@ -27,7 +27,7 @@ describe('generateExcelFile()', () => {
         ...demoDb.rundowns.default,
         title: '[]:*?/\\',
       },
-      demoDb.customFields,
+      demoDb.customFields.fields,
     );
 
     const workbook = xlsx.read(buffer, { type: 'buffer' });

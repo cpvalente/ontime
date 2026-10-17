@@ -37,6 +37,6 @@ describe('custom fields written by an import', () => {
     // a later custom field edit must not drop the imported field
     await createCustomField(makeCustomField({ label: 'Later' }));
 
-    expect(Object.keys(getDataProvider().getCustomFields())).toEqual(['Imported', 'Later']);
+    expect(Object.keys(getDataProvider().getCustomFields().fields)).toEqual(['Imported', 'Later']);
   });
 });

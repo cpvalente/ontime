@@ -2,6 +2,7 @@ import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 import {
   AutomationSettings,
+  ProjectCustomFields,
   CustomFields,
   DatabaseModel,
   ProjectData,
@@ -95,8 +96,8 @@ function getProjectData(): Readonly<ProjectData> {
   return db.data.project;
 }
 
-async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
-  db.data.customFields = { ...newData };
+async function setCustomFields(newData: ProjectCustomFields): ReadonlyPromise<ProjectCustomFields> {
+  db.data.customFields = { fields: { ...newData.fields }, order: [...newData.order] };
   await persist();
   return db.data.customFields;
 }
@@ -105,17 +106,22 @@ async function mergeRundown(
   newCustomFields: CustomFields,
   newRundowns: ProjectRundowns,
 ): ReadonlyPromise<{ rundowns: ProjectRundowns; customFields: CustomFields }> {
-  db.data.customFields = { ...db.data.customFields, ...newCustomFields };
+  const fields = { ...db.data.customFields.fields, ...newCustomFields };
+  const order = [...db.data.customFields.order];
+  for (const key of Object.keys(newCustomFields)) {
+    if (!Object.hasOwn(db.data.customFields.fields, key)) order.push(key);
+  }
+  db.data.customFields = { fields, order };
 
   Object.entries(newRundowns).forEach(([id, rundown]) => {
     // Note that entries with the same key will be overridden
     db.data.rundowns[id] = rundown;
   });
   await persist();
-  return { rundowns: db.data.rundowns, customFields: db.data.customFields };
+  return { rundowns: db.data.rundowns, customFields: db.data.customFields.fields };
 }
 
-function getCustomFields(): Readonly<CustomFields> {
+function getCustomFields(): Readonly<ProjectCustomFields> {
   return db.data.customFields;
 }
 

@@ -1,5 +1,5 @@
 import type { AutomationSettings } from './core/Automation.type.js';
-import type { CustomFields } from './core/CustomFields.type.js';
+import type { ProjectCustomFields } from './core/CustomFields.type.js';
 import type { ProjectData } from './core/ProjectData.type.js';
 import type { ProjectRundowns } from './core/Rundown.type.js';
 import type { Settings } from './core/Settings.type.js';
@@ -12,6 +12,6 @@ export type DatabaseModel = {
   settings: Settings;
   viewSettings: ViewSettings;
   urlPresets: URLPreset[];
-  customFields: CustomFields;
+  customFields: ProjectCustomFields;
   automation: AutomationSettings;
 };

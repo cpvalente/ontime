@@ -27,7 +27,7 @@ interface GroupEditorProps {
 }
 
 export default function GroupEditor({ group }: GroupEditorProps) {
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
   const { updateEntry } = useEntryActionsContext();
 
   const handleSubmit = useCallback(
@@ -112,7 +112,7 @@ export default function GroupEditor({ group }: GroupEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={group} />
+        <EntryEditorCustomFields orderedFields={orderedFields} handleSubmit={handleSubmit} entry={group} />
       </div>
     </div>
   );
