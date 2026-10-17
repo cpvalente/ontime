@@ -6,6 +6,7 @@ import type { RefetchKey } from './refetch.type.js';
 export enum MessageTag {
   Ping = 'ping',
   Pong = 'pong',
+  ClockSync = 'clock-sync',
   ClientInit = 'client-init',
   ClientSet = 'client-set',
   ClientSetPath = 'client-set-path',
@@ -19,11 +20,15 @@ export enum MessageTag {
 
 // CLIENT TO SERVER
 type PingPacket = { tag: MessageTag.Ping; payload: Date };
+/** payload is the client send time, echoed back in the reply */
+type ClockSyncRequestPacket = { tag: MessageTag.ClockSync; payload: number };
 type SetClientPacket = { tag: MessageTag.ClientSetPath; payload: string };
 type SetClientPathPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
 
 // SERVER TO CLIENT
 type PongPacket = { tag: MessageTag.Pong; payload: Date };
+export type ClockSyncReply = { sentAt: number; clock: number };
+type ClockSyncReplyPacket = { tag: MessageTag.ClockSync; payload: ClockSyncReply };
 type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
 type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
 type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };
@@ -43,9 +48,10 @@ type RefetchPacket = {
   };
 };
 
-export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket;
+export type WsPacketToServer = PingPacket | ClockSyncRequestPacket | SetClientPacket | SetClientPathPacket;
 export type WsPacketToClient =
   | PongPacket
+  | ClockSyncReplyPacket
   | InitClientPacket
   | RenameClientPacket
   | RedirectClientPacket

@@ -4,11 +4,11 @@ import { act, createElement } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { useClockSyncStore } from '../../stores/clockSync';
 import { patchRuntime, runtimeStore } from '../../stores/runtime';
 import { useAutoTickingClock } from '../useAutoTickingClock';
 
 const serverStart = 12 * 60 * 60 * 1000;
-const toSeconds = (ms: number) => Math.floor(ms / 1000);
 
 describe('useAutoTickingClock', () => {
   let root: Root;
@@ -27,6 +27,7 @@ describe('useAutoTickingClock', () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
     runtimeStore.setState({ ...runtimeStorePlaceholder });
+    useClockSyncStore.setState({ offset: null });
     root = createRoot(document.createElement('div'));
   });
 
@@ -36,33 +37,25 @@ describe('useAutoTickingClock', () => {
     vi.unstubAllGlobals();
   });
 
-  it('waits for a value from the server before counting', () => {
+  it('shows the server clock until synced', () => {
     act(() => root.render(createElement(ClockReader)));
-    advance(1500);
-    expect(clock).toBe(0);
-
     act(() => patchRuntime({ clock: serverStart }));
     advance(1500);
-    expect(toSeconds(clock)).toBe(toSeconds(serverStart + 1500));
+    expect(clock).toBe(serverStart);
   });
 
-  it('stays frozen after reconnecting until fresh data arrives', () => {
+  it('counts locally from the offset, redrawing as each second starts', () => {
     act(() => root.render(createElement(ClockReader)));
-    act(() => patchRuntime({ clock: serverStart }));
-    advance(1500);
-    const frozen = clock;
+    act(() => useClockSyncStore.setState({ offset: serverStart + 250 - performance.now() }));
+    expect(clock).toBe(serverStart + 250);
 
-    act(() => patchRuntime({ ping: -1 }));
-    advance(5000);
-    expect(clock).toBe(frozen);
+    // the second changes 750ms later, we draw just after
+    advance(750);
+    expect(clock).toBe(serverStart + 250);
+    advance(10);
+    expect(clock).toBe(serverStart + 1010);
 
-    // the connection is back before the server sends the runtime data
-    act(() => patchRuntime({ ping: 1 }));
-    advance(1500);
-    expect(clock).toBe(frozen);
-
-    act(() => patchRuntime({ clock: serverStart + 8000 }));
-    advance(1500);
-    expect(toSeconds(clock)).toBe(toSeconds(serverStart + 9500));
+    advance(1000);
+    expect(clock).toBe(serverStart + 2010);
   });
 });

@@ -100,7 +100,8 @@ describe('socket connection watchdog', () => {
       socket.receive(MessageTag.RuntimeData, { clock: elapsed });
     }
 
-    expect(socket.sent).toHaveLength(1);
+    // only the messages sent when connecting
+    expect(socket.sent.map((message) => JSON.parse(message).tag)).toEqual([MessageTag.ClientSet, MessageTag.ClockSync]);
     expect(MockWebSocket.instances).toHaveLength(1);
   });
 

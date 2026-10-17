@@ -37,6 +37,7 @@ import {
   setClientRedirect,
   setClients,
 } from '../stores/clientStore';
+import { checkServerClock, handleClockSyncReply, startClockSync } from '../stores/clockSync';
 import { setConnectionEstablished, setConnectionLost, setConnectionStale } from '../stores/connectionStore';
 import { addDialog } from '../stores/dialogStore';
 import { addLog, createLog } from '../stores/logger';
@@ -107,6 +108,7 @@ export const connectSocket = () => {
     if (isReconnect) {
       invalidateAllCaches();
     }
+    syncClock();
     setOnlineStatus(true);
     setConnectionEstablished();
   };
@@ -146,6 +148,13 @@ export const connectSocket = () => {
           const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);
           patchRuntimeProperty('ping', offset);
           updateDevTools({ ping: offset });
+          break;
+        }
+        case MessageTag.ClockSync: {
+          const nextRequest = handleClockSyncReply(payload, performance.now());
+          if (nextRequest !== null) {
+            sendSocket(MessageTag.ClockSync, nextRequest);
+          }
           break;
         }
         case MessageTag.ClientInit: {
@@ -188,6 +197,9 @@ export const connectSocket = () => {
         }
 
         case MessageTag.RuntimeData: {
+          if (payload.clock !== undefined && checkServerClock(payload.clock, performance.now())) {
+            syncClock();
+          }
           patchRuntime(payload);
           updateDevTools(payload);
           break;
@@ -434,6 +446,11 @@ function updateDevTools(newData: Partial<RuntimeStore>) {
       ...newData,
     }));
   }
+}
+
+/** Measures the offset to the server clock with a quick sequence of requests */
+function syncClock() {
+  sendSocket(MessageTag.ClockSync, startClockSync(performance.now()));
 }
 
 /**
