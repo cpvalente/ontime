@@ -1,4 +1,4 @@
-const { apiRepoLatest, isMac, isWindows, releaseTag } = require('./externals.js');
+const { apiRepoLatest, isMac, isWindows, version } = require('./externals.js');
 
 /**
  * Resolves the name of the release artifact for the current platform
@@ -28,7 +28,7 @@ async function getAvailableUpdate() {
   }
 
   const release = await response.json();
-  if (release.tag_name === releaseTag) {
+  if (release.tag_name.replace(/^v/, '') === version) {
     return null;
   }
 

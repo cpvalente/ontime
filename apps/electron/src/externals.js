@@ -86,6 +86,7 @@ module.exports = {
   isMac,
   isWindows,
   releaseTag,
+  version,
   nodePath,
   getClientUrl,
   getServerUrl,
