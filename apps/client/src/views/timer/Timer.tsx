@@ -192,7 +192,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           </div>
         )}
         <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
-          <FitText mode='multi' min={64} max={256}>
+          <FitText mode='multi' min={16} max={256}>
             {secondaryContent}
           </FitText>
         </div>

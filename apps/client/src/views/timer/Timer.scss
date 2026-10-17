@@ -150,6 +150,12 @@
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
 
+    // Bound the line box so auto-fit can scale the text with the viewer.
+    > div {
+      height: clamp(96px, calc(96 * var(--viewer-font-unit, 1px)), 192px);
+      line-height: 1.5;
+    }
+
     &--hidden {
       opacity: 0;
       height: 0;
@@ -218,6 +224,6 @@
     position: absolute;
     top: calc($view-block-padding + var(--pwa-safe-area-top));
     left: calc($view-inline-padding + var(--pwa-safe-area-left));
-    max-width: min(200px, 20vw);
+    max-width: min(clamp(200px, calc(200 * var(--viewer-font-unit, 1px)), 400px), 20vw);
   }
 }
