@@ -23,6 +23,7 @@ import {
   createTransaction,
   customFieldMutation,
   getProcessedRundown,
+  getProjectCustomFieldsWithOrder,
   processRundown,
   rundownCache,
   rundownMutation,
@@ -40,7 +41,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => {
         setRundown: setRundownMock,
         setCustomFields: setCustomFieldsMock,
         getRundown: getRundownMock,
-        getCustomFields: () => ({}),
+        getCustomFields: () => ({ fields: {}, order: [] }),
       };
     }),
   };
@@ -70,7 +71,7 @@ describe('createTransaction', () => {
   it('should return the updated data after commit is called and writes are scheduled', async () => {
     const { rundown, customFields, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: true });
     rundown.title = 'Another Title';
-    customFields['newField'] = {
+    customFields.fields['newField'] = {
       label: 'New Field',
       type: 'text',
       colour: 'blue',
@@ -82,20 +83,32 @@ describe('createTransaction', () => {
     expect(updated.customFields).toHaveProperty('newField');
 
     expect(setRundownMock).toHaveBeenCalledOnce();
-    expect(setCustomFieldsMock).toHaveBeenCalledOnce();
+    expect(setCustomFieldsMock).toHaveBeenCalledExactlyOnceWith({ fields: updated.customFields, order: ['newField'] });
+  });
+});
+
+describe('rundownCache.init()', () => {
+  it('reconciles a stale custom field order with the custom fields', () => {
+    const customFields: CustomFields = {
+      First: makeCustomField({ label: 'First' }),
+      '2': makeCustomField({ label: '2' }),
+    };
+    rundownCache.init(makeRundown({}), { fields: customFields, order: ['Removed', 'First', 'First'] });
+
+    expect(getProjectCustomFieldsWithOrder().order).toEqual(['First', '2']);
   });
 });
 
 describe('getProcessedRundown()', () => {
   it('serves the loaded rundown from cache', () => {
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), { fields: {}, order: [] });
 
     expect(getProcessedRundown('loaded')).toBe(rundownCache.get().rundown);
     expect(getRundownMock).not.toHaveBeenCalled();
   });
 
   it('reads and processes a rundown which is not loaded', () => {
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), { fields: {}, order: [] });
     getRundownMock.mockReturnValueOnce(
       makeRundown({
         id: 'background',
@@ -119,7 +132,7 @@ describe('processRundown()', () => {
     const t1 = performance.now();
     let result: ProcessedRundownMetadata | null = null;
     for (let i = 0; i < 100; i++) {
-      result = processRundown(demoDb.rundowns.default, demoDb.customFields);
+      result = processRundown(demoDb.rundowns.default, demoDb.customFields.fields);
     }
     const t2 = performance.now();
     console.warn(
@@ -133,7 +146,7 @@ describe('processRundown()', () => {
   });
 
   it('generates metadata from given rundown', () => {
-    const initResult = processRundown(demoDb.rundowns.default, demoDb.customFields);
+    const initResult = processRundown(demoDb.rundowns.default, demoDb.customFields.fields);
 
     expect(initResult.order.length).toBe(4);
     expect(initResult.flatEntryOrder.length).toBe(14);
@@ -1349,7 +1362,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1375,7 +1388,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1397,7 +1410,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1431,7 +1444,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1463,7 +1476,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1495,7 +1508,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1528,7 +1541,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1569,7 +1582,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1588,7 +1601,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
@@ -1603,7 +1616,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
@@ -1620,7 +1633,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1655,7 +1668,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1705,7 +1718,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, { fields: {}, order: [] });
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1748,7 +1761,7 @@ describe('rundownMutation.applyDelay()', () => {
         'loaded-ev': makeOntimeEvent({ id: 'loaded-ev', timeStart: 0, timeEnd: 100, duration: 100 }),
       },
     });
-    rundownCache.init(loadedRundown, {});
+    rundownCache.init(loadedRundown, { fields: {}, order: [] });
 
     // Background rundown is independent of the loaded one
     const bgRundown = makeRundown({

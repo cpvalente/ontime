@@ -102,15 +102,21 @@ describe('safeMerge', () => {
     const existing = {
       ...baseDb,
       customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' },
-        sound: { type: 'text', colour: 'red', label: 'sound' },
+        fields: {
+          lighting: { type: 'text', colour: 'red', label: 'lighting' },
+          sound: { type: 'text', colour: 'red', label: 'sound' },
+        },
+        order: [],
       },
     };
 
     const newData = {
       customFields: {
-        switcher: { type: 'text', label: 'switcher' },
-        vfx: { type: 'text', label: 'vfx' },
+        fields: {
+          switcher: { type: 'text', label: 'switcher' },
+          vfx: { type: 'text', label: 'vfx' },
+        },
+        order: [],
       },
     };
 
@@ -123,25 +129,32 @@ describe('safeMerge', () => {
 
     //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual(expected);
+    expect(result.customFields.fields).toEqual(expected);
+    expect(result.customFields.order).toEqual(['lighting', 'sound', 'switcher', 'vfx']);
   });
 
   it('overwrites matching customFields keys when merging', () => {
     const existing = {
       ...baseDb,
       customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' } satisfies CustomField,
+        fields: {
+          lighting: { type: 'text', colour: 'red', label: 'lighting' } satisfies CustomField,
+        },
+        order: [],
       },
     };
 
     const newData = {
       customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'updated lighting' } satisfies CustomField,
+        fields: {
+          lighting: { type: 'text', colour: 'red', label: 'updated lighting' } satisfies CustomField,
+        },
+        order: [],
       },
     };
 
     const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual({
+    expect(result.customFields.fields).toEqual({
       lighting: { type: 'text', colour: 'red', label: 'updated lighting' },
     });
   });

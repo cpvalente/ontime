@@ -113,7 +113,7 @@ describe('loadProjectFile', () => {
     (parseDatabaseModel as Mock).mockReturnValue({
       data: {
         rundowns: { default: rundown },
-        customFields: {},
+        customFields: { fields: {}, order: [] },
         settings: { auxTimerNames: ['Speaker', 'Break', 'Q&A'] },
       },
       migrated: false,
@@ -131,7 +131,11 @@ describe('loadProjectFile', () => {
     (doesProjectExist as Mock).mockReturnValue('/projects/show.json');
     (parseJsonFile as Mock).mockResolvedValue({});
     (parseDatabaseModel as Mock).mockReturnValue({
-      data: { rundowns: { default: rundown }, customFields: {}, settings: { auxTimerNames: ['', '', ''] } },
+      data: {
+        rundowns: { default: rundown },
+        customFields: { fields: {}, order: [] },
+        settings: { auxTimerNames: ['', '', ''] },
+      },
       migrated: false,
       errors: [],
     });
@@ -166,7 +170,7 @@ describe('patchCurrentProject', () => {
 
   beforeEach(() => {
     (getDataProvider as Mock).mockReturnValue(dataProvider);
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), { fields: {}, order: [] });
     // setup calls are not part of the patch
     vi.clearAllMocks();
   });

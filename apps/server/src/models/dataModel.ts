@@ -39,7 +39,7 @@ const dbModel: DatabaseModel = {
     dangerColor: '#ff7300',
   },
   urlPresets: [],
-  customFields: {},
+  customFields: { fields: {}, order: [] },
   automation: {
     enabledAutomations: true,
     enabledOscIn: false,

@@ -20,7 +20,7 @@ interface EventEditorProps {
 }
 
 export default function EventEditor({ event }: EventEditorProps) {
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
   const { updateEntry } = useEntryActionsContext();
 
   const isEditor = window.location.pathname.includes('editor');
@@ -68,7 +68,7 @@ export default function EventEditor({ event }: EventEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={event} />
+        <EntryEditorCustomFields orderedFields={orderedFields} handleSubmit={handleSubmit} entry={event} />
       </div>
       <div className={style.column}>
         <Editor.Title>

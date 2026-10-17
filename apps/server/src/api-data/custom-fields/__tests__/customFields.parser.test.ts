@@ -1,6 +1,11 @@
 import { CustomFields } from 'ontime-types';
 
-import { parseCustomFields, sanitiseCustomFields } from '../customFields.parser.js';
+import {
+  parseCustomFieldOrder,
+  parseCustomFields,
+  parseProjectCustomFields,
+  sanitiseCustomFields,
+} from '../customFields.parser.js';
 
 describe('parseCustomFields()', () => {
   it('returns an a base model if nothing is given', () => {
@@ -125,5 +130,72 @@ describe('sanitiseCustomFields()', () => {
     };
     const sanitationResult = sanitiseCustomFields(customFields);
     expect(sanitationResult).toStrictEqual(expectedCustomFields);
+  });
+});
+
+describe('parseCustomFieldOrder()', () => {
+  const customFields: CustomFields = {
+    Notes: { label: 'Notes', type: 'text', colour: '' },
+    Camera: { label: 'Camera', type: 'text', colour: '' },
+  };
+
+  it('keeps the order of the custom fields for projects without an order', () => {
+    expect(parseCustomFieldOrder(undefined, customFields)).toEqual(['Notes', 'Camera']);
+  });
+
+  it('drops unknown, invalid and repeated keys and appends missing fields', () => {
+    expect(parseCustomFieldOrder(['Camera', 'Removed', 5, 'Camera'], customFields)).toEqual(['Camera', 'Notes']);
+  });
+});
+
+describe('parseProjectCustomFields()', () => {
+  it.each([undefined, null, 'Notes'])('preserves nested definitions when order is %s', (order) => {
+    const fields: CustomFields = {
+      Notes: { label: 'Notes', type: 'text', colour: '' },
+      label: { label: 'label', type: 'text', colour: '' },
+    };
+
+    expect(parseProjectCustomFields({ customFields: { fields, order } })).toEqual({
+      fields,
+      order: ['Notes', 'label'],
+    });
+  });
+
+  it.each([{ label: 'fields', type: 'text' }, { type: 'text' }])(
+    'preserves valid legacy siblings when a field named fields is invalid: %j',
+    (fields) => {
+      const Notes = { label: 'Notes', type: 'text', colour: '' };
+      const emitError = vi.fn();
+
+      expect(parseProjectCustomFields({ customFields: { fields, Notes } }, emitError)).toEqual({
+        fields: { Notes },
+        order: ['Notes'],
+      });
+      expect(emitError).toHaveBeenCalledWith('Skipped invalid custom fields');
+    },
+  );
+
+  it('preserves legacy fields named fields and order', () => {
+    const fields: CustomFields = {
+      fields: { label: 'fields', type: 'text', colour: '' },
+      order: { label: 'order', type: 'text', colour: '' },
+    };
+    expect(parseProjectCustomFields({ customFields: fields })).toEqual({ fields, order: ['fields', 'order'] });
+  });
+
+  it('reconciles the order after discarding invalid definitions', () => {
+    const Notes = { label: 'Notes', type: 'text', colour: '' };
+    expect(
+      parseProjectCustomFields({
+        customFields: {
+          fields: { Notes, Invalid: { label: '', type: 'text', colour: '' } },
+          order: ['Invalid', 'Notes', 'Notes', 'Missing'],
+        },
+      }),
+    ).toEqual({ fields: { Notes }, order: ['Notes'] });
+  });
+
+  it.each([undefined, null, []])('handles missing or invalid custom fields', (customFields) => {
+    expect(parseProjectCustomFields({ customFields })).toEqual({ fields: {}, order: [] });
   });
 });
