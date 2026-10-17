@@ -15,14 +15,14 @@ export function useAutoTickingClock(): number {
   const lastClockRef = useRef(runtimeStore.getState().clock);
 
   // Feeds server clock values to the estimator as they arrive, read outside React to keep the arrival time accurate
+  // The value in the store may be stale (placeholder or from before a disconnect), so we only count from values that change
   useEffect(() => {
-    let lastServerClock: number | null = null;
+    let lastServerClock = runtimeStore.getState().clock;
 
-    const handleState = (state: { clock: number; ping: number }) => {
+    return runtimeStore.subscribe((state) => {
       if (state.ping <= 0) {
         // the first value after reconnecting must snap the clock
         estimateRef.current = null;
-        lastServerClock = null;
         return;
       }
       if (state.clock === lastServerClock) {
@@ -31,10 +31,7 @@ export function useAutoTickingClock(): number {
       lastServerClock = state.clock;
       estimateRef.current = updateClockEstimate(estimateRef.current, state.clock, performance.now());
       setTick((t) => t + 1);
-    };
-
-    handleState(runtimeStore.getState());
-    return runtimeStore.subscribe(handleState);
+    });
   }, []);
 
   // Redraws when the estimated clock reaches the next second

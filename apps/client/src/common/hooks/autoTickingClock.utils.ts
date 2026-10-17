@@ -88,7 +88,21 @@ export function getEstimatedClock(estimate: ClockEstimate, now: number): number 
   return ((clock % dayInMs) + dayInMs) % dayInMs;
 }
 
-/** Time until the estimated clock reaches its next whole second */
+/**
+ * Time until the estimated clock reaches its next whole second
+ * While correcting drift the clock runs faster or slower, until the correction finishes
+ */
 export function getNextTickDelay(estimate: ClockEstimate, now: number): number {
-  return MILLIS_PER_SECOND - (getEstimatedClock(estimate, now) % MILLIS_PER_SECOND) + tickMarginMs;
+  const toNextSecond = MILLIS_PER_SECOND - (getEstimatedClock(estimate, now) % MILLIS_PER_SECOND);
+  const remainingCorrection = estimate.targetOffset - getAppliedOffset(estimate, now);
+  if (remainingCorrection === 0) {
+    return toNextSecond + tickMarginMs;
+  }
+
+  const speed = 1 + Math.sign(remainingCorrection) * slewRate;
+  const correctionTime = Math.abs(remainingCorrection) / slewRate;
+  if (toNextSecond <= correctionTime * speed) {
+    return Math.ceil(toNextSecond / speed) + tickMarginMs;
+  }
+  return Math.ceil(correctionTime + toNextSecond - correctionTime * speed) + tickMarginMs;
 }
