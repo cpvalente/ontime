@@ -296,7 +296,7 @@ export default function GenerateLinkForm({
             )}
 
             <Panel.ListItem>
-              <Panel.Field title='Lock navigation' description='Hide the navigation menu' />
+              <Panel.Field title='Hide menu' description='Hide the navigation menu' />
               <Switch
                 size='large'
                 name='lockNav'
@@ -308,7 +308,7 @@ export default function GenerateLinkForm({
             </Panel.ListItem>
             {watch('path') !== OntimeView.Cuesheet && (
               <Panel.ListItem>
-                <Panel.Field title='Lock configuration' description='Hide the view settings and the navigation menu' />
+                <Panel.Field title='Hide view settings' description='Hide the view settings and the navigation menu' />
                 <Switch
                   size='large'
                   name='lockConfig'
@@ -325,7 +325,7 @@ export default function GenerateLinkForm({
             )}
             <Panel.ListItem>
               <Panel.Field
-                title='Authenticate'
+                title='Include login in link'
                 description='Include a login token so recipients skip the password prompt'
               />
               <Switch
