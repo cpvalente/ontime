@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
 import { SelectOption } from '../../../common/components/select/Select';
 import { OptionTitle } from '../../../common/components/view-params-editor/constants';
 import type { ViewOption } from '../../../common/components/view-params-editor/viewParams.types';
+import { PresetContext } from '../../../common/context/PresetContext';
 import { isStringBoolean } from '../viewUtils';
 
 export const getScheduleOptions = (customFieldOptions: SelectOption[]): ViewOption => ({
@@ -49,12 +50,18 @@ type ScheduleOptions = {
   showExpected: boolean;
 };
 
-function getScheduleOptionsFromParams(searchParams: URLSearchParams): ScheduleOptions {
+export function getScheduleOptionsFromParams(
+  searchParams: URLSearchParams,
+  defaultValues?: URLSearchParams,
+): ScheduleOptions {
+  // Helper to get value from either source, prioritizing defaultValues
+  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+
   return {
-    filter: searchParams.get('filter'),
-    cycleInterval: Number(searchParams.get('cycleInterval')) || 10,
-    stopCycle: isStringBoolean(searchParams.get('stopCycle')),
-    showExpected: isStringBoolean(searchParams.get('showExpected')),
+    filter: getValue('filter'),
+    cycleInterval: Number(getValue('cycleInterval')) || 10,
+    stopCycle: isStringBoolean(getValue('stopCycle')),
+    showExpected: isStringBoolean(getValue('showExpected')),
   };
 }
 
@@ -63,6 +70,12 @@ function getScheduleOptionsFromParams(searchParams: URLSearchParams): ScheduleOp
  */
 export function useScheduleOptions() {
   const [searchParams] = useSearchParams();
-  const options = useMemo(() => getScheduleOptionsFromParams(searchParams), [searchParams]);
+  const maybePreset = use(PresetContext);
+
+  const options = useMemo(() => {
+    const defaultValues = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+    return getScheduleOptionsFromParams(searchParams, defaultValues);
+  }, [maybePreset, searchParams]);
+
   return options;
 }
