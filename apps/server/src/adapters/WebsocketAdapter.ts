@@ -25,11 +25,11 @@ import {
   WsPacketToClient,
   WsPacketToServer,
 } from 'ontime-types';
-import { generateId } from 'ontime-utils';
+import { generateId, getErrorMessage } from 'ontime-utils';
 import { WebSocket, WebSocketServer } from 'ws';
 
+import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { logger } from '../classes/Logger.js';
 import { timeOfDayNow } from '../lib/time-core/timeCore.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
@@ -97,7 +97,7 @@ class SocketServer implements IAdapter {
       });
 
       this.lastConnection = new Date();
-      logger.info(LogOrigin.Client, `${this.clients.size} Connections with new: ${clientName}`);
+      logger.info(LogOrigin.Client, 'Client connected', { client: clientName, clients: this.clients.size });
 
       sendPacket(MessageTag.ClientInit, { clientId, clientName });
 
@@ -108,7 +108,7 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
-        logger.info(LogOrigin.Client, `${this.clients.size} Connections with disconnected: ${clientName}`);
+        logger.info(LogOrigin.Client, 'Client disconnected', { client: clientName, clients: this.clients.size });
         this.sendClientList();
       });
 
@@ -145,10 +145,6 @@ class SocketServer implements IAdapter {
               this.sendClientList();
               break;
             }
-            case MessageTag.Log: {
-              logger.emit(payload.level, payload.origin, payload.text);
-              break;
-            }
             default: {
               tag satisfies never;
               // Protocol specific stuff handled above
@@ -163,7 +159,7 @@ class SocketServer implements IAdapter {
                   );
                 }
               } catch (error) {
-                logger.error(LogOrigin.Rx, `WS IN: ${error}`);
+                logger.error(LogOrigin.Api, 'WebSocket message failed', { tag, error: getErrorMessage(error) });
               }
               break;
             }
@@ -209,7 +205,7 @@ class SocketServer implements IAdapter {
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
     }
-    logger.info(LogOrigin.Client, `Client ${previousData.name} renamed to ${name}`);
+    logger.info(LogOrigin.Client, 'Client renamed', { from: previousData.name, to: name });
     this.clients.set(target, { ...previousData, name });
     this.sendAsJson(MessageTag.ClientRename, { name, target });
     this.sendClientList();

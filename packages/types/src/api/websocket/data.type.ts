@@ -1,5 +1,4 @@
 import type { Client } from '../../definitions/Clients.type.js';
-import type { Log } from '../../definitions/runtime/Logger.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { RefetchKey } from './refetch.type.js';
@@ -14,7 +13,6 @@ export enum MessageTag {
   ClientRedirect = 'client-redirect',
   ClientList = 'client-list',
   Dialog = 'dialog',
-  Log = 'log',
   RuntimeData = 'runtime-data',
   Refetch = 'refetch',
 }
@@ -46,17 +44,13 @@ type RefetchPacket = {
   };
 };
 
-// SHARED
-type LogPacket = { tag: MessageTag.Log; payload: Log };
-
-export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket | LogPacket;
+export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket;
 export type WsPacketToClient =
   | PongPacket
   | InitClientPacket
   | RenameClientPacket
   | RedirectClientPacket
   | DialogPacket
-  | LogPacket
   | ListClientPacket
   | RuntimePacket
   | RefetchPacket;

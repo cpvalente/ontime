@@ -16,10 +16,12 @@
 
   &.hasCursor {
     outline: 1px solid $block-cursor-color;
+    outline-offset: -1px;
   }
 
   &.copyTarget {
     outline: 2px dashed $block-cursor-color;
+    outline-offset: -2px;
   }
 }
 

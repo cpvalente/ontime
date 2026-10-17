@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import { LogOrigin } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
-import { logger } from './classes/Logger.js';
+import * as logger from './api-data/logs/logs.service.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { stopServices } from './server.js';
 import { environment, isProduction } from './setup/environment.js';
@@ -55,7 +56,7 @@ async function performShutdown(exitCode: number): Promise<void> {
   try {
     await stopServices(exitCode);
   } catch (error) {
-    logger.error(LogOrigin.Server, `Shutdown error: ${error}`, false);
+    logger.error(LogOrigin.Server, 'Shutdown failed', { error: getErrorMessage(error) });
   } finally {
     clearTimeout(forceExitTimer);
     logger.shutdown();
@@ -70,7 +71,7 @@ process.on('unhandledRejection', async (error) => {
     consoleError(error.stack);
   }
   generateCrashReport(error);
-  logger.crash(LogOrigin.Server, `Uncaught rejection | ${error}`);
+  logger.crash(LogOrigin.Server, 'Uncaught rejection', { error: String(error) });
   await shutdown(1);
 });
 
@@ -79,7 +80,7 @@ process.on('uncaughtException', async (error) => {
     consoleError(error.stack);
   }
   generateCrashReport(error);
-  logger.crash(LogOrigin.Server, `Uncaught exception | ${error}`);
+  logger.crash(LogOrigin.Server, 'Uncaught exception', { error: String(error) });
   await shutdown(1);
 });
 

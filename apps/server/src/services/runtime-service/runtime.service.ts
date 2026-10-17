@@ -8,6 +8,7 @@ import {
   OffsetMode,
   OntimeEvent,
   Playback,
+  RefetchKey,
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
@@ -15,9 +16,10 @@ import {
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
-import { millisToString, validatePlayback } from 'ontime-utils';
+import { getErrorMessage, millisToString, validatePlayback } from 'ontime-utils';
 
 import { triggerAutomations } from '../../api-data/automation/automation.service.js';
+import * as logger from '../../api-data/logs/logs.service.js';
 import { triggerReportEntry } from '../../api-data/report/report.service.js';
 import {
   getCurrentRundown,
@@ -25,13 +27,13 @@ import {
   getEntryWithId,
   getRundownMetadata,
 } from '../../api-data/rundown/rundown.dao.js';
-import { cloneEntryData } from '../../api-data/rundown/rundown.utils.js';
-import { logger } from '../../classes/Logger.js';
+import { cloneEntryData, isLoadedPlayable } from '../../api-data/rundown/rundown.utils.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
+import { type Change, onChange } from '../change-service/change.service.js';
 import { restoreService } from '../restore-service/restore.service.js';
 import type { RestorePoint } from '../restore-service/restore.types.js';
 import {
@@ -59,6 +61,7 @@ class RuntimeService {
   });
   private lastIntegrationClockUpdate = -1;
   private lastIntegrationTimerValue = -1;
+  private stopListening: (() => void) | undefined;
 
   /** last known state */
   static previousState: RuntimeState;
@@ -115,7 +118,7 @@ class RuntimeService {
         // if we have skipped out of the event, we will recall roll
         // to push the playback to the right place
         // this comes with the caveat that we will lose our runtime data
-        logger.warning(LogOrigin.Playback, 'Time skip detected, reloading roll');
+        logger.warning(LogOrigin.Playback, 'Roll reloaded', { reason: 'time-skip' });
         this.handleRoll(true);
       }
     }
@@ -130,10 +133,15 @@ class RuntimeService {
       // actions are added to the queue stack to ensure that the order of operations is maintained
       if (newState.eventNow) {
         if (newState.eventNow.endAction === EndAction.LoadNext) {
+          logger.info(LogOrigin.Playback, 'End action triggered', {
+            action: 'load-next',
+            ...eventFields(newState.eventNow),
+          });
           setTimeout(this.loadNext.bind(this), 0);
         } else if (newState.eventNow.endAction === EndAction.PlayNext) {
           // the next event starts when this one ends, which may be a moment after it was detected
           const finishedId = newState.eventNow.id;
+          const finishedFields = eventFields(newState.eventNow);
           const end = finishedAt ?? timeCore.now();
           setTimeout(
             () => {
@@ -143,7 +151,13 @@ class RuntimeService {
 
               // after a time skip (eg: the system slept) the end is long past, so the next event starts now
               const now = timeCore.now();
-              this.startNext(timeCore.timeSince(now, end) <= timerConfig.skipLimit ? end : now);
+              const isOnTime = timeCore.timeSince(now, end) <= timerConfig.skipLimit;
+              logger.info(LogOrigin.Playback, 'End action triggered', {
+                action: 'play-next',
+                ...finishedFields,
+                late: !isOnTime || undefined,
+              });
+              this.startNext(isOnTime ? end : now);
             },
             Math.max(0, timeCore.timeUntil(timeCore.now(), end)),
           );
@@ -174,8 +188,11 @@ class RuntimeService {
 
   /** delay initialisation until we have a restore point */
   public init(resumable: RestorePoint | null) {
-    logger.info(LogOrigin.Server, 'Runtime service started');
     this.timer.start();
+
+    // the project loads before the runtime, nothing is loaded yet so we only catch up with the rundown data
+    runtimeState.updateRundownData(getRundownMetadata());
+    this.stopListening = onChange((change) => this.handleChange(change));
 
     if (resumable) {
       this.resume(resumable);
@@ -183,7 +200,7 @@ class RuntimeService {
   }
 
   public shutdown() {
-    logger.info(LogOrigin.Server, 'Runtime service shutting down');
+    this.stopListening?.();
     this.timer.stop();
   }
 
@@ -195,30 +212,47 @@ class RuntimeService {
   }
 
   /**
-   * Called when the underlying data has changed,
-   * we check if the change affects the runtime
-   *
-   * !!! the rundown data is read here rather than received from the caller:
-   * this is called deferred (setImmediate) and a later mutation may have
-   * superseded the metadata captured at commit time.
-   * Reading both the rundown and its metadata here keeps them consistent
+   * Reconciles with changes to the loaded rundown, a rundown change without an id affects every rundown
    */
+  private handleChange({ target, rundownId }: Change) {
+    const isLoadedRundownChange =
+      target === RefetchKey.All ||
+      (target === RefetchKey.Rundown && (rundownId === undefined || rundownId === getCurrentRundownId()));
+    if (isLoadedRundownChange) {
+      this.notifyOfChangedEvents();
+    }
+  }
+
+  /**
+   * Called after every change to the loaded rundown, in the same call as the commit,
+   * so the runtime never runs on stale data
+   * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded entries
+   * The rundown and its metadata are read from the cache, so they are always the loaded and current ones
+   */
+  @broadcastResult
   public notifyOfChangedEvents() {
-    const state = runtimeState.getState();
-    const hasLoadedElements = state.eventNow !== null || state.eventNext !== null;
-    if (!hasLoadedElements) {
-      return;
-    }
-
+    const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
+    runtimeState.updateRundownData(metadata);
 
-    // all events were deleted, stopping clears the loaded data and there is nothing left to reconcile
-    if (metadata.playableEventOrder.length === 0) {
-      runtimeState.stop();
+    const state = runtimeState.getState();
+    if (state.eventNow === null && state.eventNext === null) {
       return;
     }
 
-    runtimeState.updateAll(getCurrentRundown(), metadata);
+    if (metadata.playableEventOrder.length === 0) {
+      this.stop();
+      logger.warning(LogOrigin.Playback, 'Playback stopped', { reason: 'no-playable-events' });
+      return;
+    }
+
+    const loadedEventId = this.getLoadedEventId();
+    if (loadedEventId !== null && !isLoadedPlayable(loadedEventId, rundown)) {
+      this.stop();
+      return;
+    }
+
+    runtimeState.updateAll(rundown, metadata);
   }
 
   /**
@@ -229,7 +263,7 @@ class RuntimeService {
    */
   private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
     if (!isPlayableEvent(event)) {
-      logger.warning(LogOrigin.Playback, `Refused skipped event with ID ${event.id}`);
+      logger.warning(LogOrigin.Playback, 'Event load skipped', { reason: 'marked-skip', ...eventFields(event) });
       return false;
     }
     const previousState = runtimeState.getState();
@@ -240,7 +274,7 @@ class RuntimeService {
     const success = runtimeState.load(event, rundown, metadata, initialData);
 
     if (success) {
-      logger.info(LogOrigin.Playback, `Loaded event with ID ${event.id}`);
+      logger.info(LogOrigin.Playback, 'Event loaded', eventFields(event));
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
         triggerAutomations(TimerLifeCycle.onLoad);
@@ -446,7 +480,7 @@ class RuntimeService {
       return this.loadEvent(nextEvent);
     }
 
-    logger.info(LogOrigin.Playback, 'No next event found! Continuing playback');
+    logger.info(LogOrigin.Playback, 'Load next skipped', { reason: 'no-next-event' });
     return false;
   }
   /**
@@ -473,7 +507,7 @@ class RuntimeService {
 
     const didStart = runtimeState.start(undefined, at);
     const newState = runtimeState.getState();
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+    logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
 
     if (didStart) {
       process.nextTick(() => {
@@ -529,7 +563,7 @@ class RuntimeService {
     }
     runtimeState.pause();
     const newState = runtimeState.getState();
-    logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+    logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
     process.nextTick(() => {
       triggerAutomations(TimerLifeCycle.onPause);
     });
@@ -548,7 +582,7 @@ class RuntimeService {
     const didStop = runtimeState.stop();
     if (didStop) {
       const newState = runtimeState.getState();
-      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
       process.nextTick(() => {
         triggerReportEntry(TimerLifeCycle.onStop, previousState);
         triggerAutomations(TimerLifeCycle.onStop);
@@ -588,7 +622,7 @@ class RuntimeService {
         });
       }
     } catch (error) {
-      logger.error(LogOrigin.Server, `Roll: ${error}`);
+      logger.error(LogOrigin.Playback, 'Roll failed', { error: getErrorMessage(error) });
     }
   }
 
@@ -622,7 +656,7 @@ class RuntimeService {
 
       const newState = runtimeState.getState();
       if (result.eventId !== previousState.eventNow?.id) {
-        logger.info(LogOrigin.Playback, `Loaded event with ID ${result.eventId}`);
+        logger.info(LogOrigin.Playback, 'Event loaded', eventFields(newState.eventNow));
         process.nextTick(() => {
           triggerReportEntry(TimerLifeCycle.onStop, previousState);
           triggerAutomations(TimerLifeCycle.onLoad);
@@ -636,14 +670,14 @@ class RuntimeService {
         });
       }
     } catch (error) {
-      logger.error(LogOrigin.Server, `Roll: ${error}`);
+      logger.error(LogOrigin.Playback, 'Roll failed', { error: getErrorMessage(error) });
       return;
     }
 
     const newState = runtimeState.getState();
 
     if (previousState.timer.playback !== newState.timer.playback) {
-      logger.info(LogOrigin.Playback, `Play Mode ${newState.timer.playback.toUpperCase()}`);
+      logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
     }
   }
 
@@ -654,6 +688,7 @@ class RuntimeService {
   @broadcastResult
   public resume(restorePoint: RestorePoint) {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
+      logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'other-rundown', rundown: restorePoint.rundownId });
       return;
     }
 
@@ -673,6 +708,7 @@ class RuntimeService {
     // we do not know the reason for the crash, so we check anyway
     const event = getEntryWithId(selectedEventId);
     if (!isOntimeEvent(event) || !isPlayableEvent(event)) {
+      logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'event-not-playable', id: selectedEventId });
       return;
     }
 
@@ -680,7 +716,7 @@ class RuntimeService {
     const metadata = getRundownMetadata();
     runtimeState.resume(restorePoint, event, rundown, metadata);
 
-    logger.info(LogOrigin.Playback, 'Resuming playback');
+    logger.info(LogOrigin.Playback, 'Playback resumed', { state: playback, ...eventFields(event) });
   }
 
   /**
@@ -690,12 +726,20 @@ class RuntimeService {
   @broadcastResult
   public addTime(time: number) {
     if (runtimeState.addTime(time)) {
-      logger.info(LogOrigin.Playback, `${time > 0 ? 'Added' : 'Removed'} ${millisToString(time)}`);
+      logger.info(LogOrigin.Playback, 'Time adjusted', {
+        by: `${time > 0 ? '+' : '-'}${millisToString(Math.abs(time))}`,
+      });
     }
   }
 }
 
 export const runtimeService = new RuntimeService();
+
+/** identifies an event as users know it, by cue and title, with the id only when both are empty */
+function eventFields(event: OntimeEvent | null) {
+  if (!event) return {};
+  return { cue: event.cue, title: event.title, id: event.cue || event.title ? undefined : event.id };
+}
 
 type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
 

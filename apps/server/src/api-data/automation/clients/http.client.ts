@@ -1,8 +1,8 @@
-import { HTTPOutput, LogOrigin, RuntimeStore } from 'ontime-types';
+import { HTTPOutput, RuntimeStore } from 'ontime-types';
 import { DeepReadonly } from 'ts-essentials';
 
-import { logger } from '../../../classes/Logger.js';
 import { parseTemplateNested } from '../automation.utils.js';
+import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
 /**
  * Expose possibility to send a message using HTTP protocol
@@ -20,23 +20,27 @@ function preparePayload(output: HTTPOutput, state: DeepReadonly<RuntimeStore>): 
 
 /** Emits message over transport */
 async function emit(url: string) {
+  // the receiver is named by its origin, the path and query may carry credentials, eg: webhook tokens
+  const target = URL.canParse(url) ? new URL(url).origin : 'invalid-url';
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      if (response.status >= 500 && response.status < 600) {
-        logger.warning(LogOrigin.Tx, `HTTP Integration: Server refused message ${response.status}`);
-      } else if (response.status >= 400) {
-        logger.warning(LogOrigin.Tx, `HTTP Integration: Failed sending message ${response.status}`);
-      } else {
-        logger.warning(LogOrigin.Tx, `HTTP Integration: Failed sending message ${response.status}`);
-      }
+    if (response.ok) {
+      reportSendSuccess(target);
+    } else {
+      reportSendFailure(target, 'HTTP send failed', { status: response.status });
     }
   } catch (error) {
-    if (!(error instanceof Error)) {
-      logger.warning(LogOrigin.Tx, `HTTP Integration: Failed sending message ${error}`);
-      return;
-    }
-
-    logger.warning(LogOrigin.Tx, `HTTP Integration: ${error.name} ${error.message}`);
+    // error messages can repeat the full URL
+    reportSendFailure(target, 'HTTP send failed', describeError(error));
   }
+}
+
+/** names a failure by its type and system code, eg: TypeError ECONNREFUSED */
+function describeError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return { error: 'unknown' };
+  }
+  const cause: unknown = error.cause;
+  const code = cause && typeof cause === 'object' && 'code' in cause ? String(cause.code) : undefined;
+  return { error: error.name, code };
 }

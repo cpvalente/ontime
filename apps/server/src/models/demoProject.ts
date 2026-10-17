@@ -51,7 +51,7 @@ export const demoDb: DatabaseModel = {
       alias: 'minimal',
       target: OntimeView.Timer,
       search:
-        'hideclock=true&hidecards=true&hideprogress=true&hidemessage=true&hidesecondary=true&hidelogo=true&font=arial+black&keycolour=00ff00&timerColour=ffffff',
+        'hideclock=true&hidecards=true&hideprogress=true&hidemessage=true&hidesecondary=true&hidelogo=true&font=arial+black&keycolour=00ff00',
       displayInNav: false,
     },
   ],

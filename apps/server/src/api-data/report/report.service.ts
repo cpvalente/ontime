@@ -2,7 +2,7 @@ import type { OntimeEventReport, OntimeReport, PlayableEvent, ReportData, Rundow
 import { RefetchKey, TimerLifeCycle } from 'ontime-types';
 import type { DeepReadonly } from 'ts-essentials';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { getCurrentRundown } from '../rundown/rundown.dao.js';
 import { getActualShowTimes, getPlannedShowDuration } from './report.utils.js';
@@ -50,7 +50,7 @@ export function clear(id?: string) {
     resetReportPlan();
   }
 
-  sendRefetch(RefetchKey.Report);
+  notifyChange(RefetchKey.Report);
 }
 
 /**
@@ -81,7 +81,7 @@ export function triggerReportEntry(
       endedAtDay: null,
     });
     formattedReport = null;
-    sendRefetch(RefetchKey.Report);
+    notifyChange(RefetchKey.Report);
     return;
   }
 
@@ -99,7 +99,7 @@ export function triggerReportEntry(
       scheduledDuration: schedule.scheduledDuration,
     });
     formattedReport = null;
-    sendRefetch(RefetchKey.Report);
+    notifyChange(RefetchKey.Report);
   }
 }
 

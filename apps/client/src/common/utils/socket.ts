@@ -1,8 +1,6 @@
 import {
   ApiActionTag,
-  Log,
   LogLevel,
-  LogOrigin,
   MaybeNumber,
   MessageTag,
   RefetchKey,
@@ -10,11 +8,11 @@ import {
   WsPacketToClient,
   WsPacketToServer,
 } from 'ontime-types';
-import { generateId, millisToString } from 'ontime-utils';
 
 import { isProduction, websocketUrl } from '../../externals';
 import {
   APP_SETTINGS,
+  AUTOMATION,
   CLIENT_LIST,
   CSS_OVERRIDE,
   CURRENT_RUNDOWN_QUERY_KEY,
@@ -42,10 +40,9 @@ import {
 import { setMeasuredClockOffset, setPublishedClock } from '../stores/clockStore';
 import { setConnectionEstablished, setConnectionLost, setConnectionStale } from '../stores/connectionStore';
 import { addDialog } from '../stores/dialogStore';
-import { addLog } from '../stores/logger';
+import { addLog, createLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
 import { type ClockSample, type PendingPing, clockSampleCount, measurePong } from './clockSync';
-import { nowInMillis } from './time';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
@@ -207,10 +204,6 @@ export const connectSocket = () => {
           break;
         }
 
-        case MessageTag.Log: {
-          addLog(payload as Log);
-          break;
-        }
         case MessageTag.RuntimeData: {
           if (payload.clock !== undefined && setPublishedClock(payload.clock)) {
             sendPing();
@@ -225,6 +218,9 @@ export const connectSocket = () => {
           switch (target) {
             case RefetchKey.All:
               invalidateAllCaches();
+              break;
+            case RefetchKey.Automation:
+              ontimeQueryClient.invalidateQueries({ queryKey: AUTOMATION });
               break;
             case RefetchKey.CustomFields:
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
@@ -422,13 +418,7 @@ function logConnectionIssue(text: string) {
 
   hasLoggedConnectionIssue = true;
   console.warn(text);
-  addLog({
-    id: generateId(),
-    origin: LogOrigin.Client,
-    time: millisToString(nowInMillis()),
-    level: LogLevel.Warn,
-    text,
-  });
+  addLog(createLog(LogLevel.Warn, text));
 }
 
 /** Rechecks a socket when a resumed browser may have lost it while timers were suspended. */

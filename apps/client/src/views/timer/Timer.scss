@@ -101,7 +101,7 @@
     .timer {
       opacity: 1;
       font-family: var(--timer-font, var(--font-family-override, $viewer-font-family));
-      color: var(--timer-colour, var(--timer-color-override, $ui-white));
+      color: var(--timer-colour, var(--timer-color-override, var(--timer-settings-color, $ui-white)));
       line-height: 0.9em;
       text-align: center;
       letter-spacing: 0.05em;
@@ -121,10 +121,10 @@
       }
 
       &[data-phase='warning'] {
-        color: var(--timer-colour, var(--timer-warning-color-override));
+        color: var(--timer-colour, var(--timer-warning-color-override, var(--timer-settings-color)));
       }
       &[data-phase='danger'] {
-        color: var(--timer-colour, var(--timer-danger-color-override));
+        color: var(--timer-colour, var(--timer-danger-color-override, var(--timer-settings-color)));
       }
       &[data-type='none'] {
         transition: 1s;

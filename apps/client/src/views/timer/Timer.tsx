@@ -139,12 +139,13 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 
   // gather presentation styles
-  const resolvedTimerColour = getTimerColour(viewSettings, timerColour, showWarning, showDanger);
+  const timerSettingsColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
   const timerFontSize = getEstimatedFontSize(display, secondaryContent);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
+    '--timer-settings-color': timerSettingsColour,
     ...(keyColour && { '--timer-bg': keyColour }),
-    ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
+    ...(timerColour && { '--timer-colour': timerColour }),
     ...(font && { '--timer-font': font }),
   };
 
@@ -186,7 +187,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
             className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
             style={{ fontSize: `${timerFontSize}vw` }}
             data-type={viewTimerType}
-            data-phase={time.phase}
+            data-phase={showWarning || showDanger ? time.phase : undefined}
           >
             {display}
           </div>

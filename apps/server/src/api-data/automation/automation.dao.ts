@@ -1,15 +1,17 @@
-import type {
-  Automation,
-  AutomationDTO,
-  AutomationSettings,
-  NormalisedAutomation,
-  ProjectRundowns,
-  Trigger,
-  TriggerDTO,
+import {
+  type Automation,
+  type AutomationDTO,
+  type AutomationSettings,
+  type NormalisedAutomation,
+  type ProjectRundowns,
+  RefetchKey,
+  type Trigger,
+  type TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 import { isAutomationUsed } from './automation.utils.js';
 
 /**
@@ -179,6 +181,8 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
     }
   });
   await getDataProvider().setAutomation({ ...automation, ...patch });
+
+  notifyChange(RefetchKey.Automation);
 }
 
 /**

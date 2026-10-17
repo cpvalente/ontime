@@ -3,12 +3,12 @@ import { RefetchKey, TimerLifeCycle } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 import { vi } from 'vitest';
 
-import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
+import { notifyChange } from '../../../services/change-service/change.service.js';
 import { makeRuntimeStateData } from '../../../stores/__mocks__/runtimeState.mocks.js';
 import { makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
 import { clear, generate, generateReport, triggerReportEntry } from '../report.service.js';
 
-vi.mock('../../../adapters/WebsocketAdapter.js', () => ({ sendRefetch: vi.fn() }));
+vi.mock('../../../services/change-service/change.service.js', () => ({ notifyChange: vi.fn<typeof notifyChange>() }));
 
 const eventA = makeOntimeEvent({
   id: 'event-a',
@@ -47,8 +47,8 @@ it('records lifecycle times while keeping the schedule captured at start', () =>
     scheduledDay: eventA.dayOffset,
     scheduledDuration: eventA.duration,
   });
-  expect(sendRefetch).toHaveBeenCalledTimes(2);
-  expect(sendRefetch).toHaveBeenLastCalledWith(RefetchKey.Report);
+  expect(notifyChange).toHaveBeenCalledTimes(2);
+  expect(notifyChange).toHaveBeenLastCalledWith(RefetchKey.Report);
 });
 
 it('falls back to the current event when a stop arrives without a start', () => {
@@ -129,8 +129,8 @@ it('clears the retained report and rundown snapshot together', () => {
   clear();
 
   expect(generateReport()).toMatchObject({ eventReports: {}, rundown: null });
-  expect(sendRefetch).toHaveBeenCalledOnce();
-  expect(sendRefetch).toHaveBeenCalledWith(RefetchKey.Report);
+  expect(notifyChange).toHaveBeenCalledOnce();
+  expect(notifyChange).toHaveBeenCalledWith(RefetchKey.Report);
 });
 
 it('captures a new plan after removing the final event by id', () => {
