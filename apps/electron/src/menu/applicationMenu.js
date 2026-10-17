@@ -23,16 +23,27 @@ const {
  * @param {function} redirectWindow - function to redirect main window content
  * @param {function} showDialog - asks the react app to show a user dialog
  * @param {function} download - function to download a resource from url
+ * @param {{ version: string, url: string } | null} availableUpdate - newer release, if one was found
+ * @param {function} checkForUpdates - function to manually check for a newer release
  * @returns {Menu} - application menu
  */
-function getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, download) {
+function getApplicationMenu(
+  askToQuit,
+  clientUrl,
+  serverUrl,
+  redirectWindow,
+  showDialog,
+  download,
+  availableUpdate,
+  checkForUpdates,
+) {
   const template = [
     ...(isMac ? [makeMacMenu(askToQuit)] : []),
     makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download),
     makeEditMenu(),
     makeViewMenu(clientUrl),
     makeSettingsMenu(redirectWindow),
-    makeHelpMenu(redirectWindow),
+    makeHelpMenu(redirectWindow, download, availableUpdate, checkForUpdates),
     ...(isProduction ? [] : [{ label: 'Dev', submenu: [{ role: 'toggleDevTools' }] }]),
   ];
   return Menu.buildFromTemplate(template);
@@ -308,9 +319,12 @@ function makeSettingsMenu(redirectWindow) {
 /**
  * Utility function generates the help menu
  * @param {function} redirectWindow - function to redirect main window content
+ * @param {function} download - function to download a resource from url
+ * @param {{ version: string, url: string } | null} availableUpdate - newer release, if one was found
+ * @param {function} checkForUpdates - function to manually check for a newer release
  * @returns {Object}
  */
-function makeHelpMenu(redirectWindow) {
+function makeHelpMenu(redirectWindow, download, availableUpdate, checkForUpdates) {
   return {
     role: 'help',
     submenu: [
@@ -318,6 +332,9 @@ function makeHelpMenu(redirectWindow) {
         label: `Ontime ${releaseTag}`,
         click: () => redirectWindow('/editor?settings=about'),
       },
+      availableUpdate
+        ? { label: `Download Ontime ${availableUpdate.version}`, click: () => download(availableUpdate.url) }
+        : { label: 'Check for updates', click: checkForUpdates },
       {
         type: 'separator',
       },

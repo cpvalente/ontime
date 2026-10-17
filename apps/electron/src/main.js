@@ -3,12 +3,14 @@ const path = require('path');
 
 const { getApplicationMenu } = require('./menu/applicationMenu.js');
 const { getTrayMenu } = require('./menu/trayMenu.js');
+const { getAvailableUpdate } = require('./updateCheck.js');
 
 const electronConfig = require('./electron.config.js');
 const {
   env,
   isProduction,
   isWindows,
+  releaseTag,
   nodePath,
   getClientUrl,
   trayIcon,
@@ -30,6 +32,9 @@ let loaded = 'Ontime starting';
  * Used to coordinate window closes without exit
  */
 let isQuitting = false;
+
+/** Flag whether the check for updates on startup has been done */
+let hasCheckedForUpdates = false;
 
 // initialise
 let win;
@@ -70,6 +75,51 @@ function showNotification(title, body) {
     body,
     silent: true,
   }).show();
+}
+
+/**
+ * Creates the application menu, offering the download if an update is available
+ * @param {string} clientUrl
+ * @param {string} serverUrl
+ * @param {{ version: string, url: string } | null} availableUpdate
+ */
+function setupMenu(clientUrl, serverUrl, availableUpdate = null) {
+  /**
+   * @param {boolean} isManual - whether the user asked for the check, and so should be told the result
+   */
+  const checkForUpdates = async (isManual) => {
+    try {
+      const update = await getAvailableUpdate();
+      if (update) {
+        setupMenu(clientUrl, serverUrl, update);
+        showNotification('Update available', `Ontime ${update.version} can be downloaded from the Help menu`);
+      } else if (isManual) {
+        showNotification('Ontime is up to date', `You are using the latest version ${releaseTag}`);
+      }
+    } catch (_error) {
+      if (isManual) {
+        showNotification('Could not check for updates', 'Please check your internet connection');
+      }
+    }
+  };
+
+  const menu = getApplicationMenu(
+    askToQuit,
+    clientUrl,
+    serverUrl,
+    redirectWindow,
+    showDialog,
+    (url) => win.webContents.downloadURL(url),
+    availableUpdate,
+    () => checkForUpdates(true),
+  );
+  Menu.setApplicationMenu(menu);
+
+  // the startup check only runs once, when we have not yet found an update
+  if (!availableUpdate && isProduction && !hasCheckedForUpdates) {
+    hasCheckedForUpdates = true;
+    checkForUpdates(false);
+  }
 }
 
 /**
@@ -203,10 +253,7 @@ app.whenReady().then(() => {
     .then((port) => {
       const clientUrl = getClientUrl(port);
       const serverUrl = getServerUrl(port);
-      const menu = getApplicationMenu(askToQuit, clientUrl, serverUrl, redirectWindow, showDialog, (url) =>
-        win.webContents.downloadURL(url),
-      );
-      Menu.setApplicationMenu(menu);
+      setupMenu(clientUrl, serverUrl);
 
       win
         .loadURL(`${clientUrl}/editor`)
