@@ -239,7 +239,7 @@ export default function SourcesPanel() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Synchronize your rundown with an external source</Panel.SubHeader>
+        <Panel.SubHeader>Import spreadsheet</Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         {showInput && (
           <div className={style.introStack}>
