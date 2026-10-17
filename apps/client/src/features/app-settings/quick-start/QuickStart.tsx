@@ -13,6 +13,8 @@ import { editorSettingsDefaults, useEditorSettings } from '../../../common/store
 import * as Panel from '../panel-utils/PanelUtils';
 import { quickStartDefaults } from './quickStart.utils';
 
+type QuickStartForm = QuickStartData & { warnTime: string; dangerTime: string };
+
 interface QuickStartProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,6 +23,12 @@ interface QuickStartProps {
 export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
   const { defaultWarnTime, defaultDangerTime, setDangerTime, setWarnTime } = useEditorSettings();
 
+  const formDefaults: QuickStartForm = {
+    ...quickStartDefaults,
+    warnTime: defaultWarnTime,
+    dangerTime: defaultDangerTime,
+  };
+
   const {
     handleSubmit,
     register,
@@ -28,20 +36,22 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
     watch,
     setError,
     setValue,
-  } = useForm<QuickStartData>({
-    defaultValues: quickStartDefaults,
-    values: quickStartDefaults,
+  } = useForm<QuickStartForm>({
+    defaultValues: formDefaults,
+    values: formDefaults,
     resetOptions: {
       keepDirtyValues: true,
     },
   });
 
-  const onSubmit = async (formData: QuickStartData) => {
+  const onSubmit = async ({ warnTime, dangerTime, ...formData }: QuickStartForm) => {
     try {
       if (formData.project.title === '') {
         formData.project.title = 'untitled';
       }
       await quickProject(formData);
+      setWarnTime(warnTime);
+      setDangerTime(dangerTime);
       await invalidateAllCaches();
       onClose();
     } catch (error) {
@@ -49,8 +59,8 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
     }
   };
 
-  const warnTimeInMs = parseUserTime(defaultWarnTime);
-  const dangerTimeInMs = parseUserTime(defaultDangerTime);
+  const warnTimeInMs = parseUserTime(watch('warnTime'));
+  const dangerTimeInMs = parseUserTime(watch('dangerTime'));
 
   return (
     <Modal
@@ -115,7 +125,7 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
               <Panel.Field title='Warning time' description='Default threshold for warning time in an event' />
               <TimeInput<'warnTime'>
                 name='warnTime'
-                submitHandler={(_field, value) => setWarnTime(value)}
+                submitHandler={(_field, value) => setValue('warnTime', value, { shouldDirty: true })}
                 time={warnTimeInMs}
                 placeholder={editorSettingsDefaults.warnTime}
               />
@@ -124,7 +134,7 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
               <Panel.Field title='Danger time' description='Default threshold for danger time in an event' />
               <TimeInput<'dangerTime'>
                 name='dangerTime'
-                submitHandler={(_field, value) => setDangerTime(value)}
+                submitHandler={(_field, value) => setValue('dangerTime', value, { shouldDirty: true })}
                 time={dangerTimeInMs}
                 placeholder={editorSettingsDefaults.dangerTime}
               />
