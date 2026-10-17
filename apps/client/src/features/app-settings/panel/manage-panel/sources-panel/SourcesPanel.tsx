@@ -264,7 +264,7 @@ export default function SourcesPanel() {
             <div className={style.sourceGrid}>
               <section className={style.sourceCard}>
                 <div className={style.sourceHeader}>
-                  <h4 className={style.sourceTitle}>Import spreadsheet</h4>
+                  <h4 className={style.sourceTitle}>Upload an Excel file</h4>
                 </div>
                 <p className={style.sourceDescription}>
                   Bring in a one-off spreadsheet, review the mapping, and apply the data to the current rundown.
