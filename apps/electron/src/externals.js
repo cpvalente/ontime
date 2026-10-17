@@ -11,6 +11,7 @@ const electronConfig = require('./electron.config.js');
 const linkToDocs = 'https://docs.getontime.no/';
 const linkToGitHub = 'https://github.com/cpvalente/ontime';
 const linkToDiscord = 'https://discord.com/invite/eje3CSUEXm';
+const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 
 // environment and platform constants
 const env = process.env.NODE_ENV || 'production';
@@ -79,6 +80,7 @@ module.exports = {
   linkToDocs,
   linkToGitHub,
   linkToDiscord,
+  apiRepoLatest,
   env,
   isProduction,
   isMac,
