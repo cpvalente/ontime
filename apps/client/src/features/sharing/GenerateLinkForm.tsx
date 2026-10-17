@@ -1,6 +1,6 @@
 import { OntimeView, URLPreset } from 'ontime-types';
 import { generateId } from 'ontime-utils';
-import { FormEvent, useCallback, useRef, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { IoCheckmark, IoCopy, IoQrCodeOutline } from 'react-icons/io5';
 
@@ -122,6 +122,7 @@ export default function GenerateLinkForm({
     setValue,
     reset,
     register,
+    getFieldState,
     formState: { errors, isDirty },
   } = useForm<GenerateLinkFormOptions>({
     mode: 'onChange',
@@ -133,6 +134,13 @@ export default function GenerateLinkForm({
       lockNav: false,
     },
   });
+
+  // network interfaces may load after mount, prefer them unless the user already picked a host
+  useEffect(() => {
+    if (!isOntimeCloud && defaultHost && !getFieldState('baseUrl').isDirty) {
+      setValue('baseUrl', defaultHost);
+    }
+  }, [defaultHost, getFieldState, setValue]);
 
   /**
    * If the user is generating a link to the cuesheet we gather extra options

@@ -161,7 +161,7 @@ export default function AutomationsList({
         showCloseButton
         bodyElements={
           usedByCount > 0
-            ? `Used by ${usedByCount} ${usedByCount === 1 ? 'trigger' : 'triggers'}, which will no longer run. Are you sure?`
+            ? `This automation is used by ${usedByCount} ${usedByCount === 1 ? 'trigger' : 'triggers'}. Remove or reassign them before deleting it.`
             : 'You will permanently remove this automation. Are you sure?'
         }
         footerElements={
@@ -169,7 +169,12 @@ export default function AutomationsList({
             <Button size='large' onClick={() => setDeleteId(null)}>
               Cancel
             </Button>
-            <Button variant='destructive' size='large' onClick={() => deleteId && handleDelete(deleteId)}>
+            <Button
+              variant='destructive'
+              size='large'
+              disabled={usedByCount > 0}
+              onClick={() => deleteId && handleDelete(deleteId)}
+            >
               Delete automation
             </Button>
           </>
