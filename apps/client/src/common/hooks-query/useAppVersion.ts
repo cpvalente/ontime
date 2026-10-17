@@ -26,7 +26,7 @@ export default function useAppVersion() {
     enabled: isLocalhost,
   });
 
-  const hasUpdates = fetchData?.version && !fetchData.version.includes(version);
+  const hasUpdates = fetchData?.version && fetchData.version.replace(/^v/, '') !== version;
 
   const data = fetchData ? { ...fetchData, hasUpdates } : placeholder;
 
