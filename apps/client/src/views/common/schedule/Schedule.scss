@@ -20,8 +20,8 @@ $indeterminate-width: clamp(32px, 3vw, 48px);
 
   .entry-colour {
     background-color: var(--card-background-color-override, $viewer-card-bg-color);
-    height: $circle-size;
-    width: $circle-size;
+    height: clamp(8px, 0.75vw, calc(12 * var(--viewer-font-unit, 1px)));
+    width: clamp(8px, 0.75vw, calc(12 * var(--viewer-font-unit, 1px)));
     border-radius: $component-border-radius-full;
     margin-right: 0.25rem;
   }
