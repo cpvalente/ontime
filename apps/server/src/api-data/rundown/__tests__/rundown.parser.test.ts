@@ -80,6 +80,30 @@ describe('parseRundown()', () => {
     expect(errorEmitter).toHaveBeenCalled();
   });
 
+  it('keeps a valid title unchanged', () => {
+    const rundown = { ...makeNewRundown(), title: 'Morning Show' } as Rundown;
+
+    expect(parseRundown(rundown, {}).title).toBe('Morning Show');
+  });
+
+  it('replaces a title with invalid characters by the default and reports it', () => {
+    const errorEmitter = vi.fn();
+    const rundown = { ...makeNewRundown(), title: 'my-rundown' } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {}, errorEmitter);
+
+    expect(parsedRundown.title).toBe('untitled');
+    expect(errorEmitter).toHaveBeenCalled();
+  });
+
+  it('replaces an empty title by the default', () => {
+    const errorEmitter = vi.fn();
+    const rundown = { ...makeNewRundown(), title: '' } as Rundown;
+
+    expect(parseRundown(rundown, {}, errorEmitter).title).toBe('untitled');
+    expect(errorEmitter).toHaveBeenCalled();
+  });
+
   it('stringifies necessary values', () => {
     const rundown = {
       id: '',
