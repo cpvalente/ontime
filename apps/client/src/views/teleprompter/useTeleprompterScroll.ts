@@ -24,6 +24,8 @@ interface UseTeleprompterScrollArgs {
 
 /** Below this, a difference in the scroll position is rounding rather than someone scrolling */
 const userScrollPx = 2;
+/** How long a hand scroll rests before it moves the position, so a scroll renders the view once rather than every frame */
+const userScrollCommitMs = 150;
 
 /**
  * Turns the transport into the scroll position, once per frame
@@ -44,27 +46,38 @@ export function useTeleprompterScroll(args: UseTeleprompterScrollArgs) {
 
     let shown: number | null = null;
     let lastTarget = 0;
-    let lastWritten: number | null = null;
+    // where the loop put the scroller, or where the reader left it, which a hand scroll is measured from
+    let lastWritten = scroller.scrollTop;
     // where the reader scrolled to, held until the position they moved arrives
     let held: { row: number; sync: TeleprompterSync } | null = null;
+    let commit: ReturnType<typeof setTimeout> | undefined;
     let lastFrame = performance.now();
+
+    const commitHeld = () => {
+      commit = undefined;
+      if (!held) return;
+      // the sync which the commit replaces releases the held row
+      held.sync = latest.current.sync;
+      latest.current.onUserScroll?.(held.row);
+    };
 
     let frame = requestAnimationFrame(function loop(timestamp) {
       const { sync, scriptLayout, isBehind, layout, rowHeight, fallbackRow, onUserScroll } = latest.current;
       const current = scroller.scrollTop;
-      // a smaller window or fewer rows make the browser clamp the position last written, which nobody scrolled
-      const isMoved = (written: number) => {
-        const clamped = Math.min(written, Math.max(0, scroller.scrollHeight - scroller.clientHeight));
-        return Math.abs(current - clamped) > userScrollPx;
-      };
 
-      if (onUserScroll && rowHeight > 0 && lastWritten !== null && isMoved(lastWritten)) {
-        held = { row: current / rowHeight, sync };
-        shown = held.row;
-        lastWritten = current;
-        onUserScroll(held.row);
+      if (onUserScroll && rowHeight > 0) {
+        // a smaller window or fewer rows make the browser clamp the position last written, which nobody scrolled
+        const clamped = Math.min(lastWritten, Math.max(0, scroller.scrollHeight - scroller.clientHeight));
+        if (Math.abs(current - clamped) > userScrollPx) {
+          held = { row: current / rowHeight, sync };
+          shown = held.row;
+          lastWritten = current;
+          clearTimeout(commit);
+          commit = setTimeout(commitHeld, userScrollCommitMs);
+        }
       }
-      if (held && held.sync !== sync) held = null;
+      // a command while the reader is still scrolling does not release them
+      if (held && commit === undefined && held.sync !== sync) held = null;
 
       // a screen holds its place between an edit and the refetch of the script
       const reading = isBehind ? lastTarget : rowInShown(syncPositionAt(sync, serverNow()), scriptLayout, layout);
@@ -75,18 +88,19 @@ export function useTeleprompterScroll(args: UseTeleprompterScrollArgs) {
       shown = shown === null ? target : easeTowards(shown, target, frameDeltaSeconds(timestamp - lastFrame));
       lastFrame = timestamp;
 
-      // writing the same position would stop a scroll the browser is animating
+      // writes when the position moved or the browser clamped it, never to undo a hand scroll too small to count
       const desired = shown * rowHeight;
-      if (Math.abs(current - desired) > 0.5) {
+      if (Math.abs(lastWritten - desired) > 0.5 || Math.abs(current - desired) > userScrollPx) {
         scroller.scrollTop = desired;
         lastWritten = scroller.scrollTop;
-      } else {
-        lastWritten = current;
       }
 
       frame = requestAnimationFrame(loop);
     });
 
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      cancelAnimationFrame(frame);
+      clearTimeout(commit);
+    };
   }, [scroller]);
 }
