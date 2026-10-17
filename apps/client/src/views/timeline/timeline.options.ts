@@ -16,6 +16,13 @@ import { isStringBoolean } from '../common/viewUtils';
 export const getTimelineOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+    { value: 'parent', label: 'Group Title' },
+  ]);
+
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
     {
@@ -29,6 +36,14 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
           type: 'option',
           values: mainOptions,
           defaultValue: 'title',
+        },
+        {
+          id: 'secondary-src',
+          title: 'Secondary text',
+          description: 'Select the data source for the secondary text',
+          type: 'option',
+          values: secondaryOptions,
+          defaultValue: 'none',
         },
       ],
     },
@@ -57,13 +72,14 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
 
 type TimelineOptions = {
   mainSource: keyof OntimeEvent | null;
+  secondarySource: keyof OntimeEvent | null | 'none';
   hidePast: boolean;
   fixedSize: boolean;
 } & TimeOptions;
 
 /**
  * Utility extract the view options from URL Params
- * the names and fallback are manually matched with timerOptions
+ * the names and fallback are manually matched with getTimelineOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): TimelineOptions {
   // Helper to get value from either source, prioritizing defaultValues
@@ -71,6 +87,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
   return {
     mainSource: getValue('main') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     hidePast: isStringBoolean(getValue('hidePast')),
     fixedSize: isStringBoolean(getValue('fixedSize')),
     timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
