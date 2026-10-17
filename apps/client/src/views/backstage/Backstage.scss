@@ -55,7 +55,7 @@
   }
 
   .logo {
-    max-width: min(200px, 20vw);
+    max-width: min(clamp(200px, calc(200 * var(--viewer-font-unit, 1px)), 400px), 20vw);
   }
 
   .title {
