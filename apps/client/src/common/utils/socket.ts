@@ -144,16 +144,15 @@ export const connectSocket = () => {
 
       switch (tag) {
         case MessageTag.Pong: {
+          const now = performance.now();
           // a round trip can be faster than the clock resolution, we keep the value positive since a ping <= 0 means offline
-          const offset = Math.max(1, (new Date().getTime() - new Date(payload).getTime()) * 0.5);
-          patchRuntimeProperty('ping', offset);
-          updateDevTools({ ping: offset });
-          break;
-        }
-        case MessageTag.ClockSync: {
-          const nextRequest = handleClockSyncReply(payload, performance.now());
+          const ping = Math.max(1, Math.round((now - payload.sentAt) * 0.5));
+          patchRuntimeProperty('ping', ping);
+          updateDevTools({ ping });
+
+          const nextRequest = handleClockSyncReply(payload, now);
           if (nextRequest !== null) {
-            sendSocket(MessageTag.ClockSync, nextRequest);
+            sendSocket(MessageTag.Ping, nextRequest);
           }
           break;
         }
@@ -448,9 +447,14 @@ function updateDevTools(newData: Partial<RuntimeStore>) {
   }
 }
 
-/** Measures the offset to the server clock with a quick sequence of requests */
+/** Measures the round trip to the server */
+export function sendPing() {
+  sendSocket(MessageTag.Ping, performance.now());
+}
+
+/** Measures the offset to the server clock with a quick sequence of pings */
 function syncClock() {
-  sendSocket(MessageTag.ClockSync, startClockSync(performance.now()));
+  sendSocket(MessageTag.Ping, startClockSync(performance.now()));
 }
 
 /**

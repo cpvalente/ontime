@@ -113,17 +113,17 @@ describe('WebsocketAdapter', () => {
     expect(client.close).not.toHaveBeenCalled();
   });
 
-  it('replies to a clock sync request with its clock and the client send time', () => {
+  it('replies to a ping with its clock and the client send time', () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 12, 30) });
     authenticationMocks.reject = false;
     socket.init({} as Server, false);
     const client = new websocketMocks.FakeWebSocket();
     websocketMocks.getConnectionHandler()?.(client, {});
 
-    client.emit('message', JSON.stringify({ tag: MessageTag.ClockSync, payload: 1234.5 }));
+    client.emit('message', JSON.stringify({ tag: MessageTag.Ping, payload: 1234.5 }));
 
     expect(client.send).toHaveBeenLastCalledWith(
-      JSON.stringify({ tag: MessageTag.ClockSync, payload: { sentAt: 1234.5, clock: timeCore.timeOfDayNow() } }),
+      JSON.stringify({ tag: MessageTag.Pong, payload: { sentAt: 1234.5, clock: timeCore.timeOfDayNow() } }),
     );
   });
 });

@@ -1,4 +1,4 @@
-import type { ClockSyncReply } from 'ontime-types';
+import type { PongPayload } from 'ontime-types';
 import { dayInMs, MILLIS_PER_SECOND } from 'ontime-utils';
 import { create } from 'zustand';
 
@@ -33,8 +33,8 @@ export function startClockSync(now: number): number {
  * Records the reply to a sync request
  * @returns payload of the next request, or null when the sync is done
  */
-export function handleClockSyncReply({ sentAt, clock }: ClockSyncReply, now: number): number | null {
-  // replies to an abandoned sync are ignored
+export function handleClockSyncReply({ sentAt, clock }: PongPayload, now: number): number | null {
+  // replies to other pings or to an abandoned sync are ignored
   if (sentAt !== pendingSentAt) {
     return null;
   }

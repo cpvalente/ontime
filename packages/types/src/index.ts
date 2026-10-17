@@ -105,7 +105,7 @@ export type {
 
 // web socket
 export { MessageTag } from './api/websocket/data.type.js';
-export type { ClockSyncReply, WsPacketToServer, WsPacketToClient } from './api/websocket/data.type.js';
+export type { PongPayload, WsPacketToServer, WsPacketToClient } from './api/websocket/data.type.js';
 export { RefetchKey } from './api/websocket/refetch.type.js';
 export type { ApiAction, ApiActionTag, ApiResponse } from './api/websocket/api.type.js';
 // SERVER RUNTIME

@@ -101,7 +101,7 @@ describe('socket connection watchdog', () => {
     }
 
     // only the messages sent when connecting
-    expect(socket.sent.map((message) => JSON.parse(message).tag)).toEqual([MessageTag.ClientSet, MessageTag.ClockSync]);
+    expect(socket.sent.map((message) => JSON.parse(message).tag)).toEqual([MessageTag.ClientSet, MessageTag.Ping]);
     expect(MockWebSocket.instances).toHaveLength(1);
   });
 

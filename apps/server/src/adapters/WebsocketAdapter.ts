@@ -119,11 +119,7 @@ class SocketServer implements IAdapter {
 
           switch (tag) {
             case MessageTag.Ping: {
-              sendPacket(MessageTag.Pong, payload);
-              break;
-            }
-            case MessageTag.ClockSync: {
-              sendPacket(MessageTag.ClockSync, { sentAt: payload, clock: timeCore.timeOfDayNow() });
+              sendPacket(MessageTag.Pong, { sentAt: payload, clock: timeCore.timeOfDayNow() });
               break;
             }
             case MessageTag.ClientSet: {

@@ -58,4 +58,18 @@ describe('useAutoTickingClock', () => {
     advance(1000);
     expect(clock).toBe(serverStart + 2010);
   });
+
+  it('freezes while offline and resumes at the current time', () => {
+    act(() => root.render(createElement(ClockReader)));
+    act(() => useClockSyncStore.setState({ offset: serverStart - performance.now() }));
+    advance(1010);
+    const frozen = clock;
+
+    act(() => patchRuntime({ ping: -1 }));
+    advance(5000);
+    expect(clock).toBe(frozen);
+
+    act(() => patchRuntime({ ping: 1 }));
+    expect(clock).toBe(serverStart + 6010);
+  });
 });

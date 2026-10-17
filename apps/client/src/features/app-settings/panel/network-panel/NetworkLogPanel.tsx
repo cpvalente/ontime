@@ -1,9 +1,8 @@
-import { MessageTag } from 'ontime-types';
 import { useEffect } from 'react';
 
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
-import { sendSocket } from '../../../../common/utils/socket';
+import { sendPing } from '../../../../common/utils/socket';
 import { isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -39,11 +38,8 @@ function OntimeCloudStats() {
    * Send immediate ping request, and keep sending on an interval
    */
   useEffect(() => {
-    sendSocket(MessageTag.Ping, new Date());
-
-    const doPing = setInterval(() => {
-      sendSocket(MessageTag.Ping, new Date());
-    }, 5000);
+    sendPing();
+    const doPing = setInterval(sendPing, 5000);
 
     return () => {
       clearInterval(doPing);
