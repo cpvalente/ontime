@@ -12,12 +12,14 @@ async function resetTeleprompter(request: APIRequestContext) {
   }
 }
 
-/** The row at the reading line, as a fraction between rows */
+/** The row at the reading line, as a fraction between rows: a local view scrolls, a screen which only follows moves its rows */
 function readingRow(page: Page) {
   return page.getByTestId('teleprompter-scroller').evaluate((scroller) => {
+    const content = scroller.querySelector<HTMLElement>('.teleprompter__content');
     const row = scroller.querySelector('.teleprompter__row');
-    if (!row) throw new Error('No rows rendered');
-    return scroller.scrollTop / Number.parseFloat(getComputedStyle(row).height);
+    if (!content || !row) throw new Error('No rows rendered');
+    const moved = -new DOMMatrix(getComputedStyle(content).transform).m42;
+    return (scroller.scrollTop + moved) / Number.parseFloat(getComputedStyle(row).height);
   });
 }
 

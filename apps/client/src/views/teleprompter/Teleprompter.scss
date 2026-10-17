@@ -31,10 +31,14 @@
 
 .teleprompter__scroller {
   height: 100%;
-  /* the frame loop is the only writer of the scroll position */
+  /* the frame loop is the only writer of the position, which it moves the rows to */
   overflow: hidden;
   overflow-anchor: none;
   scroll-behavior: auto;
+
+  &:not(.teleprompter__scroller--by-hand) .teleprompter__content {
+    will-change: transform;
+  }
 }
 
 .teleprompter__scroller--by-hand {
@@ -158,9 +162,9 @@
   gap: min(1vh, 8px) clamp(8px, 1.2vw, 20px);
   padding: min(1vh, 8px) clamp(8px, 1vw, 16px);
 
-  background: rgba(white, 8%);
+  /* opaque rather than blurred, as a blur over the moving text repaints every frame */
+  background: #1f1f1f;
   border-radius: $element-border-radius;
-  backdrop-filter: blur(6px);
 
   opacity: 1;
   transition: opacity $viewer-transition-time;

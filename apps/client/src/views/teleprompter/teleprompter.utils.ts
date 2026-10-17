@@ -62,7 +62,7 @@ export function easeTowards(shown: number, target: number, deltaSeconds: number)
 }
 
 /** How long scrolling is gathered into one command */
-const scrollInterval = 100;
+const scrollInterval = 50;
 
 /**
  * Groups scrolling into one command per interval, so a fast spin does not flood the server

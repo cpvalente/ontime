@@ -67,8 +67,9 @@ export default function TeleprompterScreen({
         if (anchor) onUserScroll(anchor);
       }
     : undefined;
-  useTeleprompterScroll({
+  const showSentScroll = useTeleprompterScroll({
     scroller,
+    content,
     sync,
     scriptLayout,
     isBehind,
@@ -77,8 +78,16 @@ export default function TeleprompterScreen({
     fallbackRow,
     onUserScroll: handleUserScroll,
   });
+  // a controller shows its scrolls straight away, rather than wait for the server to send them back
+  const handleCommand =
+    onCommand && !onUserScroll
+      ? (command: TeleprompterViewCommand) => {
+          if (command.type === 'scroll') showSentScroll(command.lines);
+          onCommand(command);
+        }
+      : onCommand;
   // a local view scrolls by hand, which stays in the browser, a controller sends the wheel as scroll commands
-  useTeleprompterInput({ screen, onCommand, rowHeight, wheel: !onUserScroll });
+  useTeleprompterInput({ screen, onCommand: handleCommand, rowHeight, wheel: !onUserScroll });
 
   const hasLoaded = loadedEventId !== null && events.some((event) => event.id === loadedEventId);
   const screenStyles = {
