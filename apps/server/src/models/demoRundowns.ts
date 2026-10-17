@@ -2,7 +2,7 @@ import { SupportedEntry, TimeStrategy, EndAction, TimerType, Day, Rundown } from
 
 export const stageRundown: Rundown = {
   id: 'default',
-  title: 'Demo project',
+  title: 'Main Stage',
   order: ['e2163f', '7eaf99', 'f60403', '6b0edb'],
   flatOrder: [
     'e2163f',
@@ -25,7 +25,7 @@ export const stageRundown: Rundown = {
       id: 'e2163f',
       type: SupportedEntry.Milestone,
       cue: 'Demo',
-      title: 'Clear all, or Create New Project to start fresh',
+      title: 'Main Stage · Production notes',
       note: 'Moderator - Emma Thompson\n\nSpeakers\n- Liam Carter + Sophia Patel\n- Ethan Brooks\n- Lucas Bennett',
       colour: '#9d9d9d',
       custom: {},
@@ -241,7 +241,7 @@ export const stageRundown: Rundown = {
     '75ce86': {
       id: '75ce86',
       type: SupportedEntry.Event,
-      flag: false,
+      flag: true,
       title: 'Session 2',
       timeStart: 46800000,
       timeEnd: 49800000,

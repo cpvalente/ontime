@@ -10,16 +10,21 @@ export const demoDb: DatabaseModel = {
   },
   project: {
     title: 'Ontime Demo Project',
-    description: 'Demo Project to get you started',
+    description: 'Annual innovation summit',
     url: 'https://docs.getontime.no/',
-    info: 'Use Project info to share information to various Ontime views.\nie. Venue info, wifi, staff details, etc.',
+    info: 'MAIN HALL\nDoors: 10:30 · Show: 11:00–14:00\nLunch: Main foyer · 12:00–13:00',
     logo: 'ontime-logo.png',
     custom: [
       {
-        title: 'Custom data',
+        title: 'Guest information',
         value:
-          'Add additional, custom data fields to the project along with optional links to images. \nThe image will be rendered in the views',
+          'Guest Wi-Fi: Ontime Demo\nGreen room: Level 2 · Room 204\nOur team at the information desk can help with accessibility and venue directions.',
         url: '',
+      },
+      {
+        title: 'Stage screens',
+        value: 'Main Hall presentation feed.\nUse 16:9 slides and check in with the AV team before your session.',
+        url: 'https://www.getontime.no/images/aux/demo-slide1.webp',
       },
     ],
   },
@@ -29,7 +34,7 @@ export const demoDb: DatabaseModel = {
     operatorKey: null,
     timeFormat: '24',
     language: 'en',
-    auxTimerNames: ['', '', ''],
+    auxTimerNames: ['Q&A', 'Break', 'Reset'],
   },
   viewSettings: {
     dangerColor: '#ff7300',
