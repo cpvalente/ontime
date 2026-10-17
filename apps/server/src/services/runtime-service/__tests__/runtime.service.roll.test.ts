@@ -39,7 +39,7 @@ function prepare(entries: OntimeEntry[], clock: number) {
       entries: Object.fromEntries(entries.map((entry) => [entry.id, entry])),
       order: entries.map((e) => e.id),
     }),
-    {},
+    { fields: {}, order: [] },
   );
   runtimeService.init(null);
 }

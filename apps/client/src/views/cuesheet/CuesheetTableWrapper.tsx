@@ -31,11 +31,11 @@ function CuesheetTableWrapper({
   const preset = use(PresetContext);
   const { isLoaded } = useRundownScope();
   const { cuesheetMode, setCuesheetMode } = useApplyCuesheetPolicy(preset, { canRunMode: isLoaded });
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
 
   const columns = useMemo(
-    () => makeCuesheetColumns(customFields, cuesheetMode, preset),
-    [customFields, cuesheetMode, preset],
+    () => makeCuesheetColumns(orderedFields, cuesheetMode, preset),
+    [orderedFields, cuesheetMode, preset],
   );
 
   return (

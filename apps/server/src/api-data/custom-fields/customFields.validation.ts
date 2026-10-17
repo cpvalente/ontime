@@ -33,3 +33,10 @@ export const validateEditCustomField = [
 ];
 
 export const validateDeleteCustomField = [param('key').isString().notEmpty(), requestValidationFunction];
+
+export const validateReorderCustomFields = [
+  body('order').isArray(),
+  body('order.*').isString(),
+
+  requestValidationFunction,
+];

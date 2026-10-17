@@ -1,4 +1,4 @@
-import { CustomFields, RefetchKey, Rundown } from 'ontime-types';
+import { ProjectCustomFields, RefetchKey, Rundown } from 'ontime-types';
 
 import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
@@ -21,8 +21,10 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
       storedRundowns[id] = structuredClone(rundown);
     }),
     getProjectRundowns: () => storedRundowns,
-    getCustomFields: () => ({}),
-    setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
+    getCustomFields: () => ({ fields: {}, order: [] }),
+    setCustomFields: vi.fn<(customFields: ProjectCustomFields) => Promise<ProjectCustomFields>>(
+      async (customFields) => customFields,
+    ),
     mergeIntoData: vi.fn<() => Promise<void>>(),
   }),
 }));
@@ -58,7 +60,7 @@ describe('rundown.service', () => {
     });
     seedRundown(loaded);
     seedRundown(makeRundown({ id: 'background', title: 'Background', revision: 7 }));
-    rundownCache.init(loaded, {});
+    rundownCache.init(loaded, { fields: {}, order: [] });
 
     vi.clearAllMocks();
   });

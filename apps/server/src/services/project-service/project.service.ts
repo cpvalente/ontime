@@ -3,7 +3,7 @@ import { copyFile, rm } from 'fs/promises';
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
-import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { parseProjectCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -404,15 +404,14 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // the rundown depends on custom fields
   // so custom fields needs to be checked first
   if (customFields) {
-    const parsedCustomFields = parseCustomFields(data);
-    await mergeCustomFields(parsedCustomFields);
+    await mergeCustomFields(parseProjectCustomFields(data));
   }
 
   // then we can check the rundown
   if (rundowns) {
     // use the already parsed custom fields if available, otherwise fetch from provider
     const projectCustomFields = getDataProvider().getCustomFields();
-    const parsedRundowns = parseRundowns(data, projectCustomFields);
+    const parsedRundowns = parseRundowns(data, projectCustomFields.fields);
     const currentRundown = getCurrentRundown();
 
     // patched rundowns replace any existing rundown with the same id

@@ -4,7 +4,7 @@ import { getErrorMessage } from 'ontime-utils';
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import { makeProjectId } from '../../models/dataModel.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import { parseProjectCustomFields } from '../custom-fields/customFields.parser.js';
 import * as logger from '../logs/logs.service.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
@@ -72,8 +72,8 @@ export function parseDatabaseModel(
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  const customFields = parseCustomFields(migratedData, makeEmitError('Custom Fields'));
-  const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
+  const customFields = parseProjectCustomFields(migratedData, makeEmitError('Custom Fields'));
+  const rundowns = parseRundowns(migratedData, customFields.fields, makeEmitError('Rundowns'));
 
   const presetMigration = v4.migrateUrlPresetAliases(migratedData, makeEmitError('URL Presets'));
   migrated ||= presetMigration.migrated;

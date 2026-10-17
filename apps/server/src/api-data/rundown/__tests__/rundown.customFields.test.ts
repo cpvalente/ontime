@@ -39,13 +39,13 @@ describe('custom fields written by an import', () => {
     // a later custom field edit must not drop the imported field
     await createCustomField(makeCustomField({ label: 'Later' }));
 
-    expect(Object.keys(getDataProvider().getCustomFields())).toEqual(['Imported', 'Later']);
+    expect(Object.keys(getDataProvider().getCustomFields().fields)).toEqual(['Imported', 'Later']);
   });
 
   test('rejects an empty derived key without changing custom fields', async () => {
     const before = structuredClone(getDataProvider().getCustomFields());
     await expect(createCustomField(makeCustomField({ label: '   ' }))).rejects.toThrow(InvalidCustomFieldLabelError);
     expect(getDataProvider().getCustomFields()).toEqual(before);
-    expect(getProjectCustomFields()).toEqual(before);
+    expect(getProjectCustomFields()).toEqual(before.fields);
   });
 });

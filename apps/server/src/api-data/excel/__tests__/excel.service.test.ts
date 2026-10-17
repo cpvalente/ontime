@@ -12,7 +12,7 @@ it('reads an uploaded workbook and returns its worksheet metadata', async () => 
   const directory = await mkdtemp(join(tmpdir(), 'ontime-excel-'));
   const filePath = join(directory, 'upload.xlsx');
   try {
-    await writeFile(filePath, generateExcelFile(demoDb.rundowns.default, demoDb.customFields));
+    await writeFile(filePath, generateExcelFile(demoDb.rundowns.default, demoDb.customFields.fields));
 
     const result = await readExcelFile(filePath);
 
@@ -29,10 +29,10 @@ it('replaces the cached workbook when a newer file is uploaded', async () => {
   const firstFile = join(directory, 'first.xlsx');
   const secondFile = join(directory, 'second.xlsx');
   try {
-    await writeFile(firstFile, generateExcelFile(demoDb.rundowns.default, demoDb.customFields));
+    await writeFile(firstFile, generateExcelFile(demoDb.rundowns.default, demoDb.customFields.fields));
     await writeFile(
       secondFile,
-      generateExcelFile({ ...demoDb.rundowns.default, title: 'Second' }, demoDb.customFields),
+      generateExcelFile({ ...demoDb.rundowns.default, title: 'Second' }, demoDb.customFields.fields),
     );
 
     const first = await readExcelFile(firstFile);
@@ -52,7 +52,7 @@ describe('generateExcelFile()', () => {
         ...demoDb.rundowns.default,
         title: 'This is a very long name with many characters and weird things: like [Main]/?*',
       },
-      demoDb.customFields,
+      demoDb.customFields.fields,
     );
 
     const workbook = xlsx.read(buffer, { type: 'buffer' });
@@ -69,7 +69,7 @@ describe('generateExcelFile()', () => {
         ...demoDb.rundowns.default,
         title: '[]:*?/\\',
       },
-      demoDb.customFields,
+      demoDb.customFields.fields,
     );
 
     const workbook = xlsx.read(buffer, { type: 'buffer' });
@@ -91,7 +91,7 @@ it('exports all rundowns, including empty ones, with unique valid worksheet name
       { ...rundown, title: `${'F'.repeat(26)}😀` },
       { ...rundown, title: `${'F'.repeat(26)}😀` },
     ],
-    demoDb.customFields,
+    demoDb.customFields.fields,
   );
   const workbook = xlsx.read(buffer, { type: 'buffer' });
   expect(workbook.SheetNames).toEqual([

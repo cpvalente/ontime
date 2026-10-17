@@ -1,5 +1,6 @@
 import { DatabaseModel } from 'ontime-types';
 
+import { parseCustomFieldOrder } from '../../api-data/custom-fields/customFields.parser.js';
 import { normaliseUrlPresets } from '../../api-data/url-presets/urlPresets.utils.js';
 
 /**
@@ -21,10 +22,12 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     settings = {},
     viewSettings = {},
     urlPresets = [],
-    customFields = {},
+    customFields,
     automation,
     teleprompter = {},
   } = deepNewData;
+
+  const fields = { ...deepExisting.customFields.fields, ...customFields?.fields };
 
   return {
     // a patch never changes which project this is
@@ -35,7 +38,10 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     viewSettings: { ...deepExisting.viewSettings, ...viewSettings },
     urlPresets: normaliseUrlPresets([...deepExisting.urlPresets, ...urlPresets]),
     // custom fields can be merged
-    customFields: { ...deepExisting.customFields, ...customFields },
+    customFields: {
+      fields,
+      order: parseCustomFieldOrder([...deepExisting.customFields.order, ...(customFields?.order ?? [])], fields),
+    },
     // trigger and automation are coupled and cannot be changed individually so we replace the whole automation
     automation: automation ?? deepExisting.automation,
     teleprompter: { ...deepExisting.teleprompter, ...teleprompter },

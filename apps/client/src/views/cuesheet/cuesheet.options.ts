@@ -1,4 +1,4 @@
-import { CustomFields } from 'ontime-types';
+import { OrderedCustomFields } from 'ontime-types';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
@@ -50,8 +50,8 @@ export const cuesheetDefaultColumns = [
   { value: 'note', label: 'Note' },
 ];
 
-export function makeCuesheetCustomColumns(customFields: CustomFields) {
-  return Object.entries(customFields).map(([key, field]) => {
+export function makeCuesheetCustomColumns(orderedFields: OrderedCustomFields) {
+  return orderedFields.map(([key, field]) => {
     return {
       value: `custom-${key}`,
       label: field.label,

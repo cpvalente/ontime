@@ -1,5 +1,6 @@
+import { useSortable } from '@dnd-kit/sortable';
 import { CustomField, CustomFieldKey } from 'ontime-types';
-import { IoPencil, IoTrash } from 'react-icons/io5';
+import { IoPencil, IoReorderTwo, IoTrash } from 'react-icons/io5';
 
 import IconButton from '../../../../../common/components/buttons/IconButton';
 import CopyTag from '../../../../../common/components/copy-tag/CopyTag';
@@ -15,14 +16,33 @@ interface CustomFieldEntryProps {
   fieldKey: string;
   type: CustomField['type'];
   onEdit: () => void;
-  onDelete: (key: CustomFieldKey) => Promise<void>;
+  onDelete: (key: CustomFieldKey) => void;
 }
 
 export default function CustomFieldEntry(props: CustomFieldEntryProps) {
   const { colour, label, fieldKey, type, onEdit, onDelete } = props;
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, isDragging, isOver, activeIndex, index } =
+    useSortable({
+      id: fieldKey,
+    });
+
+  const dropPlacement =
+    isOver && activeIndex >= 0 && activeIndex !== index ? (activeIndex < index ? 'after' : 'before') : undefined;
 
   return (
-    <tr>
+    <tr ref={setNodeRef} data-drop-placement={dropPlacement} className={isDragging ? style.dragging : undefined}>
+      <td>
+        <button
+          type='button'
+          className={style.dragHandle}
+          ref={setActivatorNodeRef}
+          aria-label={`Reorder ${label}`}
+          {...attributes}
+          {...listeners}
+        >
+          <IoReorderTwo />
+        </button>
+      </td>
       <td>
         <Swatch color={colour} />
       </td>

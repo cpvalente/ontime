@@ -25,7 +25,7 @@ describe('AutomationForm output tests', () => {
     root = createRoot(container);
     queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: Infinity } } });
     queryClient.setQueryData(AUTOMATION, automationPlaceholderSettings);
-    queryClient.setQueryData(CUSTOM_FIELDS, {});
+    queryClient.setQueryData(CUSTOM_FIELDS, { fields: {}, order: [] });
   });
 
   afterEach(async () => {

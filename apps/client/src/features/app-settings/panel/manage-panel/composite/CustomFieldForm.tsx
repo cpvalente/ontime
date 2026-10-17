@@ -51,7 +51,13 @@ export default function CustomFieldForm({
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: initialType ?? 'text', label: initialLabel || '', colour: initialColour || '' },
+    // validate while typing, otherwise a disabled save button gives no reason
+    mode: 'onChange',
+    defaultValues: {
+      type: initialType ?? 'text',
+      label: initialLabel || '',
+      colour: initialColour || '',
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -85,6 +91,7 @@ export default function CustomFieldForm({
   const canSubmit = isDirty && isValid;
   // if initial values are given, we can assume we are in edit mode
   const isEditMode = initialKey !== undefined;
+  const type = watch('type');
 
   return (
     <Modal
@@ -96,24 +103,26 @@ export default function CustomFieldForm({
       title={isEditMode ? 'Edit custom field' : 'Create custom field'}
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(setupSubmit)} className={style.formColumn}>
-          <Info>
-            Please note that images can quickly deteriorate your app&apos;s performance.
-            <br />
-            Prefer using small, and compressed images.
-          </Info>
           <div>
             <Panel.Description>Type</Panel.Description>
             <RadioGroup
               orientation='horizontal'
               disabled={isEditMode}
               onValueChange={(value) => setValue('type', value, { shouldDirty: true })}
-              value={watch('type')}
+              value={type}
               items={[
                 { value: 'text', label: 'Text' },
                 { value: 'image', label: 'Image' },
               ]}
             />
           </div>
+          {type === 'image' && (
+            <Info>
+              Images can impact your app&apos;s performance.
+              <br />
+              Prefer using small, and compressed images.
+            </Info>
+          )}
           <div className={style.twoCols}>
             <label>
               <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
@@ -126,7 +135,8 @@ export default function CustomFieldForm({
                     if (value.trim().length === 0) return 'Required field';
                     if (!checkRegex.isAlphanumericWithSpace(value))
                       return 'Only alphanumeric characters and space are allowed';
-                    if (!isEditMode && Object.hasOwn(data, customFieldLabelToKey(value) ?? '')) {
+                    const newKey = customFieldLabelToKey(value);
+                    if (newKey !== initialKey && Object.hasOwn(data, newKey)) {
                       return 'Custom fields must be unique';
                     }
                     return true;

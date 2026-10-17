@@ -42,7 +42,7 @@ const dbModel: Omit<DatabaseModel, 'projectId'> = {
     dangerColor: '#ff7300',
   },
   urlPresets: [],
-  customFields: {},
+  customFields: { fields: {}, order: [] },
   automation: {
     enabledAutomations: true,
     enabledOscIn: false,

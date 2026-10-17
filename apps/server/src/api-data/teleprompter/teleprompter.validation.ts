@@ -13,7 +13,7 @@ export const validateTeleprompterSettings = [
   body('script')
     .optional()
     .isString()
-    .custom((value: string) => isReadableScriptSource(value, getDataProvider().getCustomFields())),
+    .custom((value: string) => isReadableScriptSource(value, getDataProvider().getCustomFields().fields)),
   body('charsPerLine')
     .optional()
     .custom(

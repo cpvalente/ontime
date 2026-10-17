@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
+import { OntimeEvent, OntimeGroup, OntimeMilestone, OrderedCustomFields } from 'ontime-types';
 import { CSSProperties, Fragment } from 'react';
 
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
@@ -10,26 +10,22 @@ import EntryEditorTextInput from './EventTextInput';
 import style from '../EntryEditor.module.scss';
 
 interface EntryEditorCustomFieldsProps {
-  fields: CustomFields;
+  orderedFields: OrderedCustomFields;
   entry: OntimeEvent | OntimeGroup | OntimeMilestone;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
 }
 
-export default function EntryEditorCustomFields({
-  fields: customFields,
-  handleSubmit,
-  entry,
-}: EntryEditorCustomFieldsProps) {
+export default function EntryEditorCustomFields({ orderedFields, handleSubmit, entry }: EntryEditorCustomFieldsProps) {
   return (
     <Fragment>
-      {Object.keys(customFields).map((fieldKey) => {
+      {orderedFields.map(([fieldKey, field]) => {
         const key = `${entry.id}-${fieldKey}`;
         const fieldName = `custom-${fieldKey}`;
         const initialValue = entry.custom[fieldKey] ?? '';
-        const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
-        const labelText = customFields[fieldKey].label;
+        const { backgroundColor, color } = getAccessibleColour(field.colour);
+        const labelText = field.label;
 
-        if (customFields[fieldKey].type === 'text') {
+        if (field.type === 'text') {
           return (
             <EventTextArea
               key={key}
@@ -43,7 +39,7 @@ export default function EntryEditorCustomFields({
           );
         }
 
-        if (customFields[fieldKey].type === 'image') {
+        if (field.type === 'image') {
           return (
             <div key={key} className={style.customImage}>
               <EntryEditorTextInput

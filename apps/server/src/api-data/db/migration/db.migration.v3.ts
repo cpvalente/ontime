@@ -49,7 +49,8 @@ export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
   const urlPresets = migrateURLPresets(jsonData);
   const project = migrateProjectData(jsonData);
   const migratedCustom = migrateCustomFields(jsonData);
-  const customFields = migratedCustom?.customFields;
+  const fields = migratedCustom?.customFields;
+  const customFields = fields ? { fields, order: Object.keys(fields) } : undefined;
   const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
   const automation = migrateAutomations(jsonData);
 

@@ -1,4 +1,4 @@
-import { CustomFields, Playback, RefetchKey, Rundown } from 'ontime-types';
+import { CustomFields, ProjectCustomFields, Playback, RefetchKey, Rundown } from 'ontime-types';
 import { MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
@@ -55,9 +55,11 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
       stored.rundowns[id] = rundown;
     }),
     getProjectRundowns: () => stored.rundowns,
-    getCustomFields: () => ({}),
+    getCustomFields: () => ({ fields: {}, order: [] }),
     getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
-    setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
+    setCustomFields: vi.fn<(customFields: ProjectCustomFields) => Promise<ProjectCustomFields>>(
+      async (customFields) => customFields,
+    ),
   }),
 }));
 
@@ -77,7 +79,7 @@ vi.mock('../../automation/automation.service.js', () => ({ triggerAutomations: v
 vi.mock('../../report/report.service.js', () => ({ triggerReportEntry: vi.fn<() => void>() }));
 
 async function playRundown(rundown: Rundown, customFields: CustomFields = {}) {
-  await initRundown(rundown, customFields);
+  await initRundown(rundown, { fields: customFields, order: Object.keys(customFields) });
   runtimeService.startById('a');
   expect(getState().timer.playback).toBe(Playback.Play);
   broadcast.sent = [];
