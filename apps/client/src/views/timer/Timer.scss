@@ -150,6 +150,12 @@
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, var(--external-color-override, $external-color) 10%, transparent);
 
+    // Bound the line box so auto-fit can scale the text with the viewer.
+    > div {
+      height: clamp(112px, calc(112 * var(--viewer-font-unit, 1px)), 224px);
+      line-height: 1.5;
+    }
+
     &--hidden {
       opacity: 0;
       height: 0;
