@@ -6,8 +6,11 @@ export const sampleWindowMs = 5000;
 export const slewRate = 0.25;
 /** Differences larger than this are a change in the server clock, not drift */
 export const snapThresholdMs = MILLIS_PER_SECOND;
-/** A server clock behind ours must stay behind this long before we snap back, late packets arrive in bursts */
-export const backwardSnapDelayMs = MILLIS_PER_SECOND;
+/**
+ * Samples far behind us are followed only once two agree within this, a change in the server clock
+ * Packets queued during a stall arrive together and disagree by about a second each
+ */
+const backwardAgreementMs = MILLIS_PER_SECOND / 2;
 /** Draws slightly after the second change so the new second is visible */
 const tickMarginMs = 10;
 
@@ -24,8 +27,8 @@ export type ClockEstimate = {
   slewStart: number;
   /** offset the applied offset is moving towards */
   targetOffset: number;
-  /** local time of the first sample in the current run of samples far behind the estimate */
-  behindSince: number | null;
+  /** offset of the last sample far behind the estimate, if the previous sample was */
+  behindOffset: number | null;
 };
 
 /** Signed difference between two times of day, taking the shortest way around midnight */
@@ -47,7 +50,7 @@ function createClockEstimate(serverClock: number, now: number): ClockEstimate {
     slewFrom: offset,
     slewStart: now,
     targetOffset: offset,
-    behindSince: null,
+    behindOffset: null,
   };
 }
 
@@ -66,20 +69,21 @@ export function updateClockEstimate(estimate: ClockEstimate | null, serverClock:
     return createClockEstimate(serverClock, now);
   }
 
+  const offset = appliedOffset + error;
+
   // a sample far behind is usually a late packet, we only follow it if the server stays behind
   if (error < -snapThresholdMs) {
-    const behindSince = estimate.behindSince ?? now;
-    if (now - behindSince >= backwardSnapDelayMs) {
+    if (estimate.behindOffset !== null && Math.abs(offset - estimate.behindOffset) < backwardAgreementMs) {
       return createClockEstimate(serverClock, now);
     }
-    return { ...estimate, behindSince };
+    return { ...estimate, behindOffset: offset };
   }
 
   const samples = estimate.samples.filter((sample) => now - sample.receivedAt < sampleWindowMs);
-  samples.push({ offset: appliedOffset + error, receivedAt: now });
+  samples.push({ offset, receivedAt: now });
   const targetOffset = Math.max(...samples.map((sample) => sample.offset));
 
-  return { samples, slewFrom: appliedOffset, slewStart: now, targetOffset, behindSince: null };
+  return { samples, slewFrom: appliedOffset, slewStart: now, targetOffset, behindOffset: null };
 }
 
 /** Clock in ms since midnight at local time `now` */
@@ -88,21 +92,7 @@ export function getEstimatedClock(estimate: ClockEstimate, now: number): number 
   return ((clock % dayInMs) + dayInMs) % dayInMs;
 }
 
-/**
- * Time until the estimated clock reaches its next whole second
- * While correcting drift the clock runs faster or slower, until the correction finishes
- */
+/** Time until the estimated clock reaches its next whole second */
 export function getNextTickDelay(estimate: ClockEstimate, now: number): number {
-  const toNextSecond = MILLIS_PER_SECOND - (getEstimatedClock(estimate, now) % MILLIS_PER_SECOND);
-  const remainingCorrection = estimate.targetOffset - getAppliedOffset(estimate, now);
-  if (remainingCorrection === 0) {
-    return toNextSecond + tickMarginMs;
-  }
-
-  const speed = 1 + Math.sign(remainingCorrection) * slewRate;
-  const correctionTime = Math.abs(remainingCorrection) / slewRate;
-  if (toNextSecond <= correctionTime * speed) {
-    return Math.ceil(toNextSecond / speed) + tickMarginMs;
-  }
-  return Math.ceil(correctionTime + toNextSecond - correctionTime * speed) + tickMarginMs;
+  return MILLIS_PER_SECOND - (getEstimatedClock(estimate, now) % MILLIS_PER_SECOND) + tickMarginMs;
 }
