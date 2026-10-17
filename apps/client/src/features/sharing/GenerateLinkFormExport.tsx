@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
-import { hostToBaseUrl } from '../../common/utils/linkUtils';
+import { findPrivateNetworkAddress, hostToBaseUrl } from '../../common/utils/linkUtils';
 import { navigatorConstants, viewLabels } from '../../viewerConfig';
 import GenerateLinkForm from './GenerateLinkForm';
 
@@ -28,6 +28,12 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
     }));
   }, [infoData.networkInterfaces, infoData.serverPort]);
 
+  /** Prefer an address other devices can reach over localhost */
+  const defaultHost = useMemo(() => {
+    const address = findPrivateNetworkAddress(infoData.networkInterfaces);
+    return address ? hostToBaseUrl(address, infoData.serverPort) : undefined;
+  }, [infoData.networkInterfaces, infoData.serverPort]);
+
   const pathOptions = useMemo(() => {
     if (lockedPath) {
       return [{ value: lockedPath.value, label: lockedPath.label }];
@@ -47,6 +53,7 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
   return (
     <GenerateLinkForm
       hostOptions={hostOptions}
+      defaultHost={defaultHost}
       pathOptions={pathOptions}
       presets={urlPresetData}
       isLockedToView={Boolean(lockedPath)}

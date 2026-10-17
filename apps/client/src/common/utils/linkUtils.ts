@@ -1,3 +1,4 @@
+import type { NetworkInterface } from 'ontime-types';
 import type { MouseEvent } from 'react';
 
 import { baseURI, serverURL } from '../../externals';
@@ -72,4 +73,20 @@ export function hostToBaseUrl(host: string, port: number, externalServerUrl: str
   const pagePort = page.port === '' ? (page.protocol === 'https:' ? 443 : 80) : Number(page.port);
   const scheme = page.protocol === 'https:' && pagePort === port ? 'https' : 'http';
   return `${scheme}://${host}:${port}`;
+}
+
+/** Whether an address (or URL host) points back to the machine itself: localhost, 127.x.x.x or ::1 */
+export function isLoopbackAddress(address: string): boolean {
+  const host = address.replace(/^\[|\]$/g, '').toLowerCase();
+  return host === 'localhost' || host === '::1' || /^127(\.\d{1,3}){3}$/.test(host);
+}
+
+/** Whether an IPv4 address is in a private range: 10.x.x.x, 172.16-31.x.x or 192.168.x.x */
+function isPrivateNetworkAddress(address: string): boolean {
+  return /^(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(address);
+}
+
+/** Finds the first address a device on the local network could use to reach this machine */
+export function findPrivateNetworkAddress(interfaces: NetworkInterface[]): string | undefined {
+  return interfaces.find((nif) => !isLoopbackAddress(nif.address) && isPrivateNetworkAddress(nif.address))?.address;
 }
