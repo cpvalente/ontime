@@ -1,4 +1,4 @@
-import { AutomationDTO, NormalisedAutomation } from 'ontime-types';
+import { AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
 import { Fragment, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
 
@@ -6,6 +6,7 @@ import { deleteAutomation } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import Dialog from '../../../../common/components/dialog/Dialog';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
@@ -24,14 +25,21 @@ const automationPlaceholder: AutomationDTO = {
 
 interface AutomationsListProps {
   automations: NormalisedAutomation;
+  triggers: Trigger[];
   enabledAutomations?: boolean;
   isLoading: boolean;
 }
 
-export default function AutomationsList({ automations, enabledAutomations, isLoading }: AutomationsListProps) {
+export default function AutomationsList({
+  automations,
+  triggers,
+  enabledAutomations,
+  isLoading,
+}: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
   const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     try {
@@ -40,9 +48,12 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
     } catch (error) {
       setDeleteError(maybeAxiosError(error));
     } finally {
+      setDeleteId(null);
       refetch();
     }
   };
+
+  const usedByCount = deleteId === null ? 0 : triggers.filter((trigger) => trigger.automationId === deleteId).length;
 
   const arrayAutomations = Object.keys(automations);
 
@@ -122,7 +133,7 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
                         <IconButton
                           variant='ghosted-destructive'
                           aria-label='Delete entry'
-                          onClick={() => handleDelete(automationId)}
+                          onClick={() => setDeleteId(automationId)}
                         >
                           <IoTrash />
                         </IconButton>
@@ -142,6 +153,28 @@ export default function AutomationsList({ automations, enabledAutomations, isLoa
           </Panel.Table>
         </Panel.Section>
       </Panel.Card>
+      <Dialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        title='Delete automation'
+        showBackdrop
+        showCloseButton
+        bodyElements={
+          usedByCount > 0
+            ? `Used by ${usedByCount} ${usedByCount === 1 ? 'trigger' : 'triggers'}, which will no longer run. Are you sure?`
+            : 'You will permanently remove this automation. Are you sure?'
+        }
+        footerElements={
+          <>
+            <Button size='large' onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant='destructive' size='large' onClick={() => deleteId && handleDelete(deleteId)}>
+              Delete automation
+            </Button>
+          </>
+        }
+      />
     </Panel.Section>
   );
 }

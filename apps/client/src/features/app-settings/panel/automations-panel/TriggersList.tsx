@@ -5,6 +5,7 @@ import { IoAdd } from 'react-icons/io5';
 import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
+import Dialog from '../../../../common/components/dialog/Dialog';
 import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -30,6 +31,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
   const [formState, setFormState] = useState<FormState>({ isOpen: false, trigger: undefined });
   const { refetch } = useAutomationSettings();
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const openNewForm = () => setFormState({ isOpen: true });
   const openEditForm = (trigger: Trigger) => setFormState({ isOpen: true, trigger });
@@ -42,6 +44,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
     } catch (error) {
       setDeleteError(maybeAxiosError(error));
     } finally {
+      setDeleteId(null);
       refetch();
     }
   };
@@ -132,7 +135,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                   trigger={trigger}
                   duplicate={duplicates?.includes(index)}
                   handleEdit={() => openEditForm(trigger)}
-                  handleDelete={() => handleDelete(trigger.id)}
+                  handleDelete={() => setDeleteId(trigger.id)}
                 />
               ))}
               {deleteError && (
@@ -146,6 +149,24 @@ export default function TriggersList({ triggers, automations, enabledAutomations
           </Panel.Table>
         </Panel.Section>
       </Panel.Card>
+      <Dialog
+        isOpen={deleteId !== null}
+        onClose={() => setDeleteId(null)}
+        title='Delete trigger'
+        showBackdrop
+        showCloseButton
+        bodyElements='You will permanently remove this trigger. Are you sure?'
+        footerElements={
+          <>
+            <Button size='large' onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button variant='destructive' size='large' onClick={() => deleteId && handleDelete(deleteId)}>
+              Delete trigger
+            </Button>
+          </>
+        }
+      />
     </Panel.Section>
   );
 }
