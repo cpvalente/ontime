@@ -42,7 +42,7 @@ export default function OutputCard({
             {testState.message}
           </span>
         )}
-        {unavailableReason ? (
+  {unavailableReason ? (
           <Tag variant='warning'>{unavailableReason}</Tag>
         ) : (
           <Button variant='ghosted-white' onClick={onTest} loading={testState?.status === 'sending'}>

@@ -116,6 +116,12 @@ describe('deleteTrigger()', () => {
     expect(removed.length).toEqual(1);
     expect(removed[0].title).not.toEqual('test-osc');
   });
+
+  it('ignores a trigger that is already gone', async () => {
+    const before = getAutomationTriggers();
+    await expect(deleteTrigger('never-existed')).resolves.toBeUndefined();
+    expect(getAutomationTriggers()).toEqual(before);
+  });
 });
 
 describe('addAutomation()', () => {
@@ -251,17 +257,24 @@ describe('deleteAutomation()', () => {
     expect(Object.keys(removed).length).toEqual(0);
   });
 
-  it('refuses an automation attached to a global trigger', async () => {
-    const automationId = Object.keys(getAutomations())[0];
-    await addTrigger({ title: 'On Start', trigger: TimerLifeCycle.onStart, automationId });
+  it('takes the automation global triggers with it, and leaves the others alone', async () => {
+    const doomed = Object.keys(getAutomations())[0];
+    const survivor = await addAutomation({ title: 'survivor', filterRule: 'all', filters: [], outputs: [] });
 
-    await expect(deleteAutomation({}, automationId)).rejects.toThrow(/used in trigger/);
-    expect(getAutomationTriggers()).toHaveLength(1);
-    expect(getAutomations()[automationId]).toBeDefined();
+    await addTrigger({ title: 'on start', trigger: TimerLifeCycle.onStart, automationId: doomed });
+    await addTrigger({ title: 'on finish', trigger: TimerLifeCycle.onFinish, automationId: doomed });
+    await addTrigger({ title: 'keep me', trigger: TimerLifeCycle.onStart, automationId: survivor.id });
+
+    await deleteAutomation({}, doomed);
+
+    // a trigger pointing at nothing never fires, so it must not outlive its automation
+    expect(getAutomationTriggers()).toEqual([expect.objectContaining({ title: 'keep me' })]);
+    expect(Object.keys(getAutomations())).toEqual([survivor.id]);
   });
 
-  it('refuses an automation attached to an event', async () => {
+  it('refuses an automation attached to an event, and keeps its triggers', async () => {
     const automationId = Object.keys(getAutomations())[0];
+    await addTrigger({ title: 'on start', trigger: TimerLifeCycle.onStart, automationId });
     const projectRundowns: ProjectRundowns = {
       'rundown-1': {
         id: 'rundown-1',
@@ -279,6 +292,7 @@ describe('deleteAutomation()', () => {
     };
 
     await expect(deleteAutomation(projectRundowns, automationId)).rejects.toThrow(/used in rundown/);
-    expect(getAutomations()[automationId]).toBeDefined();
+    expect(getAutomationTriggers()).toHaveLength(1);
+    expect(Object.keys(getAutomations())).toEqual([automationId]);
   });
 });
