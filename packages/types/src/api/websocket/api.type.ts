@@ -24,7 +24,9 @@ export type TeleprompterAction = {
     | 'pause'
     | 'toggle'
     // speed, in lines per minute
-    | { speed: number | { by: number } }
+    | { speed: number }
+    | { speedBy: number }
+
     // nudge, in lines
     | { scroll: number }
     // operator setting

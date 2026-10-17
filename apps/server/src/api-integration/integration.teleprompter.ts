@@ -25,8 +25,12 @@ export function parseTeleprompterCommand(payload: unknown): TeleprompterCommand 
 
   if ('speed' in payload) {
     const { speed } = payload;
-    if (speed && typeof speed === 'object' && 'by' in speed) return { type: 'speedBy', value: toNumber(speed.by) };
     return { type: 'speed', value: toNumber(speed) };
+  }
+
+  if ('speedBy' in payload) {
+    const { speedBy } = payload;
+    return { type: 'speedBy', value: toNumber(speedBy) };
   }
 
   if ('scroll' in payload) return { type: 'scroll', lines: toNumber(payload.scroll) };
