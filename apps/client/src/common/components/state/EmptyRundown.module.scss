@@ -1,6 +1,15 @@
+@use '@/theme/viewerDefs' as *;
+
 .inline {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-top: 1rem;
+}
+
+.guidance {
+  max-width: 28rem;
+  margin: 0.5rem auto 0;
+  font-size: calc(1rem - 1px);
+  color: var(--secondary-color-override, $viewer-secondary-color);
 }
