@@ -73,3 +73,9 @@ export function hostToBaseUrl(host: string, port: number, externalServerUrl: str
   const scheme = page.protocol === 'https:' && pagePort === port ? 'https' : 'http';
   return `${scheme}://${host}:${port}`;
 }
+
+/** Whether an address (or URL host) points back to the machine itself: localhost, 127.x.x.x or ::1 */
+export function isLoopbackAddress(address: string): boolean {
+  const host = address.replace(/^\[|\]$/g, '').toLowerCase();
+  return host === 'localhost' || host === '::1' || /^127(\.\d{1,3}){3}$/.test(host);
+}
