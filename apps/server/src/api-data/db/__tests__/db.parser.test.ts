@@ -3,6 +3,7 @@
 import { SupportedEntry } from 'ontime-types';
 
 import { demoDb } from '../../../models/demoProject.js';
+import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
 import { parseDatabaseModel } from '../db.parser.js';
 
 // mock data provider
@@ -99,5 +100,57 @@ describe('test parseDatabaseModel() edge cases', () => {
     const { data } = parseDatabaseModel(oldProject);
 
     expect(data.settings.auxTimerNames).toStrictEqual(['', '', '']);
+  });
+});
+
+describe('project custom field order', () => {
+  const fields = {
+    Notes: { label: 'Notes', type: 'text', colour: '' },
+    '2': { label: '2', type: 'text', colour: '' },
+  };
+
+  it.each([
+    { source: { customFields: fields, customFieldOrder: undefined }, order: ['2', 'Notes'] },
+    { source: { customFields: fields, customFieldOrder: ['Notes', '2'] }, order: ['Notes', '2'] },
+  ])('migrates v4 fields without changing the source or migrating again on reload', ({ source, order }) => {
+    const project = { ...structuredClone(demoDb), ...source, settings: { ...demoDb.settings, version: '4.13.0' } };
+    const original = structuredClone(project);
+    const { data, migrated } = parseDatabaseModel(project);
+
+    expect(data.customFields).toEqual({ fields, order });
+    expect(data).not.toHaveProperty('customFieldOrder');
+    expect(data.settings.version.startsWith('5.')).toBe(true);
+    expect(migrated).toBe(true);
+    expect(project).toEqual(original);
+    expect(parseDatabaseModel(data).migrated).toBe(false);
+  });
+
+  it('rejects newer major versions rather than rewriting them as v5', () => {
+    expect(() => parseDatabaseModel({ ...demoDb, settings: { ...demoDb.settings, version: '6.0.0' } })).toThrow(
+      'Unsupported project version',
+    );
+  });
+
+  it('chains v3 through v4 into v5 while preserving custom field values', () => {
+    const entry = makeOntimeEvent({ id: 'intro', custom: { Notes: 'Keep this value' } });
+    const source = {
+      ...structuredClone(demoDb),
+      settings: { ...demoDb.settings, version: '3.16.1', serverPort: 4001 },
+      rundown: [entry],
+      urlPresets: [],
+      customFields: { Notes: { label: 'Notes', type: 'string', colour: '' } },
+    };
+    const original = structuredClone(source);
+
+    const { data, migrated } = parseDatabaseModel(source);
+
+    expect(migrated).toBe(true);
+    expect(data.settings.version.startsWith('5.')).toBe(true);
+    expect(data.customFields).toEqual({
+      fields: { Notes: { label: 'Notes', type: 'text', colour: '' } },
+      order: ['Notes'],
+    });
+    expect(data.rundowns.default.entries.intro).toMatchObject({ custom: entry.custom });
+    expect(source).toEqual(original);
   });
 });

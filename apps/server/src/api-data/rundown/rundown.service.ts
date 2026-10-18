@@ -11,6 +11,7 @@ import {
   OntimeGroup,
   PatchWithId,
   ProjectRundowns,
+  ProjectCustomFields,
   RefetchKey,
   Rundown,
   RundownImportMergeStrategy,
@@ -19,11 +20,13 @@ import {
   isOntimeGroup,
 } from 'ontime-types';
 import {
-  customFieldLabelToKey,
+  checkRegex,
+  customKeyFromLabel,
   generateId,
   getErrorMessage,
   getInsertAfterId,
   resolveInsertParent,
+  withoutUndefinedValues,
 } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -112,7 +115,11 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
  * Applies a patch to an entry in the rundown
  */
 export async function editEntry(rundownId: string, patch: PatchWithId): Promise<OntimeEntry> {
-  const { rundown, customFields, commit } = createTransaction({ rundownId, mutableRundown: true });
+  const {
+    rundown,
+    customFields: { fields: customFields },
+    commit,
+  } = createTransaction({ rundownId, mutableRundown: true });
   const currentEntry = rundown.entries[patch.id];
 
   /**
@@ -153,7 +160,11 @@ export async function batchEditEntries(
   ids: EntryId[],
   patch: Partial<OntimeEntry>,
 ): Promise<Rundown> {
-  const { rundown, customFields, commit } = createTransaction({ rundownId, mutableRundown: true });
+  const {
+    rundown,
+    customFields: { fields: customFields },
+    commit,
+  } = createTransaction({ rundownId, mutableRundown: true });
 
   /**
    * We can do some validation globally, but mostly we will validate each entry individually
@@ -463,18 +474,22 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
  * @throws if the label is missing or invalid
  */
 export async function createCustomField(customField: CustomField): Promise<CustomFields> {
-  const key = customFieldLabelToKey(customField.label);
-
-  if (!key) {
-    throw new Error('Unable to convert label to a valid key');
+  if (!customField.label.trim() || !checkRegex.isAlphanumericWithSpace(customField.label)) {
+    throw new Error('Invalid custom field label');
   }
 
-  const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
+  const {
+    customFields: { fields: customFields },
+    commit,
+  } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
 
   // check if label already exists
-  if (Object.hasOwn(customFields, key)) {
+  if (customKeyFromLabel(customField.label, customFields) !== null) {
     throw new Error('Label already exists');
   }
+
+  let key = generateId();
+  while (Object.hasOwn(customFields, key)) key = generateId();
 
   customFieldMutation.add(customFields, key, customField);
 
@@ -513,12 +528,15 @@ async function updateBackgroundRundowns(loadedRundownId: string, mutate: (rundow
  * @throws if the new label already exists
  */
 export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
-  const { customFields, rundown, commit } = createTransaction({
-    mutableRundown: true,
+  const {
+    customFields: { fields: customFields },
+    commit,
+  } = createTransaction({
+    mutableRundown: false,
     mutableCustomFields: true,
   });
 
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     throw new Error('Could not find label');
   }
 
@@ -528,32 +546,22 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
     throw new Error('Change of field type is not allowed');
   }
 
-  const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
-
-  const didChangeKey = oldKey !== newKey;
-  // if key has changed ...
-  if (didChangeKey) {
-    // ... reassign references in the active rundown
-    customFieldMutation.renameUsages(rundown, oldKey, newKey);
-
-    // ... delete the old key
-    customFieldMutation.remove(customFields, oldKey);
+  if (newField.label !== undefined && (!newField.label.trim() || !checkRegex.isAlphanumericWithSpace(newField.label))) {
+    throw new Error('Invalid custom field label');
   }
 
-  // the custom fields have been removed and there is no processing to be done
-  const { revision, customFields: resultCustomFields } = await commit(false);
-
-  // ... and reassign references in the background rundowns
-  if (didChangeKey) {
-    await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
-      customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
-    );
+  if (newField.label && newField.label !== existingField.label) {
+    const duplicateId = customKeyFromLabel(newField.label, customFields);
+    if (duplicateId !== null && duplicateId !== key) {
+      throw new Error('Label already exists');
+    }
   }
+
+  customFields[key] = { ...existingField, ...withoutUndefinedValues(newField) };
+  const { customFields: resultCustomFields } = await commit(false);
 
   // schedule the side effects
   notifyChange(RefetchKey.CustomFields);
-  notifyChange(RefetchKey.Rundown, revision);
-
   return resultCustomFields;
 }
 
@@ -561,7 +569,11 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
  * Deletes an existing custom field
  */
 export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const { customFields, rundown, commit } = createTransaction({
+  const {
+    customFields: { fields: customFields },
+    rundown,
+    commit,
+  } = createTransaction({
     mutableRundown: true,
     mutableCustomFields: true,
   });
@@ -591,12 +603,38 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
 }
 
 /**
+ * Sets the order of the project custom fields
+ * Unknown keys are dropped and missing fields appended when the order is reconciled on commit
+ */
+export async function reorderCustomFields(newOrder: CustomFieldKey[]): Promise<CustomFields> {
+  const { customFields, commit } = createTransaction({
+    mutableRundown: false,
+    mutableCustomFields: true,
+  });
+
+  customFields.order = [...newOrder];
+
+  // the order has no implications on the rundown
+  const { customFields: resultCustomFields } = await commit(false);
+
+  notifyChange(RefetchKey.CustomFields);
+
+  return resultCustomFields;
+}
+
+/**
  * Merges a set of custom fields into the project, replacing fields with the same key
+ * Existing fields keep their position, new fields are appended in the given order
  * Commits through the rundown cache so the in-memory custom fields stay in step with the persisted ones
  */
-export async function mergeCustomFields(newCustomFields: CustomFields): Promise<CustomFields> {
-  const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
-  Object.assign(customFields, newCustomFields);
+export async function mergeCustomFields(newCustomFields: ProjectCustomFields): Promise<CustomFields> {
+  const { customFields, commit } = createTransaction({
+    mutableRundown: false,
+    mutableCustomFields: true,
+  });
+  Object.assign(customFields.fields, newCustomFields.fields);
+  // repeated keys are dropped when the order is reconciled on commit
+  customFields.order.push(...newCustomFields.order);
 
   // adding custom fields has no immediate implications on the rundown
   const { customFields: resultCustomFields } = await commit(false);
@@ -631,7 +669,7 @@ export async function loadRundown(id: string) {
  */
 export async function initRundown(
   rundown: Readonly<Rundown>,
-  customFields: Readonly<CustomFields>,
+  customFields: Readonly<ProjectCustomFields>,
   reload: boolean = false,
 ) {
   runtimeService.stop();
@@ -654,7 +692,7 @@ export async function initRundown(
  * Applies a rebuilt version of the currently loaded rundown in place.
  * Unlike switching rundowns, this maintains playback when the loaded event survives the change
  */
-function applyChangeToCurrentRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
+function applyChangeToCurrentRundown(rundown: Readonly<Rundown>, customFields: Readonly<ProjectCustomFields>) {
   const { revision } = rundownCache.init(rundown, customFields);
   notifyChange(RefetchKey.Rundown, revision, rundown.id);
   notifyChange(RefetchKey.ProjectRundowns);
@@ -725,9 +763,9 @@ async function parseImportAndCommitCustomFields(
 ): Promise<Rundown> {
   const dataProvider = getDataProvider();
   const parsedCustomFields = parseCustomFields({ customFields: incomingCustomFields });
-  const mergedCustomFields = { ...dataProvider.getCustomFields(), ...parsedCustomFields };
+  const mergedCustomFields = { ...dataProvider.getCustomFields().fields, ...parsedCustomFields };
   const parsed = parseRundown(source, mergedCustomFields);
-  await mergeCustomFields(parsedCustomFields);
+  await mergeCustomFields({ fields: parsedCustomFields, order: Object.keys(parsedCustomFields) });
   return parsed;
 }
 

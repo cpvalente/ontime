@@ -1,5 +1,6 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
 
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
 export const demoDb: DatabaseModel = {
@@ -29,7 +30,7 @@ export const demoDb: DatabaseModel = {
     ],
   },
   settings: {
-    version: '-',
+    version: ONTIME_VERSION,
     editorKey: null,
     operatorKey: null,
     timeFormat: '24',
@@ -61,26 +62,29 @@ export const demoDb: DatabaseModel = {
     },
   ],
   customFields: {
-    Video_Notes: {
-      type: 'text',
-      colour: '#FFAB33',
-      label: 'Video Notes',
+    fields: {
+      Video_Notes: {
+        type: 'text',
+        colour: '#FFAB33',
+        label: 'Video Notes',
+      },
+      Audio_Notes: {
+        type: 'text',
+        colour: '#339E4E',
+        label: 'Audio Notes',
+      },
+      PowerPoint_Name: {
+        type: 'text',
+        colour: '#3E75E8',
+        label: 'PowerPoint Name',
+      },
+      PowerPoint_Slide: {
+        type: 'image',
+        colour: '#ED3333',
+        label: 'PowerPoint Slide',
+      },
     },
-    Audio_Notes: {
-      type: 'text',
-      colour: '#339E4E',
-      label: 'Audio Notes',
-    },
-    PowerPoint_Name: {
-      type: 'text',
-      colour: '#3E75E8',
-      label: 'PowerPoint Name',
-    },
-    PowerPoint_Slide: {
-      type: 'image',
-      colour: '#ED3333',
-      label: 'PowerPoint Slide',
-    },
+    order: ['Video_Notes', 'Audio_Notes', 'PowerPoint_Name', 'PowerPoint_Slide'],
   },
   automation: {
     enabledAutomations: false,

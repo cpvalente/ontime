@@ -1,6 +1,6 @@
 {
   "name": "@getontime/resolver",
-  "version": "4.14.1",
+  "version": "5.0.0-alpha.0",
   "type": "module",
   "repository": "https://github.com/cpvalente/ontime",
   "types": "./dist/main.d.mts",

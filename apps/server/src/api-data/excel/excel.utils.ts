@@ -1,5 +1,5 @@
 import { CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, Rundown } from 'ontime-types';
-import { ImportMap, checkRegex, customFieldLabelToKey, millisToString } from 'ontime-utils';
+import { ImportMap, checkRegex, generateId, millisToString } from 'ontime-utils';
 
 /**
  * Receives an import map which contains custom field labels and a custom fields object
@@ -28,8 +28,23 @@ export function getCustomFieldData(
       continue;
     }
 
-    // generate a key for the custom field
-    const keyInCustomFields = customFieldLabelToKey(ontimeLabel);
+    const matchingIds = Object.keys(existingCustomFields).filter(
+      (id) => existingCustomFields[id].label === ontimeLabel,
+    );
+    if (matchingIds.length > 1) {
+      throw new Error(
+        `Multiple custom fields are labelled "${ontimeLabel}". Rename them before importing a spreadsheet.`,
+      );
+    }
+    let keyInCustomFields = matchingIds[0];
+    if (keyInCustomFields === undefined) {
+      do {
+        keyInCustomFields = generateId();
+      } while (
+        Object.hasOwn(existingCustomFields, keyInCustomFields) ||
+        Object.hasOwn(mergedCustomFields, keyInCustomFields)
+      );
+    }
     // we lower case the excel key to make it easier to match
     const columnNameInExcel = importMap.custom[ontimeLabel].toLowerCase();
     const maybeExistingColour = existingCustomFields[keyInCustomFields]?.colour ?? '';

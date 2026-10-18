@@ -1,5 +1,5 @@
 import { CustomField } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customKeyFromLabel } from 'ontime-utils';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -26,8 +26,6 @@ interface CustomFieldsFormProps {
   initialType?: CustomField['type'];
 }
 
-type CustomFieldFormData = CustomField & { key: string };
-
 export default function CustomFieldForm({
   onSubmit,
   onCancel,
@@ -50,14 +48,20 @@ export default function CustomFieldForm({
     getValues,
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
-  } = useForm<CustomFieldFormData>({
-    defaultValues: { type: initialType ?? 'text', label: initialLabel || '', colour: initialColour || '' },
+  } = useForm<CustomField>({
+    // validate while typing, otherwise a disabled save button gives no reason
+    mode: 'onChange',
+    defaultValues: {
+      type: initialType ?? 'text',
+      label: initialLabel || '',
+      colour: initialColour || '',
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
   });
 
-  const setupSubmit = async (values: CustomFieldFormData) => {
+  const setupSubmit = async (values: CustomField) => {
     const { type, label, colour } = values;
     const newField: CustomField = {
       type,
@@ -85,6 +89,7 @@ export default function CustomFieldForm({
   const canSubmit = isDirty && isValid;
   // if initial values are given, we can assume we are in edit mode
   const isEditMode = initialKey !== undefined;
+  const type = watch('type');
 
   return (
     <Modal
@@ -96,24 +101,26 @@ export default function CustomFieldForm({
       title={isEditMode ? 'Edit custom field' : 'Create custom field'}
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(setupSubmit)} className={style.formColumn}>
-          <Info>
-            Please note that images can quickly deteriorate your app&apos;s performance.
-            <br />
-            Prefer using small, and compressed images.
-          </Info>
           <div>
             <Panel.Description>Type</Panel.Description>
             <RadioGroup
               orientation='horizontal'
               disabled={isEditMode}
               onValueChange={(value) => setValue('type', value, { shouldDirty: true })}
-              value={watch('type')}
+              value={type}
               items={[
                 { value: 'text', label: 'Text' },
                 { value: 'image', label: 'Image' },
               ]}
             />
           </div>
+          {type === 'image' && (
+            <Info>
+              Images can impact your app&apos;s performance.
+              <br />
+              Prefer using small, and compressed images.
+            </Info>
+          )}
           <div className={style.twoCols}>
             <label>
               <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
@@ -121,12 +128,13 @@ export default function CustomFieldForm({
               <Input
                 {...register('label', {
                   required: { value: true, message: 'Required field' },
-                  onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
                   validate: (value) => {
                     if (value.trim().length === 0) return 'Required field';
                     if (!checkRegex.isAlphanumericWithSpace(value))
                       return 'Only alphanumeric characters and space are allowed';
-                    if (!isEditMode && Object.hasOwn(data, customFieldLabelToKey(value) ?? '')) {
+                    if (initialKey && value.trim() === initialLabel?.trim()) return true;
+                    const duplicateId = customKeyFromLabel(value.trim(), data);
+                    if (duplicateId !== null && duplicateId !== initialKey) {
                       return 'Custom fields must be unique';
                     }
                     return true;
@@ -137,8 +145,8 @@ export default function CustomFieldForm({
             </label>
 
             <label>
-              <Panel.Description>Key (use in Integrations and API)</Panel.Description>
-              <Input {...register('key')} variant='ghosted' readOnly fluid />
+              <Panel.Description>ID (use in Integrations and API)</Panel.Description>
+              <Input value={initialKey ?? 'Assigned when saved'} variant='ghosted' readOnly fluid />
             </label>
           </div>
           <label>

@@ -1,13 +1,14 @@
-import { CustomField, CustomFields, DatabaseModel } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { CustomField, CustomFieldKey, CustomFields, ProjectCustomFields } from 'ontime-types';
+import { checkRegex } from 'ontime-utils';
 
+import { is } from '../../utils/is.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
 /**
  * Parse customFields entry
  */
-export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): CustomFields {
-  if (typeof data.customFields !== 'object') {
+export function parseCustomFields(data: { customFields?: unknown }, emitError?: ErrorEmitter): CustomFields {
+  if (!is.object(data.customFields)) {
     emitError?.('No data found to import');
     return {};
   }
@@ -19,6 +20,45 @@ export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: Erro
     emitError?.('Skipped invalid custom fields');
   }
   return customFields;
+}
+
+/** Parses the v5 collection. Legacy project shapes are converted by the project migrations. */
+export function parseProjectCustomFields(
+  data: { customFields?: unknown },
+  emitError?: ErrorEmitter,
+): ProjectCustomFields {
+  const source = data.customFields;
+  const fields = parseCustomFields(
+    { customFields: is.object(source) && 'fields' in source ? source.fields : undefined },
+    emitError,
+  );
+  const order = is.object(source) && 'order' in source ? source.order : undefined;
+  return { fields, order: parseCustomFieldOrder(order, fields) };
+}
+
+/**
+ * Reconciles a custom field order with the custom fields
+ * Keeps the given order for known keys, drops unknown or repeated keys and appends missing fields
+ * Projects without an order keep the order of the custom fields object
+ */
+export function parseCustomFieldOrder(order: unknown, customFields: CustomFields): CustomFieldKey[] {
+  const parsed: CustomFieldKey[] = [];
+  const seen = new Set<CustomFieldKey>();
+
+  for (const key of Array.isArray(order) ? order : []) {
+    if (typeof key === 'string' && Object.hasOwn(customFields, key) && !seen.has(key)) {
+      parsed.push(key);
+      seen.add(key);
+    }
+  }
+
+  for (const key of Object.keys(customFields)) {
+    if (!seen.has(key)) {
+      parsed.push(key);
+    }
+  }
+
+  return parsed;
 }
 
 export function sanitiseCustomFields(data: object): CustomFields {
@@ -33,21 +73,22 @@ export function sanitiseCustomFields(data: object): CustomFields {
     }
   }
 
-  function isValidField(data: unknown, key: string): data is CustomField {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'label' in data &&
-      typeof data.label === 'string' &&
-      data.label !== '' &&
-      'colour' in data &&
-      typeof data.colour === 'string' &&
-      'type' in data &&
-      (data.type === 'text' || data.type === 'image') &&
-      checkRegex.isAlphanumericWithSpace(data.label) &&
-      key === customFieldLabelToKey(data.label)
-    );
-  }
-
   return newCustomFields;
+}
+
+function isValidField(data: unknown, key: string): data is CustomField {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'label' in data &&
+    typeof data.label === 'string' &&
+    data.label !== '' &&
+    'colour' in data &&
+    typeof data.colour === 'string' &&
+    'type' in data &&
+    (data.type === 'text' || data.type === 'image') &&
+    checkRegex.isAlphanumericWithSpace(data.label) &&
+    key !== '' &&
+    key !== '__proto__'
+  );
 }

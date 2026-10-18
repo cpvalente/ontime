@@ -9,7 +9,7 @@ import { makeRundownColumns } from './makeRundownColumns';
 
 export default memo(RundownTable);
 function RundownTable() {
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
   const setPermissions = useCuesheetPermissions((state) => state.setPermissions);
   const { editorMode } = useEditorFollowMode();
 
@@ -24,7 +24,7 @@ function RundownTable() {
     });
   }, [setPermissions]);
 
-  const columns = useMemo(() => makeRundownColumns(customFields), [customFields]);
+  const columns = useMemo(() => makeRundownColumns(orderedFields), [orderedFields]);
 
   return (
     <CuesheetDnd columns={columns} tableRoot='editor'>

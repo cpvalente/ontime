@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CustomField, CustomFieldKey, CustomFields } from 'ontime-types';
+import { CustomField, CustomFieldKey, CustomFields, ProjectCustomFields } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -7,10 +7,10 @@ import type { RequestOptions } from './requestOptions';
 const customFieldsPath = `${apiEntryUrl}/custom-fields`;
 
 /**
- * Requests list of known custom fields
+ * Requests list of known custom fields with their order
  */
-export async function getCustomFields(options?: RequestOptions): Promise<CustomFields> {
-  const res = await axios.get(customFieldsPath, { signal: options?.signal });
+export async function getCustomFields(options?: RequestOptions): Promise<ProjectCustomFields> {
+  const res = await axios.get(`${customFieldsPath}/ordered`, { signal: options?.signal });
   return res.data;
 }
 
@@ -26,7 +26,15 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
  * Edits single custom field
  */
 export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<CustomFields> {
-  const res = await axios.put(`${customFieldsPath}/${key}`, { ...newField });
+  const res = await axios.put(`${customFieldsPath}/${encodeURIComponent(key)}`, { ...newField });
+  return res.data;
+}
+
+/**
+ * Sets the order of the custom fields
+ */
+export async function reorderCustomFields(order: CustomFieldKey[]): Promise<ProjectCustomFields> {
+  const res = await axios.patch(`${customFieldsPath}/order`, { order });
   return res.data;
 }
 
@@ -34,6 +42,6 @@ export async function editCustomField(key: CustomFieldKey, newField: CustomField
  * Deletes single custom field
  */
 export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const res = await axios.delete(`${customFieldsPath}/${key}`);
+  const res = await axios.delete(`${customFieldsPath}/${encodeURIComponent(key)}`);
   return res.data;
 }

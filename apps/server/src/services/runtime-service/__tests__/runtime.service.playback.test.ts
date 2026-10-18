@@ -86,7 +86,7 @@ describe('runtime service playback', () => {
 
   async function loadRundown(...events: PlayableEvent[]) {
     const entries = Object.fromEntries(events.map((event) => [event.id, event]));
-    await initRundown(makeRundown({ entries, order: events.map((event) => event.id) }), {});
+    await initRundown(makeRundown({ entries, order: events.map((event) => event.id) }), { fields: {}, order: [] });
     vi.advanceTimersByTime(0);
     alignToTick();
     finished.at = null;

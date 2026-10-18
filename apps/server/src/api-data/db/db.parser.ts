@@ -3,7 +3,7 @@ import { getErrorMessage } from 'ontime-utils';
 
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
-import { parseCustomFields } from '../custom-fields/customFields.parser.js';
+import { parseProjectCustomFields } from '../custom-fields/customFields.parser.js';
 import * as logger from '../logs/logs.service.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
@@ -12,6 +12,7 @@ import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
+import * as v5 from './migration/db.migration.v5.js';
 
 type ParsingError = {
   context: string;
@@ -24,7 +25,7 @@ type ParsingError = {
  * @returns {object} parsed object
  */
 export function parseDatabaseModel(
-  jsonData: Partial<DatabaseModel>,
+  jsonData: object,
   initialLoad = false,
 ): {
   data: DatabaseModel;
@@ -32,7 +33,7 @@ export function parseDatabaseModel(
   migrated: boolean;
 } {
   let migrated = false;
-  let migratedData = jsonData;
+  let migratedData: object = jsonData;
   const errors: ParsingError[] = [];
 
   if (v3.shouldUseThisMigration(jsonData)) {
@@ -61,6 +62,11 @@ export function parseDatabaseModel(
     }
   }
 
+  if (v5.shouldUseThisMigration(migratedData)) {
+    migratedData = v5.migrateAllData(migratedData);
+    migrated = true;
+  }
+
   // we need to parse settings first to make sure the data is ours
   // this may throw
   const settings = parseSettings(migratedData);
@@ -71,8 +77,8 @@ export function parseDatabaseModel(
   };
 
   // we need to parse the custom fields first so they can be used in validating events
-  const customFields = parseCustomFields(migratedData, makeEmitError('Custom Fields'));
-  const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
+  const customFields = parseProjectCustomFields(migratedData, makeEmitError('Custom Fields'));
+  const rundowns = parseRundowns(migratedData, customFields.fields, makeEmitError('Rundowns'));
 
   const data: DatabaseModel = {
     rundowns,

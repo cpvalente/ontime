@@ -16,28 +16,23 @@ import {
   CustomFields,
   EntryId,
   InsertOptions,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
   OntimeGroup,
   PatchWithId,
+  ProjectCustomFields,
   Rundown,
-  isOntimeEvent,
-  isOntimeGroup,
-  isPlayableEvent,
 } from 'ontime-types';
-import {
-  addToRundown,
-  createGroup,
-  customFieldLabelToKey,
-  getInsertAfterId,
-  insertAtIndex,
-  swapEventData,
-} from 'ontime-utils';
+import { addToRundown, createGroup, getInsertAfterId, insertAtIndex, swapEventData } from 'ontime-utils';
 import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
+import { parseCustomFieldOrder } from '../custom-fields/customFields.parser.js';
 import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
@@ -85,12 +80,13 @@ let rundownMetadata: RundownMetadata = {
  * The custom fields that are used in the project
  * Not unique to the loaded rundown
  */
-let projectCustomFields: CustomFields = {};
+let projectCustomFields: ProjectCustomFields = { fields: {}, order: [] };
 
 export const getCurrentRundown = (): Readonly<Rundown> => cachedRundown;
 export const getCurrentRundownId = (): string => cachedRundown.id;
 export const getRundownMetadata = (): Readonly<RundownMetadata> => rundownMetadata;
-export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields;
+export const getProjectCustomFields = (): Readonly<CustomFields> => projectCustomFields.fields;
+export const getProjectCustomFieldsWithOrder = (): Readonly<ProjectCustomFields> => projectCustomFields;
 export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cachedRundown.entries[entryId];
 
 /**
@@ -101,7 +97,7 @@ export const getEntryWithId = (entryId: EntryId): OntimeEntry | undefined => cac
  * compile-time error instead of a runtime bug.
  */
 type Transaction<R> = {
-  customFields: CustomFields;
+  customFields: ProjectCustomFields;
   rundown: R;
 
   commit: (shouldProcess?: boolean) => Promise<{
@@ -142,6 +138,7 @@ export function createTransaction(
    *                        Some edit mutations, and custom field changes do not require processing
    */
   async function commit(shouldProcess: boolean = true) {
+    const writes: Promise<unknown>[] = [];
     let committedRundown: Readonly<Rundown> = isLoaded ? cachedRundown : rundown;
     let committedMetadata: RundownMetadata | null = isLoaded ? rundownMetadata : null;
     let committedRevision: number = sourceRundown.revision;
@@ -159,7 +156,7 @@ export function createTransaction(
           cachedRundown.order = rundown.order;
           cachedRundown.flatOrder = rundown.flatOrder;
         } else {
-          const processedData = processRundown(rundown, projectCustomFields, { mutate: true });
+          const processedData = processRundown(rundown, projectCustomFields.fields, { mutate: true });
           // update the cache values
           // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
           const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
@@ -171,7 +168,7 @@ export function createTransaction(
         }
 
         // persist after all mutations are applied
-        await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
+        writes.push(getDataProvider().setRundown(cachedRundown.id, cachedRundown));
         committedRundown = cachedRundown;
         committedMetadata = rundownMetadata;
         committedRevision = cachedRundown.revision;
@@ -179,12 +176,12 @@ export function createTransaction(
         // background rundown: process if requested, persist directly, no runtime metadata
         rundown.revision = rundown.revision + 1;
         if (shouldProcess) {
-          const processedData = processRundown(rundown, projectCustomFields, { mutate: true });
+          const processedData = processRundown(rundown, projectCustomFields.fields, { mutate: true });
           rundown.entries = processedData.entries;
           rundown.order = processedData.order;
           rundown.flatOrder = processedData.flatEntryOrder;
         }
-        await getDataProvider().setRundown(targetId, rundown);
+        writes.push(getDataProvider().setRundown(targetId, rundown));
         committedRundown = rundown;
         committedRevision = rundown.revision;
       }
@@ -193,15 +190,19 @@ export function createTransaction(
     // if the customFields are mutable we persist the changes
     if (options.mutableCustomFields) {
       projectCustomFields = customFields;
+      projectCustomFields.order = parseCustomFieldOrder(customFields.order, customFields.fields);
 
       // persist after reassignment
-      await getDataProvider().setCustomFields(projectCustomFields);
+      writes.push(getDataProvider().setCustomFields(projectCustomFields));
     }
+
+    // Setters assign synchronously: publish the whole transaction before another mutation can start.
+    await Promise.all(writes);
 
     return {
       rundown: committedRundown,
       rundownMetadata: committedMetadata,
-      customFields: projectCustomFields,
+      customFields: projectCustomFields.fields,
       revision: committedRevision,
     };
   }
@@ -617,7 +618,7 @@ export function getProcessedRundown(rundownId: string): Readonly<Rundown> {
   }
 
   const stored = getDataProvider().getRundown(rundownId);
-  const processed = processRundown(stored, getDataProvider().getCustomFields());
+  const processed = processRundown(stored, getDataProvider().getCustomFields().fields);
   return {
     id: stored.id,
     title: stored.title,
@@ -642,42 +643,10 @@ function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCust
 }
 
 /**
- * Edits an existing custom field
- */
-function customFieldEdit(
-  customFields: CustomFields,
-  key: CustomFieldKey,
-  existingField: CustomField,
-  newField: Partial<CustomField>,
-): { oldKey: CustomFieldKey; newKey: CustomFieldKey } {
-  // calculate the key in case it has changed
-  const newKey = newField?.label ? customFieldLabelToKey(newField.label ?? key) : key;
-
-  // patch the new field and replace the reference in the object
-  customFields[newKey] = { ...existingField, ...newField };
-
-  return { oldKey: key, newKey };
-}
-
-/**
  * Removes a custom field from the object
  */
 function customFieldRemove(customFields: CustomFields, key: CustomFieldKey) {
   delete customFields[key];
-}
-
-/**
- * Iterates through all entries of a rundown and renames a custom field
- */
-function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKey: CustomFieldKey) {
-  Object.keys(rundown.entries).forEach((entryId) => {
-    const entry = rundown.entries[entryId];
-    if ('custom' in entry && entry.custom[oldKey]) {
-      // copy the data a new key and delete the old key
-      entry.custom[newKey] = entry.custom[oldKey];
-      delete entry.custom[oldKey];
-    }
-  });
 }
 
 /**
@@ -694,21 +663,20 @@ function customFieldRemoveUsages(rundown: Rundown, key: CustomFieldKey) {
 
 export const customFieldMutation = {
   add: customFieldAdd,
-  edit: customFieldEdit,
   remove: customFieldRemove,
-  renameUsages: customFieldRenameUsages,
   removeUsages: customFieldRemoveUsages,
 };
 
 /**
  * Expose function to add an initial rundown to the system
  */
-export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<CustomFields>) {
+export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<ProjectCustomFields>) {
   const rundown = cloneRundown(initialRundown);
   const customFields = structuredClone(initialCustomFields);
-  const processedData = processRundown(rundown, customFields, { mutate: true });
+  const processedData = processRundown(rundown, customFields.fields, { mutate: true });
 
   projectCustomFields = customFields;
+  projectCustomFields.order = parseCustomFieldOrder(customFields.order, customFields.fields);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- we are not interested in the iteration data
   const { previousEvent, latestEvent, previousEntry, entries, order, ...metadata } = processedData;
@@ -737,7 +705,7 @@ export const rundownCache = {
     return {
       rundown: cachedRundown,
       metadata: rundownMetadata,
-      customFields: projectCustomFields,
+      customFields: projectCustomFields.fields,
     };
   },
 };

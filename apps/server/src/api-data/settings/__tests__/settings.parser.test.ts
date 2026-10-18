@@ -8,7 +8,7 @@ describe('parseSettings()', () => {
   });
 
   it('returns an a base model as long as we have the app version', () => {
-    const result = parseSettings({ settings: { version: '1' } as Settings });
+    const result = parseSettings({ settings: { version: '5.0.0' } as Settings });
     expect(result).toBeTypeOf('object');
     expect(result).toMatchObject({
       version: expect.any(String),
@@ -22,7 +22,7 @@ describe('parseSettings()', () => {
 
   it('carries custom aux timer names through and pads to a length-3 array', () => {
     const result = parseSettings({
-      settings: { version: '1', auxTimerNames: ['Speaker'] } as unknown as Settings,
+      settings: { version: '5.0.0', auxTimerNames: ['Speaker'] } as unknown as Settings,
     });
     expect(result.auxTimerNames).toStrictEqual(['Speaker', '', '']);
   });

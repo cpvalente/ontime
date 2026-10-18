@@ -1,7 +1,6 @@
 import {
   AutomationSettings,
   CustomFields,
-  DatabaseModel,
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
@@ -43,7 +42,7 @@ export function shouldUseThisMigration(jsonData: object): boolean {
   );
 }
 
-export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
+export function migrateAllData(jsonData: object) {
   const settings = migrateSettings(jsonData);
   const viewSettings = migrateViewSettings(jsonData);
   const urlPresets = migrateURLPresets(jsonData);

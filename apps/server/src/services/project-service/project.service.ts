@@ -4,7 +4,7 @@ import { join } from 'path';
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
-import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { parseProjectCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -158,9 +158,7 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to migrated folder
   const copyPath = join(publicDir.migrateDir, fileName);
-  await copyFile(filePath, copyPath).catch((_) => {
-    /* while we have to catch the error, we dont need to handle it */
-  });
+  await copyFile(filePath, copyPath);
 
   // and make a new file with the migrated data
   const newPath = appendToName(filePath, '(migrated)');
@@ -371,15 +369,14 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // the rundown depends on custom fields
   // so custom fields needs to be checked first
   if (customFields) {
-    const parsedCustomFields = parseCustomFields(data);
-    await mergeCustomFields(parsedCustomFields);
+    await mergeCustomFields(parseProjectCustomFields(data));
   }
 
   // then we can check the rundown
   if (rundowns) {
     // use the already parsed custom fields if available, otherwise fetch from provider
     const projectCustomFields = getDataProvider().getCustomFields();
-    const parsedRundowns = parseRundowns(data, projectCustomFields);
+    const parsedRundowns = parseRundowns(data, projectCustomFields.fields);
     const currentRundown = getCurrentRundown();
 
     // patched rundowns replace any existing rundown with the same id

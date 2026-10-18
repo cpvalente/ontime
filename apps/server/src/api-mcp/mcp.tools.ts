@@ -394,7 +394,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_create_custom_field',
     description:
-      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). Creation is non-destructive — check ontime_get_custom_fields for an existing field covering the concept, and if none exists create directly without asking the user. After creation, use the returned key in entry.custom.',
+      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The field receives a generated, stable ID independent of its label. Creation is non-destructive — check ontime_get_custom_fields for an existing field covering the concept, and if none exists create directly without asking the user. After creation, use the returned key in entry.custom.',
     inputSchema: {
       type: 'object',
       required: ['label', 'type', 'colour'],
@@ -402,7 +402,7 @@ export const TOOL_DEFINITIONS = [
         label: {
           type: 'string',
           description:
-            'Human-readable label (letters, numbers and spaces, e.g. "Camera"). Determines the key. Reuse an existing field over creating near-duplicates like "Cam", "camera", "Cameras".',
+            'Human-readable label (letters, numbers and spaces, e.g. "Camera"). Does not determine the stable ID. Reuse an existing field over creating near-duplicates like "Cam", "camera", "Cameras".',
         },
         type: {
           type: 'string',
@@ -422,7 +422,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_update_custom_field',
     description:
-      'Update a custom field label or colour. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. Field type cannot be changed.',
+      'Update a custom field label or colour. Changing the label preserves the stable ID and all entry references. Field type cannot be changed.',
     inputSchema: {
       type: 'object',
       required: ['key'],
@@ -430,7 +430,7 @@ export const TOOL_DEFINITIONS = [
         key: { type: 'string', description: 'Current field key (from ontime_get_custom_fields)' },
         label: {
           type: 'string',
-          description: 'New human-readable label (optional). Changes the derived key and cascades to all entries.',
+          description: 'New human-readable label (optional). Preserves the stable ID and entry values.',
         },
         colour: { type: 'string', description: 'New hex colour (#RRGGBB) (optional)' },
       },
