@@ -1,9 +1,22 @@
-const { app, BrowserWindow, Menu, globalShortcut, Tray, dialog, ipcMain, shell, Notification } = require('electron');
+const {
+  app,
+  BrowserWindow,
+  Menu,
+  globalShortcut,
+  Tray,
+  dialog,
+  ipcMain,
+  shell,
+  Notification,
+  nativeTheme,
+  screen,
+} = require('electron');
 const path = require('path');
 
 const { getApplicationMenu } = require('./menu/applicationMenu.js');
 const { getTrayMenu } = require('./menu/trayMenu.js');
 const { getAvailableUpdate } = require('./updateCheck.js');
+const { loadWindowState, saveWindowState } = require('./windowState.js');
 
 const electronConfig = require('./electron.config.js');
 const {
@@ -40,6 +53,14 @@ let hasCheckedForUpdates = false;
 let win;
 let splash;
 let tray = null;
+
+function persistWindowState() {
+  if (!win || win.isDestroyed()) return;
+  saveWindowState(path.join(app.getPath('userData'), 'window-state.json'), {
+    bounds: win.getNormalBounds(),
+    isMaximized: win.isMaximized(),
+  });
+}
 
 /**
  * Coordinates the node process startup
@@ -126,6 +147,7 @@ function setupMenu(clientUrl, serverUrl, availableUpdate = null) {
  * Terminate node service and close electron app
  */
 function appShutdown() {
+  persistWindowState();
   // terminate node service
   (async () => {
     const ontimeServer = require(nodePath);
@@ -205,10 +227,17 @@ if (!lock) {
  * Coordinates creation of electron windows (splash and main)
  */
 function createWindow() {
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const windowState = loadWindowState(
+    path.join(app.getPath('userData'), 'window-state.json'),
+    screen.getAllDisplays(),
+    primaryDisplay,
+  );
   splash = new BrowserWindow({
     width: 333,
     height: 333,
-    transparent: true,
+    backgroundColor: '#171719',
+    show: false,
     icon: appIcon,
     resizable: false,
     frame: false,
@@ -217,14 +246,16 @@ function createWindow() {
     skipTaskbar: true,
   });
   splash.setIgnoreMouseEvents(true);
+  splash.once('ready-to-show', () => {
+    if (!splash.isDestroyed()) splash.showInactive();
+  });
   const splashPath = path.join('file://', __dirname, '/splash/splash.html');
   splash.loadURL(splashPath);
 
   win = new BrowserWindow({
-    width: 1920,
-    height: 1000,
-    minWidth: 525,
-    minHeight: 405,
+    ...windowState.bounds,
+    minWidth: Math.min(525, windowState.bounds.width),
+    minHeight: Math.min(405, windowState.bounds.height),
     backgroundColor: '#101010', // $gray-1350
     icon: appIcon,
     show: false,
@@ -235,31 +266,34 @@ function createWindow() {
       preload: path.join(__dirname, './preload.js'),
       nodeIntegration: true,
       contextIsolation: false,
+      backgroundThrottling: false,
     },
   });
 
   win.setMenu(null);
+  return windowState;
 }
 
 app.disableHardwareAcceleration();
 app.whenReady().then(() => {
+  nativeTheme.themeSource = 'dark';
   // Set app title in windows
   if (isWindows) {
     app.setAppUserModelId(app.name);
   }
 
-  createWindow();
+  const windowState = createWindow();
   startBackend()
     .then((port) => {
       const clientUrl = getClientUrl(port);
       const serverUrl = getServerUrl(port);
       setupMenu(clientUrl, serverUrl);
 
-      win
-        .loadURL(`${clientUrl}/editor`)
+      // Wait for both successful loading and the first paint before replacing the splash.
+      const firstPaint = new Promise((resolve) => win.once('ready-to-show', resolve));
+      Promise.all([firstPaint, win.loadURL(`${clientUrl}/editor`)])
         .then(() => {
-          win.webContents.setBackgroundThrottling(false);
-
+          if (windowState.isMaximized) win.maximize();
           win.show();
           win.focus();
 
@@ -290,6 +324,7 @@ app.whenReady().then(() => {
    * Hide on close
    */
   win.on('close', function (event) {
+    persistWindowState();
     event.preventDefault();
     if (!isQuitting) {
       showNotification('Window Closed', 'App running in background');
@@ -302,6 +337,8 @@ app.whenReady().then(() => {
   const trayContextMenu = getTrayMenu(bringToFront, askToQuit);
   tray.setContextMenu(trayContextMenu);
 });
+
+app.on('before-quit', persistWindowState);
 
 /**
  * Unregister shortcuts before quitting
