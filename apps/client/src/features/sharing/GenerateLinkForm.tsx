@@ -14,6 +14,7 @@ import Select from '../../common/components/select/Select';
 import Switch from '../../common/components/switch/Switch';
 import { useUpdateUrlPreset } from '../../common/hooks-query/useUrlPresets';
 import { canCopyToClipboard, copyToClipboard, safeCopyPendingToClipboard } from '../../common/utils/copyToClipboard';
+import { isLoopbackAddress } from '../../common/utils/linkUtils';
 import { isUrlSafe } from '../../common/utils/regex';
 import { cx } from '../../common/utils/styleUtils';
 import { isOntimeCloud, serverURL } from '../../externals';
@@ -52,6 +53,14 @@ type GenerateLinkFormOptions = GenericLinkOptions | CuesheetLinkOptions;
 type GenerateLinkState = 'pending' | 'loading' | 'success' | 'error';
 
 const qrSize = 160;
+
+function isLoopbackBaseUrl(baseUrl: string) {
+  try {
+    return isLoopbackAddress(new URL(baseUrl).hostname);
+  } catch {
+    return false;
+  }
+}
 
 function CopyLinkButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -250,6 +259,9 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                   }}
                 />
               </Panel.ListItem>
+            )}
+            {!isOntimeCloud && isLoopbackBaseUrl(watch('baseUrl')) && (
+              <Info type='warning'>This address only works on this computer. Select a network address to share.</Info>
             )}
 
             {watch('path') === OntimeView.Cuesheet && (
