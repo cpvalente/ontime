@@ -1,5 +1,13 @@
 # Project migrations
 
+The v5 project format stores custom fields as `customFields: { fields, order }`.
+Existing keys become permanent IDs, preserving entry values and integration
+references. New fields receive generated IDs; renaming edits only the definition,
+never entry keys. Independent projects can have the same label under different
+IDs; merges preserve both. Spreadsheet imports require an unambiguous label.
+Labels and entry values are preserved when upgrading a v4 project. A saved v5
+project must not be opened in v4; rollback means restoring the original backup.
+
 ## Adding v5 changes
 
 - Add structural v4-to-v5 conversions to `db.migration.v5.ts`, called through
@@ -17,5 +25,10 @@ The `migrated` result invokes the existing project backup path before saving the
 upgraded file. Backup failure must abort the load. A second load of the saved v5
 file must not migrate it again. Unsupported major versions are rejected.
 
-A saved v5 project must not be opened in v4; rollback means restoring the original
-backup. Coordinate cloud readers and archive-restore runtimes before rollout.
+## Cloud rollout
+
+Before enabling a v5 runtime, the cloud project reader must accept the nested
+collection and use its explicit order. Cloud archive restoration must select a
+compatible runtime. Existing cloud v4 readers and v4 archive-restore targets do
+not support v5 files. Keep existing v4 stages and their archives readable during
+the cloud transition.

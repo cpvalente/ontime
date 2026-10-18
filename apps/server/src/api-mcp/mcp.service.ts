@@ -12,7 +12,7 @@ import {
   Rundown,
   SupportedEntry,
 } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customKeyFromLabel } from 'ontime-utils';
 
 import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import {
@@ -130,7 +130,7 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
     throw new Error(
       `Unknown custom field key(s): ${missing}. ${hint}${caseHint} ` +
         `Call ontime_create_custom_field with { label, type, colour } to create a missing field — ` +
-        `the key is auto-derived from the label (spaces → underscores, e.g. label "Mix Output" → key "Mix_Output").`,
+        `use the returned stable ID as the key in entry.custom.`,
     );
   }
 }
@@ -366,9 +366,10 @@ export async function createCustomFieldForMcp(args: { label: string; type: 'text
     throw new Error('Invalid label: use letters, numbers and spaces only, e.g. "Camera Angle".');
   }
 
-  const key = customFieldLabelToKey(label);
   const existingFields = getProjectCustomFields();
-  const clash = Object.keys(existingFields).find((existing) => existing.toLowerCase() === key.toLowerCase());
+  const clash = Object.keys(existingFields).find(
+    (id) => existingFields[id].label.toLowerCase() === label.toLowerCase(),
+  );
   if (clash) {
     throw new Error(
       `A custom field with key "${clash}" (label "${existingFields[clash].label}") already exists. ` +
@@ -377,6 +378,8 @@ export async function createCustomFieldForMcp(args: { label: string; type: 'text
   }
 
   const updated = await createCustomField({ label, type: args.type, colour: args.colour });
+  const key = customKeyFromLabel(label, updated);
+  if (key === null) throw new Error('Created custom field was not found');
   return { key, customFields: updated };
 }
 

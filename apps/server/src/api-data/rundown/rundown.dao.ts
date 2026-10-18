@@ -27,14 +27,7 @@ import {
   ProjectCustomFields,
   Rundown,
 } from 'ontime-types';
-import {
-  addToRundown,
-  createGroup,
-  customFieldLabelToKey,
-  getInsertAfterId,
-  insertAtIndex,
-  swapEventData,
-} from 'ontime-utils';
+import { addToRundown, createGroup, getInsertAfterId, insertAtIndex, swapEventData } from 'ontime-utils';
 import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -650,52 +643,10 @@ function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCust
 }
 
 /**
- * Edits an existing custom field
- */
-function customFieldEdit(
-  customFields: CustomFields,
-  key: CustomFieldKey,
-  existingField: CustomField,
-  newField: Partial<CustomField>,
-): { oldKey: CustomFieldKey; newKey: CustomFieldKey } {
-  // calculate the key in case it has changed
-  const newKey = newField?.label ? customFieldLabelToKey(newField.label ?? key) : key;
-
-  // patch the new field and replace the reference in the object
-  customFields[newKey] = { ...existingField, ...newField };
-
-  return { oldKey: key, newKey };
-}
-
-/**
- * Replaces the key of a renamed field in the order, keeping its position
- */
-function customFieldRenameInOrder(order: CustomFieldKey[], oldKey: CustomFieldKey, newKey: CustomFieldKey) {
-  const index = order.indexOf(oldKey);
-  if (index !== -1) {
-    order[index] = newKey;
-  }
-}
-
-/**
  * Removes a custom field from the object
  */
 function customFieldRemove(customFields: CustomFields, key: CustomFieldKey) {
   delete customFields[key];
-}
-
-/**
- * Iterates through all entries of a rundown and renames a custom field
- */
-function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKey: CustomFieldKey) {
-  Object.keys(rundown.entries).forEach((entryId) => {
-    const entry = rundown.entries[entryId];
-    if ('custom' in entry && entry.custom[oldKey]) {
-      // copy the data a new key and delete the old key
-      entry.custom[newKey] = entry.custom[oldKey];
-      delete entry.custom[oldKey];
-    }
-  });
 }
 
 /**
@@ -712,10 +663,7 @@ function customFieldRemoveUsages(rundown: Rundown, key: CustomFieldKey) {
 
 export const customFieldMutation = {
   add: customFieldAdd,
-  edit: customFieldEdit,
-  renameInOrder: customFieldRenameInOrder,
   remove: customFieldRemove,
-  renameUsages: customFieldRenameUsages,
   removeUsages: customFieldRemoveUsages,
 };
 

@@ -190,9 +190,9 @@ describe('rundown changes update the runtime', () => {
     );
 
     await editCustomField('old', { label: 'renamed' });
-    expect(getState().eventNow?.custom).toEqual({ renamed: 'value' });
+    expect(getState().eventNow?.custom).toEqual({ old: 'value' });
 
-    await deleteCustomField('renamed');
+    await deleteCustomField('old');
     expect(getState().eventNow?.custom).toEqual({});
   });
 

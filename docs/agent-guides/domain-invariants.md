@@ -53,6 +53,8 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 
 ## Imports and migrations
 
+- V5 project custom fields are one collection: `customFields.fields` holds definitions and `customFields.order` lists every field key exactly once. Legacy shapes belong in versioned migrations, not the current parser.
+- Custom field keys are stable IDs independent of labels. Rename only the definition; preserve IDs and entry values when merging projects. Spreadsheet label matching must reject ambiguous definitions.
 - Major-version migrations must preserve the original project before writing the upgraded file. A failed backup aborts migration; loading the migrated file again must not migrate it a second time. See [v5 migration development](../../apps/server/src/api-data/db/migration/README.md).
 - Treat project files, spreadsheets, custom fields, migrated data as untrusted.
 - Preserve fields the import/migration does not own.

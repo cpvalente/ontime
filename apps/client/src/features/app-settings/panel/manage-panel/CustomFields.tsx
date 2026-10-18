@@ -103,7 +103,7 @@ export default function CustomFieldSettings() {
             </span>
             <span>
               To use custom fields as a data source in an{' '}
-              <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
+              <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the stable ID.
             </span>
             <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
           </Info>
@@ -117,7 +117,7 @@ export default function CustomFieldSettings() {
                   <th>Colour</th>
                   <th>Type</th>
                   <th>Name</th>
-                  <th>Key (used in Automations)</th>
+                  <th>ID (used in Automations)</th>
                   <th />
                 </tr>
               </thead>

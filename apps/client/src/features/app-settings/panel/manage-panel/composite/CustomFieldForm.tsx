@@ -1,5 +1,5 @@
 import { CustomField } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customKeyFromLabel } from 'ontime-utils';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -26,8 +26,6 @@ interface CustomFieldsFormProps {
   initialType?: CustomField['type'];
 }
 
-type CustomFieldFormData = CustomField & { key: string };
-
 export default function CustomFieldForm({
   onSubmit,
   onCancel,
@@ -50,7 +48,7 @@ export default function CustomFieldForm({
     getValues,
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
-  } = useForm<CustomFieldFormData>({
+  } = useForm<CustomField>({
     // validate while typing, otherwise a disabled save button gives no reason
     mode: 'onChange',
     defaultValues: {
@@ -63,7 +61,7 @@ export default function CustomFieldForm({
     },
   });
 
-  const setupSubmit = async (values: CustomFieldFormData) => {
+  const setupSubmit = async (values: CustomField) => {
     const { type, label, colour } = values;
     const newField: CustomField = {
       type,
@@ -130,13 +128,13 @@ export default function CustomFieldForm({
               <Input
                 {...register('label', {
                   required: { value: true, message: 'Required field' },
-                  onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
                   validate: (value) => {
                     if (value.trim().length === 0) return 'Required field';
                     if (!checkRegex.isAlphanumericWithSpace(value))
                       return 'Only alphanumeric characters and space are allowed';
-                    const newKey = customFieldLabelToKey(value);
-                    if (newKey !== initialKey && Object.hasOwn(data, newKey)) {
+                    if (initialKey && value.trim() === initialLabel?.trim()) return true;
+                    const duplicateId = customKeyFromLabel(value.trim(), data);
+                    if (duplicateId !== null && duplicateId !== initialKey) {
                       return 'Custom fields must be unique';
                     }
                     return true;
@@ -147,8 +145,8 @@ export default function CustomFieldForm({
             </label>
 
             <label>
-              <Panel.Description>Key (use in Integrations and API)</Panel.Description>
-              <Input {...register('key')} variant='ghosted' readOnly fluid />
+              <Panel.Description>ID (use in Integrations and API)</Panel.Description>
+              <Input value={initialKey ?? 'Assigned when saved'} variant='ghosted' readOnly fluid />
             </label>
           </div>
           <label>

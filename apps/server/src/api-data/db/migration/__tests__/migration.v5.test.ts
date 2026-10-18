@@ -10,19 +10,30 @@ describe('v4 to v5', () => {
     expect(shouldUseThisMigration({ settings: { version } })).toBe(expected);
   });
 
-  it('stamps v5 without mutating the source or losing project sections', () => {
-    const source = {
-      settings: { version: '4.13.0', language: 'en' },
-      customFields: { Notes: { label: 'Notes', type: 'text', colour: '' } },
-      project: { title: 'Show' },
-      futureSection: { keep: true },
-    };
-    const original = structuredClone(source);
+  it.each([undefined, ['order', 'fields']])(
+    'wraps the legacy record, preserving other sections and the source',
+    (customFieldOrder) => {
+      const source = {
+        settings: { version: '4.13.0', language: 'en' },
+        customFields: {
+          fields: { label: 'fields', type: 'text', colour: '' },
+          order: { label: 'order', type: 'text', colour: '' },
+        },
+        customFieldOrder,
+        project: { title: 'Show' },
+        futureSection: { keep: true },
+      };
+      const original = structuredClone(source);
 
-    expect(migrateAllData(source)).toEqual({
-      ...source,
-      settings: { ...source.settings, version: '5.0.0' },
-    });
-    expect(source).toEqual(original);
-  });
+      const result = migrateAllData(source);
+
+      expect(result).toEqual({
+        settings: { version: '5.0.0', language: 'en' },
+        customFields: { fields: source.customFields, order: customFieldOrder },
+        project: source.project,
+        futureSection: source.futureSection,
+      });
+      expect(source).toEqual(original);
+    },
+  );
 });

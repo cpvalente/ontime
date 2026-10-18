@@ -4,7 +4,6 @@ import {
   OntimeDelay,
   OntimeEvent,
   OntimeGroup,
-  OntimeMilestone,
   SupportedEntry,
   TimeStrategy,
 } from 'ontime-types';
@@ -16,7 +15,6 @@ import {
   makeOntimeDelay,
   makeOntimeEvent,
   makeOntimeGroup,
-  makeOntimeMilestone,
   makeRundown,
 } from '../__mocks__/rundown.mocks.js';
 import {
@@ -2064,39 +2062,6 @@ describe('customFieldMutation.add()', () => {
   });
 });
 
-describe('customFieldMutation.edit()', () => {
-  it('changes properties of an existing custom field', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
-
-    customFieldMutation.edit(customFields, 'one', customFields.one, { colour: 'red' });
-
-    expect(customFields).toMatchObject({
-      one: { label: 'one', colour: 'red' },
-    });
-  });
-
-  it('changing the label makes a new key', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
-
-    const { oldKey, newKey } = customFieldMutation.edit(customFields, 'one', customFields.one, {
-      label: 'two',
-      colour: 'red',
-    });
-
-    expect(oldKey).toBe('one');
-    expect(newKey).not.toEqual(oldKey);
-
-    expect(customFields).toMatchObject({
-      [oldKey]: { label: 'one', colour: 'blue' },
-      [newKey]: { label: 'two', colour: 'red' },
-    });
-  });
-});
-
 describe('customFieldMutation.remove()', () => {
   it('deletes a custom field from the object', () => {
     const customFields = {
@@ -2106,40 +2071,6 @@ describe('customFieldMutation.remove()', () => {
     customFieldMutation.remove(customFields, 'one');
 
     expect(customFields).not.toHaveProperty('one');
-  });
-});
-
-describe('customFieldMutation.renameUsages()', () => {
-  it('renames all custom field entries in a given rundown', () => {
-    const rundown = makeRundown({
-      order: ['1', '2', '3'],
-      entries: {
-        '1': makeOntimeEvent({ id: '1', custom: { one: 'value1' } }),
-        '2': makeOntimeEvent({ id: '2', custom: { one: 'value2' } }),
-        '3': makeOntimeEvent({ id: '3', custom: { two: 'value3' } }),
-      },
-    });
-
-    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
-    expect(rundown.entries).toMatchObject({
-      '1': { id: '1', custom: { 'new-one': 'value1' } },
-      '2': { id: '2', custom: { 'new-one': 'value2' } },
-      '3': { id: '3', custom: { two: 'value3' } },
-    });
-  });
-
-  it('renames usages inside groups and milestones', () => {
-    const rundown = makeRundown({
-      order: ['group', 'm1'],
-      entries: {
-        group: makeOntimeGroup({ id: 'group', entries: ['e1'] }),
-        e1: makeOntimeEvent({ id: 'e1', parent: 'group', custom: { one: 'v' } }),
-        m1: makeOntimeMilestone({ id: 'm1', custom: { two: 'keep' } }),
-      },
-    });
-    customFieldMutation.renameUsages(rundown, 'one', 'new-one');
-    expect((rundown.entries['e1'] as OntimeEvent).custom).toMatchObject({ 'new-one': 'v' });
-    expect((rundown.entries['m1'] as OntimeMilestone).custom).toMatchObject({ two: 'keep' });
   });
 });
 

@@ -82,6 +82,41 @@ describe('project persistence', { timeout: 15_000 }, () => {
     expect((restored.entries[eventId!] as OntimeEvent).title).toBe('Edited before restart');
   });
 
+  test('a new field keeps its ID and stale-client values after rename and restart', async () => {
+    const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
+    const created = await firstRun.send('POST', '/data/custom-fields', { label: 'Camera', type: 'text', colour: '' });
+    expect(created.status).toBe(201);
+    const fields = await created.json();
+    const fieldId = Object.keys(fields).find((id) => fields[id].label === 'Camera')!;
+    expect(fieldId).toBeDefined();
+    expect(fieldId).not.toBe('Camera');
+    const rundown: Rundown = await (await firstRun.get('/data/rundowns/current')).json();
+    const eventId = rundown.flatOrder.find((id) => rundown.entries[id].type === SupportedEntry.Event)!;
+
+    const renamed = await firstRun.send('PUT', `/data/custom-fields/${fieldId}`, {
+      label: 'New Camera',
+      type: 'text',
+      colour: '',
+    });
+    expect(renamed.status).toBe(200);
+    const edited = await firstRun.send('PUT', `/data/rundowns/${rundown.id}/entry`, {
+      id: eventId,
+      custom: { [fieldId]: 'Written by another node' },
+    });
+    expect(edited.status).toBe(200);
+    await firstRun.stop();
+
+    const restarted = await startTestServer();
+    onTestFinished(() => restarted.stop());
+    const restored: DatabaseModel = await (await restarted.get('/data/db')).json();
+    expect(restored.customFields.fields[fieldId]).toEqual({ label: 'New Camera', type: 'text', colour: '' });
+    expect(restored.customFields.order).toContain(fieldId);
+    expect((restored.rundowns[rundown.id].entries[eventId] as OntimeEvent).custom[fieldId]).toBe(
+      'Written by another node',
+    );
+  });
+
   test('custom fields and their order are imported, saved and restored as one collection', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());

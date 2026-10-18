@@ -1,3 +1,4 @@
+/** Stable field ID. Migrated fields retain their original key even when the label changes. */
 export type CustomFieldKey = string;
 
 export type CustomField = {

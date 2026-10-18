@@ -47,13 +47,14 @@ describe('custom field changes across project rundowns', () => {
     await rm(directory, { recursive: true, force: true });
   });
 
-  test('renaming a field moves its values in the loaded and background rundowns', async () => {
+  test('renaming a field preserves its ID and values in every rundown', async () => {
     const customFields = await editCustomField('Old', { label: 'New' });
 
-    expect(Object.keys(customFields)).toEqual(['New']);
-    expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ New: 'loaded value' });
+    expect(customFields.Old.label).toBe('New');
+    expect(Object.keys(customFields)).toEqual(['Old']);
+    expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ Old: 'loaded value' });
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
-      New: 'background value',
+      Old: 'background value',
     });
   });
 
@@ -81,8 +82,52 @@ describe('custom field changes across project rundowns', () => {
 
     const result = getDataProvider().getRundown('background').entries.b as OntimeEvent;
     expect(result.title).toBe('concurrent edit');
-    expect(result.custom).toEqual({ New: 'background value' });
+    expect(result.custom).toEqual({ Old: 'background value' });
   });
+
+  test.each(['loaded', 'background'])(
+    'an edit from a client that has not seen the rename survives in %s',
+    async (rundownId) => {
+      await editCustomField('Old', { label: 'New' });
+      const id = rundownId === 'loaded' ? 'a' : 'b';
+
+      await editEntry(rundownId, { id, custom: { Old: 'Saved after rename' } });
+
+      expect((getDataProvider().getRundown(rundownId).entries[id] as OntimeEvent).custom).toEqual({
+        Old: 'Saved after rename',
+      });
+      expect(getDataProvider().getCustomFields().fields.Old.label).toBe('New');
+    },
+  );
+
+  test('partial updates preserve properties omitted by MCP clients', async () => {
+    const original = getDataProvider().getCustomFields().fields.Old;
+    await editCustomField('Old', { label: 'Renamed', colour: undefined });
+    expect(getDataProvider().getCustomFields().fields.Old).toEqual({ ...original, label: 'Renamed' });
+
+    await editCustomField('Old', { label: undefined, colour: 'red' });
+    expect(getDataProvider().getCustomFields().fields.Old).toEqual({ ...original, label: 'Renamed', colour: 'red' });
+  });
+
+  test('merged fields with the same label remain independently editable', async () => {
+    await mergeCustomFields({ fields: { imported: makeCustomField({ label: 'Old' }) }, order: ['imported'] });
+    await editCustomField('imported', { label: 'Old', colour: 'red' });
+
+    expect(getDataProvider().getCustomFields().fields).toMatchObject({
+      Old: { label: 'Old' },
+      imported: { label: 'Old', colour: 'red' },
+    });
+    expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ Old: 'loaded value' });
+  });
+
+  test.each(['', '   ', 'Invalid!'])(
+    'rejects invalid rename labels without changing the definition: %j',
+    async (label) => {
+      const original = getDataProvider().getCustomFields();
+      await expect(editCustomField('Old', { label })).rejects.toThrow('Invalid custom field label');
+      expect(getDataProvider().getCustomFields()).toEqual(original);
+    },
+  );
 
   test('a rejected edit leaves the background rundowns untouched', async () => {
     await expect(editCustomField('Old', { label: 'New', type: 'image' })).rejects.toThrow();
@@ -138,9 +183,12 @@ describe('custom field order', () => {
   });
 
   test('a numeric key keeps its position rather than moving first', async () => {
-    await createCustomField(makeCustomField({ label: 'Fourth' }));
+    const fields = await createCustomField(makeCustomField({ label: 'Fourth' }));
+    const newId = Object.keys(fields).find((id) => fields[id].label === 'Fourth')!;
 
-    expect(getDataProvider().getData().customFields.order).toEqual(['First', '2', 'Third', 'Fourth']);
+    expect(newId).not.toBe('Fourth');
+    expect(getDataProvider().getData().customFields.order).toEqual(['First', '2', 'Third', newId]);
+    await expect(createCustomField(makeCustomField({ label: 'Fourth' }))).rejects.toThrow('Label already exists');
   });
 
   test('merging fields keeps existing positions and appends new fields in the given order', async () => {
@@ -159,7 +207,7 @@ describe('custom field order', () => {
   test('renaming a field keeps its position', async () => {
     await editCustomField('First', { label: 'Renamed' });
 
-    expect(getDataProvider().getData().customFields.order).toEqual(['Renamed', '2', 'Third']);
+    expect(getDataProvider().getData().customFields.order).toEqual(['First', '2', 'Third']);
   });
 
   test('renaming a field to the label of another field is rejected', async () => {

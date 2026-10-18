@@ -1,7 +1,6 @@
 import {
   AutomationSettings,
   CustomFields,
-  DatabaseModel,
   EndAction,
   EntryCustomFields,
   NormalisedAutomation,
@@ -43,14 +42,13 @@ export function shouldUseThisMigration(jsonData: object): boolean {
   );
 }
 
-export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
+export function migrateAllData(jsonData: object) {
   const settings = migrateSettings(jsonData);
   const viewSettings = migrateViewSettings(jsonData);
   const urlPresets = migrateURLPresets(jsonData);
   const project = migrateProjectData(jsonData);
   const migratedCustom = migrateCustomFields(jsonData);
-  const fields = migratedCustom?.customFields;
-  const customFields = fields ? { fields, order: Object.keys(fields) } : undefined;
+  const customFields = migratedCustom?.customFields;
   const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
   const automation = migrateAutomations(jsonData);
 

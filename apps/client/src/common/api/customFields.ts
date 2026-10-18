@@ -26,7 +26,7 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
  * Edits single custom field
  */
 export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<CustomFields> {
-  const res = await axios.put(`${customFieldsPath}/${key}`, { ...newField });
+  const res = await axios.put(`${customFieldsPath}/${encodeURIComponent(key)}`, { ...newField });
   return res.data;
 }
 
@@ -42,6 +42,6 @@ export async function reorderCustomFields(order: CustomFieldKey[]): Promise<Proj
  * Deletes single custom field
  */
 export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
-  const res = await axios.delete(`${customFieldsPath}/${key}`);
+  const res = await axios.delete(`${customFieldsPath}/${encodeURIComponent(key)}`);
   return res.data;
 }

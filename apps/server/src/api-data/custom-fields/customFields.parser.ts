@@ -1,5 +1,5 @@
 import { CustomField, CustomFieldKey, CustomFields, ProjectCustomFields } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex } from 'ontime-utils';
 
 import { is } from '../../utils/is.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
@@ -22,20 +22,17 @@ export function parseCustomFields(data: { customFields?: unknown }, emitError?: 
   return customFields;
 }
 
-/** Parses the collection, including project files saved with a bare field record. */
+/** Parses the v5 collection. Legacy project shapes are converted by the project migrations. */
 export function parseProjectCustomFields(
-  data: { customFields?: unknown; customFieldOrder?: unknown },
+  data: { customFields?: unknown },
   emitError?: ErrorEmitter,
 ): ProjectCustomFields {
   const source = data.customFields;
-  // Legacy records may contain a field named "fields". Preserve any valid definitions at that level.
-  const nested =
-    is.object(source) &&
-    is.objectWithKeys(source, ['fields']) &&
-    is.object(source.fields) &&
-    !Object.entries(source).some(([key, field]) => isValidField(field, key));
-  const fields = parseCustomFields({ customFields: nested ? source.fields : source }, emitError);
-  const order = nested && is.objectWithKeys(source, ['order']) ? source.order : data.customFieldOrder;
+  const fields = parseCustomFields(
+    { customFields: is.object(source) && 'fields' in source ? source.fields : undefined },
+    emitError,
+  );
+  const order = is.object(source) && 'order' in source ? source.order : undefined;
   return { fields, order: parseCustomFieldOrder(order, fields) };
 }
 
@@ -91,6 +88,7 @@ function isValidField(data: unknown, key: string): data is CustomField {
     'type' in data &&
     (data.type === 'text' || data.type === 'image') &&
     checkRegex.isAlphanumericWithSpace(data.label) &&
-    key === customFieldLabelToKey(data.label)
+    key !== '' &&
+    key !== '__proto__'
   );
 }

@@ -294,15 +294,15 @@ describe('mcp.service', () => {
   });
 
   describe('createCustomFieldForMcp', () => {
-    it('creates a field and returns the derived key', async () => {
+    it('creates a field and returns its generated ID', async () => {
       createCustomFieldMock.mockResolvedValue({
-        Camera_Angle: { label: 'Camera Angle', type: 'text', colour: '#3E75E8' },
+        abc123: { label: 'Camera Angle', type: 'text', colour: '#3E75E8' },
       });
 
       const result = await createCustomFieldForMcp({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
 
       expect(createCustomFieldMock).toHaveBeenCalledWith({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
-      expect(result.key).toBe('Camera_Angle');
+      expect(result.key).toBe('abc123');
     });
 
     it('rejects labels the editor UI would not accept', async () => {
@@ -313,10 +313,10 @@ describe('mcp.service', () => {
     });
 
     it('rejects case-insensitive duplicates and points at the existing key', async () => {
-      getProjectCustomFieldsMock.mockReturnValue({ Camera: { label: 'Camera', type: 'text', colour: '' } });
+      getProjectCustomFieldsMock.mockReturnValue({ abc123: { label: 'Camera', type: 'text', colour: '' } });
 
       await expect(createCustomFieldForMcp({ label: 'camera', type: 'text', colour: '#000000' })).rejects.toThrow(
-        'A custom field with key "Camera" (label "Camera") already exists.',
+        'A custom field with key "abc123" (label "Camera") already exists.',
       );
       expect(createCustomFieldMock).not.toHaveBeenCalled();
     });

@@ -274,18 +274,18 @@ Custom fields are project-scoped. They appear as columns in the cuesheet and can
 
 Steps:
 1. Call ontime_get_custom_fields to see what fields already exist. Reuse an existing field when it covers the concept — avoid duplicates such as "Cam", "camera", and "Cameras".
-2. Carry out the instruction using the tools below. Creating a field is non-destructive — do it directly. Confirm destructive changes (rename, delete) with the user before calling.
+2. Carry out the instruction using the tools below. Creating a field is non-destructive — do it directly. Confirm deletion with the user before calling.
 
 Creating a field:
 - Call ontime_create_custom_field with { label, type, colour }.
-- label: human-readable name (letters, numbers and spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle").
+- label: human-readable name (letters, numbers and spaces). The field receives a generated stable ID; use the returned key.
 - type: "text" for short string values, "image" for image URLs. Cannot be changed after creation.
 - colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. If unspecified, pick one from the default Ontime palette matching the department.
 - Returns: { key, customFields } — use the returned key when setting values on entries.
 
 Renaming or recolouring a field:
 - Call ontime_update_custom_field with { key, label?, colour? }.
-- Warning: changing the label changes the derived key and cascades to all entry references in all rundowns. Confirm with the user before renaming.
+- Changing the label preserves the stable ID and all entry references.
 - The field type cannot be changed.
 
 Deleting a field:

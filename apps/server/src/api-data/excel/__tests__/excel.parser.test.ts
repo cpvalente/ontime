@@ -1,5 +1,5 @@
 import { CustomFields, OntimeEvent, OntimeGroup, SupportedEntry, TimerType } from 'ontime-types';
-import { ImportMap, MILLIS_PER_MINUTE, millisToString } from 'ontime-utils';
+import { ImportMap, MILLIS_PER_MINUTE, customKeyFromLabel, millisToString } from 'ontime-utils';
 
 import { simpleTemplate } from '../__mocks__/simpleTemplate.js';
 import { parseExcel } from '../excel.parser.js';
@@ -51,6 +51,7 @@ describe('parseExcel()', () => {
     };
 
     const parsedData = parseExcel(dataFromExcelTemplate, existingCustomFields, 'testSheet', importMap);
+    const user3Id = customKeyFromLabel('user3', parsedData.customFields)!;
     expect(parsedData.customFields).toStrictEqual({
       user0: {
         type: 'text',
@@ -67,7 +68,7 @@ describe('parseExcel()', () => {
         colour: 'blue',
         label: 'user2',
       },
-      user3: {
+      [user3Id]: {
         type: 'text',
         colour: '',
         label: 'user3',
@@ -89,7 +90,7 @@ describe('parseExcel()', () => {
           user0: 'a0',
           user1: 'a1',
           user2: 'a2',
-          user3: 'a3',
+          [user3Id]: 'a3',
         },
         colour: 'red',
         type: 'event',
@@ -122,13 +123,15 @@ describe('parseExcel()', () => {
     };
 
     const parsedData = parseExcel(dataFromExcelTemplate, {}, 'testSheet', importMap);
+    const niu1Id = customKeyFromLabel('niu1', parsedData.customFields)!;
+    const niu2Id = customKeyFromLabel('niu2', parsedData.customFields)!;
     expect(parsedData.customFields).toStrictEqual({
-      niu1: {
+      [niu1Id]: {
         type: 'text',
         colour: '',
         label: 'niu1',
       },
-      niu2: {
+      [niu2Id]: {
         type: 'text',
         colour: '',
         label: 'niu2',

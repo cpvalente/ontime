@@ -20,11 +20,13 @@ import {
   isOntimeGroup,
 } from 'ontime-types';
 import {
-  customFieldLabelToKey,
+  checkRegex,
+  customKeyFromLabel,
   generateId,
   getErrorMessage,
   getInsertAfterId,
   resolveInsertParent,
+  withoutUndefinedValues,
 } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -472,10 +474,8 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
  * @throws if the label is missing or invalid
  */
 export async function createCustomField(customField: CustomField): Promise<CustomFields> {
-  const key = customFieldLabelToKey(customField.label);
-
-  if (!key) {
-    throw new Error('Unable to convert label to a valid key');
+  if (!customField.label.trim() || !checkRegex.isAlphanumericWithSpace(customField.label)) {
+    throw new Error('Invalid custom field label');
   }
 
   const {
@@ -484,9 +484,12 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
 
   // check if label already exists
-  if (Object.hasOwn(customFields, key)) {
+  if (customKeyFromLabel(customField.label, customFields) !== null) {
     throw new Error('Label already exists');
   }
+
+  let key = generateId();
+  while (Object.hasOwn(customFields, key)) key = generateId();
 
   customFieldMutation.add(customFields, key, customField);
 
@@ -526,15 +529,14 @@ async function updateBackgroundRundowns(loadedRundownId: string, mutate: (rundow
  */
 export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
   const {
-    customFields: { fields: customFields, order: customFieldOrder },
-    rundown,
+    customFields: { fields: customFields },
     commit,
   } = createTransaction({
-    mutableRundown: true,
+    mutableRundown: false,
     mutableCustomFields: true,
   });
 
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     throw new Error('Could not find label');
   }
 
@@ -544,42 +546,22 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
     throw new Error('Change of field type is not allowed');
   }
 
-  if (newField.label) {
-    const newKey = customFieldLabelToKey(newField.label);
-    if (newKey !== key && Object.hasOwn(customFields, newKey)) {
+  if (newField.label !== undefined && (!newField.label.trim() || !checkRegex.isAlphanumericWithSpace(newField.label))) {
+    throw new Error('Invalid custom field label');
+  }
+
+  if (newField.label && newField.label !== existingField.label) {
+    const duplicateId = customKeyFromLabel(newField.label, customFields);
+    if (duplicateId !== null && duplicateId !== key) {
       throw new Error('Label already exists');
     }
   }
 
-  const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);
-
-  const didChangeKey = oldKey !== newKey;
-  // if key has changed ...
-  if (didChangeKey) {
-    // ... reassign references in the active rundown
-    customFieldMutation.renameUsages(rundown, oldKey, newKey);
-
-    // ... delete the old key
-    customFieldMutation.remove(customFields, oldKey);
-
-    // ... and keep the field in its position
-    customFieldMutation.renameInOrder(customFieldOrder, oldKey, newKey);
-  }
-
-  // the custom fields have been removed and there is no processing to be done
-  const { revision, customFields: resultCustomFields } = await commit(false);
-
-  // ... and reassign references in the background rundowns
-  if (didChangeKey) {
-    await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
-      customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
-    );
-  }
+  customFields[key] = { ...existingField, ...withoutUndefinedValues(newField) };
+  const { customFields: resultCustomFields } = await commit(false);
 
   // schedule the side effects
   notifyChange(RefetchKey.CustomFields);
-  notifyChange(RefetchKey.Rundown, revision);
-
   return resultCustomFields;
 }
 
