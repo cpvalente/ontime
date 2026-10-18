@@ -37,6 +37,7 @@ import {
   createTransaction,
   customFieldMutation,
   getCurrentRundownId,
+  replaceStoredRundown,
   rundownCache,
   rundownMutation,
 } from './rundown.dao.js';
@@ -665,11 +666,7 @@ export async function replaceRundown(rundownId: string, incoming: Readonly<Rundo
   const parsed = parseRundown({ ...incoming, id: rundownId }, customFields);
   parsed.revision = existing.revision + 1;
 
-  if (isCurrentRundown(rundownId)) {
-    rundownCache.init(parsed, customFields);
-  } else {
-    await dataProvider.setRundown(rundownId, parsed);
-  }
+  await replaceStoredRundown(parsed);
 
   notifyChange(RefetchKey.Rundown, parsed.revision, rundownId);
   // the rundown list shows titles and entry counts

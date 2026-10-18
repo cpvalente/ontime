@@ -701,6 +701,28 @@ export const customFieldMutation = {
 };
 
 /**
+ * Stores a parsed rundown in place of the stored one of the same id, loaded or background
+ * The rundown is processed against the project custom fields, as with any commit
+ * Replacing the loaded rundown does not switch rundowns, the runtime reconciles on the change
+ */
+export async function replaceStoredRundown(parsedRundown: Readonly<Rundown>) {
+  if (parsedRundown.id === cachedRundown.id) {
+    init(parsedRundown, projectCustomFields);
+    return;
+  }
+
+  const processed = processRundown(parsedRundown, projectCustomFields);
+  await getDataProvider().setRundown(parsedRundown.id, {
+    id: parsedRundown.id,
+    title: parsedRundown.title,
+    entries: processed.entries,
+    order: processed.order,
+    flatOrder: processed.flatEntryOrder,
+    revision: parsedRundown.revision,
+  });
+}
+
+/**
  * Expose function to add an initial rundown to the system
  */
 export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<CustomFields>) {
