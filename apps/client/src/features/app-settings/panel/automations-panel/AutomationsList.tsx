@@ -10,9 +10,9 @@ import Dialog from '../../../../common/components/dialog/Dialog';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
-import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
+import { summariseOutputs } from './automationOutputs';
 
 import style from './AutomationsList.module.scss';
 

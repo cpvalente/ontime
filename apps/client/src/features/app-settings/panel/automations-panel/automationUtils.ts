@@ -1,6 +1,6 @@
 import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
+import { lifecycleLabels } from './timerLifecycle';
 
 type CycleLabel = {
   label: string;

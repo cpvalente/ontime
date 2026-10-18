@@ -12,6 +12,11 @@ export type OutputSummary = {
   count: number;
 };
 
+/**
+ * Summarises an automation's outputs by kind so that a list row can say what the
+ * automation does without the user having to open the form.
+ * Shared between the automation settings panel and the rundown event editor.
+ */
 export function summariseOutputs(outputs: AutomationOutput[]): OutputSummary[] {
   const counts = new Map<AutomationOutput['type'], number>();
 
@@ -19,6 +24,7 @@ export function summariseOutputs(outputs: AutomationOutput[]): OutputSummary[] {
     counts.set(output.type, (counts.get(output.type) ?? 0) + 1);
   }
 
+  // keep a stable presentation order regardless of the order the user added outputs
   const order: AutomationOutput['type'][] = ['osc', 'http', 'ontime'];
   return order
     .filter((type) => counts.has(type))
