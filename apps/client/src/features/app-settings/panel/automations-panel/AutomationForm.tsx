@@ -1,4 +1,4 @@
-import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
+import { Automation, AutomationDTO, AutomationFilter, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
 import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
@@ -14,6 +14,7 @@ import ExternalLink from '../../../../common/components/link/external-link/Exter
 import Modal from '../../../../common/components/modal/Modal';
 import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
 import Select from '../../../../common/components/select/Select';
+import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { isOntimeCloud } from '../../../../externals';
@@ -34,20 +35,29 @@ interface AutomationFormProps {
   onClose: () => void;
 }
 
+/**
+ * Edits what an automation sends: its filters and its outputs.
+ * When it runs is a separate concept, owned by the triggers list and by the event editor.
+ */
 export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
+  /**
+   * Test results are keyed by the field array id rather than the index:
+   * removing an output shifts every index after it, which would leave feedback on the wrong row
+   */
   const [testResults, setTestResults] = useState<Record<string, { state: TestState; input: string }>>({});
-  const [submitError, setSubmitError] = useState<string>();
 
   const {
+    clearErrors,
     control,
     handleSubmit,
     getValues,
     register,
     setFocus,
+    setError,
     setValue,
     watch,
     formState: { errors, isSubmitting, isDirty, isValid },
@@ -106,6 +116,10 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     appendOutput({ type: 'ontime', action: 'aux1-start' });
   };
 
+  /**
+   * Sends a single output as configured, without saving the automation.
+   * OSC is fire and forget over UDP, so the most we can honestly claim is that we sent it.
+   */
   const handleTest = async (index: number, key: string) => {
     const values = getValues(`outputs.${index}`);
     const input = JSON.stringify(values);
@@ -132,34 +146,38 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
   };
 
   const onSubmit = async (values: AutomationDTO) => {
-    setSubmitError(undefined);
-    if (isAutomation(automation)) {
-      await handleEdit(automation.id, { id: automation.id, ...values });
-    } else {
-      await handleCreate(values);
-    }
-    refetch();
+    // a stale failure from the previous attempt would otherwise sit under a successful retry
+    clearErrors('root');
 
-    async function handleEdit(id: string, values: Automation) {
-      try {
-        await editAutomation(id, values);
-        onClose();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
-      }
-    }
-
-    async function handleCreate(values: AutomationDTO) {
-      try {
+    try {
+      if (isAutomation(automation)) {
+        await editAutomation(automation.id, { id: automation.id, ...values });
+      } else {
         await addAutomation(values);
-        onClose();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
       }
+    } catch (error) {
+      setError('root', { message: maybeAxiosError(error) });
+      return;
     }
+
+    refetch();
+    onClose();
   };
 
-  const canSubmit = !isSubmitting && isDirty && isValid;
+  /** describes a filter in plain language so the user does not have to read the form back to themselves */
+  const describeFilter = (index: number): string | null => {
+    const field = watch(`filters.${index}.field`);
+    if (!field) return null;
+
+    const fieldLabel = fieldList.find((option) => option.value === field)?.label ?? field;
+    const operator = watch(`filters.${index}.operator`);
+    const operatorLabel = operators.find((option) => option.value === operator)?.label ?? operator;
+    const value = watch(`filters.${index}.value`);
+    return `${fieldLabel} ${operatorLabel} ${value ? `“${value}”` : 'nothing'}`;
+  };
+
+  const invalidFields = Object.keys(errors).filter((field) => field !== 'root');
+  const canSubmit = !isSubmitting && isDirty && (isValid || invalidFields.length === 0);
   const addOutputMenu = (
     <DropdownMenu
       render={<Button />}
@@ -198,11 +216,11 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
       onClose={onClose}
       showBackdrop
       showCloseButton
+      size='compact'
       title={isEdit ? 'Edit automation' : 'Create automation'}
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.outerColumn}>
           <div className={style.innerColumn}>
-            <h3>Automation options</h3>
             <div className={style.titleSection}>
               <label>
                 Title
@@ -218,82 +236,77 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
 
           <div className={style.innerColumn}>
             <h3>Filters (optional)</h3>
+            <Panel.Description>
+              Without filters the outputs are sent every time the automation is triggered.
+            </Panel.Description>
             <div className={style.ruleSection}>
-              <label>
-                Trigger outputs if
-                <RadioGroup
-                  orientation='horizontal'
-                  value={watch('filterRule')}
-                  onValueChange={(value) => setValue('filterRule', value, { shouldDirty: true })}
-                  items={[
-                    { value: 'all', label: 'All filters pass' },
-                    { value: 'any', label: 'Any filter passes' },
-                  ]}
-                />
-                <Panel.Description>
-                  All filters pass requires every condition to match. Any filter passes requires at least one match.
-                </Panel.Description>
-              </label>
+              {fieldFilters.length > 1 && (
+                <label>
+                  Trigger outputs if
+                  <RadioGroup
+                    orientation='horizontal'
+                    value={watch('filterRule')}
+                    onValueChange={(value) => setValue('filterRule', value, { shouldDirty: true })}
+                    items={[
+                      { value: 'all', label: 'All filters pass' },
+                      { value: 'any', label: 'Any filter passes' },
+                    ]}
+                  />
+                </label>
+              )}
               {fieldFilters.map((field, index) => {
-                const key = `filters.${index}.field.${field.id}`;
+                const description = describeFilter(index);
                 return (
-                  <div key={key} className={style.filterSection}>
-                    <label>
-                      Runtime data source
-                      <Select<string | null>
-                        // need to normalize '' to null for the Select to show the placeholder
-                        value={watch(`filters.${index}.field`) || null}
-                        onValueChange={(value) => {
-                          if (value === null) return;
-                          setValue(`filters.${index}.field`, value, { shouldDirty: true });
-                        }}
-                        options={fieldList.map(({ value, label }) => ({
-                          value,
-                          label,
-                          disabled: value === null,
-                        }))}
-                        aria-label='Event field'
-                      />
-                      <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
-                    </label>
-                    <label>
-                      Matching condition
-                      <Select
-                        value={watch(`filters.${index}.operator`)}
-                        onValueChange={(value: string | null) => {
-                          if (value === null) return;
-                          setValue(
-                            `filters.${index}.operator`,
-                            value as
-                              | 'equals'
-                              | 'not_equals'
-                              | 'greater_than'
-                              | 'less_than'
-                              | 'contains'
-                              | 'not_contains',
-                            { shouldDirty: true },
-                          );
-                        }}
-                        options={operators}
-                        aria-label='Operator'
-                      />
-                      <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
-                    </label>
-                    <label>
-                      Value to match
-                      <Input {...register(`filters.${index}.value`)} fluid placeholder='<empty / no value>' />
-                    </label>
-                    <div>
-                      <span>&nbsp;</span>
-                      <div>
-                        <IconButton
-                          aria-label='Delete'
-                          variant='ghosted-destructive'
-                          onClick={() => removeFilter(index)}
-                        >
-                          <IoTrash />
-                        </IconButton>
-                      </div>
+                  <div key={field.id} className={style.card}>
+                    <div className={style.cardHeader}>
+                      <Tag>Filter</Tag>
+                      <span className={style.cardSummary}>{description}</span>
+                      <IconButton
+                        aria-label='Delete filter'
+                        variant='ghosted-destructive'
+                        onClick={() => removeFilter(index)}
+                      >
+                        <IoTrash />
+                      </IconButton>
+                    </div>
+                    <div className={style.cardBody}>
+                      <label>
+                        Runtime data source
+                        <Select<string | null>
+                          // need to normalize '' to null for the Select to show the placeholder
+                          value={watch(`filters.${index}.field`) || null}
+                          onValueChange={(value) => {
+                            if (value === null) return;
+                            setValue(`filters.${index}.field`, value, { shouldDirty: true });
+                          }}
+                          options={fieldList.map(({ value, label }) => ({
+                            value,
+                            label,
+                            disabled: value === null,
+                          }))}
+                          aria-label='Event field'
+                        />
+                        <Panel.Error>{errors.filters?.[index]?.field?.message}</Panel.Error>
+                      </label>
+                      <label>
+                        Matching condition
+                        <Select
+                          value={watch(`filters.${index}.operator`)}
+                          onValueChange={(value: string | null) => {
+                            if (value === null) return;
+                            setValue(`filters.${index}.operator`, value as AutomationFilter['operator'], {
+                              shouldDirty: true,
+                            });
+                          }}
+                          options={operators}
+                          aria-label='Operator'
+                        />
+                        <Panel.Error>{errors.filters?.[index]?.operator?.message}</Panel.Error>
+                      </label>
+                      <label className={style.spanFull}>
+                        Value to match
+                        <Input {...register(`filters.${index}.value`)} fluid placeholder='<empty / no value>' />
+                      </label>
                     </div>
                   </div>
                 );
@@ -309,23 +322,19 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
           <div className={style.innerColumn}>
             <h3>Outputs</h3>
             <Info>
-              Automation outputs can be used to send data from Ontime to external software <br />
-              or to change properties of Ontime itself. <br /> <br />
-              <span>
-                Use Ontime runtime data in these fields with template strings. Type{' '}
-                <Panel.Highlight>{'{{'}</Panel.Highlight> to see autocomplete, or{' '}
-                <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
-              </span>
+              Type {'{{'} in any field to drop in Ontime runtime data, like the running event title.{' '}
+              <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
             </Info>
 
             {fieldOutputs.length === 0 && (
               <Panel.EmptyState
                 title='This automation does nothing yet'
                 description='An automation without outputs will be triggered, but it has nothing to send.'
-                action={addOutputMenu}
               />
             )}
+
             {fieldOutputs.map((output, index) => {
+              const rowErrors = getOutputErrors(index);
               const testResult = testResults[output.id];
               const cardProps = {
                 testState:
@@ -336,8 +345,6 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                 onTest: () => handleTest(index, output.id),
                 onDelete: () => removeOutput(index),
               };
-              const rowErrors = getOutputErrors(index);
-
               if (isOSCOutput(output)) {
                 return (
                   <OutputCard
@@ -352,6 +359,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                   </OutputCard>
                 );
               }
+
               if (isHTTPOutput(output)) {
                 return (
                   <OutputCard key={output.id} label='HTTP' kindClass={style.tagHttp} {...cardProps}>
@@ -375,13 +383,13 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
               }
               return null;
             })}
-            {fieldOutputs.length > 0 && addOutputMenu}
+            {addOutputMenu}
           </div>
         </form>
       }
       footerElements={
         <>
-          {submitError && <Panel.Error>{submitError}</Panel.Error>}
+          {errors.root?.message && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Button onClick={onClose}>Cancel</Button>
           <Button variant='primary' type='submit' form={formId} disabled={!canSubmit} loading={isSubmitting}>
             Save

@@ -6,9 +6,9 @@ import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';
-import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
+import useAppSettingsNavigation from '../../useAppSettingsNavigation';
 import { checkDuplicates } from './automationUtils';
 import TriggerForm from './TriggerForm';
 import TriggersListItem from './TriggersListItem';
@@ -23,13 +23,13 @@ type FormState = {
 interface TriggersListProps {
   triggers: Trigger[];
   automations: NormalisedAutomation;
-  enabledAutomations?: boolean;
   isLoading: boolean;
 }
 
-export default function TriggersList({ triggers, automations, enabledAutomations, isLoading }: TriggersListProps) {
+export default function TriggersList({ triggers, automations, isLoading }: TriggersListProps) {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, trigger: undefined });
   const { refetch } = useAutomationSettings();
+  const { setLocation } = useAppSettingsNavigation();
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -82,12 +82,10 @@ export default function TriggersList({ triggers, automations, enabledAutomations
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          {enabledAutomations === false && (
-            <Info type='warning'>
-              Automations are disabled. You can still manage them, but they won&apos;t run until enabled.
-            </Info>
-          )}
-          <Info>Actions in this section affect the entire project runtime, not just a single event.</Info>
+          <Panel.Description>
+            A global trigger runs an automation at a point in the timer lifecycle, whichever event is loaded. To run an
+            automation on one event only, add the trigger from the event editor instead.
+          </Panel.Description>
           {duplicates && (
             <Panel.Error>
               You have created multiple links between the same trigger and automation. Duplicate combinations will only
@@ -120,9 +118,13 @@ export default function TriggersList({ triggers, automations, enabledAutomations
                       : 'Create an automation definition first, then add a global trigger to decide when it should run.'
                   }
                   action={
-                    canAdd && (
+                    canAdd ? (
                       <Button variant='primary' onClick={openNewForm}>
                         Create trigger <IoAdd />
+                      </Button>
+                    ) : (
+                      <Button variant='primary' onClick={() => setLocation('automation__automations')}>
+                        Go to automations
                       </Button>
                     )
                   }
