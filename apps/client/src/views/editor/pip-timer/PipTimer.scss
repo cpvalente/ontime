@@ -6,8 +6,9 @@
   padding: 0;
   box-sizing: border-box; /* reset */
   overflow: hidden;
-  width: 100%; /* restrict the page width to viewport */
-  height: 100vh;
+  width: 100%;
+  height: 100%; /* fill the pip window or the editor preview frame */
+  position: relative; /* anchor for the blackout and message overlays */
   transition: opacity 0.5s ease-in-out;
 
   font-family: $viewer-font-family;
@@ -19,8 +20,8 @@
   flex-direction: column;
 
   &--finished {
-    outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
-    outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
+    outline: clamp(4px, 1cqw, 16px) solid $timer-finished-color;
+    outline-offset: calc(clamp(4px, 1cqw, 16px) * -1);
     transition: $viewer-transition-time;
   }
 
@@ -107,10 +108,24 @@
 
   /* =================== OVERLAY ===================*/
 
-  .message-overlay {
-    position: fixed;
+  .blackout {
+    position: absolute;
     inset: 0;
-    padding: 2vw;
+    z-index: 0;
+    background-color: #000;
+    opacity: 0;
+    transition: opacity $viewer-transition-time;
+
+    &--active {
+      z-index: calc($zindex-floating + 1);
+      opacity: 1;
+    }
+  }
+
+  .message-overlay {
+    position: absolute;
+    inset: 0;
+    padding: 2cqw;
     background: $viewer-background-color;
     opacity: 0;
     transition: opacity $viewer-transition-time;
