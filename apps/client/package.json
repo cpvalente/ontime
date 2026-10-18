@@ -14,7 +14,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/open-sans": "^5.2.7",
     "@mantine/hooks": "^9.5.1",
-    "@sentry/react": "^10.59.0",
+    "@sentry/react": "^10.76.2",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-query-devtools": "^5.101.0",

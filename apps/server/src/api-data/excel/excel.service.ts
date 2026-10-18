@@ -4,6 +4,7 @@
  */
 
 import { existsSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
 import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
@@ -62,7 +63,8 @@ export async function readExcelFile(
   }
 
   // clear the data
-  excelData = xlsx.readFile(filePath, { cellDates: true, cellFormula: false });
+  const buffer = await readFile(filePath);
+  excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
 
   await deleteFile(filePath);
 

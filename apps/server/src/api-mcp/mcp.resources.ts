@@ -1,4 +1,4 @@
-import type { ListResourcesResult, ReadResourceResult } from '@modelcontextprotocol/sdk/types.js';
+import type { ListResourcesResult, ReadResourceResult } from '@modelcontextprotocol/server';
 
 import { getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';

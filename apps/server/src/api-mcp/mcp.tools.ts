@@ -1,4 +1,4 @@
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolResult } from '@modelcontextprotocol/server';
 import { EntryId, ProjectData } from 'ontime-types';
 
 import { editCurrentProjectData, getProjectData } from '../api-data/project-data/projectData.dao.js';
