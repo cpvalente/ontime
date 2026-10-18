@@ -172,9 +172,10 @@ describe('rundown.service', () => {
     it('restores rundown invariants in the supplied rundown', async () => {
       const incoming = makeRundown({
         entries: {
-          group: makeOntimeGroup({ id: 'group', entries: ['a', 'missing'] }),
-          a: makeOntimeEvent({ id: 'a', parent: null }),
-          b: makeOntimeEvent({ id: 'b', parent: 'group' }),
+          // computed values are recalculated rather than trusted
+          group: makeOntimeGroup({ id: 'group', entries: ['a', 'missing'], timeStart: 999 }),
+          a: makeOntimeEvent({ id: 'a', parent: null, timeStart: 0, timeEnd: 10, duration: 10 }),
+          b: makeOntimeEvent({ id: 'b', parent: 'group', delay: 999 }),
         },
         order: ['group', 'a', 'b', 'missing'],
         flatOrder: ['b'],
@@ -187,9 +188,9 @@ describe('rundown.service', () => {
         order: ['group', 'b'],
         flatOrder: ['group', 'a', 'b'],
         entries: {
-          group: { entries: ['a'] },
+          group: { entries: ['a'], timeStart: 0 },
           a: { parent: 'group' },
-          b: { parent: null },
+          b: { parent: null, delay: 0 },
         },
       });
     });
