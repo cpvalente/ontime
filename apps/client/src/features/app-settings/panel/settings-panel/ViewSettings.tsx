@@ -45,7 +45,7 @@ export default function ViewSettings() {
 
   const onSubmit = async (formData: ViewSettingsType) => {
     try {
-      mutateAsync(formData);
+      await mutateAsync(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
