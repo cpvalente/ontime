@@ -9,6 +9,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Preserve entry identity and supported types across patch, clone, group, ungroup, reorder.
 - Distinguish loaded vs background rundown. Prefer explicit rundown ID over global current state.
 - No caller-owned rundown mutation unless explicitly contracted.
+- A whole rundown supplied from outside (import, later a peer) replaces the stored one through `applyRundown()`: it is parsed and processed, never trusted, and takes the stored rundown's next revision. Replacing the loaded rundown is a change, not a switch, so playback continues while the loaded event survives.
 - Revisions mark change: a rundown revision advances on every commit. An entry revision advances
   when its fields are edited (patch, swap, renumber, apply delay); structural moves (reorder, group,
   ungroup) only advance the rundown revision. Delays carry no revision. Optimistic client edits apply

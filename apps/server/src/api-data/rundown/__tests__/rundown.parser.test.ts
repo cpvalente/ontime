@@ -1,7 +1,7 @@
 import { CustomFields, OntimeEvent, OntimeGroup, Rundown, SupportedEntry } from 'ontime-types';
 
 import { makeNewRundown } from '../../../models/dataModel.js';
-import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { parseRundown, parseRundowns, sanitiseCustomFields } from '../rundown.parser.js';
 
 describe('parseRundowns()', () => {
@@ -300,6 +300,24 @@ describe('parseRundown()', () => {
     expect(parsedRundown.order.length).toEqual(1);
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
+  });
+
+  it('keeps an entry listed more than once only where it first appears', () => {
+    const rundown = makeRundown({
+      order: ['first', 'second', 'shared'],
+      entries: {
+        first: makeOntimeGroup({ id: 'first', entries: ['shared', 'skipped'] }),
+        second: makeOntimeGroup({ id: 'second', entries: ['shared'] }),
+        shared: makeOntimeEvent({ id: 'shared' }),
+        skipped: makeOntimeGroup({ id: 'skipped' }),
+      },
+    });
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order).toEqual(['first', 'second']);
+    expect(parsedRundown.flatOrder).toEqual(['first', 'shared', 'second']);
+    expect(parsedRundown.entries.first).toMatchObject({ entries: ['shared'] });
+    expect(parsedRundown.entries.second).toMatchObject({ entries: [] });
   });
 });
 

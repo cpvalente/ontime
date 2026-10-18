@@ -1,9 +1,9 @@
-import { CustomFields, RefetchKey, Rundown } from 'ontime-types';
+import { CustomFields, OntimeEvent, RefetchKey, Rundown } from 'ontime-types';
 
 import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
-import { makeOntimeEvent, makeRundown } from '../__mocks__/rundown.mocks.js';
+import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { getCurrentRundown, rundownCache } from '../rundown.dao.js';
-import { applyImportToRundown, renameRundown } from '../rundown.service.js';
+import { applyImportToRundown, applyRundown, renameRundown } from '../rundown.service.js';
 
 const storedRundowns: Record<string, Rundown> = {};
 const stopMock = vi.hoisted(() => vi.fn<() => void>());
@@ -86,6 +86,77 @@ describe('rundown.service', () => {
       await flushSideEffects();
 
       expect(storedRundowns.background.revision).toBe(7);
+      expect(sendRefetch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('applyRundown()', () => {
+    it('replaces the loaded rundown in place, telling clients to refetch only that rundown and the list', async () => {
+      await applyRundown(
+        makeRundown({ id: 'loaded', title: 'Loaded', entries: { b: makeOntimeEvent({ id: 'b' }) }, order: ['b'] }),
+      );
+      await flushSideEffects();
+
+      expect(getCurrentRundown()).toMatchObject({ id: 'loaded', order: ['b'], revision: 4 });
+      expect(storedRundowns.loaded).toMatchObject({ order: ['b'], revision: 4 });
+      expect(stopMock).not.toHaveBeenCalled();
+      expect(vi.mocked(sendRefetch).mock.calls).toEqual([
+        [RefetchKey.Rundown, 4, 'loaded'],
+        [RefetchKey.ProjectRundowns, null, undefined],
+      ]);
+    });
+
+    it('replaces a background rundown without touching the loaded one', async () => {
+      await applyRundown(
+        makeRundown({ id: 'background', title: 'Renamed', entries: { b: makeOntimeEvent({ id: 'b' }) }, order: ['b'] }),
+      );
+      await flushSideEffects();
+
+      expect(storedRundowns.background).toMatchObject({
+        title: 'Renamed',
+        order: ['b'],
+        flatOrder: ['b'],
+        revision: 8,
+      });
+      expect(getCurrentRundown()).toMatchObject({ id: 'loaded', order: ['a'] });
+      expect(vi.mocked(sendRefetch).mock.calls).toEqual([
+        [RefetchKey.Rundown, 8, 'background'],
+        [RefetchKey.ProjectRundowns, null, undefined],
+      ]);
+    });
+
+    it('reprocesses the supplied rundown rather than trusting it', async () => {
+      await applyRundown({
+        id: 'background',
+        title: 'Background',
+        // supplied revision and computed values are ignored
+        revision: 100,
+        order: ['group', 'top', 'missing'],
+        flatOrder: ['stale'],
+        entries: {
+          group: makeOntimeGroup({ id: 'group', entries: ['child', 'missing'], timeStart: 999 }),
+          child: makeOntimeEvent({ id: 'child', parent: 'elsewhere', timeStart: 0, timeEnd: 10, duration: 10 }),
+          top: makeOntimeEvent({ id: 'top', parent: 'group', delay: 999 }),
+          orphan: makeOntimeEvent({ id: 'orphan' }),
+        },
+      });
+      await flushSideEffects();
+
+      const applied = storedRundowns.background;
+      expect(applied.revision).toBe(8);
+      expect(applied.order).toEqual(['group', 'top']);
+      expect(applied.flatOrder).toEqual(['group', 'child', 'top']);
+      expect(Object.keys(applied.entries).sort()).toEqual(['child', 'group', 'top']);
+      expect(applied.entries.group).toMatchObject({ entries: ['child'], timeStart: 0 });
+      expect(applied.entries.child).toMatchObject({ parent: 'group' });
+      expect(applied.entries.top as OntimeEvent).toMatchObject({ parent: null, delay: 0 });
+    });
+
+    it('rejects a rundown which is not stored, writing nothing', async () => {
+      await expect(applyRundown(makeRundown({ id: 'unknown' }))).rejects.toThrow();
+      await flushSideEffects();
+
+      expect(storedRundowns).not.toHaveProperty('unknown');
       expect(sendRefetch).not.toHaveBeenCalled();
     });
   });

@@ -12,6 +12,7 @@ import {
   makeRundown,
 } from '../__mocks__/rundown.mocks.js';
 import {
+  applyRundown,
   cloneEntry,
   deleteCustomField,
   deleteEntries,
@@ -45,9 +46,12 @@ vi.mock('../../../stores/EventStore.js', () => ({
   },
 }));
 
+/** the stored copy of the rundown being replaced, only its revision is read */
+const stored = vi.hoisted(() => ({ revision: 0 }));
+
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
-    getRundown: vi.fn<() => Rundown>(),
+    getRundown: vi.fn<() => Rundown>(() => stored as Rundown),
     setRundown: vi.fn<() => Promise<void>>(async () => {}),
     getProjectRundowns: () => ({}),
     getCustomFields: () => ({}),
@@ -211,5 +215,47 @@ describe('rundown changes update the runtime', () => {
     await cloneEntry('loaded', 'delay', { after: 'delay' });
 
     expect(getState().eventNext).toMatchObject({ id: 'b', delay: 10 * MILLIS_PER_MINUTE });
+  });
+
+  it('keeps playback running when the loaded rundown is replaced and the loaded event survives', async () => {
+    await playRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: { a: makeOntimeEvent(eventA), b: makeOntimeEvent(eventB) },
+        order: ['a', 'b'],
+      }),
+    );
+    const startedAt = getState().timer.startedAt;
+
+    await applyRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: {
+          a: makeOntimeEvent({ ...eventA, title: 'Replaced' }),
+          c: makeOntimeEvent({ ...eventB, id: 'c', title: 'New' }),
+        },
+        order: ['a', 'c'],
+      }),
+    );
+
+    expect(getState().timer.playback).toBe(Playback.Play);
+    expect(getState().timer.startedAt).toBe(startedAt);
+    expect(getState().eventNow).toMatchObject({ id: 'a', title: 'Replaced' });
+    expect(getState().eventNext).toMatchObject({ id: 'c', title: 'New' });
+  });
+
+  it('stops playback when the replaced loaded rundown no longer has the loaded event', async () => {
+    await playRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: { a: makeOntimeEvent(eventA), b: makeOntimeEvent(eventB) },
+        order: ['a', 'b'],
+      }),
+    );
+
+    await applyRundown(makeRundown({ id: 'loaded', entries: { b: makeOntimeEvent(eventB) }, order: ['b'] }));
+
+    expect(getState().timer.playback).toBe(Playback.Stop);
+    expect(getState().eventNow).toBeNull();
   });
 });

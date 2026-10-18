@@ -37,6 +37,7 @@ import {
   createTransaction,
   customFieldMutation,
   getCurrentRundownId,
+  replaceRundown,
   rundownCache,
   rundownMutation,
 } from './rundown.dao.js';
@@ -651,13 +652,22 @@ export async function initRundown(
 }
 
 /**
- * Applies a rebuilt version of the currently loaded rundown in place.
+ * Replaces a stored rundown, loaded or background, with a supplied version of it
+ * The supplied rundown is parsed and processed, never trusted, and gets the next revision of the stored one
  * Unlike switching rundowns, this maintains playback when the loaded event survives the change
+ * @throws if the rundown does not exist
  */
-function applyChangeToCurrentRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
-  const { revision } = rundownCache.init(rundown, customFields);
-  notifyChange(RefetchKey.Rundown, revision, rundown.id);
+export async function applyRundown(rundown: Readonly<Rundown>): Promise<Readonly<Rundown>> {
+  const dataProvider = getDataProvider();
+  const stored = dataProvider.getRundown(rundown.id);
+  const parsed = parseRundown({ ...rundown, revision: stored.revision + 1 }, dataProvider.getCustomFields());
+
+  const applied = await replaceRundown(parsed);
+  notifyChange(RefetchKey.Rundown, applied.revision, applied.id);
+  // the rundown list shows each rundown's title and entry count
   notifyChange(RefetchKey.ProjectRundowns);
+
+  return applied;
 }
 
 export async function createNewRundown(title: string) {
@@ -759,15 +769,7 @@ export async function applyImportToRundown(
       : { ...incomingRundown, id: existing.id, title: existing.title, revision: existing.revision + 1 };
   const parsed = await parseImportAndCommitCustomFields(source, incomingCustomFields);
 
-  if (isCurrentRundown(targetRundownId)) {
-    // applying to the loaded rundown is a change, not a switch: maintain playback when possible
-    applyChangeToCurrentRundown(parsed, dataProvider.getCustomFields());
-  } else {
-    await dataProvider.setRundown(parsed.id, parsed);
-    // a background rundown can be open in another surface, its viewers need the new data
-    notifyChange(RefetchKey.Rundown, parsed.revision, parsed.id);
-    notifyChange(RefetchKey.ProjectRundowns);
-  }
+  await applyRundown(parsed);
 
   return dataProvider.getProjectRundowns();
 }

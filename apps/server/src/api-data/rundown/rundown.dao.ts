@@ -629,6 +629,31 @@ export function getProcessedRundown(rundownId: string): Readonly<Rundown> {
 }
 
 /**
+ * Replaces a stored rundown, loaded or background, with a parsed rundown of the same id
+ * The rundown is processed against the project custom fields, as with any commit
+ * Replacing the loaded rundown does not switch rundowns, the runtime reconciles on the change
+ */
+export async function replaceRundown(parsedRundown: Readonly<Rundown>): Promise<Readonly<Rundown>> {
+  if (parsedRundown.id === cachedRundown.id) {
+    // init processes the rundown and stores it in place of the cached one
+    init(parsedRundown, projectCustomFields);
+    return cachedRundown;
+  }
+
+  const processed = processRundown(parsedRundown, projectCustomFields);
+  const rundown: Rundown = {
+    id: parsedRundown.id,
+    title: parsedRundown.title,
+    entries: processed.entries,
+    order: processed.order,
+    flatOrder: processed.flatEntryOrder,
+    revision: parsedRundown.revision,
+  };
+  await getDataProvider().setRundown(rundown.id, rundown);
+  return rundown;
+}
+
+/**
  * Adds a new custom field to the object and returns it
  */
 function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCustomField: CustomField): CustomFields {
