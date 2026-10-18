@@ -53,6 +53,7 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 
 ## Imports and migrations
 
+- Major-version migrations must preserve the original project before writing the upgraded file. A failed backup aborts migration; loading the migrated file again must not migrate it a second time. See [v5 migration development](../../apps/server/src/api-data/db/migration/README.md).
 - Treat project files, spreadsheets, custom fields, migrated data as untrusted.
 - Preserve fields the import/migration does not own.
 - Validate/parse into the current model before runtime logic.

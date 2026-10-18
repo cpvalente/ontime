@@ -12,6 +12,7 @@ import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
+import * as v5 from './migration/db.migration.v5.js';
 
 type ParsingError = {
   context: string;
@@ -24,7 +25,7 @@ type ParsingError = {
  * @returns {object} parsed object
  */
 export function parseDatabaseModel(
-  jsonData: Partial<DatabaseModel>,
+  jsonData: object,
   initialLoad = false,
 ): {
   data: DatabaseModel;
@@ -32,7 +33,7 @@ export function parseDatabaseModel(
   migrated: boolean;
 } {
   let migrated = false;
-  let migratedData = jsonData;
+  let migratedData: object = jsonData;
   const errors: ParsingError[] = [];
 
   if (v3.shouldUseThisMigration(jsonData)) {
@@ -59,6 +60,11 @@ export function parseDatabaseModel(
       errors.push({ context: 'v4 migration', message });
       migratedData = jsonData;
     }
+  }
+
+  if (v5.shouldUseThisMigration(migratedData)) {
+    migratedData = v5.migrateAllData(migratedData);
+    migrated = true;
   }
 
   // we need to parse settings first to make sure the data is ours

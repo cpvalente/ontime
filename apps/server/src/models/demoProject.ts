@@ -1,5 +1,6 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
 
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
 export const demoDb: DatabaseModel = {
@@ -29,7 +30,7 @@ export const demoDb: DatabaseModel = {
     ],
   },
   settings: {
-    version: '-',
+    version: ONTIME_VERSION,
     editorKey: null,
     operatorKey: null,
     timeFormat: '24',

@@ -459,7 +459,7 @@
   },
   "settings": {
     "app": "ontime",
-    "version": "-",
+    "version": "4.14.1",
     "editorKey": null,
     "operatorKey": null,
     "timeFormat": "24",

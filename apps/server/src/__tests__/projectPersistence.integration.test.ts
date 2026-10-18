@@ -1,4 +1,4 @@
-import { readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { DatabaseModel, OntimeEvent, ProjectCustomFields, Rundown, SupportedEntry } from 'ontime-types';
@@ -7,6 +7,56 @@ import { startTestServer } from './testServer.js';
 
 // each start loads the full server module graph, which takes a few seconds on slower machines
 describe('project persistence', { timeout: 15_000 }, () => {
+  const dataRoot = process.env.ONTIME_DATA!;
+
+  beforeEach(async () => {
+    process.env.ONTIME_DATA = await mkdtemp(join(dataRoot, 'project-'));
+  });
+
+  afterAll(() => {
+    process.env.ONTIME_DATA = dataRoot;
+  });
+
+  test('upgrading v4 preserves the original file and does not migrate the v5 project again after restart', async () => {
+    const initialRun = await startTestServer();
+    onTestFinished(() => initialRun.stop());
+    const current: DatabaseModel = await (await initialRun.get('/data/db')).json();
+    await initialRun.stop();
+
+    const legacy = {
+      ...current,
+      settings: { ...current.settings, version: '4.13.0' },
+      customFields: current.customFields.fields,
+      customFieldOrder: [...current.customFields.order].reverse(),
+    };
+    const original = JSON.stringify(legacy);
+    const originalName = 'demo project.json';
+    await writeFile(join(process.env.ONTIME_DATA!, 'projects', originalName), original);
+
+    const upgradedRun = await startTestServer();
+    onTestFinished(() => upgradedRun.stop());
+    const upgraded: DatabaseModel = await (await upgradedRun.get('/data/db')).json();
+    expect(upgraded.settings.version.startsWith('5.')).toBe(true);
+    expect(upgraded.customFields).toEqual({ fields: legacy.customFields, order: legacy.customFieldOrder });
+    for (const [id, rundown] of Object.entries(current.rundowns)) {
+      for (const [entryId, entry] of Object.entries(rundown.entries)) {
+        if ('custom' in entry) expect(upgraded.rundowns[id].entries[entryId]).toMatchObject({ custom: entry.custom });
+      }
+    }
+    expect(await readFile(join(process.env.ONTIME_DATA!, 'migrated files', originalName), 'utf8')).toBe(original);
+    const projectList = await (await upgradedRun.get('/data/db/all')).json();
+    expect(projectList.lastLoadedProject).toBe('demo project (migrated)');
+    await upgradedRun.stop();
+
+    const restartedRun = await startTestServer();
+    onTestFinished(() => restartedRun.stop());
+    const restored: DatabaseModel = await (await restartedRun.get('/data/db')).json();
+    expect(restored.customFields).toEqual(upgraded.customFields);
+    expect((await (await restartedRun.get('/data/db/all')).json()).lastLoadedProject).toBe(
+      projectList.lastLoadedProject,
+    );
+  });
+
   test('rundown edits are saved to the project file and restored after a restart', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());

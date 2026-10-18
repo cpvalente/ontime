@@ -9,10 +9,12 @@ import { getPartialProject } from '../../models/dataModel.js';
 export function parseSettings(data: Partial<DatabaseModel>): Settings {
   const defaultSettings: Settings = getPartialProject('settings');
 
-  // skip if file definition is missing
-  // TODO: skip parsing if the version is not correct
-  if (!data.settings || data.settings?.version == null) {
+  if (!data.settings || typeof data.settings.version !== 'string') {
     throw new Error('ERROR: unable to parse settings, missing or incorrect version');
+  }
+
+  if (data.settings.version.split('.')[0] !== defaultSettings.version.split('.')[0]) {
+    throw new Error(`Unsupported project version: ${data.settings.version}`);
   }
 
   console.log('Found settings, importing...');

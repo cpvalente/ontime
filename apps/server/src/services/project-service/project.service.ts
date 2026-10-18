@@ -158,9 +158,7 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to migrated folder
   const copyPath = join(publicDir.migrateDir, fileName);
-  await copyFile(filePath, copyPath).catch((_) => {
-    /* while we have to catch the error, we dont need to handle it */
-  });
+  await copyFile(filePath, copyPath);
 
   // and make a new file with the migrated data
   const newPath = appendToName(filePath, '(migrated)');

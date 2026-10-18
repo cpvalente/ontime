@@ -1,10 +1,12 @@
+import { copyFile } from 'fs/promises';
+
 import { Mock } from 'vitest';
 
 import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
-import { getDataProvider, getFileToRead } from '../../../classes/data-provider/DataProvider.js';
+import { getDataProvider, getFileToRead, initPersistence } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
 import { isLastLoadedProject } from '../../app-state-service/appState.service.js';
 import { auxTimerService } from '../../aux-timer-service/auxTimer.service.js';
@@ -16,6 +18,11 @@ import {
   renameProjectFile,
 } from '../project.service.js';
 import { doesProjectExist, parseJsonFile } from '../project.utils.js';
+
+vi.mock('fs/promises', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('fs/promises')>()),
+  copyFile: vi.fn(),
+}));
 
 // stop the database loading from initiating
 vi.mock('../../../setup/loadDb.js', () => {
@@ -104,6 +111,17 @@ describe('renameProjectFile', () => {
 });
 
 describe('loadProjectFile', () => {
+  it('does not replace a project when its migration backup fails', async () => {
+    (doesProjectExist as Mock).mockReturnValue('/projects/legacy.json');
+    (parseJsonFile as Mock).mockResolvedValue({});
+    (parseDatabaseModel as Mock).mockReturnValue({ data: makeNewProject(), migrated: true, errors: [] });
+    vi.mocked(copyFile).mockRejectedValueOnce(new Error('Backup unavailable'));
+    vi.mocked(initPersistence).mockClear();
+
+    await expect(loadProjectFile('legacy.json')).rejects.toThrow('Backup unavailable');
+    expect(initPersistence).not.toHaveBeenCalled();
+  });
+
   it('applies the aux timer names of the loaded project', async () => {
     // the aux timers are long lived singletons, so loading a project must push the new names onto them
     // otherwise the editor and views keep showing the previous project's names
