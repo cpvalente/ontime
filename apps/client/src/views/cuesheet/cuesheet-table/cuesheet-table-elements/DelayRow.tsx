@@ -1,4 +1,4 @@
-import { CSSProperties, memo } from 'react';
+import { CSSProperties } from 'react';
 
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
 import { usePersistedCuesheetOptions } from '../../cuesheet.options';
@@ -11,7 +11,8 @@ interface DelayRowProps {
   hasCursor?: boolean;
 }
 
-function DelayRow({ duration, injectedStyles, hasCursor, ...virtuosoProps }: DelayRowProps) {
+export default function DelayRow({ duration, injectedStyles, hasCursor, ...virtuosoProps }: DelayRowProps) {
+  'use memo';
   const hideDelays = usePersistedCuesheetOptions((state) => state.hideDelays);
 
   if (hideDelays || duration === 0) {
@@ -41,5 +42,3 @@ function DelayRow({ duration, injectedStyles, hasCursor, ...virtuosoProps }: Del
     </tr>
   );
 }
-
-export default memo(DelayRow);

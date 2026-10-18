@@ -269,7 +269,8 @@ export default function CuesheetTable({
           context={virtuosoContext}
           style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
           computeItemKey={computeItemKey}
-          increaseViewportBy={{ top: 100, bottom: 200 }}
+          increaseViewportBy={150}
+          minOverscanItemCount={20}
           components={virtuosoComponents}
           fixedHeaderContent={fixedHeaderContent}
         />
@@ -315,9 +316,9 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   item: _item,
   style: injectedStyles,
   context,
+  children: _children,
   ...virtuosoProps
 }: ItemProps<ExtendedEntry> & ContextProp<CuesheetVirtuosoContext>) {
-  // eslint-disable-next-line react/destructuring-assignment
   const rowIndex = virtuosoProps['data-index'];
   const row = context.rows[rowIndex];
   const hasCursor = useEventSelection((state) => state.cursor === row?.original.id);
@@ -377,7 +378,7 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
 
   return (
     <EventRow
-      key={row.id}
+      key={key}
       id={entry.id}
       eventIndex={entry.eventIndex}
       colour={entry.colour}
@@ -393,10 +394,29 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
       table={context.table}
       injectedStyles={injectedStyles}
       hasCursor={hasCursor}
-      {...virtuosoProps}
+      data-index={virtuosoProps['data-index']}
+      data-item-group-index={virtuosoProps['data-item-group-index']}
+      data-item-index={virtuosoProps['data-item-index']}
+      data-known-size={virtuosoProps['data-known-size']}
     />
   );
-});
+}, areCuesheetTableRowEqual);
+
+function areCuesheetTableRowEqual(
+  prev: ItemProps<ExtendedEntry> & ContextProp<CuesheetVirtuosoContext>,
+  next: ItemProps<ExtendedEntry> & ContextProp<CuesheetVirtuosoContext>,
+): boolean {
+  return (
+    prev.item === next.item &&
+    prev.context === next.context &&
+    prev['data-index'] === next['data-index'] &&
+    prev['data-item-group-index'] === next['data-item-group-index'] &&
+    prev['data-item-index'] === next['data-item-index'] &&
+    prev['data-known-size'] === next['data-known-size'] &&
+    prev.style === next.style
+    // ignore children, they change on every scroll frame and we don't use them
+  );
+}
 
 const virtuosoComponents: TableComponents<ExtendedEntry, CuesheetVirtuosoContext> = {
   Table: CuesheetTableElement,

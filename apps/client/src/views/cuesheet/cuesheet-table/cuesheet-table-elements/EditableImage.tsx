@@ -1,5 +1,3 @@
-import { memo } from 'react';
-
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
 
@@ -11,9 +9,8 @@ interface EditableImageProps {
   updateValue: (newValue: string) => void;
 }
 
-export default memo(EditableImage);
-
-function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
+export default function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
+  'use memo';
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;

@@ -1,4 +1,4 @@
-import { forwardRef, memo, useCallback, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useCallback, useImperativeHandle, useRef } from 'react';
 
 import Input from '../../../../common/components/input/input/Input';
 import useReactiveTextInput from '../../../../common/components/input/text-input/useReactiveTextInput';
@@ -28,6 +28,7 @@ const SingleLineCell = forwardRef(
     }: SingleLineCellProps,
     inputRef,
   ) => {
+    'use memo';
     const ref = useRef<HTMLInputElement | null>(null);
     const submitCallback = useCallback((newValue: string) => handleUpdate(newValue), [handleUpdate]);
 
@@ -74,4 +75,4 @@ const SingleLineCell = forwardRef(
 
 SingleLineCell.displayName = 'SingleLineCell';
 
-export default memo(SingleLineCell);
+export default SingleLineCell;
