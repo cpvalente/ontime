@@ -1,6 +1,6 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
+import { NodeStreamableHTTPServerTransport } from '@modelcontextprotocol/node';
 import express from 'express';
 import type { Request, Response, Router } from 'express';
 import { LogOrigin } from 'ontime-types';
@@ -13,7 +13,7 @@ export const mcpRouter: Router = express.Router();
 mcpRouter.post('/', async (req, res) => {
   // A new Server instance is created per request — required for stateless mode where
   // each POST is independent and concurrent requests must not share transport state.
-  const transport = new StreamableHTTPServerTransport({
+  const transport = new NodeStreamableHTTPServerTransport({
     sessionIdGenerator: undefined, // stateless: no session tracking
     enableJsonResponse: true,
   });
