@@ -18,6 +18,7 @@ import {
   editCustomField,
   editEntry,
   initRundown,
+  replaceRundown,
   ungroupEntries,
 } from '../rundown.service.js';
 
@@ -45,10 +46,14 @@ vi.mock('../../../stores/EventStore.js', () => ({
   },
 }));
 
+const stored = vi.hoisted(() => ({ rundowns: {} as Record<string, Rundown> }));
+
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
-    getRundown: vi.fn<() => Rundown>(),
-    setRundown: vi.fn<() => Promise<void>>(async () => {}),
+    getRundown: (id: string) => stored.rundowns[id],
+    setRundown: vi.fn<(id: string, rundown: Rundown) => Promise<void>>(async (id, rundown) => {
+      stored.rundowns[id] = rundown;
+    }),
     getProjectRundowns: () => ({}),
     getCustomFields: () => ({}),
     setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
@@ -211,5 +216,69 @@ describe('rundown changes update the runtime', () => {
     await cloneEntry('loaded', 'delay', { after: 'delay' });
 
     expect(getState().eventNext).toMatchObject({ id: 'b', delay: 10 * MILLIS_PER_MINUTE });
+  });
+
+  it('keeps playback running when the loaded rundown is replaced with one which keeps the loaded event', async () => {
+    await playRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: { a: makeOntimeEvent(eventA), b: makeOntimeEvent(eventB) },
+        order: ['a', 'b'],
+      }),
+    );
+
+    await replaceRundown(
+      'loaded',
+      makeRundown({
+        id: 'loaded',
+        entries: {
+          a: makeOntimeEvent({ ...eventA, title: 'Replaced' }),
+          c: makeOntimeEvent({ ...eventB, id: 'c' }),
+        },
+        order: ['a', 'c'],
+      }),
+    );
+
+    expect(getState().timer.playback).toBe(Playback.Play);
+    expect(getState().eventNow).toMatchObject({ id: 'a', title: 'Replaced' });
+    expect(getState().eventNext).toMatchObject({ id: 'c' });
+  });
+
+  it('stops playback when the loaded rundown is replaced with one without the loaded event', async () => {
+    await playRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: { a: makeOntimeEvent(eventA), b: makeOntimeEvent(eventB) },
+        order: ['a', 'b'],
+      }),
+    );
+
+    await replaceRundown(
+      'loaded',
+      makeRundown({ id: 'loaded', entries: { b: makeOntimeEvent(eventB) }, order: ['b'] }),
+    );
+
+    expect(getState().eventNow).toBeNull();
+    expect(getState().timer.playback).toBe(Playback.Stop);
+  });
+
+  it('leaves playback untouched when a background rundown is replaced', async () => {
+    stored.rundowns.background = makeRundown({ id: 'background' });
+    await playRundown(
+      makeRundown({
+        id: 'loaded',
+        entries: { a: makeOntimeEvent(eventA), b: makeOntimeEvent(eventB) },
+        order: ['a', 'b'],
+      }),
+    );
+
+    await replaceRundown(
+      'background',
+      makeRundown({ id: 'background', entries: { a: makeOntimeEvent({ ...eventA, title: 'Other' }) }, order: ['a'] }),
+    );
+
+    expect(getState().timer.playback).toBe(Playback.Play);
+    expect(getState().eventNow?.title).not.toBe('Other');
+    expect(broadcast.sent).toEqual([]);
   });
 });
