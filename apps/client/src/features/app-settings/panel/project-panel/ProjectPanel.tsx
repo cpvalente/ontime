@@ -19,7 +19,7 @@ export default function ProjectPanel({ location, setLocation }: ProjectPanelProp
   return (
     <>
       <Panel.Header>Project</Panel.Header>
-      <QuickStart isOpen={location === 'create'} onClose={handleQuickClose} />
+      {location === 'create' && <QuickStart isOpen onClose={handleQuickClose} />}
       <div ref={manageProjectsRef}>
         <ManageProjects />
       </div>
