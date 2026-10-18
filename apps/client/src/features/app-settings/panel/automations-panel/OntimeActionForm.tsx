@@ -121,7 +121,7 @@ export default function OntimeActionForm({
 
       {selectedAction === 'message-secondary' && (
         <>
-          <label>
+          <label className={style.spanFull}>
             Text (leave empty for no change)
             <TemplateInput
               {...register(`outputs.${index}.text`)}
