@@ -106,7 +106,7 @@ export default function ManageRundowns() {
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>
-            Manage project rundowns
+            Manage rundowns
             <Panel.InlineElements>
               <Button
                 onClick={() => {

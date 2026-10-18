@@ -14,8 +14,8 @@ test.describe('URL Preset', () => {
     await page.getByRole('button', { name: 'Toggle settings' }).click();
     await page.getByRole('button', { name: 'URL Presets' }).click();
 
-    await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').scrollIntoViewIfNeeded();
-    await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').click();
+    await page.getByRole('heading', { name: 'URL Presets New' }).getByRole('button').scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'URL Presets New' }).getByRole('button').click();
 
     await page.locator('input[name="alias"]').click();
     await page.locator('input[name="alias"]').fill(aliasName);
