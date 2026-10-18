@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
 import { hostToBaseUrl } from '../../common/utils/linkUtils';
+import { navigatorConstants, viewLabels } from '../../viewerConfig';
 import GenerateLinkForm from './GenerateLinkForm';
 
 interface GenerateLinkFormExportProps {
@@ -32,9 +33,9 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       return [{ value: lockedPath.value, label: lockedPath.label }];
     }
     return [
-      { value: OntimeView.Timer, label: 'Timer' },
-      { value: OntimeView.Cuesheet, label: 'Cuesheet' },
-      { value: OntimeView.Operator, label: 'Operator' },
+      ...navigatorConstants.map((view) => ({ value: view.url, label: view.label })),
+      { value: OntimeView.Cuesheet, label: viewLabels[OntimeView.Cuesheet] },
+      { value: OntimeView.Operator, label: viewLabels[OntimeView.Operator] },
       { value: '<<companion>>', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
         value: `preset-${preset.alias}`,
