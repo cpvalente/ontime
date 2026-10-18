@@ -26,7 +26,7 @@ interface RedirectClientModalProps {
 export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onClose }: RedirectClientModalProps) {
   const { data } = useUrlPresets();
   const [path, setPath] = useState(currentPath);
-  const [selected, setSelected] = useState('/');
+  const [selected, setSelected] = useState(`/${navigatorConstants[0].url}`);
 
   const { setRedirect } = setClientRemote;
 
@@ -111,19 +111,18 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
                 <Select
                   fluid
                   options={viewOptions}
-                  defaultValue={viewOptions[0].value}
+                  defaultValue={selected}
                   onValueChange={(value) => {
                     if (value === null) return;
                     setSelected(value);
                   }}
-                  disabled={enabledPresets.length === 0}
                 />
               </label>
               <Button
                 variant='primary'
                 aria-label='Redirect to preset'
                 className={style.redirect}
-                disabled={enabledPresets.length === 0 || selected === '/'}
+                disabled={selected === currentPath}
                 onClick={() => handleRedirect(selected)}
               >
                 Redirect <IoArrowForward />
