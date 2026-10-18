@@ -651,13 +651,31 @@ export async function initRundown(
 }
 
 /**
- * Applies a rebuilt version of the currently loaded rundown in place.
- * Unlike switching rundowns, this maintains playback when the loaded event survives the change
+ * Replaces a stored rundown, loaded or background, with a supplied one which keeps the target id
+ * The supplied rundown is untrusted: it is parsed against the project custom fields and processed again
+ * Replacing the loaded rundown is a change, not a switch: the runtime reconciles with it,
+ * so playback continues while the loaded event can still play
+ * @throws if the target rundown does not exist
  */
-function applyChangeToCurrentRundown(rundown: Readonly<Rundown>, customFields: Readonly<CustomFields>) {
-  const { revision } = rundownCache.init(rundown, customFields);
-  notifyChange(RefetchKey.Rundown, revision, rundown.id);
-  notifyChange(RefetchKey.ProjectRundowns);
+export async function replaceRundown(rundownId: string, incoming: Readonly<Rundown>) {
+  const dataProvider = getDataProvider();
+  const existing = dataProvider.getRundown(rundownId);
+  const customFields = dataProvider.getCustomFields();
+
+  const parsed = parseRundown({ ...incoming, id: rundownId }, customFields);
+  parsed.revision = existing.revision + 1;
+
+  if (isCurrentRundown(rundownId)) {
+    rundownCache.init(parsed, customFields);
+  } else {
+    await dataProvider.setRundown(rundownId, parsed);
+  }
+
+  notifyChange(RefetchKey.Rundown, parsed.revision, rundownId);
+  // the rundown list shows titles and entry counts
+  if (existing.title !== parsed.title || existing.flatOrder.length !== parsed.flatOrder.length) {
+    notifyChange(RefetchKey.ProjectRundowns);
+  }
 }
 
 export async function createNewRundown(title: string) {
@@ -756,18 +774,9 @@ export async function applyImportToRundown(
   const source =
     strategy === 'merge'
       ? mergeRundownPreservingFields(incomingRundown, existing, providedFields)
-      : { ...incomingRundown, id: existing.id, title: existing.title, revision: existing.revision + 1 };
+      : { ...incomingRundown, id: existing.id, title: existing.title };
   const parsed = await parseImportAndCommitCustomFields(source, incomingCustomFields);
-
-  if (isCurrentRundown(targetRundownId)) {
-    // applying to the loaded rundown is a change, not a switch: maintain playback when possible
-    applyChangeToCurrentRundown(parsed, dataProvider.getCustomFields());
-  } else {
-    await dataProvider.setRundown(parsed.id, parsed);
-    // a background rundown can be open in another surface, its viewers need the new data
-    notifyChange(RefetchKey.Rundown, parsed.revision, parsed.id);
-    notifyChange(RefetchKey.ProjectRundowns);
-  }
+  await replaceRundown(targetRundownId, parsed);
 
   return dataProvider.getProjectRundowns();
 }
