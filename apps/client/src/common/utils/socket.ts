@@ -42,13 +42,13 @@ import { setConnectionEstablished, setConnectionLost, setConnectionStale } from 
 import { addDialog } from '../stores/dialogStore';
 import { addLog, createLog } from '../stores/logger';
 import { patchRuntime, patchRuntimeProperty } from '../stores/runtime';
-import { type ClockSample, type PendingPing, clockSampleCount, measurePong } from './clockSync';
+import { type ClockSample, clockSampleCount, measurePong } from './clockSync';
 
 let websocket: WebSocket | null = null;
 let reconnectTimeout: NodeJS.Timeout | null = null;
 let watchdogInterval: NodeJS.Timeout | null = null;
 let pingTimer: NodeJS.Timeout | null = null;
-let pendingPing: PendingPing | null = null;
+let pendingPingSentAt: number | null = null;
 let clockSamples: ClockSample[] = [];
 export const socketConfig = {
   reconnectBaseInterval: 1000,
@@ -151,12 +151,12 @@ export const connectSocket = () => {
 
       switch (tag) {
         case MessageTag.Pong: {
-          const measurement = measurePong(data, pendingPing, clockSamples, performance.now());
+          const measurement = measurePong(data, pendingPingSentAt, clockSamples, performance.now());
           if (!measurement) {
             break;
           }
           const { ping, samples, offset } = measurement;
-          pendingPing = null;
+          pendingPingSentAt = null;
           clockSamples = samples;
           setMeasuredClockOffset(offset);
           // the interval depends on the samples, which a clock jump resets
@@ -334,11 +334,11 @@ function sendPing() {
   }
   const now = performance.now();
   // Allow a slow reply across polling intervals, but retry if the sample expires.
-  if (pendingPing && now - pendingPing.sentAt < socketConfig.pingTimeout) {
+  if (pendingPingSentAt !== null && now - pendingPingSentAt < socketConfig.pingTimeout) {
     return;
   }
-  pendingPing = { payload: new Date(), sentAt: now };
-  sendSocket(MessageTag.Ping, pendingPing.payload);
+  pendingPingSentAt = now;
+  sendSocket(MessageTag.Ping, now);
 }
 
 function stopPinging() {
@@ -346,7 +346,7 @@ function stopPinging() {
     clearTimeout(pingTimer);
     pingTimer = null;
   }
-  pendingPing = null;
+  pendingPingSentAt = null;
   clockSamples = [];
 }
 

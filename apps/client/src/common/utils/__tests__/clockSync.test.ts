@@ -5,11 +5,11 @@ import { describe, expect, it } from 'vitest';
 import { getDisplayedClock, measurePong, sampleClockOffset } from '../clockSync';
 
 describe('measurePong()', () => {
-  const pendingPing = { payload: new Date(1000), sentAt: 100 };
-  const pong = { tag: MessageTag.Pong, payload: pendingPing.payload, clock: 10000 } as const;
+  const sentAt = 100;
+  const pong = { tag: MessageTag.Pong, payload: sentAt, clock: 10000 } as const;
 
   it('anchors the server clock to the midpoint of the round trip', () => {
-    expect(measurePong(pong, pendingPing, [], 300)).toEqual({
+    expect(measurePong(pong, sentAt, [], 300)).toEqual({
       ping: 100,
       samples: [{ offset: 9800, roundTrip: 200 }],
       offset: 9800,
@@ -17,15 +17,15 @@ describe('measurePong()', () => {
   });
 
   it('ignores a reply to a ping which is no longer pending', () => {
-    expect(measurePong({ ...pong, payload: new Date(2000) }, pendingPing, [], 300)).toBeNull();
+    expect(measurePong({ ...pong, payload: 50 }, sentAt, [], 300)).toBeNull();
   });
 
   it('ignores a reply without a valid server clock', () => {
-    expect(measurePong({ ...pong, clock: Number.NaN }, pendingPing, [], 300)).toBeNull();
+    expect(measurePong({ ...pong, clock: Number.NaN }, sentAt, [], 300)).toBeNull();
   });
 
   it('keeps zero-delay replies positive, since a non-positive ping means offline', () => {
-    expect(measurePong(pong, pendingPing, [], 100)?.ping).toBe(1);
+    expect(measurePong(pong, sentAt, [], 100)?.ping).toBe(1);
   });
 });
 
