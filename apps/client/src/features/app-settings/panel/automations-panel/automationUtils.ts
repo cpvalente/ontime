@@ -1,6 +1,17 @@
 import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
 
-import { lifecycleLabels } from './timerLifecycle';
+import { getLifecycleLabel, lifecycleLabels } from './timerLifecycle';
+
+/** Names the trigger a recipe creates alongside its automation, so the pair is recognisable in the triggers list */
+export function makeTriggerTitle(automationTitle: string, cycle: TimerLifeCycle): string {
+  return `${automationTitle} — ${getLifecycleLabel(cycle)}`;
+}
+
+/**
+ * Outputs are a union, so react-hook-form cannot resolve a field's error by name.
+ * Every output card knows which fields it registered, this just makes them reachable.
+ */
+export type OutputErrors = Partial<Record<string, { message?: string }>>;
 
 type CycleLabel = {
   label: string;
@@ -18,9 +29,6 @@ export const cycles: CycleLabel[] = [
   { label: lifecycleLabels.onWarning, value: TimerLifeCycle.onWarning },
   { label: lifecycleLabels.onDanger, value: TimerLifeCycle.onDanger },
 ];
-
-export type OutputErrors = Partial<Record<string, { message?: string }>>;
-
 export const operators: Array<{ value: AutomationFilter['operator']; label: string }> = [
   { value: 'equals', label: 'equals' },
   { value: 'not_equals', label: 'does not equal' },
@@ -91,4 +99,21 @@ export function checkDuplicates(triggers: Trigger[]) {
     }
   }
   return duplicates.length > 0 ? duplicates : undefined;
+}
+
+/** Collects the lifecycles each automation is bound to, so the list can show when it runs */
+export function groupTriggersByAutomation(triggers: Trigger[]): Record<string, TimerLifeCycle[]> {
+  const grouped: Record<string, TimerLifeCycle[]> = {};
+
+  for (const trigger of triggers) {
+    if (!Object.hasOwn(grouped, trigger.automationId)) {
+      grouped[trigger.automationId] = [];
+    }
+    // the runtime fires an automation once per lifecycle, duplicates would be noise here
+    if (!grouped[trigger.automationId].includes(trigger.trigger)) {
+      grouped[trigger.automationId].push(trigger.trigger);
+    }
+  }
+
+  return grouped;
 }

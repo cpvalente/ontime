@@ -57,3 +57,9 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 - Preserve fields the import/migration does not own.
 - Validate/parse into the current model before runtime logic.
 - Avoid source mutation; test round trips and non-mutation when preservation matters.
+
+## Automations
+
+- An automation runs from global triggers (automation settings) or event triggers (stored on the entry, in the rundown). The settings panel sees only global triggers, so it cannot claim an automation never runs.
+- HTTP outputs send a bare GET with no body or headers. Integrations that need POST or JSON (Slack, Discord, Companion's HTTP API) are not reachable directly; prefer the software's OSC API or a GET endpoint.
+- OSC outputs never send in Ontime Cloud. Hide or disable OSC-only options there.
