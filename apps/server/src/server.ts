@@ -15,7 +15,6 @@ import { createSessionLog } from './api-data/logs/logs.dao.js';
 // Services
 import * as logger from './api-data/logs/logs.service.js';
 import { integrationRouter } from './api-integration/integration.router.js';
-import { mcpRouter } from './api-mcp/mcp.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
@@ -97,7 +96,10 @@ app.get(`${prefix}/ready`, (_req, res) => {
 app.use(`${prefix}/login`, loginRouter); // router for login flow
 app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, mcpRouter); // router for MCP agent integration
+app.use(`${prefix}/mcp`, authenticate, async (req, res, next) => {
+  const { mcpRouter } = await import('./api-mcp/mcp.router.js');
+  mcpRouter(req, res, next);
+});
 
 // serve static external files
 app.use(
