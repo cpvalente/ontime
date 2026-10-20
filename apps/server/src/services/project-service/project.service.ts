@@ -1,4 +1,4 @@
-import { copyFile, writeFile } from 'fs/promises';
+import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
@@ -26,6 +26,7 @@ import {
   generateUniqueFileName,
   getFileNameFromPath,
   removeFileExtension,
+  writeToFile,
 } from '../../utils/fileManagement.js';
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/appState.service.js';
 import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
@@ -283,7 +284,7 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
   }
 
   const pathToDuplicate = getPathToProject(newFilename);
-  await writeFile(pathToDuplicate, JSON.stringify(projectFile, null, 2));
+  await writeToFile(pathToDuplicate, JSON.stringify(projectFile, null, 2));
 }
 
 /**

@@ -6,7 +6,12 @@ import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { publicDir } from '../../setup/index.js';
-import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import {
+  dockerSafeRename,
+  fileIsReadable,
+  getFilesFromFolder,
+  removeFileExtension,
+} from '../../utils/fileManagement.js';
 
 /**
  * Handles the upload of a new project file
@@ -38,8 +43,12 @@ export async function handleImageUpload(filePath: string, name: string): Promise
  * @returns the new filename, or null if the logo file does not exist
  */
 export async function duplicateLogo(logo: string): Promise<string | null> {
+  if (basename(logo) !== logo) {
+    return null;
+  }
+
   const logoPath = join(publicDir.logoDir, logo);
-  if (basename(logo) !== logo || !existsSync(logoPath)) {
+  if (!(await fileIsReadable(logoPath))) {
     return null;
   }
 
