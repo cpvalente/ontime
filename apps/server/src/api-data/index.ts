@@ -1,5 +1,6 @@
 import express, { Router } from 'express';
 
+import { errorHandler } from '../middleware/errorHandler.js';
 import { router as assetsRouter } from './assets/assets.router.js';
 import { router as automationsRouter } from './automation/automation.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
@@ -42,3 +43,6 @@ appRouter.use('/assets', assetsRouter);
 appRouter.all('/*splat', (_req, res) => {
   res.status(404).send('Unhandled request');
 });
+
+// answers errors thrown by any route above
+appRouter.use(errorHandler);

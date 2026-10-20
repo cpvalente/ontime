@@ -47,7 +47,7 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 | `services/<name>-service/` | One service with its helpers and tests     |
 | `stores/`                  | Mutable runtime state                      |
 | `adapters/`                | Inbound protocol adapters                  |
-| `middleware/`              | Express middleware shared across routers   |
+| `middleware/`              | Express middleware and error categories    |
 | `lib/`                     | Self-contained libraries (eg: `time-core`) |
 | `utils/`                   | Generic, domain-free helpers               |
 
@@ -66,7 +66,9 @@ Known gaps, not precedent: `runtimeState` reads the clock and mutates a module s
 
 ### Routers and controllers
 
-Routers declare paths and middleware. Controllers map validated HTTP input to typed service arguments, then results/errors to responses.
+Routers declare paths and middleware. Controllers map validated HTTP input to typed service arguments, then results to responses.
+
+`/data` handlers throw instead of catching. Each slice declares its errors in `<resource>.errors.ts`, extending a category from `middleware/errors.ts`; the error builds its own message. `middleware/errorHandler.ts` maps categories only: `NotFoundError` 404, `ConflictError` 409, `InvalidInputError` 422, anything else 500, all as `{ message }`. The domain never sees HTTP statuses. Request shape stays with express-validator (422).
 
 Keep reusable calculations, domain decisions, transformations, persistence workflows, and integration coordination out of handlers. Simple reads may stay direct when a service would only pass through.
 

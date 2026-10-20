@@ -123,9 +123,9 @@ app.get(`${prefix}/timer-legacy`, authenticateAndRedirect, (_req, res) => {
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
-// Implement catch all
-app.use((_error, response) => {
-  response.status(400).send('Unhandled request');
+// answers requests no route above matched
+app.use((_req, res) => {
+  res.status(400).send('Unhandled request');
 });
 
 /***************  START SERVICES ***************/
