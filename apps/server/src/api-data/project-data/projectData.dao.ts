@@ -48,5 +48,5 @@ async function deleteUnusedLogo(logo: string) {
     return;
   }
 
-  deleteFile(join(publicDir.logoDir, logo));
+  await deleteFile(join(publicDir.logoDir, logo));
 }
