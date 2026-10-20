@@ -73,3 +73,60 @@ describe('saving pending changes of the loaded project', () => {
     expect(saved.project.title).toBe('saved for both readers');
   });
 });
+
+describe('delayed save of the loaded project', () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await mkdtemp(join(tmpdir(), 'ontime-data-provider-'));
+    await initPersistence(join(dir, 'loaded.json'), makeNewProject());
+    vi.useFakeTimers();
+  });
+
+  afterEach(async () => {
+    vi.useRealTimers();
+    vi.restoreAllMocks();
+    await flushPendingWrites();
+    await rm(dir, { recursive: true, force: true });
+  });
+
+  it('writes a single change after the quiet period', async () => {
+    const write = vi.spyOn(Low.prototype, 'write').mockResolvedValue();
+
+    await getDataProvider().setProjectData({ title: 'single change' });
+
+    await vi.advanceTimersByTimeAsync(2999);
+    expect(write).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(write).toHaveBeenCalledOnce();
+  });
+
+  it('keeps writing while changes never pause', async () => {
+    const write = vi.spyOn(Low.prototype, 'write').mockResolvedValue();
+    const writesBySecond: number[] = [];
+
+    for (let second = 0; second < 30; second++) {
+      await getDataProvider().setProjectData({ title: `change ${second}` });
+      await vi.advanceTimersByTimeAsync(1000);
+      writesBySecond.push(write.mock.calls.length);
+    }
+
+    // writesBySecond[n] holds the writes made by n + 1 seconds
+    expect(writesBySecond[8]).toBe(0);
+    expect(writesBySecond[9]).toBe(1);
+    expect(writesBySecond[19]).toBe(2);
+    expect(writesBySecond[29]).toBe(3);
+  });
+
+  it('writes immediately when flushed and cancels the delayed save', async () => {
+    const write = vi.spyOn(Low.prototype, 'write').mockResolvedValue();
+
+    await getDataProvider().setProjectData({ title: 'flushed change' });
+    await flushPendingWrites();
+    expect(write).toHaveBeenCalledOnce();
+
+    await vi.advanceTimersByTimeAsync(10000);
+    expect(write).toHaveBeenCalledOnce();
+  });
+});

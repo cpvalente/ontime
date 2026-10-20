@@ -208,11 +208,16 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
 // Module-level state for debounced writes
 let pendingWrite: NodeJS.Timeout | null = null;
 let activeWrite: Promise<void> | null = null;
-const writeDelayMs = 3000; // 3 seconds
+/** time of the first change not yet written, null when nothing is waiting */
+let firstPendingChangeAt: number | null = null;
+/** quiet period after the last change before writing */
+const writeDelayMs = 3000;
+/** longest a change waits to be written, so continuous changes cannot postpone the write indefinitely */
+const maxWriteDelayMs = 10000;
 
 /**
  * Handles persisting data to file with trailing-edge debounce
- * Multiple rapid calls will be coalesced into a single write
+ * Multiple rapid calls will be coalesced into a single write, which is forced once the first change has waited maxWriteDelayMs
  */
 async function persist() {
   // Cancel any pending write and reschedule
@@ -220,24 +225,39 @@ async function persist() {
     clearTimeout(pendingWrite);
   }
 
-  // Schedule new write after quiet period
+  const now = Date.now();
+  firstPendingChangeAt ??= now;
+  const delay = Math.max(0, Math.min(writeDelayMs, firstPendingChangeAt + maxWriteDelayMs - now));
+
   pendingWrite = setTimeout(async () => {
     pendingWrite = null;
 
-    // Wait for any in-progress write to finish first
-    if (activeWrite) {
-      await activeWrite;
-    }
-
     try {
-      activeWrite = db.write();
-      await activeWrite;
+      await write();
     } catch (error) {
       console.error('Failed to persist database:', error);
-    } finally {
-      activeWrite = null;
     }
-  }, writeDelayMs);
+  }, delay);
+}
+
+/**
+ * Writes the database once no other write is in progress
+ */
+async function write() {
+  // another caller may start its write while this one waits, so wait until none is running
+  while (activeWrite) {
+    await activeWrite.catch(() => {});
+  }
+
+  // changes from here on are not part of this write
+  firstPendingChangeAt = null;
+  const thisWrite = db.write();
+  activeWrite = thisWrite;
+  try {
+    await thisWrite;
+  } finally {
+    if (activeWrite === thisWrite) activeWrite = null;
+  }
 }
 
 /**
@@ -260,15 +280,5 @@ export async function flushPendingWrites() {
     pendingWrite = null;
   }
 
-  // Wait for any in-progress write to finish
-  if (activeWrite) {
-    await activeWrite;
-  }
-
-  try {
-    activeWrite = db.write();
-    await activeWrite;
-  } finally {
-    activeWrite = null;
-  }
+  await write();
 }
