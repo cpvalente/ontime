@@ -1,4 +1,4 @@
-import { copyFile } from 'fs/promises';
+import { copyFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
@@ -33,6 +33,7 @@ import { notifyChange } from '../change-service/change.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
 import {
   doesProjectExist,
+  duplicateLogo,
   getPathToProject,
   getProjectFiles,
   moveCorruptFile,
@@ -263,6 +264,7 @@ export async function getProjectFileToRead(filename: string): Promise<string | n
 
 /**
  * Duplicates an existing project file
+ * The duplicate gets its own copy of the logo, so changing the logo in one project does not delete the other's
  */
 export async function duplicateProjectFile(originalFile: string, newFilename: string) {
   const projectFilePath = await getProjectFileToRead(originalFile);
@@ -275,9 +277,13 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
+  const projectFile = await parseJsonFile(projectFilePath);
+  if (projectFile.project?.logo) {
+    projectFile.project.logo = await duplicateLogo(projectFile.project.logo);
+  }
+
   const pathToDuplicate = getPathToProject(newFilename);
-  await copyFile(projectFilePath, pathToDuplicate);
-  return;
+  await writeFile(pathToDuplicate, JSON.stringify(projectFile, null, 2));
 }
 
 /**
