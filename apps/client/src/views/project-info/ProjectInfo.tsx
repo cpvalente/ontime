@@ -20,7 +20,7 @@ export default function ProjectInfoLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <ProjectInfo {...data} />;

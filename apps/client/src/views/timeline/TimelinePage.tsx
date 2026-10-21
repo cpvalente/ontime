@@ -31,7 +31,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage text='There was an error fetching data, please refresh the page.' />;
   }
 
   return <TimelinePage {...data} />;
