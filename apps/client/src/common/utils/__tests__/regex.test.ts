@@ -1,4 +1,4 @@
-import { isAlphanumeric, isIPAddress, isNotEmpty, isOnlyNumbers, startsWithHttp, startsWithSlash } from '../regex';
+import { isIPAddress, isNotEmpty, isOnlyNumbers, startsWithHttp, startsWithSlash } from '../regex';
 
 describe('simple tests for regex', () => {
   test('isOnlyNumbers', () => {
@@ -46,18 +46,6 @@ describe('simple tests for regex', () => {
     });
     wrong.forEach((t) => {
       expect(startsWithSlash.test(t)).toBe(false);
-    });
-  });
-
-  test('isAlphanumeric', () => {
-    const right = ['dsafdsafa9f9sdafdsSADFHASDF', '1231', '1', 'a', 'asdas1asdas', '11as', '1'];
-    const wrong = ['with space', 'with @', '#'];
-
-    right.forEach((t) => {
-      expect(isAlphanumeric.test(t)).toBe(true);
-    });
-    wrong.forEach((t) => {
-      expect(isAlphanumeric.test(t)).toBe(false);
     });
   });
 
