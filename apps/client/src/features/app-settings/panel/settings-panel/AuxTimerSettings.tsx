@@ -3,17 +3,17 @@ import { auxTimerNameMaxLength } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
-import useSettings from '../../../../common/hooks-query/useSettings';
+import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 export default function AuxTimerSettings() {
-  const { data, status, refetch } = useSettings();
+  const { data, status } = useSettings();
+  const { updateSettings } = useUpdateSettings();
   const {
     handleSubmit,
     register,
@@ -35,12 +35,10 @@ export default function AuxTimerSettings() {
 
   const onSubmit = async (formData: Settings) => {
     try {
-      await postSettings(formData);
+      await updateSettings(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 

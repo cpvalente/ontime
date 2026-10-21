@@ -11,13 +11,7 @@ import { validateSettings, validateWelcomeDialog, validateServerPort } from './s
 
 export const router: Router = express.Router();
 
-router.post('/welcomedialog', validateWelcomeDialog, async (req: Request, res: Response) => {
-  const show = await appState.setShowWelcomeDialog(req.body.show);
-  res.status(200).json({ show });
-});
-
-router.get('/', (_req: Request, res: Response<Settings>) => {
-  const settings = settingsDao.getSettings();
+function obfuscateKeys(settings: Readonly<Settings>): Settings {
   const obfuscatedSettings = { ...settings };
   if (settings.editorKey) {
     obfuscatedSettings.editorKey = obfuscate(settings.editorKey);
@@ -27,13 +21,23 @@ router.get('/', (_req: Request, res: Response<Settings>) => {
     obfuscatedSettings.operatorKey = obfuscate(settings.operatorKey);
   }
 
-  res.status(200).json(obfuscatedSettings);
+  return obfuscatedSettings;
+}
+
+router.post('/welcomedialog', validateWelcomeDialog, async (req: Request, res: Response) => {
+  const show = await appState.setShowWelcomeDialog(req.body.show);
+  res.status(200).json({ show });
+});
+
+router.get('/', (_req: Request, res: Response<Settings>) => {
+  const settings = settingsDao.getSettings();
+  res.status(200).json(obfuscateKeys(settings));
 });
 
 router.post('/', validateSettings, async (req: Request, res: Response<Settings | ErrorResponse>) => {
   try {
     const data = await settingsDao.editSettings(matchedData<Settings>(req));
-    res.status(200).json(data);
+    res.status(200).json(obfuscateKeys(data));
   } catch (error) {
     const message = getErrorMessage(error);
     res.status(400).json({ message });

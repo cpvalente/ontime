@@ -3,12 +3,11 @@ import { Settings } from 'ontime-types';
 import { lazy, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { postSettings } from '../../../../common/api/settings';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
-import useSettings from '../../../../common/hooks-query/useSettings';
+import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 import GeneralPinInput from './composite/GeneralPinInput';
@@ -16,7 +15,8 @@ import GeneralPinInput from './composite/GeneralPinInput';
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
 
 export default function GeneralSettings() {
-  const { data, status, refetch } = useSettings();
+  const { data, status } = useSettings();
+  const { updateSettings } = useUpdateSettings();
   const {
     handleSubmit,
     register,
@@ -44,12 +44,10 @@ export default function GeneralSettings() {
 
   const onSubmit = async (formData: Settings) => {
     try {
-      await postSettings(formData);
+      await updateSettings(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });
-    } finally {
-      await refetch();
     }
   };
 

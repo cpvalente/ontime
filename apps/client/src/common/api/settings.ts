@@ -17,8 +17,9 @@ export async function getSettings(options?: RequestOptions): Promise<Settings> {
 /**
  * HTTP request to mutate application settings
  */
-export async function postSettings(data: Settings): Promise<AxiosResponse<Settings>> {
-  return axios.post(settingsPath, data);
+export async function postSettings(data: Settings): Promise<Settings> {
+  const res = await axios.post<Settings>(settingsPath, data);
+  return res.data;
 }
 
 /**
