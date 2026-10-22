@@ -17,10 +17,10 @@ export type Offset = {
   relative: number;
   /** Currently selected offset mode */
   mode: OffsetMode;
-  /** Timestamp of the expected start of the next flag */
-  expectedGroupEnd: MaybeNumber;
   /** Timestamp of the expected end of the current group */
-  expectedRundownEnd: MaybeNumber;
+  expectedGroupEnd: MaybeNumber;
   /** Timestamp of the expected end of the loaded rundown */
+  expectedRundownEnd: MaybeNumber;
+  /** Timestamp of the expected start of the next flag */
   expectedFlagStart: MaybeNumber;
 };

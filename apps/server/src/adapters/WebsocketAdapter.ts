@@ -34,6 +34,7 @@ import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
 import type { IAdapter } from './IAdapter.js';
+import { stripTokenFromPath } from './utils/clientPath.js';
 
 type ClientId = string;
 let instance: SocketServer | null = null;
@@ -124,6 +125,9 @@ class SocketServer implements IAdapter {
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
+              if (updatedClient.path) {
+                updatedClient.path = stripTokenFromPath(updatedClient.path);
+              }
               this.clients.set(clientId, updatedClient);
               if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
                 this.shouldShowWelcome = false;
@@ -134,7 +138,7 @@ class SocketServer implements IAdapter {
             }
             case MessageTag.ClientSetPath: {
               const previousData = this.getOrCreateClient(clientId);
-              previousData.path = payload;
+              previousData.path = stripTokenFromPath(payload);
               this.clients.set(clientId, previousData);
               if (this.shouldShowWelcome && payload.toLowerCase().includes('editor')) {
                 this.shouldShowWelcome = false;

@@ -1,5 +1,6 @@
 import type { Server } from 'node:http';
 
+import { MessageTag } from 'ontime-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const websocketMocks = vi.hoisted(() => {
@@ -108,5 +109,24 @@ describe('WebsocketAdapter', () => {
     vi.advanceTimersByTime(5 * 60_000);
     expect(client.terminate).not.toHaveBeenCalled();
     expect(client.close).not.toHaveBeenCalled();
+  });
+
+  it('does not rebroadcast auth tokens from client paths', async () => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, false);
+    const viewer = new websocketMocks.FakeWebSocket();
+    const reporter = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(viewer);
+    websocketMocks.getConnectionHandler()?.(viewer, {});
+    websocketMocks.getConnectionHandler()?.(reporter, {});
+
+    reporter.emit(
+      'message',
+      JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/timer?token=secret&hideClock=true' }),
+    );
+    await vi.waitFor(() => expect(viewer.send).toHaveBeenCalledWith(expect.stringContaining('hideClock=true')));
+
+    const sentMessages = viewer.send.mock.calls.map(([message]) => String(message));
+    expect(sentMessages.some((message) => message.includes('secret'))).toBe(false);
   });
 });

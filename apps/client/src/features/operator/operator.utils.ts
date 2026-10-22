@@ -1,4 +1,4 @@
-import { CustomFields, MaybeString, OntimeEvent } from 'ontime-types';
+import { CustomFields, MaybeString, OntimeEvent, Playback } from 'ontime-types';
 
 import { getPropertyValue } from '../../views/common/viewUtils';
 import type { Subscribed } from './operator.types';
@@ -29,4 +29,24 @@ export function getEventData(
   }, []);
 
   return { mainField, secondaryField, subscribedData };
+}
+
+/**
+ * Operators read the loaded event's label as tally, so it only says LIVE while the timer is running
+ */
+export function getLoadedEventLabel(playback: Playback): 'LIVE' | 'PAUSED' | 'ARMED' {
+  switch (playback) {
+    case Playback.Play:
+    case Playback.Roll:
+      return 'LIVE';
+    case Playback.Pause:
+      return 'PAUSED';
+    case Playback.Armed:
+    case Playback.Stop:
+      return 'ARMED';
+    default: {
+      const exhaustive: never = playback;
+      return exhaustive;
+    }
+  }
 }

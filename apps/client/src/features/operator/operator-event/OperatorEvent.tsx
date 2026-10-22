@@ -4,11 +4,13 @@ import { CSSProperties, RefObject, SyntheticEvent, memo } from 'react';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
 import { useLongPress } from '../../../common/hooks/useLongPress';
+import { useRuntimeStore } from '../../../common/stores/runtime';
 import { cx, getAccessibleColour } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime, useTimeUntilExpectedStart } from '../../../common/utils/time';
 import RunningTime from '../../../views/common/running-time/RunningTime';
 import SuperscriptPeriod from '../../../views/common/superscript-time/SuperscriptPeriod';
 import type { EditEvent, Subscribed } from '../operator.types';
+import { getLoadedEventLabel } from '../operator.utils';
 
 import style from './OperatorEvent.module.scss';
 
@@ -166,7 +168,7 @@ function OperatorEventSchedule({
   }
 
   if (isSelected) {
-    return <span className={cx([style.timeUntil, style.live])}>LIVE</span>;
+    return <LoadedEventLabel />;
   }
 
   return (
@@ -178,6 +180,14 @@ function OperatorEventSchedule({
       isLinkedToLoaded={isLinkedToLoaded}
     />
   );
+}
+
+function LoadedEventLabel() {
+  // isolated so that only the loaded row subscribes to playback
+  const playback = useRuntimeStore((state) => state.timer.playback);
+  const label = getLoadedEventLabel(playback);
+
+  return <span className={cx([style.timeUntil, label === 'LIVE' && style.live])}>{label}</span>;
 }
 
 interface TimeUntilProps {

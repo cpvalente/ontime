@@ -1,5 +1,6 @@
 import { PropsWithChildren, Suspense } from 'react';
 
+import ConnectionIndicator from '../common/components/connection-indicator/ConnectionIndicator';
 import useCssOverride from '../common/hooks-query/useCssOverride';
 import useViewSettings from '../common/hooks-query/useViewSettings';
 import Loader from './common/loader/Loader';
@@ -21,7 +22,10 @@ export default function ViewLoader({ children }: PropsWithChildren) {
   'use memo';
   // we need to be able to override the background colour with the key param
   const searchParams = new URLSearchParams(window.location.search);
-  const colourFromParams = searchParams.get('keyColour') ?? '#101010';
+  const keyColour = searchParams.get('keyColour');
+  const colourFromParams = keyColour ?? '#101010';
+  // keyed views are composited on air, where a connection notice would be broadcast
+  const showConnection = keyColour === null;
 
   return (
     <>
@@ -34,6 +38,7 @@ export default function ViewLoader({ children }: PropsWithChildren) {
         }
       >
         <OverrideStyles />
+        {showConnection && <ConnectionIndicator />}
         {children}
       </Suspense>
     </>
