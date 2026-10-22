@@ -6,6 +6,7 @@ import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
 import { password, routerPrefix } from '../../externals.js';
 import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
+import { getNodeId } from '../../services/app-state-service/appState.service.js';
 import { getCurrentProject } from '../../services/project-service/project.service.js';
 import { runtimeService } from '../../services/runtime-service/runtime.service.js';
 import { publicDir } from '../../setup/index.js';
@@ -31,6 +32,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     playback,
     timezone: getTimezoneLabel(startedAt),
     version: ONTIME_VERSION,
+    nodeId: getNodeId(),
   };
 }
 
