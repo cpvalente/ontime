@@ -65,4 +65,19 @@ describe('session', { timeout: 15_000 }, () => {
     expect(await playback(secondRun)).toBe(Playback.Play);
     expect(await logTexts(secondRun)).toContain('Previous session did not end cleanly log=ontime.previous.log');
   });
+
+  test('a share link for a base URL without protocol is rejected as invalid input', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+
+    const response = await server.send('POST', '/data/session/url', {
+      baseUrl: '192.168.10.1:4001',
+      path: 'timer',
+      authenticate: false,
+      lockConfig: false,
+      lockNav: false,
+    });
+
+    expect(response.status).toBe(422);
+  });
 });
