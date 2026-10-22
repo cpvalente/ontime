@@ -45,6 +45,13 @@ When relevant, cover interactions among:
 
 Pass time/state explicitly to keep rules deterministic and unit-testable.
 
+Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
+
+## Lifecycle events
+
+- Playback cycles (load, start, finish, phases, pause, stop) reach reports and automations once each, in the order they happened, after the runtime has committed its state. They are never merged, unlike data changes.
+- Each cycle carries the state it concerns, eg: a finish carries the event which finished; the event a load or stop replaces travels as `unloaded`.
+
 ## Reports
 
 - A report is one aggregate containing its event records, show timing, and rundown snapshot.
