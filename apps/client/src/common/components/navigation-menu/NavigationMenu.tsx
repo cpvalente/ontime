@@ -6,12 +6,16 @@ import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
 
 import { isLocalhost, supportsFullscreen } from '../../../externals';
+import { getViewUrl } from '../../../features/app-settings/panel/manage-panel/customViews.utils';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
 import { navigatorConstants } from '../../../viewerConfig';
+import useCustomViews from '../../hooks-query/useCustomViews';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
+import { useElectronEvent } from '../../hooks/useElectronEvent';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
+import { openLink } from '../../utils/linkUtils';
 import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 import Eyebrow from '../eyebrow/Eyebrow';
@@ -121,6 +125,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
             </MenuGroup>
 
             <PresetNavigation isSmallScreen={isSmallScreen} onClose={onClose} />
+            <CustomViewNavigation />
           </div>
 
           {isLocalhost && <OtherAddresses currentLocation={location.pathname} />}
@@ -159,6 +164,36 @@ function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; 
         >
           {preset.alias}
         </ClientLink>
+      ))}
+    </MenuGroup>
+  );
+}
+
+/**
+ * Custom views are served by the server at /external/<slug>/, outside of the app router
+ * In the browser we leave the app for the view, in electron we open it in a new window
+ */
+function CustomViewNavigation() {
+  const { data } = useCustomViews();
+  const { isElectron } = useElectronEvent();
+
+  if (data.views.length === 0) return null;
+
+  const openView = (slug: string) => {
+    const url = getViewUrl(slug);
+    if (isElectron) {
+      openLink(url);
+    } else {
+      window.location.assign(url);
+    }
+  };
+
+  return (
+    <MenuGroup label='Custom views'>
+      {data.views.map(({ slug }) => (
+        <NavigationMenuItem key={slug} onClick={() => openView(slug)}>
+          {slug}
+        </NavigationMenuItem>
       ))}
     </MenuGroup>
   );
