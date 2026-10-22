@@ -3,6 +3,10 @@ name: Ontime test
 on:
   pull_request:
     branches: '*'
+  push:
+    branches: [master]
+    paths:
+      - pnpm-lock.yaml
   workflow_dispatch:
 
 jobs:
@@ -25,8 +29,8 @@ jobs:
       - name: Get pnpm store directory
         run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
+      - name: Restore pnpm cache
+        uses: actions/cache/restore@v5
         with:
           path: ${{ env.PNPM_STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
@@ -51,6 +55,13 @@ jobs:
         if: always()
         run: pnpm test
 
+      - name: Save pnpm cache
+        if: ${{ success() && github.ref == 'refs/heads/master' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+
   e2e-test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -68,8 +79,8 @@ jobs:
       - name: Get pnpm store directory
         run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
 
-      - name: Setup pnpm cache
-        uses: actions/cache@v5
+      - name: Restore pnpm cache
+        uses: actions/cache/restore@v5
         with:
           path: ${{ env.PNPM_STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
@@ -81,22 +92,36 @@ jobs:
 
       - name: Get installed Playwright version
         run: echo "PLAYWRIGHT_VERSION=$(pnpm ls @playwright/test --parseable | cut -s -d '@' -f3 | cut -d '/' -f1)" >> $GITHUB_ENV
-      - name: Cache playwright binaries
-        uses: actions/cache@v5
+      - name: Restore Playwright binaries
+        id: playwright-cache
+        uses: actions/cache/restore@v5
         with:
           path: |
             ~/.cache/ms-playwright
           key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-      - run: pnpm playwright install --with-deps
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-
       - name: Install Playwright Browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: pnpm playwright install --with-deps
 
       - name: Run Playwright tests
         run: pnpm e2e
+
+      - name: Save pnpm cache
+        if: ${{ success() && github.ref == 'refs/heads/master' }}
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ env.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Save Playwright binaries
+        if: ${{ success() && github.ref == 'refs/heads/master' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PLAYWRIGHT_VERSION }}
 
       - uses: actions/upload-artifact@v6
         if: always()
