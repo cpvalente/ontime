@@ -41,6 +41,7 @@ import {
   rundownCache,
   rundownMutation,
 } from './rundown.dao.js';
+import { CustomFieldExistsError, CustomFieldNotFoundError, CustomFieldTypeChangeError } from './rundown.errors.js';
 import { parseRundown, sanitiseCustomFields } from './rundown.parser.js';
 import {
   cloneRundown,
@@ -462,6 +463,7 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
 /**
  * Adds a new custom field to the project
  * @throws if the label is missing or invalid
+ * @throws if the label already exists
  */
 export async function createCustomField(customField: CustomField): Promise<CustomFields> {
   const key = customFieldLabelToKey(customField.label);
@@ -474,7 +476,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
 
   // check if label already exists
   if (Object.hasOwn(customFields, key)) {
-    throw new Error('Label already exists');
+    throw new CustomFieldExistsError(customField.label);
   }
 
   customFieldMutation.add(customFields, key, customField);
@@ -510,8 +512,6 @@ async function updateBackgroundRundowns(loadedRundownId: string, mutate: (rundow
  * In practice users can only change the label and the colour of the field
  * @throws if the field does not exist
  * @throws if the field type is changed
- * @throws if the label is missing or invalid
- * @throws if the new label already exists
  */
 export async function editCustomField(key: CustomFieldKey, newField: Partial<CustomField>): Promise<CustomFields> {
   const { customFields, rundown, commit } = createTransaction({
@@ -520,13 +520,13 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
   });
 
   if (!(key in customFields)) {
-    throw new Error('Could not find label');
+    throw new CustomFieldNotFoundError(key);
   }
 
   const existingField = customFields[key];
   // if user provides a type, it must be the same from before
   if (newField.type && existingField.type !== newField.type) {
-    throw new Error('Change of field type is not allowed');
+    throw new CustomFieldTypeChangeError();
   }
 
   const { oldKey, newKey } = customFieldMutation.edit(customFields, key, existingField, newField);

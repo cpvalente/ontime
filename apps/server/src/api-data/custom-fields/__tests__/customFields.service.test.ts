@@ -8,6 +8,7 @@ import { flushPendingWrites, getDataProvider, initPersistence } from '../../../c
 import { makeNewProject } from '../../../models/dataModel.js';
 import { makeCustomField, makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
 import { getCurrentRundown, processRundown, rundownCache } from '../../rundown/rundown.dao.js';
+import { CustomFieldTypeChangeError } from '../../rundown/rundown.errors.js';
 import { batchEditEntries, deleteCustomField, editCustomField, editEntry } from '../../rundown/rundown.service.js';
 
 describe('custom field changes across project rundowns', () => {
@@ -77,7 +78,9 @@ describe('custom field changes across project rundowns', () => {
   });
 
   test('a rejected edit leaves the background rundowns untouched', async () => {
-    await expect(editCustomField('Old', { label: 'New', type: 'image' })).rejects.toThrow();
+    await expect(editCustomField('Old', { label: 'New', type: 'image' })).rejects.toBeInstanceOf(
+      CustomFieldTypeChangeError,
+    );
 
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
       Old: 'background value',
