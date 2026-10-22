@@ -1,6 +1,7 @@
-import { readFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 
-import { Playback, RuntimeStore } from 'ontime-types';
+import { MessageTag, Playback, RuntimeStore } from 'ontime-types';
 
 import { publicFiles } from '../setup/index.js';
 import { type TestServer, startTestServer } from './testServer.js';
@@ -79,5 +80,54 @@ describe('session', { timeout: 15_000 }, () => {
     });
 
     expect(response.status).toBe(422);
+  });
+
+  test('a restore point from another project leaves playback stopped and shows welcome', async () => {
+    const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
+    await startShow(firstRun);
+    await firstRun.stop(1);
+
+    const point = JSON.parse(await readFile(publicFiles.restoreFile, 'utf-8'));
+    await writeFile(publicFiles.restoreFile, JSON.stringify({ ...point, projectId: 'another-project' }));
+
+    const secondRun = await startTestServer();
+    onTestFinished(() => secondRun.stop());
+    expect(await playback(secondRun)).toBe(Playback.Stop);
+
+    const dialogs: string[] = [];
+    const socket = new WebSocket(secondRun.socketUrl);
+    onTestFinished(() => socket.close());
+    socket.addEventListener('message', (event) => {
+      const { tag, payload } = JSON.parse(String(event.data));
+      if (tag === MessageTag.Dialog) dialogs.push(payload.dialog);
+    });
+    await new Promise((resolve, reject) => {
+      socket.addEventListener('open', resolve, { once: true });
+      socket.addEventListener('error', reject, { once: true });
+    });
+    socket.send(JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/editor' }));
+
+    await vi.waitFor(() => expect(dialogs).toContain('welcome'));
+  });
+
+  test('a project file saved before project ids keeps the id it gets, so a crash still resumes the show', async () => {
+    const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
+    await firstRun.stop();
+
+    const projectFile = join(process.env.ONTIME_DATA!, 'projects', 'demo project.json');
+    const { projectId: _projectId, ...withoutId } = JSON.parse(await readFile(projectFile, 'utf-8'));
+    await writeFile(projectFile, JSON.stringify(withoutId));
+
+    const secondRun = await startTestServer();
+    onTestFinished(() => secondRun.stop());
+    await startShow(secondRun);
+    await secondRun.stop(1);
+
+    const thirdRun = await startTestServer();
+    onTestFinished(() => thirdRun.stop());
+
+    expect(await playback(thirdRun)).toBe(Playback.Play);
   });
 });

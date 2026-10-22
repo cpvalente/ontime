@@ -91,6 +91,20 @@ describe('test parseDatabaseModel() edge cases', () => {
     expect(() => parseDatabaseModel('some random dataset')).toThrow();
   });
 
+  it('keeps the id of the project', () => {
+    const { data } = parseDatabaseModel({ ...structuredClone(demoDb), projectId: 'show-id' });
+
+    expect(data.projectId).toBe('show-id');
+  });
+
+  it('gives a new id to each project file which has none', () => {
+    const { data: first } = parseDatabaseModel(structuredClone(demoDb));
+    const { data: second } = parseDatabaseModel(structuredClone(demoDb));
+
+    expect(first.projectId).toMatch(/.+/);
+    expect(first.projectId).not.toBe(second.projectId);
+  });
+
   it('creates the aux timer names when importing a project file which predates the feature', () => {
     const oldProject = structuredClone(demoDb);
     // @ts-expect-error -- simulating a project file saved before aux timer naming existed

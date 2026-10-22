@@ -199,7 +199,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   expressServer = http.createServer(app);
   const resultPort = await portManager.attachServer(expressServer);
 
-  const showWelcome = await getShowWelcomeDialog(!!restorePoint);
+  const projectId = getDataProvider().getProjectId();
+  const projectRestorePoint = restoreService.forProject(restorePoint, projectId);
+  const showWelcome = await getShowWelcomeDialog(!!projectRestorePoint);
   socket.init(expressServer, showWelcome, prefix);
 
   /**
@@ -247,7 +249,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   messageService.init(eventStore.set, eventStore.get);
 
   // apply the restore point if it exists
-  runtimeService.init(restorePoint);
+  runtimeService.init(projectRestorePoint);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

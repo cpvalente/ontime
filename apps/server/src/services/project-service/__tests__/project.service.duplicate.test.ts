@@ -1,6 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+import type { DatabaseModel } from 'ontime-types';
+
 import { makeNewProject } from '../../../models/dataModel.js';
 import { publicDir } from '../../../setup/index.js';
 import { duplicateProjectFile } from '../project.service.js';
@@ -18,8 +20,12 @@ function writeProject(fileName: string, logo: string | null) {
   writeFileSync(join(publicDir.projectsDir, fileName), JSON.stringify(project));
 }
 
+function readProject(fileName: string): DatabaseModel {
+  return JSON.parse(readFileSync(join(publicDir.projectsDir, fileName), 'utf-8'));
+}
+
 function readProjectLogo(fileName: string): string | null {
-  return JSON.parse(readFileSync(join(publicDir.projectsDir, fileName), 'utf-8')).project.logo;
+  return readProject(fileName).project.logo;
 }
 
 describe('duplicateProjectFile', () => {
@@ -51,5 +57,14 @@ describe('duplicateProjectFile', () => {
 
     expect(existsSync(join(publicDir.projectsDir, 'no-logo-copy.json'))).toBe(true);
     expect(readProjectLogo('no-logo-copy.json')).toBeNull();
+  });
+
+  it('gives the duplicate its own project id', async () => {
+    writeProject('identity.json', null);
+
+    await duplicateProjectFile('identity.json', 'identity-copy.json');
+
+    expect(readProject('identity-copy.json').projectId).toMatch(/.+/);
+    expect(readProject('identity-copy.json').projectId).not.toBe(readProject('identity.json').projectId);
   });
 });

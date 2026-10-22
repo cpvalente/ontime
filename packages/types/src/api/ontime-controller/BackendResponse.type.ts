@@ -21,6 +21,7 @@ export interface SessionStats {
   timezone: string;
   version: string;
   nodeId: string;
+  projectId: string;
 }
 
 export interface GetInfo {

@@ -33,6 +33,7 @@ export async function getSessionStats(): Promise<SessionStats> {
     timezone: getTimezoneLabel(startedAt),
     version: ONTIME_VERSION,
     nodeId: getNodeId(),
+    projectId: getDataProvider().getProjectId(),
   };
 }
 

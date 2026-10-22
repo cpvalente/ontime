@@ -17,7 +17,7 @@ import { handleImageUpload, handleProjectUploaded } from '../../services/project
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
     const { rundowns, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
-    const patchDb: DatabaseModel = {
+    const patchDb: Partial<DatabaseModel> = {
       rundowns,
       project,
       settings,

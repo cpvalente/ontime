@@ -12,6 +12,11 @@ describe('safeMerge', () => {
     expect(mergedData).toEqual(baseDb);
   });
 
+  it('keeps the id of the existing project', () => {
+    const mergedData = safeMerge(baseDb, { projectId: 'another-project' });
+    expect(mergedData.projectId).toBe(baseDb.projectId);
+  });
+
   it('overrides a rundown with the same key', () => {
     const newData = makeRundown({
       id: 'demo',

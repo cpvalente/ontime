@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { DatabaseModel, Rundown } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
@@ -12,7 +14,8 @@ const defaultRundown: Rundown = {
   revision: 0,
 };
 
-const dbModel: DatabaseModel = {
+/** each project gets its own id when it is made */
+const dbModel: Omit<DatabaseModel, 'projectId'> = {
   rundowns: {
     default: { ...defaultRundown },
   },
@@ -54,12 +57,17 @@ const dbModel: DatabaseModel = {
  */
 export function makeNewProject(defaultRundownId?: string): DatabaseModel {
   const rundown = makeNewRundown(defaultRundownId);
-  const newProject = structuredClone(dbModel);
-  newProject.rundowns = {
-    [rundown.id]: rundown,
+  return {
+    ...structuredClone(dbModel),
+    projectId: makeProjectId(),
+    rundowns: {
+      [rundown.id]: rundown,
+    },
   };
+}
 
-  return newProject;
+export function makeProjectId(): string {
+  return randomUUID();
 }
 
 /**
@@ -75,7 +83,7 @@ export function makeNewRundown(id?: string): Rundown {
 /**
  * Get a top level property of the DatabaseModel
  */
-export function getPartialProject<T extends keyof DatabaseModel>(key: T): DatabaseModel[T] {
+export function getPartialProject<T extends keyof typeof dbModel>(key: T): (typeof dbModel)[T] {
   if (Object.hasOwn(dbModel, key)) {
     return structuredClone(dbModel[key]);
   }
