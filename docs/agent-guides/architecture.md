@@ -62,7 +62,7 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 
 Name files `name.role.ts`. Keep tests in a sibling `__tests__/`.
 
-Known gaps, not precedent: `runtimeState` reads the clock and mutates a module singleton; some routers read from `DataProvider` directly.
+Known gaps, not precedent: `runtimeState` reads the clock and mutates a module singleton; some routers read from `DataProvider` directly; automations read the live store when a lifecycle event is delivered, not the state it carries.
 
 ### Routers and controllers
 

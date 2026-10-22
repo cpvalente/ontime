@@ -11,7 +11,7 @@ import {
 } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, createEvent } from 'ontime-utils';
 
-import { addAutomation } from '../../../api-data/automation/automation.dao.js';
+import { addAutomation, addTrigger } from '../../../api-data/automation/automation.dao.js';
 import * as httpClient from '../../../api-data/automation/clients/http.client.js';
 import { makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../../api-data/rundown/rundown.dao.js';
@@ -184,6 +184,69 @@ describe('roll lifecycle', () => {
       { cycle: TimerLifeCycle.onLoad, eventId: 'next' },
       { cycle: TimerLifeCycle.onStart, eventId: 'next' },
     ]);
+  });
+});
+
+describe('roll timer phases', () => {
+  test('warning and danger automations are sent once as the timer reaches them', async () => {
+    for (const cycle of [TimerLifeCycle.onWarning, TimerLifeCycle.onDanger]) {
+      const automation = await addAutomation({
+        title: cycle,
+        filters: [],
+        filterRule: 'all',
+        outputs: [{ type: 'http', url: cycle }],
+      });
+      await addTrigger({ title: cycle, trigger: cycle, automationId: automation.id });
+    }
+    prepare([event('now', hour, 2 * hour, { timeWarning: 10 * minute, timeDanger: 5 * minute })], hour + 40 * minute);
+    runtimeService.roll();
+    await flushLifecycle();
+
+    await tickAt(hour + 50 * minute);
+    await tickAt(hour + 51 * minute);
+    await tickAt(hour + 55 * minute);
+    await tickAt(hour + 56 * minute);
+
+    expect(
+      lifecycleOutputs().filter(({ cycle }) => cycle === TimerLifeCycle.onWarning || cycle === TimerLifeCycle.onDanger),
+    ).toEqual([
+      { cycle: TimerLifeCycle.onWarning, eventId: 'now' },
+      { cycle: TimerLifeCycle.onDanger, eventId: 'now' },
+    ]);
+  });
+});
+
+// Characterizations of current behaviour: either jump finishes the running event before the time skip check runs.
+describe('roll after the clock jumps', () => {
+  test('a clock moved back is read as midnight passing: the event finishes and roll waits for the next day', async () => {
+    prepare([event('now', hour, 2 * hour)], hour + 5 * minute);
+    runtimeService.roll();
+    await flushLifecycle();
+    vi.mocked(httpClient.emitHTTP).mockClear();
+
+    await tickAt(30 * minute);
+
+    expect(lifecycleOutputs().map(({ cycle }) => cycle)).toEqual([TimerLifeCycle.onFinish, TimerLifeCycle.onLoad]);
+    expect(getState()).toMatchObject({
+      eventNow: { id: 'now' },
+      timer: { playback: Playback.Roll, phase: TimerPhase.Pending, secondaryTimer: 23 * hour },
+    });
+  });
+
+  test('a clock moved past the end counts the skipped time as delay: the running event waits', async () => {
+    prepare([event('first', hour, 2 * hour), event('later', 3 * hour, 4 * hour)], hour + 5 * minute);
+    runtimeService.roll();
+    await flushLifecycle();
+    vi.mocked(httpClient.emitHTTP).mockClear();
+
+    await tickAt(3 * hour + 30 * minute);
+
+    expect(lifecycleOutputs().map(({ cycle }) => cycle)).toEqual([TimerLifeCycle.onFinish, TimerLifeCycle.onLoad]);
+    expect(getState()).toMatchObject({
+      eventNow: { id: 'later' },
+      timer: { playback: Playback.Roll, phase: TimerPhase.Pending, secondaryTimer: hour },
+      offset: { absolute: 90 * minute },
+    });
   });
 });
 

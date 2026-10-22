@@ -98,3 +98,25 @@ export function loadRoll(
 export function normaliseRollStart(start: number, clock: number) {
   return start < clock ? start + dayInMs : start;
 }
+
+/**
+ * Finds the event roll moves to after the given one, after the last event it wraps to the first
+ * Rolling into events of 0 duration would make the playback be stuck, so they are passed over
+ * In a rundown with one event, that event follows itself
+ */
+export function findNextRollEvent(
+  rundown: Rundown,
+  metadata: RundownMetadata,
+  fromId: string | undefined,
+): PlayableEvent | null {
+  const { playableEventOrder } = metadata;
+  const fromIndex = fromId === undefined ? -1 : playableEventOrder.indexOf(fromId);
+  // without an event, or with one which is not playable, continue from the start of the rundown
+  const firstIndex = fromIndex === -1 ? 0 : fromIndex + 1;
+
+  for (let step = 0; step < playableEventOrder.length; step++) {
+    const event = rundown.entries[playableEventOrder[(firstIndex + step) % playableEventOrder.length]] as PlayableEvent;
+    if (event.duration !== 0) return event;
+  }
+  return null;
+}

@@ -4,7 +4,7 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { processRundown, rundownCache } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
-import { loadRoll } from '../roll.utils.js';
+import { findNextRollEvent, loadRoll } from '../roll.utils.js';
 
 vi.mock('../../../classes/data-provider/DataProvider.js', () => {
   return {
@@ -816,5 +816,38 @@ describe('loadRoll() should not roll skipped events', () => {
 
     const state = loadRoll(rundown, metadata, now);
     expect(state).toStrictEqual(expected);
+  });
+});
+
+describe('findNextRollEvent()', () => {
+  const rundownWith = (durations: number[]) => {
+    const ids = durations.map((_, index) => String(index + 1));
+    const rundown = makeRundown({
+      entries: Object.fromEntries(
+        durations.map((duration, index) => [
+          ids[index],
+          makeOntimeEvent({ id: ids[index], timeStart: index * 100, timeEnd: index * 100 + duration, duration }),
+        ]),
+      ),
+      order: ids,
+    });
+    return { rundown, metadata: processRundown(rundown, {}) };
+  };
+
+  test.each([
+    { scenario: 'the event after the given one', durations: [10, 10, 10], fromId: '1', expected: '2' },
+    { scenario: 'the first event after the last one', durations: [10, 10, 10], fromId: '3', expected: '1' },
+    { scenario: 'the same event in a rundown with one event', durations: [10], fromId: '1', expected: '1' },
+    { scenario: 'the first event without a given one', durations: [10, 10], fromId: undefined, expected: '1' },
+    { scenario: 'the first event after an unknown one', durations: [10, 10], fromId: 'missing', expected: '1' },
+    { scenario: 'the next event with a duration', durations: [10, 0, 0, 10], fromId: '1', expected: '4' },
+  ])('finds $scenario', ({ durations, fromId, expected }) => {
+    const { rundown, metadata } = rundownWith(durations);
+    expect(findNextRollEvent(rundown, metadata, fromId)?.id).toBe(expected);
+  });
+
+  test('finds nothing when no event has a duration', () => {
+    const { rundown, metadata } = rundownWith([0, 0]);
+    expect(findNextRollEvent(rundown, metadata, '1')).toBeNull();
   });
 });

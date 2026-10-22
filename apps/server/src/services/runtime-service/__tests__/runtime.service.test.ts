@@ -389,7 +389,7 @@ describe('end actions', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(runtimeState.load).toHaveBeenCalledWith(next, expect.anything(), rundownRef.metadata, undefined);
+    expect(runtimeState.load).toHaveBeenCalledWith(next, expect.anything(), rundownRef.metadata);
     expect(runtimeState.start).not.toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action triggered', {
       action: 'load-next',
