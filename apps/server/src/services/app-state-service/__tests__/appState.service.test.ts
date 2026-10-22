@@ -28,3 +28,17 @@ describe('session', () => {
     await expect(appState.startSession()).resolves.toBe(false);
   });
 });
+
+describe('getNodeId()', () => {
+  it('keeps the node id the first session created across restarts', async () => {
+    await appState.startSession();
+    const nodeId = appState.getNodeId();
+
+    vi.resetModules();
+    const restarted: typeof import('../appState.service.js') = await import('../appState.service.js');
+    await restarted.startSession();
+
+    expect(nodeId).toMatch(/.+/);
+    expect(restarted.getNodeId()).toBe(nodeId);
+  });
+});
