@@ -70,17 +70,16 @@ class RuntimeService {
     RuntimeService.previousState = {} as RuntimeState;
   }
 
-  @broadcastResult
-  setOffsetMode(mode: OffsetMode) {
+  setOffsetMode = broadcastResult((mode: OffsetMode) => {
     runtimeState.setOffsetMode(mode);
-  }
+  });
 
   /**
    * Checks result of an update and notifies integrations as needed
    * This is the only exception of a private method that has broadcast result
    * */
-  @broadcastResult
-  private checkTimerUpdate({ hasTimerFinished, finishedAt, hasSecondaryTimerFinished }: runtimeState.UpdateResult) {
+  private checkTimerUpdate = broadcastResult((update: runtimeState.UpdateResult) => {
+    const { hasTimerFinished, finishedAt, hasSecondaryTimerFinished } = update;
     const newState = runtimeState.getState();
     // 1. find if we need to dispatch integrations related to the phase
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
@@ -184,7 +183,7 @@ class RuntimeService {
 
       this.lastIntegrationClockUpdate = newState.clock;
     }
-  }
+  });
 
   /** delay initialisation until we have a restore point */
   public init(resumable: RestorePoint | null) {
@@ -229,8 +228,7 @@ class RuntimeService {
    * Stops playback if the loaded event can no longer play, otherwise hot-reloads the loaded entries
    * The rundown and its metadata are read from the cache, so they are always the loaded and current ones
    */
-  @broadcastResult
-  public notifyOfChangedEvents() {
+  public notifyOfChangedEvents = broadcastResult(() => {
     const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
     runtimeState.updateRundownData(metadata);
@@ -253,7 +251,7 @@ class RuntimeService {
     }
 
     runtimeState.updateAll(rundown, metadata);
-  }
+  });
 
   /**
    * makes calls for loading and starting given event
@@ -292,8 +290,7 @@ class RuntimeService {
    * @param {string} eventId
    * @return {boolean} success - whether an event was started
    */
-  @broadcastResult
-  public startById(eventId: string): boolean {
+  public startById = broadcastResult((eventId: string): boolean => {
     const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
@@ -303,15 +300,14 @@ class RuntimeService {
       return false;
     }
     return this.handleStart();
-  }
+  });
 
   /**
    * starts an event at index
    * @param {number} eventIndex
    * @return {boolean} success - whether an event was started
    */
-  @broadcastResult
-  public startByIndex(eventIndex: number): boolean {
+  public startByIndex = broadcastResult((eventIndex: number): boolean => {
     const rundown = getCurrentRundown();
     const { timedEventOrder } = getRundownMetadata();
 
@@ -327,15 +323,14 @@ class RuntimeService {
     }
 
     return this.handleStart();
-  }
+  });
 
   /**
    * starts first event matching given cue
    * @param {string} cue
    * @return {boolean} success - whether an event was started
    */
-  @broadcastResult
-  public startByCue(cue: string): boolean {
+  public startByCue = broadcastResult((cue: string): boolean => {
     const state = runtimeState.getState();
     const rundown = getCurrentRundown();
     const { timedEventOrder } = getRundownMetadata();
@@ -357,29 +352,27 @@ class RuntimeService {
       return false;
     }
     return this.handleStart();
-  }
+  });
 
   /**
    * loads event matching given ID
    * @param {string} eventId
    * @return {boolean} success - whether an event was loaded
    */
-  @broadcastResult
-  public loadById(eventId: string): boolean {
+  public loadById = broadcastResult((eventId: string): boolean => {
     const event = getEntryWithId(eventId);
     if (!event || !isOntimeEvent(event)) {
       return false;
     }
     return this.loadEvent(event);
-  }
+  });
 
   /**
    * loads event matching given ID
    * @param {number} eventIndex
    * @return {boolean} success - whether an event was loaded
    */
-  @broadcastResult
-  public loadByIndex(eventIndex: number): boolean {
+  public loadByIndex = broadcastResult((eventIndex: number): boolean => {
     const rundown = getCurrentRundown();
     const { timedEventOrder } = getRundownMetadata();
 
@@ -389,15 +382,14 @@ class RuntimeService {
       return false;
     }
     return this.loadEvent(event);
-  }
+  });
 
   /**
    * loads first event matching given cue
    * @param {string} cue
    * @return {boolean} success - whether an event was loaded
    */
-  @broadcastResult
-  public loadByCue(cue: string): boolean {
+  public loadByCue = broadcastResult((cue: string): boolean => {
     const state = runtimeState.getState();
     const rundown = getCurrentRundown();
     const { playableEventOrder } = getRundownMetadata();
@@ -415,7 +407,7 @@ class RuntimeService {
     }
 
     return this.loadEvent(event);
-  }
+  });
 
   /**
    * Contains logic for loading the previous event
@@ -442,10 +434,9 @@ class RuntimeService {
    * Loads event before currently selected
    * @return {boolean} success - whether an event was loaded
    */
-  @broadcastResult
-  public loadPrevious(): boolean {
+  public loadPrevious = broadcastResult((): boolean => {
     return this.handleLoadPrevious();
-  }
+  });
 
   /**
    * Contains logic for loading the next event
@@ -487,10 +478,9 @@ class RuntimeService {
    * Loads event after currently selected
    * @return {boolean} success
    */
-  @broadcastResult
-  public loadNext(): boolean {
+  public loadNext = broadcastResult((): boolean => {
     return this.handleLoadNext();
-  }
+  });
 
   /**
    * Contains logic for starting selected event
@@ -521,41 +511,37 @@ class RuntimeService {
   /**
    * Starts playback on selected event
    */
-  @broadcastResult
-  public start(): boolean {
+  public start = broadcastResult((): boolean => {
     return this.handleStart();
-  }
+  });
 
   /**
    * Starts playback on previous event
    */
-  @broadcastResult
-  public startPrevious(): boolean {
+  public startPrevious = broadcastResult((): boolean => {
     const hasPrevious = this.handleLoadPrevious();
     if (!hasPrevious) {
       return false;
     }
 
     return this.handleStart();
-  }
+  });
 
   /**
    * Starts playback on next event
    */
-  @broadcastResult
-  public startNext(at?: Instant): boolean {
+  public startNext = broadcastResult((at?: Instant): boolean => {
     const hasNext = this.handleLoadNext();
     if (!hasNext) {
       return false;
     }
     return this.handleStart(at);
-  }
+  });
 
   /**
    * Pauses playback on selected event
    */
-  @broadcastResult
-  public pause() {
+  public pause = broadcastResult(() => {
     const state = runtimeState.getState();
     const canPause = validatePlayback(state.timer.playback, state.timer.phase).pause;
     if (!canPause) {
@@ -567,13 +553,12 @@ class RuntimeService {
     process.nextTick(() => {
       triggerAutomations(TimerLifeCycle.onPause);
     });
-  }
+  });
 
   /**
    * Stops timer and unloads any events
    */
-  @broadcastResult
-  public stop(): boolean {
+  public stop = broadcastResult((): boolean => {
     const previousState = runtimeState.getState();
     const canStop = validatePlayback(previousState.timer.playback, previousState.timer.phase).stop;
     if (!canStop) {
@@ -591,19 +576,18 @@ class RuntimeService {
       return true;
     }
     return false;
-  }
+  });
 
   /**
    * Reloads current event
    */
-  @broadcastResult
-  public reload() {
+  public reload = broadcastResult(() => {
     const state = runtimeState.getState();
     if (state.eventNow) {
       return this.loadEvent(state.eventNow);
     }
     return false;
-  }
+  });
 
   /**
    * Handles special case to call roll on a loaded event which we do not want to discard
@@ -629,10 +613,9 @@ class RuntimeService {
   /**
    * Sets playback to roll
    */
-  @broadcastResult
-  public roll() {
+  public roll = broadcastResult(() => {
     this.handleRoll();
-  }
+  });
 
   /**
    * Contains logic for setting playback to roll
@@ -685,8 +668,7 @@ class RuntimeService {
    * @description resume playback state given a restore point
    * @param restorePoint
    */
-  @broadcastResult
-  public resume(restorePoint: RestorePoint) {
+  public resume = broadcastResult((restorePoint: RestorePoint) => {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
       logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'other-rundown', rundown: restorePoint.rundownId });
       return;
@@ -717,20 +699,19 @@ class RuntimeService {
     runtimeState.resume(restorePoint, event, rundown, metadata);
 
     logger.info(LogOrigin.Playback, 'Playback resumed', { state: playback, ...eventFields(event) });
-  }
+  });
 
   /**
    * Adds time to current event
    * @param {number} time - time to add in milliseconds
    */
-  @broadcastResult
-  public addTime(time: number) {
+  public addTime = broadcastResult((time: number) => {
     if (runtimeState.addTime(time)) {
       logger.info(LogOrigin.Playback, 'Time adjusted', {
         by: `${time > 0 ? '+' : '-'}${millisToString(Math.abs(time))}`,
       });
     }
-  }
+  });
 }
 
 export const runtimeService = new RuntimeService();
@@ -744,16 +725,14 @@ function eventFields(event: OntimeEvent | null) {
 type EntryUpdateKeys = keyof Pick<RuntimeState, 'eventNow' | 'eventNext' | 'eventFlag' | 'groupNow'>;
 
 /**
- * Decorator manages side effects from updating the runtime
+ * Wrapper manages side effects from updating the runtime
  * This should only be applied to functions that are exposed for consumption
  * ie: whenever an external service makes a request, we update the state with the mutation result
  */
-function broadcastResult(_target: any, _propertyKey: string, descriptor: PropertyDescriptor) {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function (this: RuntimeService, ...args: any[]) {
+function broadcastResult<A extends unknown[], R>(fn: (...args: A) => R) {
+  return function (this: RuntimeService, ...args: A): R {
     // call the original method and get the state
-    const result = originalMethod.apply(this, args);
+    const result = fn(...args);
     const state = runtimeState.getState();
     const batch = eventStore.createBatch();
 
@@ -868,6 +847,4 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     this.timer.scheduleBoundary(runtimeState.getTimeToNextBoundary());
     return result;
   };
-
-  return descriptor;
 }

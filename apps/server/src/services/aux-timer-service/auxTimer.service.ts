@@ -66,23 +66,20 @@ export class AuxTimerService {
     }
   }
 
-  @broadcastReturn
-  setDirection(direction: SimpleDirection, index: number) {
+  setDirection = broadcastReturn((direction: SimpleDirection, index: number) => {
     if (index === 1) return this.aux1.setDirection(direction, this.getTime());
     if (index === 2) return this.aux2.setDirection(direction, this.getTime());
     return this.aux3.setDirection(direction, this.getTime());
-  }
+  });
 
-  @broadcastReturn
-  start(index: number) {
+  start = broadcastReturn((index: number) => {
     this.startInterval();
     if (index === 1) return this.aux1.start(this.getTime());
     if (index === 2) return this.aux2.start(this.getTime());
     return this.aux3.start(this.getTime());
-  }
+  });
 
-  @broadcastReturn
-  pause(index: number) {
+  pause = broadcastReturn((index: number) => {
     // First pause the timer
     let result;
     if (index === 1) result = this.aux1.pause(this.getTime());
@@ -95,10 +92,9 @@ export class AuxTimerService {
     }
 
     return result;
-  }
+  });
 
-  @broadcastReturn
-  stop(index: number) {
+  stop = broadcastReturn((index: number) => {
     // First stop the timer
     let result;
     if (index === 1) result = this.aux1.stop();
@@ -111,30 +107,28 @@ export class AuxTimerService {
     }
 
     return result;
-  }
+  });
 
-  @broadcastReturn
-  setTime(duration: number, index: number) {
+  setTime = broadcastReturn((duration: number, index: number) => {
     if (index === 1) return this.aux1.setTime(duration);
     if (index === 2) return this.aux2.setTime(duration);
     return this.aux3.setTime(duration);
-  }
+  });
 
-  @broadcastReturn
-  addTime(millis: number, index: number) {
+  addTime = broadcastReturn((millis: number, index: number) => {
     const aux = index === 1 ? this.aux1 : index === 2 ? this.aux2 : this.aux3;
     if (aux.state.playback === SimplePlayback.Start) {
       aux.addTime(millis);
       return aux.update(this.getTime());
     }
     return aux.addTime(millis);
-  }
+  });
 
   private update() {
     /**
      * The update function affects any running timers,
      * so we decide to emit a patch object rather
-     * than using the decorator which would emit individual updates.
+     * than using broadcastReturn which would emit individual updates.
      */
     const patch: AuxTimerStateUpdate = {};
 
@@ -157,17 +151,13 @@ export class AuxTimerService {
   }
 }
 
-function broadcastReturn(_target: object, _propertyKey: string, descriptor: PropertyDescriptor) {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function (this: AuxTimerService, ...args: unknown[]) {
-    const result = originalMethod.apply(this, args);
+function broadcastReturn<A extends unknown[], R>(fn: (...args: A) => R) {
+  return function (this: AuxTimerService, ...args: A): R {
+    const result = fn(...args);
     const index = args[args.length - 1] as number;
     this.emit({ [`auxtimer${index}`]: result });
     return result;
   };
-
-  return descriptor;
 }
 
 const emit = (state: AuxTimerStateUpdate) => {

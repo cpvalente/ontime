@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "types": ["node"],
     "outDir": "dist",
-    "experimentalDecorators": true,
   },
   "include": [
     "src/**/*.ts",
