@@ -55,8 +55,8 @@ const config: PlaywrightTestConfig = {
     passwordServer,
   ],
   use: {
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    screenshot: process.env.CI ? 'off' : 'only-on-failure',
+    video: process.env.CI ? 'off' : 'retain-on-failure',
     viewport: { width: 1920, height: 1080 },
     actionTimeout: 5000,
     baseURL: isDevMode ? 'http://localhost:3000' : 'http://localhost:4001',
