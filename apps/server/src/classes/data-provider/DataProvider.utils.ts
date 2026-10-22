@@ -24,6 +24,8 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
   } = deepNewData;
 
   return {
+    // a patch never changes which project this is
+    projectId: existing.projectId,
     rundowns: { ...existingRundowns, ...newRundowns },
     project: { ...deepExisting.project, ...project },
     settings: { ...deepExisting.settings, ...settings },

@@ -5,6 +5,7 @@ import { isRestorePoint } from '../restore.parser.js';
 import type { RestorePoint } from '../restore.types.js';
 
 const restorePoint: RestorePoint = {
+  projectId: 'project',
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
@@ -39,7 +40,14 @@ describe('isRestorePoint()', () => {
     expect(isRestorePoint({ ...restorePoint, pausedDuration: '3000' })).toBe(false);
   });
 
+  it('rejects a point without a project id', () => {
+    const { projectId: _projectId, ...point } = restorePoint;
+
+    expect(isRestorePoint(point)).toBe(false);
+  });
+
   it.each([
+    ['invalid project id', { projectId: 1 }],
     ['unknown playback', { playback: 'unknown' }],
     ['unknown offset mode', { offsetMode: 'unknown' }],
     ['invalid timer value', { startedAt: 'invalid' }],

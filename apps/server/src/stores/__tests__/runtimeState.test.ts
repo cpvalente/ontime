@@ -397,6 +397,7 @@ describe('mutation on runtimeState', () => {
 
     const { rundown, metadata } = rundownCache.get();
     const restorePoint = {
+      projectId: 'project',
       rundownId: rundown.id,
       playback: Playback.Play,
       selectedEventId: 'event1',

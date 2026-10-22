@@ -4,10 +4,14 @@ import { LogOrigin } from 'ontime-types';
 import { MILLIS_PER_HOUR, getErrorMessage } from 'ontime-utils';
 
 import * as logger from '../../api-data/logs/logs.service.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
 import { isRestorePoint } from './restore.parser.js';
 import type { RestorePoint } from './restore.types.js';
+
+/** what the runtime saves, the service adds the project and the instant */
+type RestorePointData = Omit<RestorePoint, 'projectId' | 'savedAt'>;
 
 /** a point older than this belongs to a show which is no longer running */
 const maxRestoreAge = 5 * MILLIS_PER_HOUR;
@@ -23,6 +27,7 @@ let fileRef: JSONFile<RestorePoint | null> | null = null;
 export const restoreService = {
   save,
   load,
+  forProject,
   clear,
 };
 
@@ -31,19 +36,20 @@ export const restoreService = {
  * @param [writeFn=write] - allows overriding the write function for testing
  * @public
  */
-async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
+async function save(data: RestorePointData, writeFn = write) {
   // after three failed attempts, mark the service as unavailable
   if (failedCreateAttempts > 3) {
     return;
   }
 
-  if (deepEqual(data, savedState)) {
+  const point = { ...data, projectId: getDataProvider().getProjectId() };
+  if (deepEqual(point, savedState)) {
     return;
   }
 
   try {
-    await writeFn({ ...data, savedAt: timeCore.now() });
-    savedState = { ...data };
+    await writeFn({ ...point, savedAt: timeCore.now() });
+    savedState = point;
     failedCreateAttempts = 0;
   } catch (error) {
     failedCreateAttempts += 1;
@@ -81,6 +87,19 @@ async function load(readFn = read): Promise<RestorePoint | null> {
     logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'read-failed', error: getErrorMessage(error) });
     return null;
   }
+}
+
+/**
+ * Keeps a restore point only for the project it was saved in
+ * @public
+ */
+function forProject(restorePoint: RestorePoint | null, projectId: string): RestorePoint | null {
+  if (restorePoint === null || restorePoint.projectId === projectId) {
+    return restorePoint;
+  }
+
+  logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'other-project', projectId: restorePoint.projectId });
+  return null;
 }
 
 /**

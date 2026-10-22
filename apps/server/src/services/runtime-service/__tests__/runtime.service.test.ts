@@ -293,6 +293,7 @@ describe('notifyOfChangedEvents()', () => {
 
 describe('resume()', () => {
   const restorePoint: RestorePoint = {
+    projectId: 'project',
     rundownId: 'rundown',
     playback: Playback.Play,
     selectedEventId: 'resume-event',

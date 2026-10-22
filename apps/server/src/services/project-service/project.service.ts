@@ -12,7 +12,7 @@ import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
-import { makeNewProject } from '../../models/dataModel.js';
+import { makeNewProject, makeProjectId } from '../../models/dataModel.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { publicDir } from '../../setup/index.js';
@@ -118,7 +118,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
  */
 export async function loadDemoProject(): Promise<string> {
   populateOntimeLogo();
-  return createProject(config.demoProject, demoDb);
+  return createProject(config.demoProject, { ...demoDb, projectId: makeProjectId() });
 }
 
 /**
@@ -282,6 +282,7 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
   if (projectFile.project?.logo) {
     projectFile.project.logo = await duplicateLogo(projectFile.project.logo);
   }
+  projectFile.projectId = makeProjectId();
 
   const pathToDuplicate = getPathToProject(newFilename);
   await writeToFile(pathToDuplicate, JSON.stringify(projectFile, null, 2));
