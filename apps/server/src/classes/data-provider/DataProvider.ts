@@ -9,6 +9,7 @@ import {
   Rundown,
   Settings,
   URLPreset,
+  TeleprompterSettings,
   ViewSettings,
 } from 'ontime-types';
 
@@ -75,6 +76,8 @@ export function getDataProvider() {
     setViewSettings,
     getAutomation,
     setAutomation,
+    getTeleprompterSettings,
+    setTeleprompterSettings,
     getRundown,
     getProjectRundowns,
     mergeIntoData,
@@ -178,6 +181,16 @@ async function setAutomation(newData: AutomationSettings): ReadonlyPromise<Autom
   return db.data.automation;
 }
 
+function getTeleprompterSettings(): Readonly<TeleprompterSettings> {
+  return db.data.teleprompter;
+}
+
+async function setTeleprompterSettings(newData: TeleprompterSettings): ReadonlyPromise<TeleprompterSettings> {
+  db.data.teleprompter = { ...newData };
+  await persist();
+  return db.data.teleprompter;
+}
+
 function getRundown(rundownKey: string): Readonly<Rundown> {
   if (!(rundownKey in db.data.rundowns)) throw new Error(`Rundown with id: ${rundownKey} not found`);
   const rundown = db.data.rundowns[rundownKey];
@@ -202,6 +215,7 @@ async function mergeIntoData(newData: Partial<DatabaseModel>): ReadonlyPromise<D
   db.data.settings = mergedData.settings;
   db.data.viewSettings = mergedData.viewSettings;
   db.data.automation = mergedData.automation;
+  db.data.teleprompter = mergedData.teleprompter;
   db.data.urlPresets = mergedData.urlPresets;
   db.data.customFields = mergedData.customFields;
   db.data.rundowns = mergedData.rundowns;
