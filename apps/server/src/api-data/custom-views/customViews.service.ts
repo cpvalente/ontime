@@ -15,7 +15,12 @@ import {
   statIfExists,
   writeToFile,
 } from '../../utils/fileManagement.js';
-import { CustomViewError } from './customViews.errors.js';
+import {
+  CustomViewExistsError,
+  CustomViewFileError,
+  CustomViewNameError,
+  CustomViewNotFoundError,
+} from './customViews.errors.js';
 
 /**
  * Patterns that indicate external resource loading.
@@ -34,15 +39,14 @@ export function validateHtmlContent(content: string): void {
   const htmlDoctype = /^\s*<!doctype\s+html[\s>]/i;
   const htmlTag = /^\s*<html[\s>]/i;
   if (!htmlDoctype.test(content) && !htmlTag.test(content)) {
-    throw new CustomViewError(
+    throw new CustomViewFileError(
       'File does not appear to be valid HTML. Expected <!DOCTYPE html> or <html> at the start.',
-      400,
     );
   }
 
   for (const { pattern, message } of forbiddenHtmlPatterns) {
     if (pattern.test(content)) {
-      throw new CustomViewError(message, 400);
+      throw new CustomViewFileError(message);
     }
   }
 }
@@ -58,7 +62,7 @@ export function isValidCustomViewSlug(slug: string): boolean {
 
 export function resolveCustomViewDirectory(slug: string): string {
   if (!isValidCustomViewSlug(slug)) {
-    throw new CustomViewError('Invalid name. Use lowercase letters, numbers, and dashes only.', 400);
+    throw new CustomViewNameError();
   }
 
   return resolve(publicDir.externalDir, slug);
@@ -79,20 +83,20 @@ export const customViewMaxFileSize = 4_000_000; // 4MB
 export const customViewIndexFilename = 'index.html';
 export function validateCustomViewUpload(file: CustomViewUploadFile | undefined): CustomViewUploadFile {
   if (!file) {
-    throw new CustomViewError('File not found', 422);
+    throw new CustomViewFileError('File not found');
   }
 
   const fileName = file.originalname.trim().toLowerCase();
   if (fileName !== customViewIndexFilename) {
-    throw new CustomViewError('Only index.html uploads are supported', 400);
+    throw new CustomViewFileError('Only index.html uploads are supported');
   }
 
   if (file.size === 0) {
-    throw new CustomViewError('Uploaded file is empty', 400);
+    throw new CustomViewFileError('Uploaded file is empty');
   }
 
   if (file.size > customViewMaxFileSize) {
-    throw new CustomViewError(`File size limit (${customViewMaxFileSize / 1_000_000}MB) exceeded`, 413);
+    throw new CustomViewFileError(`File size limit (${customViewMaxFileSize / 1_000_000}MB) exceeded`);
   }
 
   const content = file.buffer.toString('utf-8');
@@ -133,7 +137,7 @@ export async function uploadCustomView(
     await createDirectory(viewDirectory);
   } catch (error) {
     if (isNodeError(error) && error.code === 'EEXIST') {
-      throw new CustomViewError(`Name "${slug}" already exists`, 409);
+      throw new CustomViewExistsError(slug, { cause: error });
     }
     throw error;
   }
@@ -151,7 +155,7 @@ export async function getCustomViewDownloadPath(slug: string): Promise<string> {
   const indexFile = getPathToCustomView(slug);
 
   if (!(await fileIsReadable(indexFile))) {
-    throw new CustomViewError(`Custom view "${slug}" not found`, 404);
+    throw new CustomViewNotFoundError(slug);
   }
 
   return indexFile;
