@@ -31,6 +31,12 @@ import { initialiseProject } from './services/project-service/project.service.js
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
+import {
+  getTeleprompterState,
+  getTeleprompterSync,
+  initTeleprompter,
+  shutdownTeleprompter,
+} from './services/teleprompter-service/teleprompter.service.js';
 import { config, timerConfig } from './setup/config.js';
 import { isProduction } from './setup/environment.js';
 // import utils
@@ -239,6 +245,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       direction: SimpleDirection.CountDown,
       name: '',
     },
+    teleprompter: getTeleprompterState(),
+    teleprompterSync: getTeleprompterSync(),
     ping: 1,
   });
 
@@ -250,6 +258,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
 
   // apply the restore point if it exists
   runtimeService.init(projectRestorePoint);
+  initTeleprompter();
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
@@ -312,6 +321,7 @@ const shutdownTimeout = 4_000; // 4 seconds
 export async function stopServices(exitCode: number): Promise<void> {
   isShuttingDown = true;
   runtimeService.shutdown();
+  shutdownTeleprompter();
 
   // only a crash leaves the session open, recorded first so a failed cleanup cannot turn a stop into a crash
   if (exitCode === 0 || exitCode === 3 || exitCode === 99) {

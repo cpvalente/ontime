@@ -9,6 +9,7 @@ import * as logger from '../logs/logs.service.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
+import { parseTeleprompter } from '../teleprompter/teleprompter.parser.js';
 import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
@@ -84,6 +85,7 @@ export function parseDatabaseModel(
     urlPresets: parseUrlPresets(migratedData, makeEmitError('URL Presets')),
     customFields,
     automation: parseAutomationSettings(migratedData),
+    teleprompter: parseTeleprompter(migratedData),
   };
 
   return { data, errors, migrated };

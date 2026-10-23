@@ -32,6 +32,7 @@ import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-
 import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
 import { notifyChange } from '../change-service/change.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
+import { applyTeleprompterSettings } from '../teleprompter-service/teleprompter.service.js';
 import {
   doesProjectExist,
   duplicateLogo,
@@ -362,8 +363,8 @@ export async function deleteProjectFile(filename: string) {
 export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   runtimeService.stop();
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars  -- we need to remove the fields before merging
-  const { rundowns, customFields, ...rest } = data;
+  // these sections are parsed and applied on their own, the rest is merged as it is
+  const { rundowns, customFields, teleprompter, ...rest } = data;
 
   // we can pass some stuff straight to the data provider
   // callers list every section, so we only merge when a section has a value
@@ -374,6 +375,10 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   if (rest.settings) {
     auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
+  }
+  // the script is cut from these settings, so they go where the settings endpoint sends them
+  if (teleprompter) {
+    await applyTeleprompterSettings(teleprompter);
   }
 
   // the rundown depends on custom fields
