@@ -1,4 +1,4 @@
-ARG NODE_VERSION=22.22.2
+ARG NODE_VERSION=22.23.4
 FROM node:${NODE_VERSION}-alpine
 
 # Set environment variables
