@@ -1,9 +1,11 @@
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { Playback, SimpleDirection, SimplePlayback, TimerPhase } from 'ontime-types';
 import { millisToString, parseUserTime } from 'ontime-utils';
+import { useEffect, useRef } from 'react';
 import { IoAdd, IoArrowDown, IoArrowUp, IoPause, IoPlay, IoPlaySkipForward, IoRemove, IoStop } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import { useRundownScope } from '../../../../common/context/RundownScopeContext';
 import {
   setAuxTimer,
   setPlayback,
@@ -29,6 +31,21 @@ export default function TrackingPlaybackBar() {
   const auxTime = useAuxTimerTime(1);
 
   const [addTimeInMs] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 });
+
+  const { selectionStore } = useRundownScope();
+  const hadSelectionOnEscape = useRef(false);
+
+  // records whether Escape was pressed with a rundown selection, before any keydown handler acts
+  // the rundown clears the selection on Escape, from a listener that may run before ours
+  useEffect(() => {
+    const captureSelection = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        hadSelectionOnEscape.current = selectionStore.getState().selectedEvents.size > 0;
+      }
+    };
+    window.addEventListener('keydown', captureSelection, { capture: true });
+    return () => window.removeEventListener('keydown', captureSelection, { capture: true });
+  }, [selectionStore]);
 
   const { disableGo, disableNext, disableAddTime, isPlaying, goAction, goLabel } = getPlaybackControlState({
     playback,
@@ -72,9 +89,15 @@ export default function TrackingPlaybackBar() {
   };
 
   useHotkeys([
-    ['Space', () => !disableGo && goAction(), { preventDefault: true }],
-    ['N', () => !disableNext && setPlayback.next(), { preventDefault: true }],
-    ['Escape', () => playback !== Playback.Stop && setPlayback.stop(), { preventDefault: true }],
+    // a held key auto-repeats, which must not skip cues
+    ['Space', (event) => !event.repeat && !disableGo && goAction(), { preventDefault: true }],
+    ['N', (event) => !event.repeat && !disableNext && setPlayback.next(), { preventDefault: true }],
+    // Escape only stops playback when it has no other job: useHotkeys already skips editable fields
+    [
+      'Escape',
+      () => !hadSelectionOnEscape.current && playback !== Playback.Stop && setPlayback.stop(),
+      { preventDefault: true },
+    ],
   ]);
 
   const isWaiting = timer.phase === TimerPhase.Pending;
