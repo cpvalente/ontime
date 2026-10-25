@@ -53,3 +53,27 @@ test.describe('custom views', () => {
     expect(deletedView).toBeUndefined();
   });
 });
+
+test('the bundled demo view shows live data and can be shared', async ({ page, request }) => {
+  const restore = await request.post(`${apiURL}/restore-demo`);
+  expect(restore.status()).toBe(201);
+  const preset = { alias: 'e2e-share', target: 'timer', search: '', enabled: true, displayInNav: false };
+  await request.post(`${baseURL}/data/url-presets`, { data: preset });
+
+  try {
+    await page.goto(`${baseURL}/external/demo/`);
+    await expect(page.getByRole('heading', { name: 'Ontime demo' })).toBeVisible();
+    // the clock is filled in from the websocket
+    await expect(page.locator('#clock')).not.toHaveText('-');
+
+    // a fresh load of the share menu lists both URL presets and custom views
+    await page.goto(`${baseURL}/editor`);
+    await page.getByRole('button', { name: 'Toggle settings' }).click();
+    await page.getByRole('button', { name: 'Share link' }).click();
+    await page.getByRole('combobox').filter({ hasText: 'Timer' }).click();
+    await expect(page.getByRole('option', { name: 'URL Preset: e2e-share' })).toBeVisible();
+    await expect(page.getByRole('option', { name: 'Custom view: demo' })).toBeVisible();
+  } finally {
+    await request.delete(`${baseURL}/data/url-presets/${preset.alias}`);
+  }
+});

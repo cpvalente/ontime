@@ -9,12 +9,17 @@ const placeholderCustomViews: CustomViewsListResponse = {
   views: [],
 };
 
-export default function useCustomViews() {
+interface FetchProps {
+  skip?: boolean;
+}
+
+export default function useCustomViews({ skip = false }: FetchProps = {}) {
   const { data, status, refetch } = useQuery({
     queryKey: CUSTOM_VIEWS,
     queryFn: ({ signal }) => getCustomViews({ signal }),
     placeholderData: (previousData, _previousQuery) => previousData,
     refetchInterval: queryRefetchIntervalSlow,
+    enabled: !skip,
   });
 
   return { data: data ?? placeholderCustomViews, status, refetch };

@@ -1,6 +1,7 @@
 import { OntimeView } from 'ontime-types';
 import { useMemo } from 'react';
 
+import useCustomViews from '../../common/hooks-query/useCustomViews';
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
 import { hostToBaseUrl } from '../../common/utils/linkUtils';
@@ -14,7 +15,8 @@ interface GenerateLinkFormExportProps {
 
 export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormExportProps) {
   const { data: infoData } = useInfo();
-  const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
+  const { data: urlPresetData } = useUrlPresets({ skip: Boolean(lockedPath) });
+  const { data: customViewData } = useCustomViews({ skip: Boolean(lockedPath) });
 
   // Keep the working server address available alongside explicitly selectable network interfaces.
   const hostOptions = useMemo(() => {
@@ -41,8 +43,12 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
         value: `preset-${preset.alias}`,
         label: `URL Preset: ${preset.alias}`,
       })),
+      ...customViewData.views.map((view) => ({
+        value: `external/${encodeURIComponent(view.slug)}/`,
+        label: `Custom view: ${view.slug}`,
+      })),
     ];
-  }, [lockedPath, urlPresetData]);
+  }, [lockedPath, urlPresetData, customViewData]);
 
   return (
     <GenerateLinkForm
