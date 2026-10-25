@@ -1,6 +1,6 @@
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useAppVersion from '../../../../common/hooks-query/useAppVersion';
-import { appVersion, isOntimeCloud, websiteUrl } from '../../../../externals';
+import { appVersion, isOntimeCloud } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 import style from './AppVersion.module.scss';
@@ -33,7 +33,7 @@ export default function AppVersion() {
           }
         />
         {!isOntimeCloud && (
-          <ExternalLink href={websiteUrl}>Download the latest version from Ontime's page</ExternalLink>
+          <ExternalLink href={data.url}>Download the latest version from Ontime's page</ExternalLink>
         )}
       </Panel.ListItem>
     );

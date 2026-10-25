@@ -1,4 +1,4 @@
-const { apiRepoLatest, isMac, isWindows, version } = require('./externals.js');
+const { apiRepoLatest, isMac, isWindows, linkToDownloads, version } = require('./externals.js');
 
 /**
  * Resolves the name of the release artifact for the current platform
@@ -14,6 +14,22 @@ function getInstallerName() {
   }
   const arch = { x64: 'x86_64', arm: 'armv7l' }[process.arch] ?? process.arch;
   return `ontime-linux-${arch}.AppImage`;
+}
+
+/**
+ * Resolves the download page slug for the current platform
+ * Slugs are a permanent contract with getontime.no/download/<slug>
+ * @returns {string}
+ */
+function getDownloadSlug() {
+  if (isWindows) {
+    return 'windows';
+  }
+  if (isMac) {
+    return `macos-${process.arch}`;
+  }
+  const arch = { x64: 'x64', arm64: 'arm64', arm: 'armv7' }[process.arch] ?? process.arch;
+  return `linux-${arch}`;
 }
 
 /**
@@ -33,12 +49,14 @@ async function getAvailableUpdate() {
   }
 
   const installerName = getInstallerName();
-  const installer = release.assets?.find((asset) => asset.name === installerName);
-  if (!installer) {
+  const hasInstaller = release.assets?.some((asset) => asset.name === installerName);
+  if (!hasInstaller) {
     return null;
   }
 
-  return { version: release.tag_name, url: installer.browser_download_url };
+  // pinned to the version we announce, the download page may still be caching the previous release
+  const url = `${linkToDownloads}/${getDownloadSlug()}?version=${encodeURIComponent(release.tag_name)}`;
+  return { version: release.tag_name, url };
 }
 
 module.exports = { getAvailableUpdate };

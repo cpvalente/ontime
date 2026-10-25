@@ -12,6 +12,7 @@ const linkToDocs = 'https://docs.getontime.no/';
 const linkToGitHub = 'https://github.com/cpvalente/ontime';
 const linkToDiscord = 'https://discord.com/invite/eje3CSUEXm';
 const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
+const linkToDownloads = 'https://getontime.no/download';
 
 // environment and platform constants
 const env = process.env.NODE_ENV || 'production';
@@ -81,6 +82,7 @@ module.exports = {
   linkToGitHub,
   linkToDiscord,
   apiRepoLatest,
+  linkToDownloads,
   env,
   isProduction,
   isMac,
