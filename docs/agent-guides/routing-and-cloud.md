@@ -40,6 +40,9 @@ Use `URL`, React Router, or existing helpers instead of string manipulation. Pre
 
 Never infer Ontime Cloud from hostname alone. Generated base markup marks cloud; runtime prefixes also serve non-cloud reverse proxies.
 
+Share links default to the server address the client already reaches. A private server interface may belong to Docker,
+a VPN, or a different network; do not assume it is reachable by recipients or automatically replace the current address.
+
 ## Cloud capabilities
 
 Gate unavailable local-network integrations in cloud, including OSC output. Keep server behaviour and UI availability aligned.

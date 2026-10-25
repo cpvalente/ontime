@@ -1,16 +1,11 @@
-/**
- * This module encapsulates logic related to
- * Google Sheets
- */
-
 import { existsSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
 import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { type ImportMap } from 'ontime-utils';
 import xlsx from 'xlsx';
-import type { WorkBook } from 'xlsx';
 
 import { deleteFile } from '../../utils/fileManagement.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
@@ -18,10 +13,8 @@ import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.j
 import { parseRundown } from '../rundown/rundown.parser.js';
 import { parseExcel } from './excel.parser.js';
 import { rundownToTabular } from './excel.utils.js';
+import { getWorkbook, retainWorkbook } from './excel.workbook.js';
 import { getWorksheetMetadataFromRows } from './spreadsheetMetadata.utils.js';
-
-// we keep the excel data in memory to allow the flow upload -> preview
-let excelData: WorkBook = xlsx.utils.book_new();
 
 const maxWorksheetNameLength = 31;
 const invalidWorksheetCharsRegex = /[:\\/?*[\]]/g;
@@ -61,8 +54,9 @@ export async function readExcelFile(
     throw new Error('Wrong file format');
   }
 
-  // clear the data
-  excelData = xlsx.readFile(filePath, { cellDates: true, cellFormula: false });
+  const buffer = await readFile(filePath);
+  const excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
+  retainWorkbook(excelData);
 
   await deleteFile(filePath);
 
@@ -80,7 +74,7 @@ export function generateRundownPreview(options: ImportMap): {
   summary: RundownSummary;
   customFields: CustomFields;
 } {
-  const data = excelData.Sheets[options.worksheet];
+  const data = getWorkbook()?.Sheets[options.worksheet];
 
   if (!data) {
     throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
@@ -117,7 +111,7 @@ export function generateRundownPreview(options: ImportMap): {
 }
 
 export function getWorksheetMetadata(worksheet: string) {
-  const data = excelData.Sheets[worksheet];
+  const data = getWorkbook()?.Sheets[worksheet];
 
   if (!data) {
     throw new Error(`Could not find worksheet: ${worksheet}`);

@@ -15,7 +15,6 @@ import { createSessionLog } from './api-data/logs/logs.dao.js';
 // Services
 import * as logger from './api-data/logs/logs.service.js';
 import { integrationRouter } from './api-integration/integration.router.js';
-import { mcpRouter } from './api-mcp/mcp.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
@@ -97,7 +96,10 @@ app.get(`${prefix}/ready`, (_req, res) => {
 app.use(`${prefix}/login`, loginRouter); // router for login flow
 app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, mcpRouter); // router for MCP agent integration
+app.use(`${prefix}/mcp`, authenticate, async (req, res, next) => {
+  const { mcpRouter } = await import('./api-mcp/mcp.router.js');
+  mcpRouter(req, res, next);
+});
 
 // serve static external files
 app.use(
@@ -121,9 +123,9 @@ app.get(`${prefix}/timer-legacy`, authenticateAndRedirect, (_req, res) => {
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
-// Implement catch all
-app.use((_error, response) => {
-  response.status(400).send('Unhandled request');
+// answers requests no route above matched
+app.use((_req, res) => {
+  res.status(400).send('Unhandled request');
 });
 
 /***************  START SERVICES ***************/
@@ -197,7 +199,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   expressServer = http.createServer(app);
   const resultPort = await portManager.attachServer(expressServer);
 
-  const showWelcome = await getShowWelcomeDialog(!!restorePoint);
+  const projectId = getDataProvider().getProjectId();
+  const projectRestorePoint = restoreService.forProject(restorePoint, projectId);
+  const showWelcome = await getShowWelcomeDialog(!!projectRestorePoint);
   socket.init(expressServer, showWelcome, prefix);
 
   /**
@@ -245,7 +249,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   messageService.init(eventStore.set, eventStore.get);
 
   // apply the restore point if it exists
-  runtimeService.init(restorePoint);
+  runtimeService.init(projectRestorePoint);
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);

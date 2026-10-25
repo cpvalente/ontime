@@ -13,6 +13,7 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
 
   if (
     !is.objectWithKeys(restorePoint, [
+      'projectId',
       'rundownId',
       'playback',
       'selectedEventId',
@@ -26,6 +27,10 @@ export function isRestorePoint(restorePoint: unknown): restorePoint is RestorePo
       'savedAt',
     ])
   ) {
+    return false;
+  }
+
+  if (!is.string(restorePoint.projectId)) {
     return false;
   }
 

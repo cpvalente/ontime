@@ -1,12 +1,17 @@
 import { existsSync } from 'fs';
-import { readFile, stat } from 'fs/promises';
-import { extname, join } from 'path';
+import { copyFile, readFile, stat } from 'fs/promises';
+import { basename, extname, join } from 'path';
 
 import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { publicDir } from '../../setup/index.js';
-import { dockerSafeRename, getFilesFromFolder, removeFileExtension } from '../../utils/fileManagement.js';
+import {
+  dockerSafeRename,
+  fileIsReadable,
+  getFilesFromFolder,
+  removeFileExtension,
+} from '../../utils/fileManagement.js';
 
 /**
  * Handles the upload of a new project file
@@ -31,6 +36,45 @@ export async function handleImageUpload(filePath: string, name: string): Promise
   const newFilePath = join(publicDir.logoDir, filename);
   await dockerSafeRename(filePath, newFilePath);
   return filename;
+}
+
+/**
+ * Copies a logo image under a new unique filename, so a duplicated project owns its logo
+ * @returns the new filename, or null if the logo file does not exist
+ */
+export async function duplicateLogo(logo: string): Promise<string | null> {
+  if (basename(logo) !== logo) {
+    return null;
+  }
+
+  const logoPath = join(publicDir.logoDir, logo);
+  if (!(await fileIsReadable(logoPath))) {
+    return null;
+  }
+
+  const filename = `${generateId()}${extname(logo)}`;
+  await copyFile(logoPath, join(publicDir.logoDir, filename));
+  return filename;
+}
+
+/**
+ * Checks whether any project file references the given logo
+ * We need this to make sure that old projects dont lose their logos
+ * Once all projects manage their own logos this will not be needed
+ */
+export async function isLogoUsedInOtherProject(logo: string): Promise<boolean> {
+  const projectFiles = filterProjectFiles(await getFilesFromFolder(publicDir.projectsDir));
+  for (const file of projectFiles) {
+    try {
+      const projectFile = await parseJsonFile(join(publicDir.projectsDir, file));
+      if (projectFile.project?.logo === logo) {
+        return true;
+      }
+    } catch (_) {
+      /* a file we cannot parse cannot be loaded either */
+    }
+  }
+  return false;
 }
 
 /**

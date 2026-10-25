@@ -2,11 +2,12 @@
   "name": "ontime-server",
   "type": "module",
   "main": "src/index.ts",
-  "version": "4.14.1",
+  "version": "4.15.0",
   "exports": "./src/index.js",
   "dependencies": {
     "@googleapis/sheets": "^5.0.5",
-    "@modelcontextprotocol/sdk": "^1.15.0",
+    "@modelcontextprotocol/node": "^2.1.1",
+    "@modelcontextprotocol/server": "^2.3.1",
     "compression": "1.8.1",
     "cookie": "1.0.2",
     "cookie-parser": "1.4.7",
@@ -23,7 +24,7 @@
     "osc-min": "2.1.2",
     "sanitize-filename": "^1.6.3",
     "ws": "^8.18.0",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@types/compression": "1.8.1",

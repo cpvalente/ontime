@@ -1,4 +1,4 @@
-import { hostToBaseUrl, linkToOtherHost } from '../linkUtils';
+import { hostToBaseUrl, isLoopbackAddress, linkToOtherHost } from '../linkUtils';
 
 describe('linkToOTherHost', () => {
   it('should handle electron links', () => {
@@ -35,5 +35,18 @@ describe('hostToBaseUrl', () => {
   it('falls back to http when the page is https on a different port (TLS proxy)', () => {
     // the raw server port does not speak TLS, an https link to it would fail
     expect(hostToBaseUrl('192.168.10.166', 4001, 'https://ontime.example.com')).toBe('http://192.168.10.166:4001');
+  });
+});
+
+describe('isLoopbackAddress()', () => {
+  it.each(['localhost', 'LOCALHOST', '127.0.0.1', '127.1.2.3', '::1', '[::1]'])(
+    'identifies %s as loopback',
+    (address) => {
+      expect(isLoopbackAddress(address)).toBe(true);
+    },
+  );
+
+  it.each(['192.168.1.2', '10.0.0.1', '1.127.0.0', '127.0.0', 'example.com'])('does not match %s', (address) => {
+    expect(isLoopbackAddress(address)).toBe(false);
   });
 });

@@ -105,7 +105,8 @@ export function parseRundown(
       continue;
     }
 
-    if (parsedRundown.order.includes(event.id)) {
+    // an entry has one place in the rundown, the first one found
+    if (Object.hasOwn(parsedRundown.entries, entryId) || Object.hasOwn(parsedRundown.entries, event.id)) {
       emitError?.('ID collision on event import, skipping');
       continue;
     }
@@ -137,6 +138,10 @@ export function parseRundown(
       for (let i = 0; i < event.entries.length; i++) {
         const nestedEventId = event.entries[i];
         const nestedEvent = rundown.entries[nestedEventId];
+        if (Object.hasOwn(parsedRundown.entries, nestedEventId)) {
+          emitError?.('ID collision on event import, skipping');
+          continue;
+        }
         let newNestedEvent: OntimeEntry | null = null;
 
         if (isOntimeEvent(nestedEvent)) {
@@ -167,10 +172,8 @@ export function parseRundown(
       }
 
       newEvent = createGroup({ ...structuredClone(event), id });
-      // ensure entries exist
-      if (event.entries?.length > 0) {
-        newEvent.entries = event.entries.filter((eventId) => Object.hasOwn(rundown.entries, eventId));
-      }
+      // a group lists only the entries parsed into it
+      newEvent.entries = nestedEntryIds;
       // ensure custom fields are valid
       cleanupCustomFields(newEvent.custom, parsedCustomFields);
     } else {

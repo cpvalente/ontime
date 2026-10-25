@@ -1,7 +1,6 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
-import { CustomField, CustomFields, ErrorResponse } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import { CustomField, CustomFields } from 'ontime-types';
 
 import { getProjectCustomFields } from '../rundown/rundown.dao.js';
 import { createCustomField, deleteCustomField, editCustomField } from '../rundown/rundown.service.js';
@@ -20,41 +19,26 @@ router.get('/', (_req: Request, res: Response<CustomFields>) => {
 /**
  * Creates a new custom field
  */
-router.post('/', validateCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
-  try {
-    const newFields = await createCustomField(req.body as CustomField);
-    res.status(201).json(newFields);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
+router.post('/', validateCustomField, async (req: Request, res: Response<CustomFields>) => {
+  const newFields = await createCustomField(req.body as CustomField);
+  res.status(201).json(newFields);
 });
 
 /**
  * Modifies the properties of an existing custom field
  */
-router.put('/:key', validateEditCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
-  try {
-    const currentKey = req.params.key;
-    const { colour, type, label } = req.body;
+router.put('/:key', validateEditCustomField, async (req: Request, res: Response<CustomFields>) => {
+  const currentKey = req.params.key;
+  const { colour, type, label } = req.body;
 
-    const newFields = await editCustomField(currentKey, { label, colour, type });
-    res.status(200).json(newFields);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
+  const newFields = await editCustomField(currentKey, { label, colour, type });
+  res.status(200).json(newFields);
 });
 
 /**
  * Deletes an existing custom field
  */
-router.delete('/:key', validateDeleteCustomField, async (req: Request, res: Response<CustomFields | ErrorResponse>) => {
-  try {
-    const customFields = await deleteCustomField(req.params.key);
-    res.status(200).json(customFields);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
+router.delete('/:key', validateDeleteCustomField, async (req: Request, res: Response<CustomFields>) => {
+  const customFields = await deleteCustomField(req.params.key);
+  res.status(200).json(customFields);
 });

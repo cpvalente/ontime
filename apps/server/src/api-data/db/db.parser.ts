@@ -2,6 +2,7 @@ import { DatabaseModel, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { portManager } from '../../classes/port-manager/PortManager.js';
+import { makeProjectId } from '../../models/dataModel.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import * as logger from '../logs/logs.service.js';
@@ -75,6 +76,7 @@ export function parseDatabaseModel(
   const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
 
   const data: DatabaseModel = {
+    projectId: migratedData.projectId || makeProjectId(),
     rundowns,
     project: parseProjectData(migratedData, makeEmitError('Project')),
     settings,

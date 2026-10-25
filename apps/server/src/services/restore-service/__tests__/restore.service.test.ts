@@ -11,15 +11,23 @@ vi.mock('../../../api-data/logs/logs.service.js', () => ({
   error: vi.fn(),
 }));
 
+const loaded = vi.hoisted(() => ({ projectId: 'project' }));
+
+vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
+  getDataProvider: () => ({ getProjectId: () => loaded.projectId }),
+}));
+
 let restoreService: (typeof import('../restore.service.js'))['restoreService'];
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  loaded.projectId = 'project';
   vi.resetModules();
   ({ restoreService } = await import('../restore.service.js'));
 });
 
 const restorePoint: RestorePoint = {
+  projectId: 'project',
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
@@ -83,6 +91,27 @@ describe('restoreService', () => {
     expect(write).toHaveBeenNthCalledWith(2, { ...updatedPoint, savedAt: expect.any(Number) });
   });
 
+  it('saves the point with the loaded project', async () => {
+    const { projectId: _projectId, savedAt: _savedAt, ...data } = restorePoint;
+    const write = vi.fn().mockResolvedValue(undefined);
+
+    await restoreService.save(data, write);
+
+    expect(write).toHaveBeenCalledWith({ ...data, projectId: 'project', savedAt: expect.any(Number) });
+  });
+
+  it('saves the same playback again after another project loads', async () => {
+    const { projectId: _projectId, savedAt: _savedAt, ...data } = restorePoint;
+    const write = vi.fn().mockResolvedValue(undefined);
+
+    await restoreService.save(data, write);
+    loaded.projectId = 'another-project';
+    await restoreService.save(data, write);
+
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenLastCalledWith(expect.objectContaining({ projectId: 'another-project' }));
+  });
+
   it('does not throw when saving fails', async () => {
     const point = { ...restorePoint, selectedEventId: 'failed-save' };
     const write = vi.fn().mockRejectedValue(new Error('Write failed'));
@@ -100,6 +129,19 @@ describe('restoreService', () => {
 
     expect(logger.warning).toHaveBeenCalledTimes(1);
     expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore saving stopped', { error: 'Write failed' });
+  });
+
+  it('keeps a recovery point for the project it was saved in', () => {
+    expect(restoreService.forProject(restorePoint, 'project')).toBe(restorePoint);
+    expect(restoreService.forProject(null, 'project')).toBeNull();
+  });
+
+  it('skips a recovery point saved in another project', () => {
+    expect(restoreService.forProject(restorePoint, 'another-project')).toBeNull();
+    expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore skipped', {
+      reason: 'other-project',
+      projectId: 'project',
+    });
   });
 
   it('clears the recovery file and tolerates a failed clear', async () => {

@@ -1,22 +1,22 @@
-import type { Response } from 'express';
-import type { ErrorResponse } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import { ConflictError, InvalidInputError, NotFoundError } from '../../middleware/errors.js';
 
-export class CustomViewError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number,
-  ) {
-    super(message);
-    this.name = 'CustomViewError';
+export class CustomViewNameError extends InvalidInputError {
+  constructor() {
+    super('Invalid name. Use lowercase letters, numbers, and dashes only.');
   }
 }
 
-export function handleCustomViewsError(error: unknown, res: Response<ErrorResponse>) {
-  if (error instanceof CustomViewError) {
-    res.status(error.statusCode).send({ message: error.message });
-    return;
-  }
+/** The uploaded file is not a self-contained index.html */
+export class CustomViewFileError extends InvalidInputError {}
 
-  res.status(500).send({ message: getErrorMessage(error) });
+export class CustomViewExistsError extends ConflictError {
+  constructor(slug: string, options?: ErrorOptions) {
+    super(`Name "${slug}" already exists`, options);
+  }
+}
+
+export class CustomViewNotFoundError extends NotFoundError {
+  constructor(slug: string) {
+    super(`Custom view "${slug}" not found`);
+  }
 }

@@ -25,6 +25,9 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
 - Whether the previous session ended cleanly is answered only by the app state service (`startSession`); only a crash or a power loss is unclean, a container stop is not. Do not infer it from logs or other files.
+- A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. Restore points name it and are resumed only in that project.
+- Report every committed write through `notifyChange()` (`services/change-service`), never `sendRefetch()` directly. It sends each refetch once at the end of the event loop, after the caller has replied. Routers never write to `DataProvider`.
+- Writers report changes and never call their consumers. Consumers that must stay in step with the data listen with `onChange()` and run in the same call as the write: the runtime reconciles on every change to the loaded rundown, reading it itself, and owns the stop/hot-reload decision.
 
 ## Timers
 
@@ -43,6 +46,13 @@ When relevant, cover interactions among:
 - loaded/next-event state.
 
 Pass time/state explicitly to keep rules deterministic and unit-testable.
+
+Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
+
+## Lifecycle events
+
+- Playback cycles (load, start, finish, phases, pause, stop) reach reports and automations once each, in the order they happened, after the runtime has committed its state. They are never merged, unlike data changes.
+- Each cycle carries the state it concerns, eg: a finish carries the event which finished; the event a load or stop replaces travels as `unloaded`.
 
 ## Reports
 

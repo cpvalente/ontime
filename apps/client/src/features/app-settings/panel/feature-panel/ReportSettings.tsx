@@ -36,7 +36,7 @@ export default function ReportSettings() {
     <Panel.Section>
       <Panel.Card>
         <Panel.SubHeader>
-          Report
+          Runtime report
           <Panel.InlineElements>
             <Button onClick={downloadCSV} disabled={!hasReport}>
               <IoDownloadOutline />

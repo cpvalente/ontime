@@ -325,6 +325,53 @@ describe('parseRundown()', () => {
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
   });
+
+  it('keeps each entry in one place only', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['1', 'group', '2', 'other'],
+      flatOrder: [],
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['1', '2', '3'] }),
+        other: makeOntimeGroup({ id: 'other', entries: ['3', 'group'] }),
+        '1': makeOntimeEvent({ id: '1', parent: 'group' }),
+        '2': makeOntimeEvent({ id: '2', parent: 'other' }),
+        '3': makeOntimeEvent({ id: '3' }),
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.order).toStrictEqual(['1', 'group', 'other']);
+    expect(parsedRundown.flatOrder).toStrictEqual(['1', 'group', '2', '3', 'other']);
+    expect(parsedRundown.entries).toMatchObject({
+      '1': { parent: null },
+      group: { entries: ['2', '3'] },
+      '2': { parent: 'group' },
+      '3': { parent: 'group' },
+      other: { entries: [] },
+    });
+  });
+
+  it('drops group references to entries which were not parsed', () => {
+    const rundown = {
+      id: 'test',
+      title: '',
+      order: ['group'],
+      flatOrder: [],
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['1', 'nested'] }),
+        '1': makeOntimeEvent({ id: '1' }),
+        nested: makeOntimeGroup({ id: 'nested' }),
+      },
+      revision: 1,
+    } as Rundown;
+
+    const parsedRundown = parseRundown(rundown, {});
+    expect(parsedRundown.entries.group).toMatchObject({ entries: ['1'] });
+    expect(parsedRundown.entries).not.toHaveProperty('nested');
+  });
 });
 
 describe('sanitiseCustomFields()', () => {

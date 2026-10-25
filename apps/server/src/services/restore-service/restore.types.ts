@@ -1,6 +1,7 @@
 import { Instant, Maybe, MaybeNumber, MaybeString, OffsetMode, Playback } from 'ontime-types';
 
 export type RestorePoint = {
+  projectId: string;
   rundownId: string;
   playback: Playback;
   selectedEventId: MaybeString;

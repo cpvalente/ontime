@@ -5,6 +5,7 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
+import Tag from '../../../../common/components/tag/Tag';
 import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
@@ -70,6 +71,7 @@ export default function ServerPortSettings() {
         <Panel.SubHeader>
           Server port
           <Panel.InlineElements>
+            <Tag>Ontime server</Tag>
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>

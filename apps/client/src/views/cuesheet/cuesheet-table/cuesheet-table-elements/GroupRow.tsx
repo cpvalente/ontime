@@ -1,42 +1,43 @@
 import { FlexRender } from '@tanstack/react-table';
-import { EntryId, SupportedEntry } from 'ontime-types';
+import { OntimeGroup, SupportedEntry } from 'ontime-types';
 import { CSSProperties, memo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
 
 import IconButton from '../../../../common/components/buttons/IconButton';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
-import type { CuesheetTable } from '../cuesheetTable.features';
+import type { CuesheetColumn, CuesheetTable, CuesheetTableMeta } from '../cuesheetTable.features';
 
 import style from './GroupRow.module.scss';
 
 interface GroupRowProps {
-  groupId: EntryId;
-  colour: string;
+  entry: OntimeGroup;
   rowId: string;
   rowIndex: number;
   table: CuesheetTable;
+  options: CuesheetTableMeta['options'];
+  visibleColumns: CuesheetColumn[];
   injectedStyles?: CSSProperties;
   hasCursor?: boolean;
 }
 
 export default memo(GroupRow);
 function GroupRow({
-  groupId,
-  colour,
+  entry,
   rowId,
   rowIndex,
   table,
+  options,
+  visibleColumns,
   injectedStyles,
   hasCursor,
   ...virtuosoProps
 }: GroupRowProps) {
-  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
-    cuesheetMode: AppMode.Edit,
-    hideIndexColumn: false,
-  };
+  const { id: groupId, colour } = entry;
+  const { cuesheetMode, hideIndexColumn } = options;
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
+  const cells = table.getRow(rowId).getAllCellsByColumnId();
 
   return (
     <tr
@@ -63,23 +64,21 @@ function GroupRow({
         </td>
       )}
       {!hideIndexColumn && <td className={style.indexColumn} tabIndex={-1} role='cell' />}
-      {table
-        .getRow(rowId)
-        .getVisibleCells()
-        .map((cell) => {
-          return (
-            <td
-              key={cell.id}
-              tabIndex={-1}
-              style={{
-                width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
-              }}
-              role='cell'
-            >
-              <FlexRender cell={cell} />
-            </td>
-          );
-        })}
+      {visibleColumns.map((column) => {
+        const cell = cells[column.id];
+        return (
+          <td
+            key={cell.id}
+            tabIndex={-1}
+            style={{
+              width: `calc(var(--col-${column.id}-size) * 1px)`,
+            }}
+            role='cell'
+          >
+            <FlexRender cell={cell} />
+          </td>
+        );
+      })}
     </tr>
   );
 }

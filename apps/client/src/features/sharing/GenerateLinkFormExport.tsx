@@ -4,6 +4,8 @@ import { useMemo } from 'react';
 import useInfo from '../../common/hooks-query/useInfo';
 import useUrlPresets from '../../common/hooks-query/useUrlPresets';
 import { hostToBaseUrl } from '../../common/utils/linkUtils';
+import { serverURL } from '../../externals';
+import { navigatorConstants, viewLabels } from '../../viewerConfig';
 import GenerateLinkForm from './GenerateLinkForm';
 
 interface GenerateLinkFormExportProps {
@@ -14,17 +16,16 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
   const { data: infoData } = useInfo();
   const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
 
-  /**
-   * hostOptions are only used for local networks
-   * the NIF address is a local IP address: 192.168.x.x or 10.x.x.x
-   * We need to inject the port and protocol to create a valid URL
-   * eg: http://192.168.x.x:port
-   */
+  // Keep the working server address available alongside explicitly selectable network interfaces.
   const hostOptions = useMemo(() => {
-    return infoData.networkInterfaces.map((nif) => ({
+    const interfaces = infoData.networkInterfaces.map((nif) => ({
       value: hostToBaseUrl(nif.address, infoData.serverPort),
       label: `${nif.name} - ${nif.address}`,
     }));
+    return [
+      { value: serverURL, label: `Current address (${new URL(serverURL).host})` },
+      ...interfaces.filter((option) => option.value !== serverURL),
+    ];
   }, [infoData.networkInterfaces, infoData.serverPort]);
 
   const pathOptions = useMemo(() => {
@@ -32,9 +33,9 @@ export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormE
       return [{ value: lockedPath.value, label: lockedPath.label }];
     }
     return [
-      { value: OntimeView.Timer, label: 'Timer' },
-      { value: OntimeView.Cuesheet, label: 'Cuesheet' },
-      { value: OntimeView.Operator, label: 'Operator' },
+      ...navigatorConstants.map((view) => ({ value: view.url, label: view.label })),
+      { value: OntimeView.Cuesheet, label: viewLabels[OntimeView.Cuesheet] },
+      { value: OntimeView.Operator, label: viewLabels[OntimeView.Operator] },
       { value: '<<companion>>', label: 'Companion' },
       ...urlPresetData.map((preset) => ({
         value: `preset-${preset.alias}`,

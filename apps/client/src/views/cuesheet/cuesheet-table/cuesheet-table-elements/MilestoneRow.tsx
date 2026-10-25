@@ -1,5 +1,5 @@
 import { FlexRender } from '@tanstack/react-table';
-import { EntryId, SupportedEntry } from 'ontime-types';
+import { OntimeMilestone, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
@@ -8,41 +8,39 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, enDash, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
-import type { CuesheetTable } from '../cuesheetTable.features';
+import type { CuesheetColumn, CuesheetTable, CuesheetTableMeta } from '../cuesheetTable.features';
 
 import style from './MilestoneRow.module.scss';
 
 interface MilestoneRowProps {
-  entryId: EntryId;
+  entry: OntimeMilestone;
   isPast: boolean;
   parentBgColour?: string;
-  parentId: EntryId | null;
-  colour: string;
   rowId: string;
   rowIndex: number;
   table: CuesheetTable;
+  options: CuesheetTableMeta['options'];
+  visibleColumns: CuesheetColumn[];
   injectedStyles?: CSSProperties;
   hasCursor?: boolean;
 }
 
 export default memo(MilestoneRow);
 function MilestoneRow({
-  entryId,
+  entry,
   isPast,
   parentBgColour,
-  parentId,
-  colour,
   rowId,
   rowIndex,
-  hasCursor,
   table,
+  options,
+  visibleColumns,
   injectedStyles,
+  hasCursor,
   ...virtuosoProps
 }: MilestoneRowProps) {
-  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
-    cuesheetMode: AppMode.Edit,
-    hideIndexColumn: false,
-  };
+  const { id: entryId, parent: parentId, colour } = entry;
+  const { cuesheetMode, hideIndexColumn } = options;
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
@@ -52,6 +50,8 @@ function MilestoneRow({
     if (accessibleBg === null) return undefined;
     return colourToHex({ ...accessibleBg, alpha: accessibleBg.alpha * 0.25 });
   }, [colour]);
+
+  const cells = table.getRow(rowId).getAllCellsByColumnId();
 
   return (
     <tr
@@ -86,26 +86,23 @@ function MilestoneRow({
           {enDash}
         </td>
       )}
-      {table
-        .getRow(rowId)
-        .getVisibleCells()
-        .map((cell) => {
-          const canRender =
-            cell.column.id !== 'duration' && cell.column.id !== 'timeStart' && cell.column.id !== 'timeEnd';
-          return (
-            <td
-              key={cell.id}
-              style={{
-                width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
-                backgroundColor: rowBgColour,
-                opacity: canRender ? 1 : 0.4,
-              }}
-              tabIndex={-1}
-            >
-              {canRender && <FlexRender cell={cell} />}
-            </td>
-          );
-        })}
+      {visibleColumns.map((column) => {
+        const cell = cells[column.id];
+        const canRender = column.id !== 'duration' && column.id !== 'timeStart' && column.id !== 'timeEnd';
+        return (
+          <td
+            key={cell.id}
+            style={{
+              width: `calc(var(--col-${column.id}-size) * 1px)`,
+              backgroundColor: rowBgColour,
+              opacity: canRender ? 1 : 0.4,
+            }}
+            tabIndex={-1}
+          >
+            {canRender && <FlexRender cell={cell} />}
+          </td>
+        );
+      })}
     </tr>
   );
 }

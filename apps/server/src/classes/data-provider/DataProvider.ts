@@ -62,6 +62,7 @@ export function getDataProvider() {
     getData,
     setProjectData,
     getProjectData,
+    getProjectId,
     setCustomFields,
     getCustomFields,
     setRundown,
@@ -93,6 +94,10 @@ async function setProjectData(newData: Partial<ProjectData>): ReadonlyPromise<Pr
 
 function getProjectData(): Readonly<ProjectData> {
   return db.data.project;
+}
+
+function getProjectId(): string {
+  return db.data.projectId;
 }
 
 async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {

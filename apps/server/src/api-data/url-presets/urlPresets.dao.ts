@@ -1,0 +1,58 @@
+import { RefetchKey, type URLPreset } from 'ontime-types';
+
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
+import { UrlPresetAliasChangeError, UrlPresetExistsError, UrlPresetNotFoundError } from './urlPresets.errors.js';
+
+/**
+ * Gets the stored URL presets
+ */
+export function getUrlPresets(): Readonly<URLPreset[]> {
+  return getDataProvider().getUrlPresets();
+}
+
+/**
+ * Adds a new URL preset
+ * @throws if a preset with the same alias exists
+ */
+export async function addUrlPreset(newPreset: URLPreset): Promise<URLPreset[]> {
+  const currentPresets = getDataProvider().getUrlPresets();
+  if (currentPresets.some((preset) => preset.alias === newPreset.alias)) {
+    throw new UrlPresetExistsError(newPreset.alias);
+  }
+
+  return saveChanges([...currentPresets, newPreset]);
+}
+
+/**
+ * Replaces an existing URL preset, keeping its options if none are given
+ * @throws if the preset does not exist or its alias would change
+ */
+export async function editUrlPreset(alias: string, newPreset: URLPreset): Promise<URLPreset[]> {
+  const currentPresets = getDataProvider().getUrlPresets();
+  const existingPreset = currentPresets.find((preset) => preset.alias === alias);
+  if (!existingPreset) {
+    throw new UrlPresetNotFoundError(alias);
+  }
+
+  if (alias !== newPreset.alias) {
+    throw new UrlPresetAliasChangeError();
+  }
+
+  const updatedPreset: URLPreset = { ...newPreset, options: newPreset.options ?? existingPreset.options };
+  return saveChanges(currentPresets.map((preset) => (preset.alias === alias ? updatedPreset : preset)));
+}
+
+/**
+ * Deletes a URL preset, if it exists
+ */
+export async function deleteUrlPreset(alias: string): Promise<URLPreset[]> {
+  const currentPresets = getDataProvider().getUrlPresets();
+  return saveChanges(currentPresets.filter((preset) => preset.alias !== alias));
+}
+
+async function saveChanges(newPresets: URLPreset[]): Promise<URLPreset[]> {
+  await getDataProvider().setUrlPresets(newPresets);
+  notifyChange(RefetchKey.UrlPresets);
+  return newPresets;
+}

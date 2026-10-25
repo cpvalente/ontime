@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "4.14.1",
+  "version": "4.15.0",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -14,7 +14,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@fontsource/open-sans": "^5.2.7",
     "@mantine/hooks": "^9.5.1",
-    "@sentry/react": "^10.59.0",
+    "@sentry/react": "^10.76.2",
     "@table-nav/react": "^0.0.7",
     "@tanstack/react-query": "^5.101.0",
     "@tanstack/react-query-devtools": "^5.101.0",
@@ -66,16 +66,16 @@
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-legacy": "^8.0.1",
-    "@vitejs/plugin-react": "5.2.0",
-    "babel-plugin-react-compiler": "1.0.0",
-    "happy-dom": "^20.9.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "happy-dom": "21.0.3",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
-    "sass": "^1.57.1",
+    "oxc-transform-react": "^0.155.0",
+    "sass": "1.105.2",
     "typescript": "catalog:",
-    "vite": "8.2.1",
+    "vite": "8.3.4",
     "vite-plugin-compression2": "2.5.3",
-    "vite-plugin-svgr": "4.5.0",
+    "vite-plugin-svgr": "5.2.0",
     "vitest": "catalog:"
   }
 }

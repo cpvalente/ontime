@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { sanitiseAuxTimerNames } from 'ontime-utils';
+import { regex, sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 
@@ -11,7 +11,11 @@ export const validateWelcomeDialog = [body('show').isBoolean(), requestValidatio
 const pinValidator = (key: string) => {
   return body(key)
     .optional()
+    .custom((input) => input === null || typeof input === 'string')
+    .withMessage(`${key} must be a string or null`)
     .isLength({ min: 0, max: 4 })
+    .matches(regex.isAlphanumericOrEmpty)
+    .withMessage(`${key} can only contain alphanumeric characters`)
     .customSanitizer((input) => {
       if (input === null || input.length === 0) {
         return null;

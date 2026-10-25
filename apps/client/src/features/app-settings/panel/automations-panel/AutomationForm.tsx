@@ -1,5 +1,5 @@
 import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
@@ -28,7 +28,6 @@ import style from './AutomationForm.module.scss';
 
 const integrationsDocsUrl = 'https://docs.getontime.no/api/automation/#using-variables-in-automation';
 const formId = 'automation-form';
-const testFeedbackDuration = 2000;
 
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
@@ -40,9 +39,8 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
   const { data } = useCustomFields();
   const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(data), [data]);
-  const [testResults, setTestResults] = useState<Record<string, TestState>>({});
+  const [testResults, setTestResults] = useState<Record<string, { state: TestState; input: string }>>({});
   const [submitError, setSubmitError] = useState<string>();
-  const feedbackTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const {
     control,
@@ -89,26 +87,6 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     setFocus('title');
   }, [setFocus]);
 
-  // Clear delayed output-test feedback when the modal unmounts.
-  useEffect(() => {
-    const timers = feedbackTimers.current;
-    return () => Object.values(timers).forEach(clearTimeout);
-  }, []);
-
-  const reportTest = (key: string, state: TestState) => {
-    setTestResults((prev) => ({ ...prev, [key]: state }));
-    clearTimeout(feedbackTimers.current[key]);
-
-    if (state.status === 'ok') {
-      feedbackTimers.current[key] = setTimeout(() => {
-        setTestResults((prev) => {
-          const { [key]: _discarded, ...rest } = prev;
-          return rest;
-        });
-      }, testFeedbackDuration);
-    }
-  };
-
   const getOutputErrors = (index: number) => errors.outputs?.[index] as OutputErrors | undefined;
 
   const handleAddNewFilter = () => {
@@ -130,22 +108,26 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
 
   const handleTest = async (index: number, key: string) => {
     const values = getValues(`outputs.${index}`);
+    const input = JSON.stringify(values);
+    const reportTest = (state: TestState) => {
+      setTestResults((prev) => ({ ...prev, [key]: { state, input } }));
+    };
 
     if (isOSCOutput(values) && (!values.targetIP || !values.targetPort || !values.address)) {
-      reportTest(key, { status: 'error', message: 'Fill in the target and address before testing' });
+      reportTest({ status: 'error', message: 'Fill in the target and address before testing' });
       return;
     }
     if (isHTTPOutput(values) && !values.url) {
-      reportTest(key, { status: 'error', message: 'Add a target URL before testing' });
+      reportTest({ status: 'error', message: 'Add a target URL before testing' });
       return;
     }
 
-    reportTest(key, { status: 'sending' });
+    reportTest({ status: 'sending' });
     try {
       await testOutput(values);
-      reportTest(key, { status: 'ok', message: 'Request sent' });
+      reportTest({ status: 'ok', message: 'Request sent' });
     } catch (error) {
-      reportTest(key, { status: 'error', message: maybeAxiosError(error) });
+      reportTest({ status: 'error', message: maybeAxiosError(error) });
     }
   };
 
@@ -344,8 +326,13 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
               />
             )}
             {fieldOutputs.map((output, index) => {
+              const testResult = testResults[output.id];
               const cardProps = {
-                testState: testResults[output.id],
+                testState:
+                  testResult?.state.status === 'sending' ||
+                  testResult?.input === JSON.stringify(watch(`outputs.${index}`))
+                    ? testResult.state
+                    : undefined,
                 onTest: () => handleTest(index, output.id),
                 onDelete: () => removeOutput(index),
               };

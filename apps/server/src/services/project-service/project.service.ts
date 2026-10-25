@@ -4,7 +4,6 @@ import { join } from 'path';
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
-import { sendRefetch } from '../../adapters/WebsocketAdapter.js';
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import * as logger from '../../api-data/logs/logs.service.js';
@@ -13,7 +12,7 @@ import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
-import { makeNewProject } from '../../models/dataModel.js';
+import { makeNewProject, makeProjectId } from '../../models/dataModel.js';
 import { demoDb } from '../../models/demoProject.js';
 import { config } from '../../setup/config.js';
 import { publicDir } from '../../setup/index.js';
@@ -27,12 +26,15 @@ import {
   generateUniqueFileName,
   getFileNameFromPath,
   removeFileExtension,
+  writeToFile,
 } from '../../utils/fileManagement.js';
 import { getLastLoaded, isLastLoadedProject, setLastLoaded } from '../app-state-service/appState.service.js';
 import { auxTimerService } from '../aux-timer-service/auxTimer.service.js';
+import { notifyChange } from '../change-service/change.service.js';
 import { runtimeService } from '../runtime-service/runtime.service.js';
 import {
   doesProjectExist,
+  duplicateLogo,
   getPathToProject,
   getProjectFiles,
   moveCorruptFile,
@@ -116,7 +118,7 @@ async function loadProject(projectData: DatabaseModel, fileName: string, rundown
  */
 export async function loadDemoProject(): Promise<string> {
   populateOntimeLogo();
-  return createProject(config.demoProject, demoDb);
+  return createProject(config.demoProject, { ...demoDb, projectId: makeProjectId() });
 }
 
 /**
@@ -263,6 +265,7 @@ export async function getProjectFileToRead(filename: string): Promise<string | n
 
 /**
  * Duplicates an existing project file
+ * The duplicate gets its own copy of the logo, so changing the logo in one project does not delete the other's
  */
 export async function duplicateProjectFile(originalFile: string, newFilename: string) {
   const projectFilePath = await getProjectFileToRead(originalFile);
@@ -275,9 +278,14 @@ export async function duplicateProjectFile(originalFile: string, newFilename: st
     throw new Error(`Project file with name ${newFilename} already exists`);
   }
 
+  const projectFile = await parseJsonFile(projectFilePath);
+  if (projectFile.project?.logo) {
+    projectFile.project.logo = await duplicateLogo(projectFile.project.logo);
+  }
+  projectFile.projectId = makeProjectId();
+
   const pathToDuplicate = getPathToProject(newFilename);
-  await copyFile(projectFilePath, pathToDuplicate);
-  return;
+  await writeToFile(pathToDuplicate, JSON.stringify(projectFile, null, 2));
 }
 
 /**
@@ -364,10 +372,8 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
     await getDataProvider().mergeIntoData(patchedSections);
   }
 
-  // unlike loadProject, patching does not reload the rundown, so nothing else notifies the clients
   if (rest.settings) {
     auxTimerService.loadNames(getDataProvider().getSettings().auxTimerNames);
-    sendRefetch(RefetchKey.Settings);
   }
 
   // the rundown depends on custom fields
@@ -395,6 +401,10 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
       await initRundown(updatedCurrentRundown, projectCustomFields, true);
     }
   }
+
+  // a patch can touch any section, including background rundowns which may now carry a lower revision
+  // unlike loadProject, patching does not reload the project, so we tell clients to refetch everything
+  notifyChange(RefetchKey.All);
 
   const updatedData = await getDataProvider().getData();
   return updatedData;

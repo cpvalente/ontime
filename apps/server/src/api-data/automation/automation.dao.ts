@@ -1,15 +1,23 @@
-import type {
-  Automation,
-  AutomationDTO,
-  AutomationSettings,
-  NormalisedAutomation,
-  ProjectRundowns,
-  Trigger,
-  TriggerDTO,
+import {
+  type Automation,
+  type AutomationDTO,
+  type AutomationSettings,
+  type NormalisedAutomation,
+  type ProjectRundowns,
+  RefetchKey,
+  type Trigger,
+  type TriggerDTO,
 } from 'ontime-types';
 import { deleteAtIndex, generateId } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
+import {
+  AutomationNotFoundError,
+  AutomationUsedByEventError,
+  AutomationUsedByTriggerError,
+  TriggerNotFoundError,
+} from './automation.errors.js';
 import { isAutomationUsed } from './automation.utils.js';
 
 /**
@@ -68,7 +76,7 @@ export async function editTrigger(id: string, newTrigger: TriggerDTO): Promise<T
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
   if (index === -1) {
-    throw new Error(`Automation with id ${id} not found`);
+    throw new TriggerNotFoundError(id);
   }
 
   triggers[index] = { ...triggers[index], ...newTrigger, id };
@@ -88,7 +96,7 @@ export async function deleteTrigger(id: string): Promise<void> {
   const index = triggers.findIndex((trigger) => trigger.id === id);
 
   if (index === -1) {
-    throw new Error(`Automation with id ${id} not found`);
+    throw new TriggerNotFoundError(id);
   }
 
   triggers = deleteAtIndex(index, triggers);
@@ -127,7 +135,7 @@ export async function addAutomation(newAutomation: AutomationDTO): Promise<Autom
 export async function editAutomation(id: string, newAutomation: AutomationDTO): Promise<Automation> {
   const automations = getAutomations();
   if (!Object.hasOwn(automations, id)) {
-    throw new Error(`Automation with id ${id} not found`);
+    throw new AutomationNotFoundError(id);
   }
 
   automations[id] = { ...newAutomation, id };
@@ -150,15 +158,13 @@ export async function deleteAutomation(projectRundowns: ProjectRundowns, automat
   if (triggers.length) {
     const firstTrigger = triggers[0];
     const triggerTitle = firstTrigger?.title ?? 'Unknown trigger';
-    throw new Error(
-      `Unable to delete automation used in trigger ${triggerTitle}${triggers.length > 1 ? ` and ${triggers.length - 1} more` : ''}`,
-    );
+    throw new AutomationUsedByTriggerError(triggerTitle, triggers.length - 1);
   }
 
   // prevent deleting a automation that is in use in events
   const isInUse = isAutomationUsed(projectRundowns, automationId);
   if (isInUse) {
-    throw new Error(`Unable to delete automation used in rundown: ${isInUse[0]}, in event with ID: ${isInUse[1]}`);
+    throw new AutomationUsedByEventError(isInUse[0], isInUse[1]);
   }
 
   delete automations[automationId];
@@ -179,6 +185,8 @@ async function saveChanges(patch: Partial<AutomationSettings>) {
     }
   });
   await getDataProvider().setAutomation({ ...automation, ...patch });
+
+  notifyChange(RefetchKey.Automation);
 }
 
 /**

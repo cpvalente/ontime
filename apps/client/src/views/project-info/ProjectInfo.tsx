@@ -1,10 +1,8 @@
-import { OntimeView } from 'ontime-types';
 import { type ReactNode, useState } from 'react';
 import { IoOpenOutline } from 'react-icons/io5';
 
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
-import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
@@ -39,19 +37,13 @@ function ProjectInfo({ projectData, isMirrored }: ProjectInfoData) {
     !projectData ||
     Object.values(projectData).every((value) => !value || (value && Array.isArray(value) && value.length === 0));
   if (isEmpty) {
-    return (
-      <>
-        <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
-        <EmptyPage text={getLocalizedString('common.no_data')} />
-      </>
-    );
+    return <EmptyPage text={getLocalizedString('common.no_data')} />;
   }
 
   const hasHeader = Boolean(projectData.logo || projectData.title || projectData.description);
 
   return (
     <div className={`project ${isMirrored ? 'mirror' : ''}`} data-testid='project-view'>
-      <ViewParamsEditor target={OntimeView.ProjectInfo} viewOptions={[]} />
       {hasHeader && (
         <div className='project-header'>
           {projectData.logo && <ViewLogo name={projectData.logo} className='logo' />}

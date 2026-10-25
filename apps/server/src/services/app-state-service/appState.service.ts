@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto';
+
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
 
@@ -12,6 +14,8 @@ interface AppState {
   serverPort?: number;
   /** false while a session runs, until it shuts down cleanly */
   sessionEndedCleanly?: boolean;
+  /** identifies this server, kept across restarts */
+  nodeId?: string;
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
@@ -56,12 +60,14 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
 
 /**
  * Marks this session as running, and tells whether the previous one ended cleanly
+ * Creates the node id on the first start
  * A session which crashed or lost power never ends cleanly
  */
 export async function startSession(): Promise<boolean> {
   await config.read();
   const previousEndedCleanly = config.data.sessionEndedCleanly ?? true;
   config.data.sessionEndedCleanly = false;
+  config.data.nodeId ??= randomUUID();
   await config.write();
   return previousEndedCleanly;
 }
@@ -82,4 +88,15 @@ export async function getServerPort(): Promise<number | undefined> {
 export async function setServerPort(port: number): Promise<void> {
   config.data.serverPort = port;
   await config.write();
+}
+
+/**
+ * Identifies this server, startSession creates it once and it is kept across restarts
+ * A copied data folder carries it, so two servers may share one
+ */
+export function getNodeId(): string {
+  // eslint-disable-next-line no-unused-labels -- dev code path
+  DEV: shouldCrashDev(!config.data.nodeId, 'getNodeId should be called after startSession');
+
+  return config.data.nodeId ?? '';
 }

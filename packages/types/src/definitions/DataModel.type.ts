@@ -7,6 +7,11 @@ import type { URLPreset } from './core/UrlPreset.type.js';
 import type { ViewSettings } from './core/Views.type.js';
 
 export type DatabaseModel = {
+  /**
+   * Stays with the project file, a copy made in the app gets its own
+   * Copies made outside the app keep it, an older 4.x drops it when it saves the file
+   */
+  projectId: string;
   rundowns: ProjectRundowns;
   project: ProjectData;
   settings: Settings;

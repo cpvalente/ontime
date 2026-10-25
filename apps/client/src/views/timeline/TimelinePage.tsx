@@ -39,7 +39,7 @@ export default function TimelinePageLoader() {
 
 function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
   const selectedEventId = useSelectedEventId();
-  const { mainSource, timeformat } = useTimelineOptions();
+  const { mainSource, secondarySource, timeformat } = useTimelineOptions();
   const { getLocalizedString } = useTranslation();
 
   // holds copy of the rundown with only relevant events
@@ -67,7 +67,13 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
         <TimelineClock timeformat={timeformat} />
       </div>
 
-      <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
+      <TimelineSections
+        now={now}
+        next={next}
+        followedBy={followedBy}
+        mainSource={mainSource}
+        secondarySource={secondarySource}
+      />
 
       {hasContent ? (
         <Timeline

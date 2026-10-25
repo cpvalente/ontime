@@ -18,7 +18,7 @@ test('imports spreadsheet and applies imported rundown to editor', async ({ page
   await page.getByRole('button', { name: 'Toggle settings' }).click();
   await page.getByRole('button', { name: 'Project settings' }).click();
   await page.getByRole('button', { name: 'Import spreadsheet' }).first().click();
-  await expect(page.getByText('Synchronize your rundown with an external source')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import spreadsheet' })).toBeVisible();
 
   // upload the spreadsheet
   const fileChooserPromise = page.waitForEvent('filechooser');
