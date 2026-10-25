@@ -32,6 +32,11 @@
     color: var(--label-color-override, $viewer-label-color);
   }
 
+  .title-card {
+    // overwrite the title-card bg color so they don't stack as it is transparent
+    background-color: transparent;
+  }
+
   /* =================== HEADER + EXTRAS ===================*/
 
   .project-header {
