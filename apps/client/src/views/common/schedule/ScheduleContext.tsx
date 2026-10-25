@@ -56,63 +56,72 @@ export const ScheduleProvider = ({ children, selectedEventId }: PropsWithChildre
 
   const containerRef = useRef<HTMLUListElement>(null);
 
-  // After the view is rendered, we paginate by hiding elements that dont fit
+  // Keep pagination aligned with the schedule and row sizes as responsive fonts or content resize.
   useLayoutEffect(() => {
-    if (!containerRef.current) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const children = Array.from(containerRef.current.children) as HTMLElement[];
+    const children = Array.from(container.children) as HTMLElement[];
     if (children.length === 0) {
       return;
     }
 
-    const containerHeight = containerRef.current.clientHeight;
-    let currentPageHeight = 0; // used to check when we need to paginate
-    let currentPage = 1;
-    let numPages = 1;
-    let lastVisibleIndex = -1; // keep track of last index on screen
-    let isShowingElements = false;
+    const paginate = () => {
+      const containerHeight = container.clientHeight;
+      let currentPageHeight = 0; // used to check when we need to paginate
+      let currentPage = 1;
+      let numPages = 1;
+      let lastVisibleIndex = -1; // keep track of last index on screen
+      let isShowingElements = false;
 
-    for (let i = 0; i < children.length; i++) {
-      const currentElementHeight = children[i].clientHeight;
+      for (let i = 0; i < children.length; i++) {
+        const currentElementHeight = children[i].clientHeight;
 
-      // can we fit this element in the current page?
-      const isNextPage = currentPageHeight + currentElementHeight > containerHeight;
-      if (isNextPage) {
-        currentPageHeight = 0;
-        numPages += 1;
+        // can we fit this element in the current page?
+        const isNextPage = currentPageHeight + currentElementHeight > containerHeight;
+        if (isNextPage) {
+          currentPageHeight = 0;
+          numPages += 1;
+        }
+
+        // we hide elements that are before and after the first element to show
+        if (i < firstIndex) {
+          hideElement(children[i]);
+        } else if (lastVisibleIndex === -1) {
+          isShowingElements = true;
+          currentPage = numPages;
+        } else if (isNextPage) {
+          isShowingElements = false;
+        }
+
+        if (!isShowingElements) {
+          hideElement(children[i]);
+        } else {
+          lastVisibleIndex = i;
+          showElement(children[i], currentPageHeight);
+        }
+
+        currentPageHeight += currentElementHeight;
       }
 
-      // we hide elements that are before and after the first element to show
-      if (i < firstIndex) {
-        hideElement(children[i]);
-      } else if (lastVisibleIndex === -1) {
-        isShowingElements = true;
-        currentPage = numPages;
-      } else if (isNextPage) {
-        isShowingElements = false;
+      setVisiblePage(currentPage);
+      setNumPages(numPages);
+      lastIndex.current = lastVisibleIndex;
+
+      function showElement(element: HTMLElement, yPosition: number) {
+        element.style.top = `${yPosition}px`;
       }
 
-      if (!isShowingElements) {
-        hideElement(children[i]);
-      } else {
-        lastVisibleIndex = i;
-        showElement(children[i], currentPageHeight);
+      function hideElement(element: HTMLElement) {
+        element.style.top = `${-1000}px`;
       }
+    };
 
-      currentPageHeight += currentElementHeight;
-    }
-
-    setVisiblePage(currentPage);
-    setNumPages(numPages);
-    lastIndex.current = lastVisibleIndex;
-
-    function showElement(element: HTMLElement, yPosition: number) {
-      element.style.top = `${yPosition}px`;
-    }
-
-    function hideElement(element: HTMLElement) {
-      element.style.top = `${-1000}px`;
-    }
+    paginate();
+    const observer = new ResizeObserver(paginate);
+    observer.observe(container);
+    children.forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
     // we need to add the events to make sure the effect runs on first render
   }, [firstIndex, events]);
 
