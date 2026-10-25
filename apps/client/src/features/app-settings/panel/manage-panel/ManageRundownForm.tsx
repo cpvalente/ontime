@@ -1,3 +1,4 @@
+import { DEFAULT_RUNDOWN_TITLE, RUNDOWN_TITLE_MAX_LENGTH, validateRundownTitle } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -25,14 +26,15 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
     register,
     setFocus,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm<NewRundownFormState>({
     defaultValues: { title: '' },
+    mode: 'onChange',
   });
 
   const createRundown = async (values: NewRundownFormState) => {
     try {
-      await create(values.title || 'untitled');
+      await create(values.title || DEFAULT_RUNDOWN_TITLE);
       onClose();
     } catch (error) {
       setError('root', { message: `Failed to create rundown. ${error}` });
@@ -56,7 +58,19 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
         <form id={formId} onSubmit={handleSubmit(createRundown)}>
           <label>
             <Panel.Description>Rundown title</Panel.Description>
-            <Input {...register('title')} fluid placeholder='Your rundown name' maxLength={64} />
+            <Input
+              {...register('title', {
+                validate: (value) => {
+                  // an empty title is allowed and falls back to "untitled" when submitted
+                  if (value === '') return true;
+                  return validateRundownTitle(value) ?? true;
+                },
+              })}
+              fluid
+              placeholder='Your rundown name'
+              maxLength={RUNDOWN_TITLE_MAX_LENGTH}
+            />
+            {errors.title && <Panel.Error>{errors.title.message}</Panel.Error>}
           </label>
         </form>
       }
@@ -66,7 +80,7 @@ export function ManageRundownForm({ onClose }: ManageRundownForm) {
           <Button variant='ghosted' disabled={isSubmitting} onClick={onClose}>
             Cancel
           </Button>
-          <Button type='submit' form={formId} variant='primary' disabled={isSubmitting}>
+          <Button type='submit' form={formId} variant='primary' disabled={isSubmitting || !isValid}>
             Create rundown
           </Button>
         </>
