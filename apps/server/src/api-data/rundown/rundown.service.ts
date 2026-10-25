@@ -24,7 +24,7 @@ import {
   getErrorMessage,
   getInsertAfterId,
   resolveInsertParent,
-  RUNDOWN_TITLE_MAX_LENGTH,
+  validateRundownTitle,
 } from 'ontime-utils';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
@@ -42,10 +42,16 @@ import {
   rundownCache,
   rundownMutation,
 } from './rundown.dao.js';
-import { CustomFieldExistsError, CustomFieldNotFoundError, CustomFieldTypeChangeError } from './rundown.errors.js';
+import {
+  CustomFieldExistsError,
+  CustomFieldNotFoundError,
+  CustomFieldTypeChangeError,
+  InvalidRundownTitleError,
+} from './rundown.errors.js';
 import { parseRundown, sanitiseCustomFields } from './rundown.parser.js';
 import {
   cloneRundown,
+  getDuplicatedRundownTitle,
   generateEvent,
   getFirstInsertId,
   getIntegerAndFraction,
@@ -677,6 +683,10 @@ export async function replaceRundown(rundownId: string, incoming: Readonly<Rundo
 }
 
 export async function createNewRundown(title: string) {
+  const titleError = validateRundownTitle(title);
+  if (titleError) throw new InvalidRundownTitleError(titleError);
+  title = title.trim();
+
   const emptyRundown = makeNewRundown();
   emptyRundown.title = title;
   await getDataProvider().setRundown(emptyRundown.id, emptyRundown);
@@ -693,6 +703,10 @@ export async function createNewRundown(title: string) {
  * @throws if the provided id does not exist
  */
 export async function renameRundown(id: string, title: string) {
+  const titleError = validateRundownTitle(title);
+  if (titleError) throw new InvalidRundownTitleError(titleError);
+  title = title.trim();
+
   const { rundown, commit } = createTransaction({ rundownId: id, mutableRundown: true });
 
   if (rundown.title === title) {
@@ -719,7 +733,7 @@ export async function duplicateExistingRundown(id: string) {
 
   const duplicatedRundown: Rundown = cloneRundown(rundown);
   duplicatedRundown.id = generateId();
-  duplicatedRundown.title = `Copy of ${rundown.title}`.slice(0, RUNDOWN_TITLE_MAX_LENGTH);
+  duplicatedRundown.title = getDuplicatedRundownTitle(rundown.title);
   duplicatedRundown.revision = 0;
 
   await dataProvider.setRundown(duplicatedRundown.id, duplicatedRundown);

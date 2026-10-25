@@ -1,4 +1,4 @@
-import { RUNDOWN_TITLE_MAX_LENGTH, validateRundownTitle } from 'ontime-utils';
+import { validateRundownTitle } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -51,10 +51,9 @@ export default function RundownRenameForm({ onSubmit, onCancel, initialTitle }: 
         <Panel.Description>Rundown title</Panel.Description>
         <Input
           {...register('title', {
-            required: { value: true, message: 'Title is required' },
             validate: (value) => validateRundownTitle(value) ?? true,
           })}
-          maxLength={RUNDOWN_TITLE_MAX_LENGTH}
+          maxLength={64}
           fluid
         />
         {errors.title && <Panel.Error>{errors.title.message}</Panel.Error>}

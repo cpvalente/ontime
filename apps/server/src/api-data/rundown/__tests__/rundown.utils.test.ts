@@ -28,6 +28,7 @@ import {
   deleteById,
   doesInvalidateMetadata,
   getIntegerAndFraction,
+  getDuplicatedRundownTitle,
   hasChanges,
   makeDeepClone,
   mergeRundownPreservingFields,
@@ -788,5 +789,16 @@ describe('cloneEntryData()', () => {
     expect(() => cloneEntryData({ id: 'x', type: 'unknown' } as unknown as OntimeEvent)).toThrow(
       'Unsupported entry type for cloning',
     );
+  });
+});
+
+describe('getDuplicatedRundownTitle()', () => {
+  it.each([
+    ['Café 🎉', 'Copy of Café 🎉'],
+    ['a'.repeat(56), `Copy of ${'a'.repeat(56)}`],
+    ['a'.repeat(64), `Copy of ${'a'.repeat(56)}`],
+    [`a${'🎉'.repeat(31)}`, `Copy of a${'🎉'.repeat(27)}`],
+  ])('prefixes and bounds %s without splitting Unicode symbols', (title, expected) => {
+    expect(getDuplicatedRundownTitle(title)).toBe(expected);
   });
 });

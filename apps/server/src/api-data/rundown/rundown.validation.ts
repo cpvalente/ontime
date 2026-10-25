@@ -10,9 +10,6 @@ const rundownTitleValidator = body('title')
   .isString()
   .withMessage('No title provided')
   .bail()
-  .notEmpty()
-  .withMessage('No title provided')
-  .bail()
   .custom((value: string) => {
     const error = validateRundownTitle(value);
     if (error) {

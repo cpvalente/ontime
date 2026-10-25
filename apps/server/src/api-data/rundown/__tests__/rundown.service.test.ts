@@ -3,7 +3,8 @@ import { CustomFields, RefetchKey, Rundown } from 'ontime-types';
 import { sendRefetch } from '../../../adapters/WebsocketAdapter.js';
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../__mocks__/rundown.mocks.js';
 import { getCurrentRundown, rundownCache } from '../rundown.dao.js';
-import { applyImportToRundown, renameRundown, replaceRundown } from '../rundown.service.js';
+import { InvalidRundownTitleError } from '../rundown.errors.js';
+import { applyImportToRundown, createNewRundown, renameRundown, replaceRundown } from '../rundown.service.js';
 
 const storedRundowns: Record<string, Rundown> = {};
 const stopMock = vi.hoisted(() => vi.fn<() => void>());
@@ -58,6 +59,25 @@ describe('rundown.service', () => {
     rundownCache.init(loaded, {});
 
     vi.clearAllMocks();
+  });
+
+  it('rejects symbol-only titles on direct create and rename without changing stored rundowns', async () => {
+    const before = structuredClone(storedRundowns);
+
+    await expect(createNewRundown('-,.')).rejects.toThrow(InvalidRundownTitleError);
+    await expect(renameRundown('background', '🎉')).rejects.toThrow(InvalidRundownTitleError);
+    await flushSideEffects();
+
+    expect(storedRundowns).toStrictEqual(before);
+    expect(sendRefetch).not.toHaveBeenCalled();
+  });
+
+  it('accepts and trims Unicode titles on direct create and rename', async () => {
+    await createNewRundown('  東京 — ١٢٣ 🎉  ');
+    await renameRundown('background', '  Café 2026 🎉  ');
+
+    expect(Object.values(storedRundowns).some((rundown) => rundown.title === '東京 — ١٢٣ 🎉')).toBe(true);
+    expect(storedRundowns.background.title).toBe('Café 2026 🎉');
   });
 
   describe('renameRundown()', () => {

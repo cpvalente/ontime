@@ -499,6 +499,11 @@ export function cloneSimpleRundownEntry(entry: OntimeEntry, newId: EntryId): Ont
   throw new Error(`Unsupported entry type for cloning: ${entry}`);
 }
 
+export function getDuplicatedRundownTitle(title: string): string {
+  // Drop a trailing high surrogate if the length limit splits a Unicode symbol.
+  return `Copy of ${title}`.slice(0, 64).replace(/[\uD800-\uDBFF]$/u, '');
+}
+
 /**
  * Fast, shape-aware clone of a single entry, preserving its identity (id, revision, etc).
  * Drop-in replacement for `structuredClone(entry)`

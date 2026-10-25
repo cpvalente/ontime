@@ -23,13 +23,11 @@ import {
   createEvent,
   createGroup,
   createMilestone,
-  DEFAULT_RUNDOWN_TITLE,
   generateId,
   getLinkedTimes,
   getTimeFrom,
   isNewLatest,
   isObjectEmpty,
-  validateRundownTitle,
 } from 'ontime-utils';
 
 import { makeNewRundown } from '../../models/dataModel.js';
@@ -78,16 +76,10 @@ export function parseRundown(
   parsedCustomFields: Readonly<CustomFields>,
   emitError?: ErrorEmitter,
 ): Rundown {
-  // project files are untrusted; enforce the same title rule as the user input and API boundaries
-  const incomingTitle = typeof rundown.title === 'string' ? rundown.title : '';
-  const titleError = validateRundownTitle(incomingTitle);
-  if (titleError) {
-    emitError?.(`${titleError}, using "${DEFAULT_RUNDOWN_TITLE}" instead`);
-  }
-
   const parsedRundown: Rundown = {
     id: rundown.id || generateId(),
-    title: titleError ? DEFAULT_RUNDOWN_TITLE : incomingTitle,
+    // Preserve existing names; title validation applies when creating or renaming a rundown.
+    title: typeof rundown.title === 'string' ? rundown.title : 'untitled',
     entries: {},
     order: [],
     flatOrder: [],

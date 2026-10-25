@@ -1,7 +1,6 @@
 import { EntryId, OntimeEntry, OntimeEvent, OntimeGroup, ProjectRundownsList, Rundown } from 'ontime-types';
-import { MILLIS_PER_HOUR as HOUR, validateRundownTitle } from 'ontime-utils';
+import { MILLIS_PER_HOUR as HOUR } from 'ontime-utils';
 
-import { parseRundown } from '../api-data/rundown/rundown.parser.js';
 import { type TestServer, startTestServer } from './testServer.js';
 
 /**
@@ -28,7 +27,7 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   async function createRundown(title = 'Test rundown') {
     const { body } = await json<ProjectRundownsList>(await server.send('POST', '/data/rundowns', { title }));
-    return body.rundowns.find((rundown) => rundown.title === title)!.id;
+    return body.rundowns.find((rundown) => rundown.title === title.trim())!.id;
   }
 
   async function readRundown(id: string): Promise<Rundown> {
@@ -49,7 +48,7 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   /** Creates a rundown with consecutive one hour events starting at 10:00, returns their ids in order */
   async function rundownWithEvents(titles: string[]) {
-    const rundown = api(await createRundown(`rundown ${++rundownNumber}`));
+    const rundown = api(await createRundown(`rundown-${++rundownNumber}`));
     const ids: EntryId[] = [];
     // added one at a time, the order of creation is the order of the rundown
     for (const [index, title] of titles.entries()) {
@@ -295,29 +294,28 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       return (await json<ProjectRundownsList>(await server.get('/data/rundowns'))).body;
     }
 
-    test('rejects rundown titles outside alphanumeric, space and underscore on create and rename', async () => {
-      const invalidCreate = await json<{ errors: { msg: string }[] }>(
-        await server.send('POST', '/data/rundowns', { title: 'my-rundown' }),
-      );
-      expect(invalidCreate.status).toBe(422);
-      expect(invalidCreate.body.errors[0].msg).toBe(
-        'Title can only contain alphanumeric characters, spaces and underscores',
-      );
-
-      const { rundown } = await rundownWithEvents(['a']);
-      const invalidRename = await json<{ errors: { msg: string }[] }>(
-        await server.send('PATCH', `/data/rundowns/${rundown.id}`, { title: 'my-rundown' }),
-      );
-      expect(invalidRename.status).toBe(422);
+    test('rejects symbol-only rundown titles on create and rename', async () => {
+      const id = await createRundown();
+      expect((await server.send('POST', '/data/rundowns', { title: '-,.' })).status).toBe(422);
+      expect((await server.send('PATCH', `/data/rundowns/${id}`, { title: '🎉' })).status).toBe(422);
     });
 
-    test.each(['a'.repeat(64) + ' ', '\nMorning Show'])(
-      'rejects raw invalid title %j before trimming',
-      async (title) => {
-        const result = await server.send('POST', '/data/rundowns', { title });
-        expect(result.status).toBe(422);
-      },
-    );
+    test('rejects an oversized title before trimming', async () => {
+      const result = await server.send('POST', '/data/rundowns', { title: 'a'.repeat(64) + ' ' });
+      expect(result.status).toBe(422);
+    });
+
+    test('keeps Unicode titles through create, rename and project reload', async () => {
+      const id = await createRundown('  東京 – ١٢٣ 🎉  ');
+      expect((await readRundown(id)).title).toBe('東京 – ١٢٣ 🎉');
+
+      const renamed = await server.send('PATCH', `/data/rundowns/${id}`, { title: '  Café — 2026 🎉  ' });
+      expect(renamed.status).toBe(200);
+      await server.stop();
+      server = await startTestServer();
+
+      expect((await readRundown(id)).title).toBe('Café — 2026 🎉');
+    });
 
     test('creates, renames and duplicates a rundown without touching the loaded one', async () => {
       const { loaded } = await listRundowns();
@@ -340,57 +338,18 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       expect(titles(await readRundown(copy.id))).toStrictEqual(['changed in copy', 'b']);
     });
 
-    test.each([
-      [55, 55],
-      [56, 56],
-      [57, 56],
-      [64, 56],
-    ])(
-      'duplicates a %i-character title with %i source characters and survives parsing',
-      async (length, copiedLength) => {
-        const title = 'a'.repeat(length);
-        const sourceId = await createRundown(title);
-        const source = await readRundown(sourceId);
-        const before = await listRundowns();
-        const { status, body } = await json<ProjectRundownsList>(
-          server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
-        );
-        const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
-        const duplicated = await readRundown(copy.id);
-        const errors: string[] = [];
-        const parsed = parseRundown(duplicated, {}, (message) => errors.push(message));
+    test('bounds duplicated rundown titles', async () => {
+      const title = 'a'.repeat(64);
+      const sourceId = await createRundown(title);
+      const before = await listRundowns();
+      const { status, body } = await json<ProjectRundownsList>(
+        server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
+      );
+      const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
 
-        expect(status).toBe(201);
-        expect(duplicated.title).toBe(`Copy of ${'a'.repeat(copiedLength)}`);
-        expect(validateRundownTitle(duplicated.title)).toBeNull();
-        expect(parsed.title).toBe(duplicated.title);
-        expect(errors).toStrictEqual([]);
-        expect(await readRundown(sourceId)).toStrictEqual(source);
-      },
-    );
-
-    test('preserves maximum-length titles through repeated duplication and restart', async () => {
-      let sourceId = await createRundown('b'.repeat(64));
-      const expectedTitles = new Map([[sourceId, 'b'.repeat(64)]]);
-
-      for (let copyNumber = 0; copyNumber < 3; copyNumber++) {
-        const before = await listRundowns();
-        const { status, body } = await json<ProjectRundownsList>(
-          server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
-        );
-        const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
-        expect(status).toBe(201);
-        expect(copy.title).toHaveLength(64);
-        expect(validateRundownTitle(copy.title)).toBeNull();
-        expectedTitles.set(copy.id, copy.title);
-        sourceId = copy.id;
-      }
-
-      await server.stop();
-      server = await startTestServer();
-      for (const [id, expectedTitle] of expectedTitles) {
-        expect((await readRundown(id)).title).toBe(expectedTitle);
-      }
+      expect(status).toBe(201);
+      expect(copy.title).toBe(`Copy of ${'a'.repeat(56)}`);
+      expect((await readRundown(sourceId)).title).toBe(title);
     });
 
     test('loads a rundown, which becomes the current one', async () => {

@@ -17,3 +17,9 @@ export class CustomFieldTypeChangeError extends InvalidInputError {
     super('Change of field type is not allowed');
   }
 }
+
+export class InvalidRundownTitleError extends InvalidInputError {
+  constructor(message: string) {
+    super(message);
+  }
+}
