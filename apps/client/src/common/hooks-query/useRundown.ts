@@ -2,7 +2,7 @@ import { EntryId } from 'ontime-types';
 
 import { useRundownScope } from '../context/RundownScopeContext';
 import { useSelectedEventId } from '../hooks/useSocket';
-import { useFlatEntries, useFlatRundownMetadata, useRundownById, useRundownMetadata } from './useRundownById';
+import { useFlatEntries, useRundownById, useRundownMetadata } from './useRundownById';
 
 /**
  * Normalised rundown data for the rundown of the enclosing scope
@@ -31,9 +31,4 @@ export function useRundownWithMetadata() {
 export function useFlatRundown() {
   const { data, status } = useRundown();
   return { data: useFlatEntries(data), status };
-}
-
-export function useFlatRundownWithMetadata() {
-  const { data, status } = useRundown();
-  return { data: useFlatRundownMetadata(data, useScopedSelectedEventId()), status };
 }
