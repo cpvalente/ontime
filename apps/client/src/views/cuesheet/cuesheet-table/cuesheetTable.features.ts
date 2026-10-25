@@ -7,9 +7,8 @@ import {
   tableFeatures,
 } from '@tanstack/react-table';
 import type { CellContext, Column, ColumnDef, Header, HeaderGroup, Table } from '@tanstack/react-table';
-import type { TimeField } from 'ontime-types';
+import type { EntryId, OntimeEntry, TimeField } from 'ontime-types';
 
-import type { ExtendedEntry } from '../../../common/utils/rundownMetadata';
 import type { AppMode } from '../../../ontimeConfig';
 
 /**
@@ -22,7 +21,7 @@ import type { AppMode } from '../../../ontimeConfig';
  * - `options-cuesheetMode` run or edit mode
  */
 export interface CuesheetTableMeta {
-  handleUpdate: (rowIndex: number, accessor: string, payload: string, isCustom: boolean) => void;
+  handleUpdate: (entryId: EntryId, accessor: string, payload: string, isCustom: boolean) => void;
   handleUpdateTimer: (eventId: string, field: TimeField, payload: string) => void;
   options: {
     showDelayedTimes: boolean;
@@ -66,9 +65,9 @@ export const cuesheetTableFeatures = tableFeatures({
 export type CuesheetFeatures = typeof cuesheetTableFeatures;
 
 /** Convenience aliases so consumers do not need to repeat the feature generic */
-export type CuesheetColumnDef = ColumnDef<CuesheetFeatures, ExtendedEntry>;
-export type CuesheetTable = Table<CuesheetFeatures, ExtendedEntry>;
-export type CuesheetCellContext = CellContext<CuesheetFeatures, ExtendedEntry>;
-export type CuesheetHeaderGroup = HeaderGroup<CuesheetFeatures, ExtendedEntry>;
-export type CuesheetHeaderCell = Header<CuesheetFeatures, ExtendedEntry, unknown>;
-export type CuesheetColumn = Column<CuesheetFeatures, ExtendedEntry, unknown>;
+export type CuesheetColumnDef = ColumnDef<CuesheetFeatures, OntimeEntry>;
+export type CuesheetTable = Table<CuesheetFeatures, OntimeEntry>;
+export type CuesheetCellContext = CellContext<CuesheetFeatures, OntimeEntry>;
+export type CuesheetHeaderGroup = HeaderGroup<CuesheetFeatures, OntimeEntry>;
+export type CuesheetHeaderCell = Header<CuesheetFeatures, OntimeEntry, unknown>;
+export type CuesheetColumn = Column<CuesheetFeatures, OntimeEntry, unknown>;

@@ -102,7 +102,7 @@ Old layering exceptions are context, not precedent. Improve touched boundaries o
 
 Keep substantial rules out of JSX, effects, and handlers. Use tested, colocated pure utilities. TanStack Query owns server state; established Zustand/context owns local state. No parallel caches.
 
-Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown.
+Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown. Memoised rows must receive everything they render as props: the entry from the query cache, metadata as primitives, and table layout and options; they read handlers only when an event fires.
 
 Limit subscriptions with selectors. Keep effect dependencies stable. Clean up listeners, intervals, external resources.
 
