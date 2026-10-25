@@ -100,6 +100,13 @@ Old layering exceptions are context, not precedent. Improve touched boundaries o
 - `views`: route-level composition.
 - `common`: genuinely cross-feature code.
 
+### Display views
+
+- Existing global classes, element nesting and `--*-override` variables on display views (timer, backstage, countdown, studio, info) are a user contract. Rename or remove them only in a major, with a release note.
+- New stylable elements use BEM classes under the view's block. Avoid generic names such as `title` or `logo`.
+- A new `--*-override` variable is read in the view's styles as `var(--x-override, $default)`, with its default in `apps/client/src/theme/_viewerDefs.scss`, and listed with a comment in `apps/server/src/bundle/bundledCss.ts`.
+- Timeline and other complex views are not part of the contract beyond the shared variables.
+
 Keep substantial rules out of JSX, effects, and handlers. Use tested, colocated pure utilities. TanStack Query owns server state; established Zustand/context owns local state. No parallel caches.
 
 Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown. Memoised rows must receive everything they render as props: the entry from the query cache, metadata as primitives, and table layout and options; they read handlers only when an event fires.

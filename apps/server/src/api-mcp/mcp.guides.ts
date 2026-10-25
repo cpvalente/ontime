@@ -1,9 +1,12 @@
+import { defaultCss } from '../bundle/bundledCss.js';
+import { defaultDemoHtml } from '../bundle/bundledDemoHtml.js';
+
 /**
  * Agent-facing Ontime guidance documents.
  *
- * These markdown resources teach agents rundown craft (ontime://style-guide)
- * and Ontime's view ecosystem (ontime://views). Guidance should be concise and
- * clear — verbosity distracts agents and users alike. Keep each document short.
+ * These markdown resources teach agents rundown craft (ontime://style-guide),
+ * Ontime's view ecosystem (ontime://views) and how to customise views (ontime://views/customise).
+ * Guidance should be concise and clear — verbosity distracts agents and users alike. Keep each document short.
  */
 
 // The palette mirrors the editor colour picker swatches in
@@ -98,6 +101,52 @@ Docs: https://docs.getontime.no/features/url-presets/
 
 ## Custom views
 
-For branding or layouts beyond the built-in options: files in Ontime's \`external\` folder are served at \`/external/…\` and can use Ontime's APIs for live data. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
+For branding or layouts beyond the built-in options: users upload a single \`index.html\` in **Editor → Settings → Custom views**, which Ontime serves at \`/external/<name>/\`; it can use Ontime's APIs for live data. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
+To restyle a built-in view or write a custom view, read \`ontime://views/customise\`.
 Docs: https://docs.getontime.no/features/custom-views/
 `;
+
+/**
+ * Builds ontime://views/customise around the user's current CSS override
+ */
+export function makeViewsCustomiseMarkdown(userCss: string, customViewMaxSizeMb: number): string {
+  return `# Customising Ontime views
+
+The agent cannot change styles or upload views: write the CSS or HTML and tell the user where to put it.
+
+## Restyle the built-in views with CSS
+
+The CSS override loads on every view; the display views (timer, backstage, countdown, studio clock and project info) are the ones with stable classes.
+
+1. Start from the example CSS below. Prefer its \`--*-override\` variables in \`:root\`; they cover colours, fonts and the timer states.
+2. When a variable is not enough, find the element in the running view. If you can browse, open the view (eg: \`/timer\`) and inspect its DOM; otherwise ask the user to inspect it and share the element. Scope selectors under the view's root class, as the example does.
+3. Build on the user's current CSS below rather than replacing it, unless they ask to start over.
+4. Tell the user to open **Editor → Settings → View settings**, click **Edit CSS override**, paste the CSS and save. Saving turns on **Override CSS styles**; the same switch turns it off again. Open views update without a reload.
+
+Global classes, element nesting and \`--*-override\` variables of the display views are stable within a major version. Other selectors, and the timeline, cuesheet, operator and editor views, may change in any release.
+
+## Build a custom view
+
+For layouts the built-in views cannot give. Start from the template below, which reads live data from Ontime's websocket.
+- One \`index.html\` file, at most ${customViewMaxSizeMb} MB, with only inline \`<script>\` and \`<style>\`: no external scripts, stylesheets or iframes.
+- Tell the user to upload it in **Editor → Settings → Custom views** under a name of lowercase letters, numbers and dashes. It is served at \`/external/<name>/\`, and the share link menu can create a link to it.
+
+## Example CSS
+
+\`\`\`css
+${defaultCss.trim()}
+\`\`\`
+
+## The user's current CSS override
+
+\`\`\`css
+${userCss.trim()}
+\`\`\`
+
+## Custom view template
+
+\`\`\`html
+${defaultDemoHtml.trim()}
+\`\`\`
+`;
+}

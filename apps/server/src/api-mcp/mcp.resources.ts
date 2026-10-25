@@ -1,10 +1,12 @@
 import type { ListResourcesResult, ReadResourceResult } from '@modelcontextprotocol/server';
 
+import { readCssFile } from '../api-data/assets/assets.service.js';
+import { customViewMaxFileSize } from '../api-data/custom-views/customViews.service.js';
 import { getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
-import { ONTIME_STYLE_GUIDE_MARKDOWN, ONTIME_VIEWS_MARKDOWN } from './mcp.guides.js';
+import { ONTIME_STYLE_GUIDE_MARKDOWN, ONTIME_VIEWS_MARKDOWN, makeViewsCustomiseMarkdown } from './mcp.guides.js';
 import { ONTIME_DOCS_MARKDOWN, ONTIME_SCHEMA_MARKDOWN } from './mcp.schema.js';
 
 export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
@@ -63,6 +65,14 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
     mimeType: 'text/markdown',
   },
   {
+    uri: 'ontime://views/customise',
+    name: 'ontime-views-customise',
+    title: 'View customisation guide',
+    description:
+      'How to restyle the display views with CSS or build a custom view, and how the user applies the result: the example CSS to work from, the current CSS override, and the custom view template. Read before writing CSS or a custom view.',
+    mimeType: 'text/markdown',
+  },
+  {
     uri: 'ontime://docs',
     name: 'ontime-docs',
     title: 'Ontime documentation index',
@@ -72,10 +82,18 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
   },
 ];
 
-const RESOURCE_READERS: Record<string, { mimeType: string; read: () => string }> = {
+const RESOURCE_READERS: Record<string, { mimeType: string; read: () => string | Promise<string> }> = {
   'ontime://schema': { mimeType: 'text/markdown', read: () => ONTIME_SCHEMA_MARKDOWN },
   'ontime://style-guide': { mimeType: 'text/markdown', read: () => ONTIME_STYLE_GUIDE_MARKDOWN },
   'ontime://views': { mimeType: 'text/markdown', read: () => ONTIME_VIEWS_MARKDOWN },
+  'ontime://views/customise': {
+    mimeType: 'text/markdown',
+    read: async () => {
+      // the guidance stays useful without the user's CSS, so a read failure does not fail the resource
+      const userCss = await readCssFile().catch(() => '/* the current CSS override could not be read */');
+      return makeViewsCustomiseMarkdown(userCss, customViewMaxFileSize / 1_000_000);
+    },
+  },
   'ontime://docs': { mimeType: 'text/markdown', read: () => ONTIME_DOCS_MARKDOWN },
   'ontime://rundown/current': {
     mimeType: 'application/json',
@@ -99,8 +117,8 @@ const RESOURCE_READERS: Record<string, { mimeType: string; read: () => string }>
   },
 };
 
-export function handleReadResource(uri: string): ReadResourceResult {
+export async function handleReadResource(uri: string): Promise<ReadResourceResult> {
   const reader = RESOURCE_READERS[uri];
   if (!reader) throw new Error(`Unknown resource URI: ${uri}`);
-  return { contents: [{ uri, mimeType: reader.mimeType, text: reader.read() }] };
+  return { contents: [{ uri, mimeType: reader.mimeType, text: await reader.read() }] };
 }
