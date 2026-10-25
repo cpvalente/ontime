@@ -1,8 +1,10 @@
 import { join, resolve } from 'node:path';
 
-import { type CustomViewSummary } from 'ontime-types';
+import { type CustomViewSummary, RefetchKey } from 'ontime-types';
 
 import { defaultDemoHtml } from '../../bundle/bundledDemoHtml.js';
+import { getCustomViewsInNav, setCustomViewInNav } from '../../services/app-state-service/appState.service.js';
+import { notifyChange } from '../../services/change-service/change.service.js';
 import { publicDir } from '../../setup/index.js';
 import {
   createDirectory,
@@ -109,6 +111,7 @@ export async function listCustomViews(): Promise<CustomViewSummary[]> {
   ensureDirectory(publicDir.externalDir);
 
   const entries = await readDirectoryEntries(publicDir.externalDir);
+  const inNav = new Set(await getCustomViewsInNav());
   const views: CustomViewSummary[] = [];
 
   for (const entry of entries) {
@@ -117,16 +120,13 @@ export async function listCustomViews(): Promise<CustomViewSummary[]> {
     const indexStats = await statIfExists(getPathToCustomView(entry.name));
     if (!indexStats?.isFile()) continue;
 
-    views.push({ slug: entry.name });
+    views.push({ slug: entry.name, displayInNav: inNav.has(entry.name) });
   }
 
   return views.sort((a, b) => a.slug.localeCompare(b.slug));
 }
 
-export async function uploadCustomView(
-  slug: string,
-  file: CustomViewUploadFile | undefined,
-): Promise<CustomViewSummary> {
+export async function uploadCustomView(slug: string, file: CustomViewUploadFile | undefined): Promise<void> {
   const uploadFile = validateCustomViewUpload(file);
   ensureDirectory(publicDir.externalDir);
 
@@ -144,11 +144,11 @@ export async function uploadCustomView(
 
   try {
     await writeToFile(indexFile, uploadFile.buffer);
-    return { slug };
   } catch (error) {
     await deleteDirectory(viewDirectory);
     throw error;
   }
+  notifyChange(RefetchKey.CustomViews);
 }
 
 export async function getCustomViewDownloadPath(slug: string): Promise<string> {
@@ -162,7 +162,7 @@ export async function getCustomViewDownloadPath(slug: string): Promise<string> {
 }
 
 const demoViewSlug = 'demo';
-export async function restoreDemoView(): Promise<CustomViewSummary> {
+export async function restoreDemoView(): Promise<string> {
   ensureDirectory(publicDir.externalDir);
 
   const viewDirectory = resolveCustomViewDirectory(demoViewSlug);
@@ -170,10 +170,28 @@ export async function restoreDemoView(): Promise<CustomViewSummary> {
 
   await replaceDirectory(viewDirectory);
   await writeToFile(indexFile, defaultDemoHtml, { encoding: 'utf-8' });
+  notifyChange(RefetchKey.CustomViews);
 
-  return { slug: demoViewSlug };
+  return demoViewSlug;
+}
+
+/**
+ * Lists or unlists a custom view in the navigation menu
+ * @throws if the view does not exist
+ */
+export async function setCustomViewDisplayInNav(slug: string, displayInNav: boolean): Promise<CustomViewSummary[]> {
+  if (!(await fileIsReadable(getPathToCustomView(slug)))) {
+    throw new CustomViewNotFoundError(slug);
+  }
+
+  await setCustomViewInNav(slug, displayInNav);
+  notifyChange(RefetchKey.CustomViews);
+  return listCustomViews();
 }
 
 export async function deleteCustomView(slug: string): Promise<void> {
   await deleteDirectory(resolveCustomViewDirectory(slug));
+  // a view uploaded later under the same name starts hidden
+  await setCustomViewInNav(slug, false);
+  notifyChange(RefetchKey.CustomViews);
 }

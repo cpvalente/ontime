@@ -3,6 +3,7 @@ import { IoDownloadOutline, IoOpenOutline, IoTrash } from 'react-icons/io5';
 import { downloadCustomView } from '../../../../common/api/customViews';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import IconButton from '../../../../common/components/buttons/IconButton';
+import Switch from '../../../../common/components/switch/Switch';
 import { handleLinks } from '../../../../common/utils/linkUtils';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { getViewUrl } from './customViews.utils';
@@ -11,12 +12,21 @@ import style from './CustomViews.module.scss';
 
 interface CustomViewsListItemProps {
   slug: string;
+  displayInNav: boolean;
   index: number;
+  onToggleDisplayInNav: (slug: string, displayInNav: boolean) => void;
   onDelete: (slug: string) => void;
   onError: (message: string) => void;
 }
 
-export default function CustomViewsListItem({ slug, index, onDelete, onError }: CustomViewsListItemProps) {
+export default function CustomViewsListItem({
+  slug,
+  displayInNav,
+  index,
+  onToggleDisplayInNav,
+  onDelete,
+  onError,
+}: CustomViewsListItemProps) {
   const handlePreview = () => {
     handleLinks(`external/${encodeURIComponent(slug)}/`);
   };
@@ -31,6 +41,14 @@ export default function CustomViewsListItem({ slug, index, onDelete, onError }: 
 
   return (
     <tr>
+      <td>
+        <Switch
+          checked={displayInNav}
+          onCheckedChange={(checked) => onToggleDisplayInNav(slug, checked)}
+          aria-label='Show in nav'
+          data-testid={`custom-view__nav_${index}`}
+        />
+      </td>
       <td>{slug}</td>
       <td className={style.urlCell}>{getViewUrl(slug)}</td>
       <td className={style.actionsCell}>

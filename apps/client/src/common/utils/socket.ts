@@ -17,6 +17,7 @@ import {
   CSS_OVERRIDE,
   CURRENT_RUNDOWN_QUERY_KEY,
   CUSTOM_FIELDS,
+  CUSTOM_VIEWS,
   PROJECT_DATA,
   REPORT,
   RUNDOWN,
@@ -204,6 +205,9 @@ export const connectSocket = () => {
               break;
             case RefetchKey.CustomFields:
               ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
+              break;
+            case RefetchKey.CustomViews:
+              ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_VIEWS });
               break;
             case RefetchKey.ProjectData:
               ontimeQueryClient.invalidateQueries({ queryKey: PROJECT_DATA });

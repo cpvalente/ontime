@@ -2,7 +2,7 @@ import { CustomViewSummary } from 'ontime-types';
 import { useState } from 'react';
 import { IoCloudUploadOutline } from 'react-icons/io5';
 
-import { deleteCustomView } from '../../../../common/api/customViews';
+import { deleteCustomView, patchCustomView } from '../../../../common/api/customViews';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';
@@ -21,6 +21,15 @@ interface CustomViewsListProps {
 export default function CustomViewsList({ views, onOpenUpload, onMutate, onError }: CustomViewsListProps) {
   const [targetSlug, setTargetSlug] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const toggleDisplayInNav = async (slug: string, displayInNav: boolean) => {
+    try {
+      await patchCustomView(slug, displayInNav);
+      onMutate();
+    } catch (error) {
+      onError(maybeAxiosError(error));
+    }
+  };
 
   const openDelete = (slug: string) => {
     setTargetSlug(slug);
@@ -48,6 +57,7 @@ export default function CustomViewsList({ views, onOpenUpload, onMutate, onError
       <Panel.Table>
         <thead>
           <tr>
+            <th>Show in nav</th>
             <th>Name</th>
             <th>URL</th>
             <th className={style.actionsHeader} />
@@ -69,7 +79,9 @@ export default function CustomViewsList({ views, onOpenUpload, onMutate, onError
             <CustomViewsListItem
               key={view.slug}
               slug={view.slug}
+              displayInNav={view.displayInNav}
               index={index}
+              onToggleDisplayInNav={toggleDisplayInNav}
               onDelete={openDelete}
               onError={onError}
             />

@@ -2,6 +2,7 @@ export enum RefetchKey {
   All = 'all',
   Automation = 'automation',
   CustomFields = 'custom-fields',
+  CustomViews = 'custom-views',
   ProjectData = 'project-data',
   ProjectRundowns = 'project-rundowns',
   Report = 'report',

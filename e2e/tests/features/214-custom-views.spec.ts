@@ -54,17 +54,25 @@ test.describe('custom views', () => {
   });
 });
 
-test('the bundled demo view shows live data and can be shared', async ({ page, request }) => {
+test('the bundled demo view opens from the menu, shows live data and can be shared', async ({ page, request }) => {
   const restore = await request.post(`${apiURL}/restore-demo`);
   expect(restore.status()).toBe(201);
   const preset = { alias: 'e2e-share', target: 'timer', search: '', enabled: true, displayInNav: false };
   await request.post(`${baseURL}/data/url-presets`, { data: preset });
+  await request.patch(`${apiURL}/demo`, { data: { displayInNav: true } });
 
   try {
-    await page.goto(`${baseURL}/external/demo/`);
+    // the navigation menu leaves the app for the custom view, and Back returns to it
+    await page.goto(`${baseURL}/timer`);
+    await expect(page.getByTestId('timer-view')).toBeVisible();
+    await page.keyboard.press('Space');
+    await page.getByRole('button', { name: 'demo', exact: true }).click();
+    await expect(page).toHaveURL(`${baseURL}/external/demo/`);
     await expect(page.getByRole('heading', { name: 'Ontime demo' })).toBeVisible();
     // the clock is filled in from the websocket
     await expect(page.locator('#clock')).not.toHaveText('-');
+    await page.goBack();
+    await expect(page.getByTestId('timer-view')).toBeVisible();
 
     // a fresh load of the share menu lists both URL presets and custom views
     await page.goto(`${baseURL}/editor`);
@@ -74,6 +82,7 @@ test('the bundled demo view shows live data and can be shared', async ({ page, r
     await expect(page.getByRole('option', { name: 'URL Preset: e2e-share' })).toBeVisible();
     await expect(page.getByRole('option', { name: 'Custom view: demo' })).toBeVisible();
   } finally {
+    await request.patch(`${apiURL}/demo`, { data: { displayInNav: false } });
     await request.delete(`${baseURL}/data/url-presets/${preset.alias}`);
   }
 });

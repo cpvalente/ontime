@@ -24,6 +24,25 @@ export function openLink(url: string) {
 }
 
 /**
+ * Resolves a path on the Ontime server, keeping the router prefix
+ * serverUrl and baseURI are used for testing
+ */
+export function resolveServerUrl(
+  location: string,
+  externalServerUrl: string = serverURL,
+  externalBaseURI: string = baseURI,
+): string {
+  const destination = new URL(externalServerUrl);
+  // split off any query string so it is not encoded into the pathname
+  const [pathname, search] = location.split('?');
+  destination.pathname = externalBaseURI ? `${externalBaseURI}/${pathname}` : pathname;
+  if (search) {
+    destination.search = search;
+  }
+  return destination.toString();
+}
+
+/**
  * Handles opening external links
  * serverUrl and baseURI are used for testing
  */
@@ -35,15 +54,7 @@ export function handleLinks(
 ) {
   // we handle the link manually
   event?.preventDefault();
-
-  const destination = new URL(externalServerUrl);
-  // split off any query string so it is not encoded into the pathname
-  const [pathname, search] = location.split('?');
-  destination.pathname = externalBaseURI ? `${externalBaseURI}/${pathname}` : pathname;
-  if (search) {
-    destination.search = search;
-  }
-  openLink(destination.toString());
+  openLink(resolveServerUrl(location, externalServerUrl, externalBaseURI));
 }
 
 export function linkToOtherHost(

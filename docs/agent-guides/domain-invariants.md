@@ -22,6 +22,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Notify only invalidated consumers; never leave client cache stale.
 - Avoid duplicate listeners, notifications, invalidations, lifecycle effects.
 - Reconnect/refetch must converge on authoritative state.
+- App state loads once per server instance. Runtime reads use its in-memory state; rereading the file can overwrite changes while a write is pending.
 - Align query keys and websocket refetch keys with the changed resource.
 - Whether the previous session ended cleanly is answered only by the app state service (`startSession`); only a crash or a power loss is unclean, a container stop is not. Do not infer it from logs or other files.
 - A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. Restore points name it and are resumed only in that project.

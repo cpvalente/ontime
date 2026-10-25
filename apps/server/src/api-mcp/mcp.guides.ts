@@ -101,7 +101,7 @@ Docs: https://docs.getontime.no/features/url-presets/
 
 ## Custom views
 
-For branding or layouts beyond the built-in options: users upload a single \`index.html\` in **Editor → Settings → Custom views**, which Ontime serves at \`/external/<name>/\`; it can use Ontime's APIs for live data. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
+For branding or layouts beyond the built-in options: users upload a single \`index.html\` in **Editor → Settings → Custom views**, which Ontime serves at \`/external/<name>/\`; it can use Ontime's APIs for live data. Turning on **Show in nav** next to a view lists it in the navigation menu. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
 To restyle a built-in view or write a custom view, read \`ontime://views/customise\`.
 Docs: https://docs.getontime.no/features/custom-views/
 `;
@@ -129,7 +129,7 @@ Global classes, element nesting and \`--*-override\` variables of the display vi
 
 For layouts the built-in views cannot give. Start from the template below, which reads live data from Ontime's websocket.
 - One \`index.html\` file, at most ${customViewMaxSizeMb} MB, with only inline \`<script>\` and \`<style>\`: no external scripts, stylesheets or iframes.
-- Tell the user to upload it in **Editor → Settings → Custom views** under a name of lowercase letters, numbers and dashes. It is served at \`/external/<name>/\`, and the share link menu can create a link to it.
+- Tell the user to upload it in **Editor → Settings → Custom views** under a name of lowercase letters, numbers and dashes. It is served at \`/external/<name>/\`; turning on **Show in nav** next to it lists it in the navigation menu.
 
 ## Example CSS
 

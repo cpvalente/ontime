@@ -16,10 +16,18 @@ interface AppState {
   sessionEndedCleanly?: boolean;
   /** identifies this server, kept across restarts */
   nodeId?: string;
+  /** slugs of the custom views listed in the navigation menu */
+  customViewsInNav?: string[];
 }
 
 const adapter = new JSONFile<AppState>(publicFiles.appState);
 const config = new Low<AppState>(adapter, {});
+
+// Disk reads must not replace in-memory changes while a write is pending.
+let initialRead: Promise<void> | undefined;
+function loadConfig(): Promise<void> {
+  return (initialRead ??= config.read());
+}
 
 export async function isLastLoadedProject(projectName: string): Promise<boolean> {
   const lastLoaded = await getLastLoaded();
@@ -27,7 +35,7 @@ export async function isLastLoadedProject(projectName: string): Promise<boolean>
 }
 
 export async function getLastLoaded(): Promise<Pick<AppState, 'projectName' | 'rundownId'> | undefined> {
-  await config.read();
+  await loadConfig();
   return { projectName: config.data.projectName, rundownId: config.data.rundownId };
 }
 
@@ -35,12 +43,14 @@ export async function setLastLoaded(projectName: string, rundownId?: string): Pr
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: shouldCrashDev(isPath(projectName), 'setLastLoaded should not be called with a path');
 
+  await loadConfig();
   config.data.projectName = projectName;
   config.data.rundownId = rundownId;
   await config.write();
 }
 
 export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
+  await loadConfig();
   config.data.rundownId = rundownKey;
   await config.write();
 }
@@ -48,11 +58,12 @@ export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
 export async function getShowWelcomeDialog(restorePointExists: boolean): Promise<boolean> {
   if (restorePointExists) return false;
 
-  await config.read();
+  await loadConfig();
   return config.data.showWelcomeDialog ?? true; // default to  true
 }
 
 export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
+  await loadConfig();
   config.data.showWelcomeDialog = show;
   await config.write();
   return show;
@@ -64,7 +75,7 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
  * A session which crashed or lost power never ends cleanly
  */
 export async function startSession(): Promise<boolean> {
-  await config.read();
+  await loadConfig();
   const previousEndedCleanly = config.data.sessionEndedCleanly ?? true;
   config.data.sessionEndedCleanly = false;
   config.data.nodeId ??= randomUUID();
@@ -76,16 +87,35 @@ export async function startSession(): Promise<boolean> {
  * Records that this session ended cleanly, the next start reads it
  */
 export async function endSession(): Promise<void> {
+  await loadConfig();
   config.data.sessionEndedCleanly = true;
   await config.write();
 }
 
+export async function getCustomViewsInNav(): Promise<string[]> {
+  await loadConfig();
+  return config.data.customViewsInNav ?? [];
+}
+
+export async function setCustomViewInNav(slug: string, displayInNav: boolean): Promise<void> {
+  await loadConfig();
+  const inNav = new Set(config.data.customViewsInNav);
+  if (displayInNav) {
+    inNav.add(slug);
+  } else {
+    inNav.delete(slug);
+  }
+  config.data.customViewsInNav = [...inNav];
+  await config.write();
+}
+
 export async function getServerPort(): Promise<number | undefined> {
-  await config.read();
+  await loadConfig();
   return config.data.serverPort;
 }
 
 export async function setServerPort(port: number): Promise<void> {
+  await loadConfig();
   config.data.serverPort = port;
   await config.write();
 }

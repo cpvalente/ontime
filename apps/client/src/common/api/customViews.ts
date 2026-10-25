@@ -50,6 +50,19 @@ export async function restoreDemoView(options?: RequestOptions): Promise<Message
   ).data;
 }
 
+export async function patchCustomView(
+  slug: string,
+  displayInNav: boolean,
+  options?: RequestOptions,
+): Promise<CustomViewsListResponse> {
+  const response = await axios.patch<CustomViewsListResponse>(
+    `${customViewsPath}/${encodeURIComponent(slug)}`,
+    { displayInNav },
+    { signal: options?.signal, timeout: options?.timeout ?? axiosConfig.shortTimeout },
+  );
+  return response.data;
+}
+
 export async function deleteCustomView(slug: string, options?: RequestOptions): Promise<void> {
   await axios.delete(`${customViewsPath}/${encodeURIComponent(slug)}`, {
     signal: options?.signal,

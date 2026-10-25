@@ -68,6 +68,22 @@ describe('clients are told to refetch after every write', { timeout: 15_000 }, (
       [{ target: RefetchKey.UrlPresets }],
     );
 
+    // custom views live in the source tree in development, so the view is removed again
+    const viewFile = new FormData();
+    viewFile.append('indexHtml', new Blob(['<!doctype html>'], { type: 'text/html' }), 'index.html');
+    await client.expectRefetch(
+      () => server.request('/data/custom-views/refetch-view/upload', { method: 'POST', body: viewFile }),
+      [{ target: RefetchKey.CustomViews }],
+    );
+    await client.expectRefetch(
+      () => server.send('PATCH', '/data/custom-views/refetch-view', { displayInNav: true }),
+      [{ target: RefetchKey.CustomViews }],
+    );
+    await client.expectRefetch(
+      () => server.send('DELETE', '/data/custom-views/refetch-view'),
+      [{ target: RefetchKey.CustomViews }],
+    );
+
     const automationSettings = { enabledAutomations: false, enabledOscIn: false, oscPortIn: 8888 };
     await client.expectRefetch(
       () => server.send('POST', '/data/automations', automationSettings),
