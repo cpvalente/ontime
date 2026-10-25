@@ -57,3 +57,5 @@ ontime-data/
 
 # Claude Code metadata
 .claude/
+
+.pnpm-store

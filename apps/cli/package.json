@@ -10,6 +10,9 @@
     "timer"
   ],
   "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": "^24.22.1 || >=26.12.1"
+  },
   "main": "main.js",
   "bin": {
     "ontime": "main.js"
