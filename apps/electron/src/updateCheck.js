@@ -12,7 +12,7 @@ function getInstallerName() {
   if (isMac) {
     return `ontime-macOS-${process.arch}.dmg`;
   }
-  const arch = { x64: 'x86_64', arm: 'armv7l' }[process.arch] ?? process.arch;
+  const arch = { x64: 'x86_64' }[process.arch] ?? process.arch;
   return `ontime-linux-${arch}.AppImage`;
 }
 

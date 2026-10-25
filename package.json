@@ -16,7 +16,7 @@
   },
   "license": "GPL-3.0-or-later",
   "engines": {
-    "node": "~22",
+    "node": "~24",
     "pnpm": "~11"
   },
   "type": "module",
@@ -55,7 +55,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "22.22.3"
+      "version": "24.22.1"
     }
   }
 }
