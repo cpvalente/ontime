@@ -6,7 +6,6 @@ const {
   linkToDiscord,
   isProduction,
   isMac,
-  releaseTag,
   projectsPath,
   corruptProjectsPath,
   crashLogPath,
@@ -110,32 +109,31 @@ function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download
     label: 'File',
     submenu: [
       {
-        label: 'New project...',
+        label: 'New Project…',
+        accelerator: 'CmdOrCtrl+N',
         click: () => redirectWindow('/editor?settings=project__create'),
       },
       {
-        label: 'Load...',
+        label: 'Open Project…',
+        accelerator: 'CmdOrCtrl+O',
         click: () => showDialog('welcome'),
       },
       {
-        label: 'Quick start...',
-        click: () => redirectWindow('/editor?settings=project__create'),
+        label: 'Manage Projects…',
+        click: () => redirectWindow('/editor?settings=project__list'),
       },
+      { type: 'separator' },
       {
-        label: 'Edit project data...',
+        label: 'Edit Project Data…',
         click: () => redirectWindow('/editor?settings=settings__data'),
       },
       {
-        label: 'Manage projects',
-        click: () => redirectWindow('/editor?settings=project__list'),
-      },
-      {
-        label: 'Download project',
+        label: 'Export Project…',
         click: downloadProject,
       },
       { type: 'separator' },
       {
-        label: 'Open directory',
+        label: 'Open Data Folder',
         submenu: [
           makeItemOpenInDesktop('Projects', projectsPath),
           makeItemOpenInDesktop('Corrupted projects', corruptProjectsPath),
@@ -145,7 +143,7 @@ function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download
         ],
       },
       { type: 'separator' },
-      isMac ? { role: 'close' } : { label: 'Quit', click: askToQuit, accelerator: 'Alt+F4' },
+      isMac ? { role: 'close', label: 'Close Window' } : { label: 'Quit', click: askToQuit, accelerator: 'Alt+F4' },
     ],
   };
 }
@@ -224,19 +222,6 @@ function makeSettingsMenu(redirectWindow) {
           {
             label: 'Server port',
             click: () => redirectWindow('/editor?settings=settings__port'),
-          },
-        ],
-      },
-      {
-        label: 'Project',
-        submenu: [
-          {
-            label: 'Create...',
-            click: () => redirectWindow('/editor?settings=project__create'),
-          },
-          {
-            label: 'Manage projects',
-            click: () => redirectWindow('/editor?settings=project__list'),
           },
         ],
       },
@@ -329,18 +314,18 @@ function makeHelpMenu(redirectWindow, download, availableUpdate, checkForUpdates
     role: 'help',
     submenu: [
       {
-        label: `Ontime ${releaseTag}`,
+        label: 'About Ontime',
         click: () => redirectWindow('/editor?settings=about'),
       },
       availableUpdate
         ? { label: `Download Ontime ${availableUpdate.version}`, click: () => download(availableUpdate.url) }
-        : { label: 'Check for updates', click: checkForUpdates },
+        : { label: 'Check for Updates', click: checkForUpdates },
       {
         type: 'separator',
       },
-      makeItemOpenInBrowser('See on github', linkToGitHub),
-      makeItemOpenInBrowser('Online documentation', linkToDocs),
-      makeItemOpenInBrowser('Join us on Discord', linkToDiscord),
+      makeItemOpenInBrowser('Documentation', linkToDocs),
+      makeItemOpenInBrowser('Community', linkToDiscord),
+      makeItemOpenInBrowser('View on GitHub', linkToGitHub),
     ],
   };
 }
