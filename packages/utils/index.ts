@@ -28,7 +28,7 @@ export {
   resolveInsertParent,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
-export { getFirstRundown } from './src/rundown/rundown.utils.js';
+export { getFirstRundown, validateRundownTitle } from './src/rundown/rundown.utils.js';
 export {
   event as eventDef,
   group as groupDef,

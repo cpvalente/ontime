@@ -78,7 +78,8 @@ export function parseRundown(
 ): Rundown {
   const parsedRundown: Rundown = {
     id: rundown.id || generateId(),
-    title: rundown.title ?? '',
+    // Preserve existing names; title validation applies when creating or renaming a rundown.
+    title: typeof rundown.title === 'string' ? rundown.title : 'untitled',
     entries: {},
     order: [],
     flatOrder: [],

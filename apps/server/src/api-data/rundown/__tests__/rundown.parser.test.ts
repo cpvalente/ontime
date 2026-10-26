@@ -80,6 +80,14 @@ describe('parseRundown()', () => {
     expect(errorEmitter).toHaveBeenCalled();
   });
 
+  it.each(['-', '', 'a'.repeat(65)])('preserves existing title %j without reporting a project error', (title) => {
+    const errorEmitter = vi.fn();
+    const rundown = { ...makeNewRundown(), title } as Rundown;
+
+    expect(parseRundown(rundown, {}, errorEmitter).title).toBe(title);
+    expect(errorEmitter).not.toHaveBeenCalled();
+  });
+
   it('stringifies necessary values', () => {
     const rundown = {
       id: '',

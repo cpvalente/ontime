@@ -1,4 +1,4 @@
-import { checkRegex } from 'ontime-utils';
+import { validateRundownTitle } from 'ontime-utils';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -51,13 +51,7 @@ export default function RundownRenameForm({ onSubmit, onCancel, initialTitle }: 
         <Panel.Description>Rundown title</Panel.Description>
         <Input
           {...register('title', {
-            required: { value: true, message: 'Title is required' },
-            validate: (value) => {
-              if (value.trim().length === 0) return 'Title cannot be empty';
-              if (checkRegex.isAlphanumericWithSpace(value) === false)
-                return 'Title can only contain alphanumeric characters, spaces and underscores';
-              return true;
-            },
+            validate: (value) => validateRundownTitle(value) ?? true,
           })}
           maxLength={64}
           fluid
