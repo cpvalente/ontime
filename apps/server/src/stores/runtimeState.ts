@@ -24,7 +24,7 @@ import { calculateDuration, checkIsNow, dayInMs, getLastEventNormal, isPlaybackA
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
 import * as timeCore from '../lib/time-core/timeCore.js';
-import type { RestorePoint } from '../services/restore-service/restore.types.js';
+import type { RuntimeRestore } from '../services/restore-service/restore.types.js';
 import { findNextRollEvent, loadRoll, normaliseRollStart } from '../services/runtime-service/roll.utils.js';
 import {
   type CurrentInput,
@@ -182,7 +182,7 @@ export function clearState() {
  * Utility to allow modifying the state from the outside
  * @param newState
  */
-function patchTimer(newState: Partial<TimerState & RestorePoint>) {
+function patchTimer(newState: Partial<TimerState & RuntimeRestore>) {
   for (const key in newState) {
     if (key in runtimeState.timer) {
       // @ts-expect-error -- not sure how to type this in a sane way
@@ -216,7 +216,7 @@ export function load(
   event: PlayableEvent,
   rundown: Rundown,
   metadata: RundownMetadata,
-  initialData?: Partial<TimerState & RestorePoint>,
+  initialData?: Partial<TimerState & RuntimeRestore>,
 ): boolean {
   clearEventData();
 
@@ -325,7 +325,12 @@ export function loadNext(
 /**
  * Resume from restore point
  */
-export function resume(restorePoint: RestorePoint, event: PlayableEvent, rundown: Rundown, metadata: RundownMetadata) {
+export function resume(
+  restorePoint: RuntimeRestore,
+  event: PlayableEvent,
+  rundown: Rundown,
+  metadata: RundownMetadata,
+) {
   load(event, rundown, metadata, restorePoint);
 }
 

@@ -200,8 +200,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   const resultPort = await portManager.attachServer(expressServer);
 
   const projectId = getDataProvider().getProjectId();
-  const projectRestorePoint = restoreService.forProject(restorePoint, projectId);
-  const showWelcome = await getShowWelcomeDialog(!!projectRestorePoint);
+  const restored = restoreService.forProject(restorePoint, projectId);
+  const showWelcome = await getShowWelcomeDialog(restored?.runtime !== undefined);
   socket.init(expressServer, showWelcome, prefix);
 
   /**
@@ -249,7 +249,12 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   messageService.init(eventStore.set, eventStore.get);
 
   // apply the restore point if it exists
-  runtimeService.init(projectRestorePoint);
+  runtimeService.init(restored?.runtime ?? null);
+
+  // after the runtime, which saves its playback first, so the aux timers save into the same file
+  if (restored?.auxTimers) {
+    auxTimerService.resume(restored.auxTimers);
+  }
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
@@ -312,6 +317,7 @@ const shutdownTimeout = 4_000; // 4 seconds
 export async function stopServices(exitCode: number): Promise<void> {
   isShuttingDown = true;
   runtimeService.shutdown();
+  auxTimerService.dispose();
 
   // only a crash leaves the session open, recorded first so a failed cleanup cannot turn a stop into a crash
   if (exitCode === 0 || exitCode === 3 || exitCode === 99) {

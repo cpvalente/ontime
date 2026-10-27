@@ -24,7 +24,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
 - Whether the previous session ended cleanly is answered only by the app state service (`startSession`); only a crash or a power loss is unclean, a container stop is not. Do not infer it from logs or other files.
-- A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. Restore points name it and are resumed only in that project.
+- A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. A restore point's playback names it and resumes only in that project; the point's aux timers outlive a project and resume in any.
 - Report every committed write through `notifyChange()` (`services/change-service`), never `sendRefetch()` directly. It sends each refetch once at the end of the event loop, after the caller has replied. Routers never write to `DataProvider`.
 - Writers report changes and never call their consumers. Consumers that must stay in step with the data listen with `onChange()` and run in the same call as the write: the runtime reconciles on every change to the loaded rundown, reading it itself, and owns the stop/hot-reload decision.
 

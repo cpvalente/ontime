@@ -67,6 +67,32 @@ describe('session', { timeout: 15_000 }, () => {
     expect(await logTexts(secondRun)).toContain('Previous session did not end cleanly log=ontime.previous.log');
   });
 
+  test('a container stop resumes a running aux timer with the show, and keeps both saved', async () => {
+    const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
+    await startShow(firstRun);
+    await firstRun.get('/api/auxtimer/2/start');
+    await vi.waitFor(async () => {
+      expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain('"playback": "start"');
+    });
+    await firstRun.stop(3);
+
+    const secondRun = await startTestServer();
+    onTestFinished(() => secondRun.stop());
+
+    const { payload }: { payload: RuntimeStore } = await (await secondRun.get('/api/poll')).json();
+    expect(payload.timer.playback).toBe(Playback.Play);
+    expect(payload.auxtimer2.playback).toBe('start');
+    expect(payload.auxtimer2.current).toBeLessThan(payload.auxtimer2.duration);
+    expect(payload.auxtimer1.playback).toBe('stop');
+
+    // a crash now would resume both again
+    await vi.waitFor(async () => {
+      const restoreFile = JSON.parse(await readFile(publicFiles.restoreFile, 'utf-8'));
+      expect(restoreFile).toMatchObject({ runtime: { playback: Playback.Play }, auxTimers: expect.any(Array) });
+    });
+  });
+
   test('a share link for a base URL without protocol is rejected as invalid input', async () => {
     const server = await startTestServer();
     onTestFinished(() => server.stop());
@@ -89,7 +115,10 @@ describe('session', { timeout: 15_000 }, () => {
     await firstRun.stop(1);
 
     const point = JSON.parse(await readFile(publicFiles.restoreFile, 'utf-8'));
-    await writeFile(publicFiles.restoreFile, JSON.stringify({ ...point, projectId: 'another-project' }));
+    await writeFile(
+      publicFiles.restoreFile,
+      JSON.stringify({ ...point, runtime: { ...point.runtime, projectId: 'another-project' } }),
+    );
 
     const secondRun = await startTestServer();
     onTestFinished(() => secondRun.stop());
