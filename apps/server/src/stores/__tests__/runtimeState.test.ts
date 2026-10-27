@@ -2,6 +2,7 @@ import {
   type Day,
   Instant,
   OffsetMode,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   type Rundown,
@@ -10,7 +11,13 @@ import {
 } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import {
+  makeOntimeDelay,
+  makeOntimeEvent,
+  makeOntimeGroup,
+  makeOntimeMilestone,
+  makeRundown,
+} from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
@@ -1273,5 +1280,176 @@ describe('loadGroupFlagAndEnd()', () => {
     // the gap between loaded and flagged is accumulated downstream of the loaded event
     expect(state._group).toMatchObject({ event: { id: 'flagged' }, accumulatedGap: 10 });
     expect(state._end).toMatchObject({ event: { id: 'last' }, accumulatedGap: 10 });
+  });
+});
+
+describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
+  function event(id: string, patch: Partial<OntimeEvent> = {}): OntimeEvent {
+    return makeOntimeEvent({
+      id,
+      parent: null,
+      timeStart: 0,
+      duration: 10,
+      dayOffset: 0 as Day,
+      gap: 0,
+      linkStart: false,
+      countToEnd: false,
+      ...patch,
+    });
+  }
+
+  /**
+   * Reads the gap and link state of each event after the loaded one by flagging it
+   */
+  function linkState(rundown: Rundown, loadedId: string | null, playableEventOrder: string[]) {
+    const run = (flags: string[]) => {
+      const state = {
+        groupNow: null,
+        eventNow: loadedId ? rundown.entries[loadedId] : null,
+        rundown: { actualGroupStart: null },
+      } as RuntimeState;
+      loadGroupFlagAndEnd(rundown, { playableEventOrder, flags } as RundownMetadata, state);
+      return state;
+    };
+    const pick = (meta: RuntimeState['_flag']) =>
+      meta && { id: meta.event.id, accumulatedGap: meta.accumulatedGap, isLinkedToLoaded: meta.isLinkedToLoaded };
+
+    const { _group, _end } = run([]);
+    const flags = Object.fromEntries(playableEventOrder.map((id) => [id, pick(run([id])._flag)]));
+    return { group: pick(_group), end: pick(_end), flags };
+  }
+
+  test('carries the chain through skipped events, delays, milestones and groups', () => {
+    const rundown = makeRundown({
+      entries: {
+        before: event('before', { timeStart: 0 }),
+        loaded: event('loaded', { timeStart: 10 }),
+        skipped: event('skipped', { timeStart: 20, skip: true, gap: 50 }),
+        group: makeOntimeGroup({ id: 'group', entries: ['a', 'delay', 'b'] }),
+        a: event('a', { parent: 'group', timeStart: 20, linkStart: true }),
+        delay: makeOntimeDelay({ id: 'delay', parent: 'group' }),
+        b: event('b', { parent: 'group', timeStart: 30, linkStart: true }),
+        milestone: makeOntimeMilestone({ id: 'milestone', parent: null }),
+        c: event('c', { timeStart: 45, gap: 5 }),
+        d: event('d', { timeStart: 58, gap: 3, linkStart: true }),
+      },
+      order: ['before', 'loaded', 'skipped', 'group', 'milestone', 'c', 'd'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['before', 'loaded', 'a', 'b', 'c', 'd'])).toStrictEqual({
+      group: null,
+      end: { id: 'd', accumulatedGap: 8, isLinkedToLoaded: false },
+      flags: {
+        before: null,
+        loaded: null,
+        a: { id: 'a', accumulatedGap: 0, isLinkedToLoaded: true },
+        b: { id: 'b', accumulatedGap: 0, isLinkedToLoaded: true },
+        c: { id: 'c', accumulatedGap: 5, isLinkedToLoaded: false },
+        d: { id: 'd', accumulatedGap: 8, isLinkedToLoaded: false },
+      },
+    });
+  });
+
+  test('reports the group end of the loaded group, including the loaded event itself', () => {
+    const rundown = makeRundown({
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['a', 'loaded'] }),
+        a: event('a', { parent: 'group', timeStart: 0 }),
+        loaded: event('loaded', { parent: 'group', timeStart: 10 }),
+        after: event('after', { timeStart: 25, gap: 5 }),
+      },
+      order: ['group', 'after'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['a', 'loaded', 'after'])).toMatchObject({
+      group: { id: 'loaded', accumulatedGap: 0, isLinkedToLoaded: true },
+      end: { id: 'after', accumulatedGap: 5, isLinkedToLoaded: false },
+    });
+  });
+
+  test('breaks the chain after a countToEnd event and adds its duration to the gap', () => {
+    const rundown = makeRundown({
+      entries: {
+        loaded: event('loaded', { timeStart: 0 }),
+        cte: event('cte', { timeStart: 10, linkStart: true, countToEnd: true }),
+        next: event('next', { timeStart: 20, linkStart: true }),
+        later: event('later', { timeStart: 35, gap: 5, linkStart: true }),
+      },
+      order: ['loaded', 'cte', 'next', 'later'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['loaded', 'cte', 'next', 'later']).flags).toMatchObject({
+      cte: { accumulatedGap: 0, isLinkedToLoaded: true },
+      next: { accumulatedGap: 10, isLinkedToLoaded: false },
+      later: { accumulatedGap: 15, isLinkedToLoaded: false },
+    });
+  });
+
+  test('keeps the chain after a loaded countToEnd event', () => {
+    const rundown = makeRundown({
+      entries: {
+        loaded: event('loaded', { timeStart: 0, countToEnd: true }),
+        next: event('next', { timeStart: 10, linkStart: true }),
+      },
+      order: ['loaded', 'next'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['loaded', 'next']).flags.next).toStrictEqual({
+      id: 'next',
+      accumulatedGap: 0,
+      isLinkedToLoaded: true,
+    });
+  });
+
+  test('follows the chain across midnight and checks countToEnd on the previous event in order', () => {
+    const rundown = makeRundown({
+      entries: {
+        loaded: event('loaded', { timeStart: 22 * MILLIS_PER_HOUR, duration: 3 * MILLIS_PER_HOUR }),
+        overlap: event('overlap', {
+          timeStart: 23 * MILLIS_PER_HOUR,
+          duration: MILLIS_PER_HOUR / 2,
+          linkStart: true,
+          countToEnd: true,
+        }),
+        nextDay: event('nextDay', { timeStart: MILLIS_PER_HOUR, dayOffset: 1 as Day, linkStart: true }),
+        gapped: event('gapped', { timeStart: 5 * MILLIS_PER_HOUR, dayOffset: 1 as Day, gap: 2 * MILLIS_PER_HOUR }),
+      },
+      order: ['loaded', 'overlap', 'nextDay', 'gapped'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['loaded', 'overlap', 'nextDay', 'gapped']).flags).toMatchObject({
+      overlap: { accumulatedGap: 0, isLinkedToLoaded: true },
+      nextDay: { accumulatedGap: MILLIS_PER_HOUR / 2, isLinkedToLoaded: false },
+      gapped: { accumulatedGap: MILLIS_PER_HOUR / 2 + 2 * MILLIS_PER_HOUR, isLinkedToLoaded: false },
+    });
+  });
+
+  test('clears group, flag and end when no event is loaded', () => {
+    const rundown = makeRundown({
+      entries: { a: event('a'), b: event('b', { timeStart: 15, gap: 5 }) },
+      order: ['a', 'b'],
+    });
+
+    expect(linkState(rundown, null, ['a', 'b'])).toStrictEqual({
+      group: null,
+      end: null,
+      flags: { a: null, b: null },
+    });
+  });
+
+  test('searches nothing downstream of a loaded event which is skipped', () => {
+    const rundown = makeRundown({
+      entries: {
+        loaded: event('loaded', { timeStart: 0, skip: true }),
+        next: event('next', { timeStart: 15, gap: 5, linkStart: true }),
+      },
+      order: ['loaded', 'next'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['next'])).toStrictEqual({
+      group: null,
+      end: { id: 'next', accumulatedGap: 0, isLinkedToLoaded: true },
+      flags: { next: null },
+    });
   });
 });
