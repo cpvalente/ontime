@@ -58,8 +58,8 @@ export default function RundownEntryEditor() {
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
         <div className={style.hint}>
-          <span className={style.hintTitle}>Delays are edited in the rundown</span>
-          <span>Set the delay time in the rundown, then make it permanent or cancel it.</span>
+          <span className={style.hintTitle}>Delay selected</span>
+          <span>Edit the delay in its row in the rundown, then make it permanent or cancel it.</span>
         </div>
       </div>
     );

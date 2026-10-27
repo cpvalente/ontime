@@ -83,6 +83,7 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
         return set({
           selectedEvents: withoutId,
           anchoredIndex: nextIndex < 0 ? rundownData.order.length - 1 : nextIndex,
+          cursor: keepCursorInSelection(get().cursor, withoutId),
           entryMode: 'event',
         });
       }
@@ -116,20 +117,22 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
     },
     clearSelectedEvents: () => set({ selectedEvents: new Set(), anchoredIndex: null, cursor: null, entryMode: null }),
     clearMultiSelect: () => {
-      const { selectedEvents } = get();
-      const [firstSelected] = selectedEvents;
+      const { selectedEvents, cursor } = get();
+      const kept = keepCursorInSelection(cursor, selectedEvents);
       set({
-        selectedEvents: new Set(firstSelected ? [firstSelected] : []),
+        selectedEvents: new Set(kept ? [kept] : []),
         anchoredIndex: null,
+        cursor: kept,
         entryMode: null,
       });
     },
     unselect: (id: string) => {
-      const { entryMode, selectedEvents } = get();
+      const { entryMode, selectedEvents, cursor } = get();
       const remaining = new Set(selectedEvents);
       remaining.delete(id);
       set({
         selectedEvents: remaining,
+        cursor: keepCursorInSelection(cursor, remaining),
         entryMode: remaining.size === 0 ? null : entryMode,
       });
     },
@@ -143,6 +146,17 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
       }
     },
   }));
+}
+
+/**
+ * Keeps the cursor on a selected entry
+ * if the cursor left the selection, it moves to the most recently selected entry
+ */
+function keepCursorInSelection(cursor: EntryId | null, selection: Set<EntryId>): EntryId | null {
+  if (cursor && selection.has(cursor)) {
+    return cursor;
+  }
+  return Array.from(selection).at(-1) ?? null;
 }
 
 export function getSelectionMode(event: MouseEvent): SelectionMode {
