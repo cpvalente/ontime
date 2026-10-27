@@ -51,8 +51,10 @@ class MockWebSocket {
     this.onopen?.();
   }
 
-  receive(tag: MessageTag, payload: unknown, clock?: number) {
-    this.onmessage?.({ data: JSON.stringify({ tag, payload, clock }) });
+  /** epoch: the server time in a Pong, with the server on UTC */
+  receive(tag: MessageTag, payload: unknown, epoch?: number) {
+    const serverTime = epoch === undefined ? {} : { epoch, tzOffset: 0 };
+    this.onmessage?.({ data: JSON.stringify({ tag, payload, ...serverTime }) });
   }
 }
 

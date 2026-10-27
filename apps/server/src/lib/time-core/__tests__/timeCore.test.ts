@@ -78,6 +78,22 @@ describe('toTimeofDay() converts an instant to local milliseconds since midnight
   });
 });
 
+describe('getTimezoneOffset() returns the local offset from UTC, positive east of UTC', () => {
+  it('returns UTC+1 in Copenhagen winter', () => {
+    expect(timeCore.getTimezoneOffset(Date.parse('2025-01-15T08:30:00Z') as Instant)).toBe(MILLIS_PER_HOUR);
+  });
+
+  it('returns UTC+2 in Copenhagen summer', () => {
+    expect(timeCore.getTimezoneOffset(Date.parse('2025-06-15T14:00:00Z') as Instant)).toBe(2 * MILLIS_PER_HOUR);
+  });
+
+  it('follows the instant across a DST change', () => {
+    // 2025-03-30 at 02:00 CET clocks jump to 03:00 CEST
+    expect(timeCore.getTimezoneOffset(Date.parse('2025-03-30T00:59:59Z') as Instant)).toBe(MILLIS_PER_HOUR);
+    expect(timeCore.getTimezoneOffset(Date.parse('2025-03-30T01:00:00Z') as Instant)).toBe(2 * MILLIS_PER_HOUR);
+  });
+});
+
 describe('toInstant() converts a time of day back to an instant anchored to a reference day', () => {
   const testTimes = [
     { time: '2025-01-15T08:30:00Z', label: 'winter morning' },

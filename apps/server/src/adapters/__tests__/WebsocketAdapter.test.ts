@@ -74,7 +74,7 @@ vi.mock('../../middleware/authenticate.js', () => ({
 
 import { MessageTag } from 'ontime-types';
 
-import { timeOfDayNow } from '../../lib/time-core/timeCore.js';
+import { now } from '../../lib/time-core/timeCore.js';
 import { socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
@@ -113,7 +113,7 @@ describe('WebsocketAdapter', () => {
     expect(client.close).not.toHaveBeenCalled();
   });
 
-  it('replies to a Ping by echoing its payload with the server time of day', () => {
+  it('replies to a Ping by echoing its payload with the server time and timezone offset', () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 12, 30) });
     authenticationMocks.reject = false;
     socket.init({} as Server, false);
@@ -123,7 +123,13 @@ describe('WebsocketAdapter', () => {
     client.emit('message', JSON.stringify({ tag: MessageTag.Ping, payload: 1234.5 }));
 
     expect(client.send).toHaveBeenLastCalledWith(
-      JSON.stringify({ tag: MessageTag.Pong, payload: 1234.5, clock: timeOfDayNow() }),
+      JSON.stringify({
+        tag: MessageTag.Pong,
+        payload: 1234.5,
+        epoch: now(),
+        // the test timezone is Europe/Copenhagen, UTC+1 in winter
+        tzOffset: 3_600_000,
+      }),
     );
   });
 });
