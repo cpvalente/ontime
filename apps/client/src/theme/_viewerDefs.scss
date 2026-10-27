@@ -38,7 +38,7 @@ $view-card-padding: min(2vh, 8px) clamp(16px, 2vw, 24px);
 // Properties related to timer
 $timer-color: rgba(white, 80%); // --timer-color-override
 $timer-finished-color: $playback-negative;
-$timer-bold-font-family: 'Arial Black', sans-serif; // --font-family-bold-override
+$timer-bold-font-family: 'Arial Black', sans-serif;
 
 $external-color: rgba(white, 85%); // --external-color-override
 
