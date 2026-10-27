@@ -1,6 +1,7 @@
-import { OntimeDelay, OntimeEvent, OntimeGroup, SupportedEntry } from 'ontime-types';
+import { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup, OntimeMilestone, SupportedEntry } from 'ontime-types';
+import { MILLIS_PER_HOUR, getLinksToLoaded } from 'ontime-utils';
 
-import { initRundownMetadata } from '../rundownMetadata';
+import { getRundownMetadata, initRundownMetadata } from '../rundownMetadata';
 
 describe('initRundownMetadata()', () => {
   it('processes nested rundown data', () => {
@@ -80,7 +81,9 @@ describe('initRundownMetadata()', () => {
       } as OntimeEvent,
     };
 
-    const { metadata, process } = initRundownMetadata(selectedEventId);
+    const flatOrder = ['1', 'group', '11', 'delay', '12', '13', '2'];
+    const links = getLinksToLoaded(demoEvents, flatOrder, selectedEventId);
+    const { metadata, process } = initRundownMetadata(selectedEventId, links);
 
     expect(metadata).toStrictEqual({
       previousEvent: null,
@@ -246,7 +249,8 @@ describe('initRundownMetadata()', () => {
         linkStart: false,
       } as OntimeEvent,
     };
-    const { process } = initRundownMetadata(null);
+    const links = getLinksToLoaded(rundownStartsWithGroup, ['group', '1', '2'], null);
+    const { process } = initRundownMetadata(null, links);
 
     expect(process(rundownStartsWithGroup.group)).toStrictEqual({
       previousEvent: null,
@@ -297,6 +301,137 @@ describe('initRundownMetadata()', () => {
       groupColour: 'red',
       groupEntries: 2,
       isFirstAfterGroup: false,
+    });
+  });
+});
+
+describe('getRundownMetadata() gap and link to loaded', () => {
+  function event(id: string, patch: Partial<OntimeEvent> = {}): OntimeEvent {
+    return {
+      id,
+      type: SupportedEntry.Event,
+      parent: null,
+      timeStart: 0,
+      duration: 10,
+      dayOffset: 0,
+      gap: 0,
+      skip: false,
+      linkStart: false,
+      countToEnd: false,
+      ...patch,
+    } as OntimeEvent;
+  }
+
+  function linkState(entries: Record<string, OntimeEntry>, flatOrder: string[], loadedId: string | null) {
+    const metadata = getRundownMetadata({ entries, flatOrder }, loadedId);
+    return Object.fromEntries(
+      flatOrder.map((id) => {
+        const { isPast, isLoaded, totalGap, isLinkedToLoaded } = metadata[id];
+        return [id, { isPast, isLoaded, totalGap, isLinkedToLoaded }];
+      }),
+    );
+  }
+
+  it('carries the chain through skipped events, delays, milestones and groups', () => {
+    const entries = {
+      before: event('before', { timeStart: 0 }),
+      loaded: event('loaded', { timeStart: 10 }),
+      skipped: event('skipped', { timeStart: 20, skip: true, gap: 50 }),
+      group: { id: 'group', type: SupportedEntry.Group, entries: ['a', 'delay', 'b'] } as unknown as OntimeGroup,
+      a: event('a', { parent: 'group', timeStart: 20, linkStart: true }),
+      delay: { id: 'delay', type: SupportedEntry.Delay, parent: 'group', duration: 0 } as OntimeDelay,
+      b: event('b', { parent: 'group', timeStart: 30, linkStart: true }),
+      milestone: { id: 'milestone', type: SupportedEntry.Milestone, parent: null } as OntimeMilestone,
+      c: event('c', { timeStart: 45, gap: 5 }),
+      d: event('d', { timeStart: 58, gap: 3, linkStart: true }),
+    };
+    const flatOrder = ['before', 'loaded', 'skipped', 'group', 'a', 'delay', 'b', 'milestone', 'c', 'd'];
+
+    expect(linkState(entries, flatOrder, 'loaded')).toStrictEqual({
+      before: { isPast: true, isLoaded: false, totalGap: 0, isLinkedToLoaded: false },
+      loaded: { isPast: false, isLoaded: true, totalGap: 0, isLinkedToLoaded: true },
+      skipped: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      group: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      a: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      delay: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      b: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      milestone: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: true },
+      c: { isPast: false, isLoaded: false, totalGap: 5, isLinkedToLoaded: false },
+      d: { isPast: false, isLoaded: false, totalGap: 8, isLinkedToLoaded: false },
+    });
+  });
+
+  it('breaks the chain after a countToEnd event and gives its duration back as gap', () => {
+    const entries = {
+      loaded: event('loaded', { timeStart: 0 }),
+      cte: event('cte', { timeStart: 10, linkStart: true, countToEnd: true }),
+      next: event('next', { timeStart: 20, linkStart: true }),
+      later: event('later', { timeStart: 35, gap: 5, linkStart: true }),
+    };
+    const flatOrder = ['loaded', 'cte', 'next', 'later'];
+
+    expect(linkState(entries, flatOrder, 'loaded')).toMatchObject({
+      cte: { totalGap: 0, isLinkedToLoaded: true },
+      next: { totalGap: 10, isLinkedToLoaded: false },
+      later: { totalGap: 15, isLinkedToLoaded: false },
+    });
+  });
+
+  it('keeps the chain after a loaded countToEnd event', () => {
+    const entries = {
+      loaded: event('loaded', { timeStart: 0, countToEnd: true }),
+      next: event('next', { timeStart: 10, linkStart: true }),
+    };
+
+    expect(linkState(entries, ['loaded', 'next'], 'loaded')).toMatchObject({
+      next: { totalGap: 0, isLinkedToLoaded: true },
+    });
+  });
+
+  it('follows the chain across midnight and checks countToEnd on the previous event in order', () => {
+    const entries = {
+      loaded: event('loaded', { timeStart: 22 * MILLIS_PER_HOUR, duration: 3 * MILLIS_PER_HOUR }),
+      overlap: event('overlap', {
+        timeStart: 23 * MILLIS_PER_HOUR,
+        duration: MILLIS_PER_HOUR / 2,
+        linkStart: true,
+        countToEnd: true,
+      }),
+      nextDay: event('nextDay', { timeStart: MILLIS_PER_HOUR, dayOffset: 1, linkStart: true }),
+      gapped: event('gapped', { timeStart: 5 * MILLIS_PER_HOUR, dayOffset: 1, gap: 2 * MILLIS_PER_HOUR }),
+    };
+    const flatOrder = ['loaded', 'overlap', 'nextDay', 'gapped'];
+
+    expect(linkState(entries, flatOrder, 'loaded')).toMatchObject({
+      overlap: { totalGap: 0, isLinkedToLoaded: true },
+      nextDay: { totalGap: MILLIS_PER_HOUR / 2, isLinkedToLoaded: false },
+      gapped: { totalGap: MILLIS_PER_HOUR / 2 + 2 * MILLIS_PER_HOUR, isLinkedToLoaded: false },
+    });
+  });
+
+  it('accumulates every gap and links nothing when no event is loaded', () => {
+    const entries = {
+      a: event('a', { timeStart: 0 }),
+      b: event('b', { timeStart: 15, gap: 5, linkStart: true }),
+      c: event('c', { timeStart: 30, gap: 5 }),
+    };
+
+    expect(linkState(entries, ['a', 'b', 'c'], null)).toStrictEqual({
+      a: { isPast: false, isLoaded: false, totalGap: 0, isLinkedToLoaded: false },
+      b: { isPast: false, isLoaded: false, totalGap: 5, isLinkedToLoaded: false },
+      c: { isPast: false, isLoaded: false, totalGap: 10, isLinkedToLoaded: false },
+    });
+  });
+
+  it('walks downstream of a loaded event which is skipped', () => {
+    const entries = {
+      loaded: event('loaded', { timeStart: 0, skip: true }),
+      next: event('next', { timeStart: 15, gap: 5, linkStart: true }),
+    };
+
+    expect(linkState(entries, ['loaded', 'next'], 'loaded')).toStrictEqual({
+      loaded: { isPast: false, isLoaded: true, totalGap: 0, isLinkedToLoaded: true },
+      next: { isPast: false, isLoaded: false, totalGap: 5, isLinkedToLoaded: true },
     });
   });
 });

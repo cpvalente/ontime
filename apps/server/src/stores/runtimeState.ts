@@ -16,10 +16,17 @@ import {
   TimeOfDay,
   TimerPhase,
   TimerState,
-  isOntimeEvent,
   runtimeStorePlaceholder,
 } from 'ontime-types';
-import { calculateDuration, checkIsNow, dayInMs, getLastEventNormal, isPlaybackActive } from 'ontime-utils';
+import {
+  type LinkToLoaded,
+  calculateDuration,
+  checkIsNow,
+  dayInMs,
+  getLastEventNormal,
+  getLinksToLoaded,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
@@ -962,8 +969,7 @@ function timerPhaseInput(state: RuntimeState): TimerPhaseInput {
 
 /**
  * Finds the loaded event's group end, next flag and rundown end
- * The loaded event is located in the playable order by its ID,
- * callers hold indexes in the timed order, which also contains skipped events
+ * The loaded event is located in the timed order by its ID, so a loaded event which is skipped still has downstream events
  */
 export function loadGroupFlagAndEnd(
   rundown: Rundown,
@@ -982,10 +988,8 @@ export function loadGroupFlagAndEnd(
     return;
   }
 
+  const loadedId = state.eventNow.id;
   const currentGroupId = state.eventNow.parent;
-  const flagsPresent = metadata.flags.length !== 0;
-
-  const { playableEventOrder } = metadata;
   const { entries } = rundown;
 
   const orderInGroup = currentGroupId ? (entries[currentGroupId] as OntimeGroup).entries : null;
@@ -996,62 +1000,31 @@ export function loadGroupFlagAndEnd(
     state.rundown.actualGroupStart = null;
   }
 
-  // if we don't have a any flags in the rundown then no need to look for it
-  let foundFlag = !flagsPresent;
-  // if we don't have a last event for the group there is no need to find its end time
-  let foundGroupEnd = lastEventInGroup === null;
+  const links = getLinksToLoaded(entries, metadata.timedEventOrder, loadedId);
+  const toExpected = (event: OntimeEvent, { totalGap, isLinkedToLoaded }: LinkToLoaded) => ({
+    event,
+    accumulatedGap: totalGap,
+    isLinkedToLoaded,
+  });
 
-  let accumulatedGap = 0;
-  let isLinkedToLoaded = true;
-  let previousWasCountToEnd: Maybe<number> = null;
-
-  // a loaded event which is no longer playable (ie: skipped while loaded) has no downstream events to search
-  const currentIndex = playableEventOrder.indexOf(state.eventNow.id);
-  const searchFrom = currentIndex === -1 ? playableEventOrder.length : currentIndex;
-
-  for (let idx = searchFrom; idx < playableEventOrder.length; idx++) {
-    const entry = entries[playableEventOrder[idx]];
-
-    if (isOntimeEvent(entry)) {
-      if (idx !== currentIndex) {
-        // we only accumulate data after the loaded event
-
-        if (previousWasCountToEnd !== null) {
-          /** previous event was countToEnd: add its duration as a positive gap (it "gives back" time downstream)
-           *   and break the link to the loaded event since countToEnd events reset the schedule
-           */
-          accumulatedGap += entry.gap + previousWasCountToEnd;
-          isLinkedToLoaded = false;
-        } else {
-          accumulatedGap += entry.gap;
-          isLinkedToLoaded = isLinkedToLoaded && entry.linkStart;
-        }
-
-        if (entry.countToEnd) {
-          previousWasCountToEnd = entry.duration;
-        } else {
-          previousWasCountToEnd = null;
-        }
-
-        // and the loaded event is not allowed to be the next flag
-        if (!foundFlag && metadata.flags.includes(entry.id)) {
-          foundFlag = true;
-          state.eventFlag = entry as PlayableEvent; // we know it is playable as it is coming from the playableEventOrder list
-          state._flag = { event: entry, isLinkedToLoaded, accumulatedGap };
-        }
-      }
-
-      if (!foundGroupEnd && entry.id === lastEventInGroup?.id) {
-        foundGroupEnd = true;
-        state._group = { event: lastEventInGroup, isLinkedToLoaded, accumulatedGap };
-      }
-    }
+  const groupEndLink = lastEventInGroup ? links.get(lastEventInGroup.id) : undefined;
+  if (lastEventInGroup && groupEndLink) {
+    state._group = toExpected(lastEventInGroup, groupEndLink);
   }
 
-  const lastID = playableEventOrder.at(-1);
-  const lastEvent = lastID ? (entries[lastID] as OntimeEvent) : null;
-  if (lastEvent) {
-    state._end = { event: lastEvent, isLinkedToLoaded, accumulatedGap };
+  // the loaded event is not allowed to be the next flag
+  const flagId = metadata.flags.find((id) => id !== loadedId && links.has(id));
+  if (flagId) {
+    const flag = entries[flagId] as PlayableEvent; // flags only hold playable events
+    state.eventFlag = flag;
+    state._flag = toExpected(flag, links.get(flagId) as LinkToLoaded);
+  }
+
+  const lastID = metadata.playableEventOrder.at(-1);
+  if (lastID) {
+    // the last event is upstream when a skipped event is loaded after it
+    const endLink = links.get(lastID) ?? { totalGap: 0, isLinkedToLoaded: true };
+    state._end = toExpected(entries[lastID] as OntimeEvent, endLink);
   }
 }
 
