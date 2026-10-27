@@ -201,6 +201,7 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
 
   const projectId = getDataProvider().getProjectId();
   const restored = restoreService.forProject(restorePoint, projectId);
+  restoreService.initialise(restored);
   const showWelcome = await getShowWelcomeDialog(restored?.runtime !== undefined);
   socket.init(expressServer, showWelcome, prefix);
 
@@ -251,7 +252,6 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   // apply the restore point if it exists
   runtimeService.init(restored?.runtime ?? null);
 
-  // after the runtime, which saves its playback first, so the aux timers save into the same file
   if (restored?.auxTimers) {
     auxTimerService.resume(restored.auxTimers);
   }
@@ -346,6 +346,8 @@ export async function stopServices(exitCode: number): Promise<void> {
   if (exitCode === 0 || exitCode === 99) {
     await withTimeout(restoreService.clear(), shutdownTimeout);
     await withTimeout(portManager.shutdown(), shutdownTimeout);
+  } else {
+    await withTimeout(restoreService.flush(), shutdownTimeout);
   }
 
   await withTimeout(

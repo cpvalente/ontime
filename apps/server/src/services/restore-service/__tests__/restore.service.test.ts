@@ -30,10 +30,16 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
 let restoreService: (typeof import('../restore.service.js'))['restoreService'];
 
 beforeEach(async () => {
+  vi.useFakeTimers();
   vi.clearAllMocks();
   loaded.projectId = 'project';
   vi.resetModules();
   ({ restoreService } = await import('../restore.service.js'));
+});
+
+afterEach(() => {
+  vi.clearAllTimers();
+  vi.useRealTimers();
 });
 
 const runtime: RuntimeRestore = {
@@ -96,8 +102,11 @@ describe('restoreService', () => {
     const paused = { ...runtime, playback: Playback.Pause };
 
     await restoreService.save(runtime, write);
+    await restoreService.flush();
     await restoreService.save(runtime, write);
+    await restoreService.flush();
     await restoreService.save(paused, write);
+    await restoreService.flush();
 
     expect(write).toHaveBeenCalledTimes(2);
     expect(write).toHaveBeenNthCalledWith(1, { runtime: savedRuntime, savedAt: expect.any(Number) });
@@ -107,18 +116,84 @@ describe('restoreService', () => {
     });
   });
 
+  it('saves the latest state every three seconds while commands keep arriving', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    await restoreService.save(runtime, write);
+    await vi.advanceTimersByTimeAsync(2000);
+    await restoreService.saveAuxTimers(auxTimers, write);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(write).not.toHaveBeenCalled();
+
+    await vi.advanceTimersByTimeAsync(1);
+    expect(write).toHaveBeenCalledExactlyOnceWith({ runtime: savedRuntime, auxTimers, savedAt: expect.any(Number) });
+
+    await restoreService.save({ ...runtime, playback: Playback.Pause }, write);
+    await vi.advanceTimersByTimeAsync(2000);
+    const stoppedTimers: AuxTimers = [stopped, stopped, stopped];
+    await restoreService.saveAuxTimers(stoppedTimers, write);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(write).toHaveBeenCalledTimes(2);
+    expect(write).toHaveBeenLastCalledWith({
+      runtime: { ...savedRuntime, playback: Playback.Pause },
+      auxTimers: stoppedTimers,
+      savedAt: expect.any(Number),
+    });
+
+    await vi.advanceTimersByTimeAsync(6000);
+    expect(write).toHaveBeenCalledTimes(2);
+  });
+
+  it('seeds recovery without rewriting it, keeping both parts on later changes', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    restoreService.initialise(restorePoint);
+    await restoreService.save(runtime, write);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(write).not.toHaveBeenCalled();
+
+    await restoreService.save({ ...runtime, playback: Playback.Pause }, write);
+    await restoreService.flush();
+    expect(write).toHaveBeenLastCalledWith({
+      runtime: { ...savedRuntime, playback: Playback.Pause },
+      auxTimers,
+      savedAt: expect.any(Number),
+    });
+
+    const stoppedTimers: AuxTimers = [stopped, stopped, stopped];
+    await restoreService.saveAuxTimers(stoppedTimers, write);
+    await restoreService.flush();
+    expect(write).toHaveBeenLastCalledWith({
+      runtime: { ...savedRuntime, playback: Playback.Pause },
+      auxTimers: stoppedTimers,
+      savedAt: expect.any(Number),
+    });
+  });
+
+  it('seeds only recovery accepted for the loaded project', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    restoreService.initialise(restoreService.forProject(restorePoint, 'another-project'));
+    await restoreService.saveAuxTimers([stopped, stopped, stopped], write);
+    await restoreService.flush();
+    expect(write).toHaveBeenCalledExactlyOnceWith({
+      auxTimers: [stopped, stopped, stopped],
+      savedAt: expect.any(Number),
+    });
+  });
+
   it('saves aux timers with the runtime, neither replacing the other', async () => {
     const write = vi.fn().mockResolvedValue(undefined);
 
     // before playback changes, the point holds the aux timers only
     await restoreService.saveAuxTimers(auxTimers, write);
+    await restoreService.flush();
     expect(write).toHaveBeenLastCalledWith({ auxTimers, savedAt: expect.any(Number) });
 
     await restoreService.save(runtime, write);
+    await restoreService.flush();
     expect(write).toHaveBeenLastCalledWith({ runtime: savedRuntime, auxTimers, savedAt: expect.any(Number) });
 
     const stoppedTimers: AuxTimers = [stopped, stopped, stopped];
     await restoreService.saveAuxTimers(stoppedTimers, write);
+    await restoreService.flush();
     expect(write).toHaveBeenLastCalledWith({
       runtime: savedRuntime,
       auxTimers: stoppedTimers,
@@ -130,27 +205,30 @@ describe('restoreService', () => {
     const write = vi.fn().mockResolvedValue(undefined);
 
     await restoreService.save(runtime, write);
+    await restoreService.flush();
     loaded.projectId = 'another-project';
     await restoreService.saveAuxTimers(auxTimers, write);
+    await restoreService.flush();
 
     expect(write).toHaveBeenLastCalledWith({ runtime: savedRuntime, auxTimers, savedAt: expect.any(Number) });
   });
 
-  it('saves a change back while the previous write is pending', async () => {
+  it('flushes the latest state after an in-flight write completes', async () => {
     let finishWrite = () => {};
     const write = vi
       .fn()
-      .mockResolvedValueOnce(undefined)
       .mockImplementationOnce(() => new Promise<void>((resolve) => (finishWrite = resolve)))
       .mockResolvedValue(undefined);
 
+    await restoreService.save({ ...runtime, playback: Playback.Pause }, write);
+    await vi.advanceTimersByTimeAsync(3000);
     await restoreService.save(runtime, write);
-    const pending = restoreService.save({ ...runtime, playback: Playback.Pause }, write);
-    await restoreService.save(runtime, write);
-    finishWrite();
-    await pending;
+    const flushed = restoreService.flush();
+    expect(write).toHaveBeenCalledOnce();
 
-    expect(write).toHaveBeenCalledTimes(3);
+    finishWrite();
+    await flushed;
+    expect(write).toHaveBeenCalledTimes(2);
     expect(write).toHaveBeenLastCalledWith({ runtime: savedRuntime, savedAt: expect.any(Number) });
   });
 
@@ -158,8 +236,10 @@ describe('restoreService', () => {
     const write = vi.fn().mockResolvedValue(undefined);
 
     await restoreService.save(runtime, write);
+    await restoreService.flush();
     loaded.projectId = 'another-project';
     await restoreService.save(runtime, write);
+    await restoreService.flush();
 
     expect(write).toHaveBeenCalledTimes(2);
     expect(write).toHaveBeenLastCalledWith(
@@ -170,7 +250,8 @@ describe('restoreService', () => {
   it('does not throw when saving fails', async () => {
     const write = vi.fn().mockRejectedValue(new Error('Write failed'));
 
-    await expect(restoreService.save(runtime, write)).resolves.toBeUndefined();
+    await restoreService.save(runtime, write);
+    await expect(restoreService.flush()).resolves.toBeUndefined();
     expect(write).toHaveBeenCalledOnce();
   });
 
@@ -179,6 +260,7 @@ describe('restoreService', () => {
 
     for (let i = 0; i < 6; i++) {
       await restoreService.save({ ...runtime, selectedEventId: `failing-save-${i}` }, write);
+      await restoreService.flush();
     }
 
     expect(logger.warning).toHaveBeenCalledTimes(1);
@@ -208,5 +290,14 @@ describe('restoreService', () => {
     await expect(restoreService.clear(write)).resolves.toBeUndefined();
     expect(write).toHaveBeenCalledTimes(2);
     expect(write).toHaveBeenCalledWith(null);
+  });
+
+  it('cancels pending saves on a clean exit without recreating the restore file', async () => {
+    const write = vi.fn().mockResolvedValue(undefined);
+    await restoreService.save(runtime, write);
+    await restoreService.clear(write);
+    await vi.advanceTimersByTimeAsync(3000);
+    await restoreService.flush();
+    expect(write).toHaveBeenCalledExactlyOnceWith(null);
   });
 });

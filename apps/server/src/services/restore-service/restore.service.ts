@@ -13,12 +13,16 @@ import type { RestorePoint, RuntimeRestore } from './restore.types.js';
 
 /** a point older than this belongs to a show which is no longer running */
 const maxRestoreAge = 5 * MILLIS_PER_HOUR;
+const writeDelayMs = 3000;
 
 let failedCreateAttempts = 0;
 let runtime: RestorePoint['runtime'];
 let auxTimers: AuxTimers | undefined;
 let savedState: Omit<RestorePoint, 'savedAt'> | null = null;
 let fileRef: JSONFile<RestorePoint | null> | null = null;
+let pendingWrite: NodeJS.Timeout | null = null;
+let pendingWriter = write;
+let activeWrite: Promise<void> | null = null;
 
 /**
  * Service manages saving snapshot of application state
@@ -29,8 +33,17 @@ export const restoreService = {
   saveAuxTimers,
   load,
   forProject,
+  initialise,
+  flush,
   clear,
 };
+
+/** Seeds both parts before playback or aux timers resume, without rewriting the file. */
+function initialise(point: RestorePoint | null) {
+  runtime = point?.runtime;
+  auxTimers = point?.auxTimers;
+  savedState = { runtime, auxTimers };
+}
 
 /**
  * Saves the runtime part of the restore point
@@ -39,7 +52,7 @@ export const restoreService = {
  */
 async function save(data: RuntimeRestore, writeFn = write) {
   runtime = { ...data, projectId: getDataProvider().getProjectId() };
-  await persist(writeFn);
+  scheduleWrite(writeFn);
 }
 
 /**
@@ -49,7 +62,36 @@ async function save(data: RuntimeRestore, writeFn = write) {
  */
 async function saveAuxTimers(timers: AuxTimers, writeFn = write) {
   auxTimers = timers;
-  await persist(writeFn);
+  scheduleWrite(writeFn);
+}
+
+function scheduleWrite(writeFn: typeof write) {
+  pendingWriter = writeFn;
+  // Later commands update the state without postponing the scheduled write.
+  if (pendingWrite) return;
+  pendingWrite = setTimeout(() => {
+    pendingWrite = null;
+    startWrite();
+  }, writeDelayMs);
+}
+
+function startWrite() {
+  const previousWrite = activeWrite;
+  const writeFn = pendingWriter;
+  activeWrite = (async () => {
+    await previousWrite;
+    await persist(writeFn);
+  })();
+}
+
+/** Writes the latest pending state and waits for in-flight writes before shutdown. */
+async function flush() {
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+    pendingWrite = null;
+    startWrite();
+  }
+  await activeWrite;
 }
 
 /**
@@ -133,8 +175,16 @@ function forProject(restorePoint: RestorePoint | null, projectId: string): Resto
  * @public
  */
 async function clear(writeFn = write) {
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+    pendingWrite = null;
+  }
+  await activeWrite;
   try {
     await writeFn(null);
+    runtime = undefined;
+    auxTimers = undefined;
+    savedState = null;
   } catch (_error) {
     // nothing to do
   }

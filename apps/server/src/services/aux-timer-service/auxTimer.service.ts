@@ -38,7 +38,6 @@ export function createAuxTimerService(emit: EmitFn, getTime: GetTimeFn, save: Sa
     timers = [...savedTimers];
     emitAll();
     updateInterval();
-    save([...timers]);
   }
 
   function setDirection(direction: SimpleDirection, index: number) {
