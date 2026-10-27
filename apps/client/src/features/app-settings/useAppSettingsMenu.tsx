@@ -30,6 +30,7 @@ const staticOptions = [
         label: 'View settings',
         keywords: ['css', 'style', 'theme', 'translation', 'freeze', 'overtime'],
       },
+      { id: 'settings__teleprompter', label: 'Teleprompter', keywords: ['prompter', 'script', 'autocue'] },
       { id: 'settings__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
       { id: 'settings__mcp', label: 'MCP Server', keywords: ['ai', 'agent', 'model'] },
       ...(isDocker ? [] : [{ id: 'settings__port', label: 'Server port', keywords: ['http', 'network', 'address'] }]),

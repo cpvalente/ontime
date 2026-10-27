@@ -50,6 +50,13 @@ test.describe('test view navigation feature', () => {
     await expect(page).toHaveURL('/timer');
   });
 
+  test('Teleprompter', async ({ page }) => {
+    await openNavigationMenu(page);
+    await page.getByRole('button', { name: 'Teleprompter' }).click();
+    await expect(page.getByTestId('teleprompter-view')).toBeVisible();
+    await expect(page).toHaveURL('/teleprompter');
+  });
+
   /**
    * The shortcut has to read the current open state, not the one captured when it was
    * registered, otherwise it only ever opens the menu.
