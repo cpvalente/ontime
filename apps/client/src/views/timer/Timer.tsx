@@ -37,6 +37,7 @@ import './Timer.scss';
 
 export default function TimerLoader() {
   const { data, status } = useTimerData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Timer');
 
@@ -45,7 +46,7 @@ export default function TimerLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Timer {...data} />;

@@ -213,7 +213,7 @@ export const connectSocket = () => {
           break;
         }
         case MessageTag.Refetch: {
-          // the refetch message signals that the rundown has changed in the server side
+          // the refetch message signals that the target data has changed in the server side
           const { target, revision, rundownId } = payload;
           switch (target) {
             case RefetchKey.All:
@@ -265,8 +265,8 @@ export const connectSocket = () => {
           break;
         }
       }
-    } catch (_) {
-      // ignore unhandled
+    } catch (error) {
+      console.error('WebSocket: failed to handle message', error);
     }
   };
 };

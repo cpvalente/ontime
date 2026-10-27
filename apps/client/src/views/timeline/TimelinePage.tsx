@@ -23,6 +23,7 @@ import './TimelinePage.scss';
 
 export default function TimelinePageLoader() {
   const { data, status } = useTimelineData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Timeline');
 
@@ -31,7 +32,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <TimelinePage {...data} />;

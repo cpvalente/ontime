@@ -7,6 +7,7 @@ import ViewParamsEditor from '../../common/components/view-params-editor/ViewPar
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { getDefaultFormat } from '../../common/utils/time';
+import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import { getStudioOptions, useStudioOptions } from './studio.options';
 import StudioClock from './StudioClock';
@@ -17,6 +18,7 @@ import './Studio.scss';
 
 export default function StudioLoader() {
   const { data, status } = useStudioData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Studio Clock');
 
@@ -25,7 +27,7 @@ export default function StudioLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Studio {...data} />;
