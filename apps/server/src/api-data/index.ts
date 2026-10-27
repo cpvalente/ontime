@@ -12,6 +12,7 @@ import { router as reportRouter } from './report/report.router.js';
 import { router as rundownsRouter } from './rundown/rundown.router.js';
 import { router as sessionRouter } from './session/session.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
+import { router as teleprompterRouter } from './teleprompter/teleprompter.router.js';
 import { router as urlPresetsRouter } from './url-presets/urlPresets.router.js';
 import { router as viewSettingsRouter } from './view-settings/viewSettings.router.js';
 
@@ -32,6 +33,7 @@ appRouter.use('/excel', async (req, res, next) => {
   const { router } = await import('./excel/excel.router.js');
   router(req, res, next);
 });
+appRouter.use('/teleprompter', teleprompterRouter);
 appRouter.use('/url-presets', urlPresetsRouter);
 appRouter.use('/session', sessionRouter);
 appRouter.use('/view-settings', viewSettingsRouter);
