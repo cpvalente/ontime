@@ -56,6 +56,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
     }),
     getProjectRundowns: () => ({}),
     getCustomFields: () => ({}),
+    getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
     setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
   }),
 }));
