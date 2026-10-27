@@ -1000,7 +1000,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '3'],
+      timedEventOrder: ['0', '11', '3'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1028,7 +1032,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '22'],
+      timedEventOrder: ['0', '11', '22'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1056,7 +1064,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '22'],
+      timedEventOrder: ['0', '11', '22'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1081,7 +1093,7 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
+    const metadata = { playableEventOrder: ['0', '1'], timedEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1143,7 +1155,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '1', '2', '3'],
+      timedEventOrder: ['0', '1', '2', '3'],
+      flags: ['3'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1225,7 +1241,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '1', '2', '3'],
+      timedEventOrder: ['0', '1', '2', '3'],
+      flags: ['3'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1301,14 +1321,19 @@ describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
   /**
    * Reads the gap and link state of each event after the loaded one by flagging it
    */
-  function linkState(rundown: Rundown, loadedId: string | null, playableEventOrder: string[]) {
+  function linkState(
+    rundown: Rundown,
+    loadedId: string | null,
+    playableEventOrder: string[],
+    timedEventOrder = playableEventOrder,
+  ) {
     const run = (flags: string[]) => {
       const state = {
         groupNow: null,
         eventNow: loadedId ? rundown.entries[loadedId] : null,
         rundown: { actualGroupStart: null },
       } as RuntimeState;
-      loadGroupFlagAndEnd(rundown, { playableEventOrder, flags } as RundownMetadata, state);
+      loadGroupFlagAndEnd(rundown, { playableEventOrder, timedEventOrder, flags } as RundownMetadata, state);
       return state;
     };
     const pick = (meta: RuntimeState['_flag']) =>
@@ -1336,7 +1361,9 @@ describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
       order: ['before', 'loaded', 'skipped', 'group', 'milestone', 'c', 'd'],
     });
 
-    expect(linkState(rundown, 'loaded', ['before', 'loaded', 'a', 'b', 'c', 'd'])).toStrictEqual({
+    const playable = ['before', 'loaded', 'a', 'b', 'c', 'd'];
+    const timed = ['before', 'loaded', 'skipped', 'a', 'b', 'c', 'd'];
+    expect(linkState(rundown, 'loaded', playable, timed)).toStrictEqual({
       group: null,
       end: { id: 'd', accumulatedGap: 8, isLinkedToLoaded: false },
       flags: {
@@ -1437,7 +1464,7 @@ describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
     });
   });
 
-  test('searches nothing downstream of a loaded event which is skipped', () => {
+  test('walks downstream of a loaded event which is skipped', () => {
     const rundown = makeRundown({
       entries: {
         loaded: event('loaded', { timeStart: 0, skip: true }),
@@ -1446,10 +1473,10 @@ describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
       order: ['loaded', 'next'],
     });
 
-    expect(linkState(rundown, 'loaded', ['next'])).toStrictEqual({
+    expect(linkState(rundown, 'loaded', ['next'], ['loaded', 'next'])).toStrictEqual({
       group: null,
-      end: { id: 'next', accumulatedGap: 0, isLinkedToLoaded: true },
-      flags: { next: null },
+      end: { id: 'next', accumulatedGap: 5, isLinkedToLoaded: true },
+      flags: { next: { id: 'next', accumulatedGap: 5, isLinkedToLoaded: true } },
     });
   });
 });

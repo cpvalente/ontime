@@ -1,5 +1,5 @@
 import { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup, OntimeMilestone, SupportedEntry } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, getLinksToLoaded } from 'ontime-utils';
 
 import { getRundownMetadata, initRundownMetadata } from '../rundownMetadata';
 
@@ -81,7 +81,9 @@ describe('initRundownMetadata()', () => {
       } as OntimeEvent,
     };
 
-    const { metadata, process } = initRundownMetadata(selectedEventId);
+    const flatOrder = ['1', 'group', '11', 'delay', '12', '13', '2'];
+    const links = getLinksToLoaded(demoEvents, flatOrder, selectedEventId);
+    const { metadata, process } = initRundownMetadata(selectedEventId, links);
 
     expect(metadata).toStrictEqual({
       previousEvent: null,
@@ -247,7 +249,8 @@ describe('initRundownMetadata()', () => {
         linkStart: false,
       } as OntimeEvent,
     };
-    const { process } = initRundownMetadata(null);
+    const links = getLinksToLoaded(rundownStartsWithGroup, ['group', '1', '2'], null);
+    const { process } = initRundownMetadata(null, links);
 
     expect(process(rundownStartsWithGroup.group)).toStrictEqual({
       previousEvent: null,
@@ -358,7 +361,7 @@ describe('getRundownMetadata() gap and link to loaded', () => {
     });
   });
 
-  it('breaks the chain after a countToEnd event without adding its duration to the gap', () => {
+  it('breaks the chain after a countToEnd event and gives its duration back as gap', () => {
     const entries = {
       loaded: event('loaded', { timeStart: 0 }),
       cte: event('cte', { timeStart: 10, linkStart: true, countToEnd: true }),
@@ -369,26 +372,25 @@ describe('getRundownMetadata() gap and link to loaded', () => {
 
     expect(linkState(entries, flatOrder, 'loaded')).toMatchObject({
       cte: { totalGap: 0, isLinkedToLoaded: true },
-      next: { totalGap: 0, isLinkedToLoaded: false },
-      later: { totalGap: 5, isLinkedToLoaded: false },
+      next: { totalGap: 10, isLinkedToLoaded: false },
+      later: { totalGap: 15, isLinkedToLoaded: false },
     });
   });
 
-  it('breaks the chain after a loaded countToEnd event', () => {
+  it('keeps the chain after a loaded countToEnd event', () => {
     const entries = {
       loaded: event('loaded', { timeStart: 0, countToEnd: true }),
       next: event('next', { timeStart: 10, linkStart: true }),
     };
 
     expect(linkState(entries, ['loaded', 'next'], 'loaded')).toMatchObject({
-      next: { totalGap: 0, isLinkedToLoaded: false },
+      next: { totalGap: 0, isLinkedToLoaded: true },
     });
   });
 
-  it('follows the chain across midnight and checks countToEnd on the latest event rather than the previous', () => {
+  it('follows the chain across midnight and checks countToEnd on the previous event in order', () => {
     const entries = {
       loaded: event('loaded', { timeStart: 22 * MILLIS_PER_HOUR, duration: 3 * MILLIS_PER_HOUR }),
-      // ends before the loaded event, so it is not the latest event
       overlap: event('overlap', {
         timeStart: 23 * MILLIS_PER_HOUR,
         duration: MILLIS_PER_HOUR / 2,
@@ -402,8 +404,8 @@ describe('getRundownMetadata() gap and link to loaded', () => {
 
     expect(linkState(entries, flatOrder, 'loaded')).toMatchObject({
       overlap: { totalGap: 0, isLinkedToLoaded: true },
-      nextDay: { totalGap: 0, isLinkedToLoaded: true },
-      gapped: { totalGap: 2 * MILLIS_PER_HOUR, isLinkedToLoaded: false },
+      nextDay: { totalGap: MILLIS_PER_HOUR / 2, isLinkedToLoaded: false },
+      gapped: { totalGap: MILLIS_PER_HOUR / 2 + 2 * MILLIS_PER_HOUR, isLinkedToLoaded: false },
     });
   });
 

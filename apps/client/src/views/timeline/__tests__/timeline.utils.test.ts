@@ -22,7 +22,7 @@ function makeEvent(
 ): ExtendedEntry<PlayableEvent> {
   const event = createEvent({ id, timeStart, duration, ...patch }, id);
   if (!event) throw new Error('Invalid event fixture');
-  return { ...event, ...initRundownMetadata(null).metadata, skip: false };
+  return { ...event, ...initRundownMetadata(null, new Map()).metadata, skip: false };
 }
 
 describe('getElementPosition()', () => {

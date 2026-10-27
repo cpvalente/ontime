@@ -46,6 +46,8 @@ When relevant, cover interactions among:
 
 Pass time/state explicitly to keep rules deterministic and unit-testable.
 
+Client and server take the gap and link-to-loaded state behind expected times from `getLinksToLoaded` (`ontime-utils`), never a local walk. The chain follows `linkStart` through playable events after the loaded one; a countToEnd event after the loaded one breaks it and gives its duration back as gap.
+
 Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
 
 ## Lifecycle events

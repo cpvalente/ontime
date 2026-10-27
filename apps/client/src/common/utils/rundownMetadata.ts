@@ -1,4 +1,5 @@
 import {
+  EntryId,
   MaybeString,
   OntimeDelay,
   OntimeEntry,
@@ -10,7 +11,7 @@ import {
   isOntimeGroup,
   isPlayableEvent,
 } from 'ontime-types';
-import { checkIsNextDay, isNewLatest } from 'ontime-utils';
+import { type LinkToLoaded, checkIsNextDay, getLinksToLoaded, isNewLatest } from 'ontime-utils';
 
 export type RundownMetadata = {
   previousEvent: PlayableEvent | null; // The playableEvent from the previous iteration, used by indicators
@@ -42,7 +43,8 @@ export function getRundownMetadata(
   data: Pick<Rundown, 'entries' | 'flatOrder'>,
   selectedEventId: MaybeString,
 ): RundownMetadataObject {
-  const { metadata, process } = initRundownMetadata(selectedEventId);
+  const links = getLinksToLoaded(data.entries, data.flatOrder, selectedEventId);
+  const { metadata, process } = initRundownMetadata(selectedEventId, links);
   // keep a single reference to the metadata which we override for every entry
   let lastSnapshot = metadata;
   const rundownMetadata: RundownMetadataObject = {};
@@ -63,7 +65,8 @@ export function getFlatRundownMetadata(
   data: Pick<Rundown, 'entries' | 'flatOrder'>,
   selectedEventId: MaybeString,
 ): ExtendedEntry[] {
-  const { process } = initRundownMetadata(selectedEventId);
+  const links = getLinksToLoaded(data.entries, data.flatOrder, selectedEventId);
+  const { process } = initRundownMetadata(selectedEventId, links);
   const flatRundown: ExtendedEntry[] = [];
 
   for (const id of data.flatOrder) {
@@ -77,8 +80,9 @@ export function getFlatRundownMetadata(
 
 /**
  * Creates a process function which aggregates the rundown metadata and event metadata
+ * @param links - gap and link state of the events from the loaded one, see getLinksToLoaded
  */
-export function initRundownMetadata(selectedEventId: MaybeString) {
+export function initRundownMetadata(selectedEventId: MaybeString, links: ReadonlyMap<EntryId, LinkToLoaded>) {
   let rundownMeta: RundownMetadata = {
     previousEvent: null,
     latestEvent: null,
@@ -97,7 +101,7 @@ export function initRundownMetadata(selectedEventId: MaybeString) {
   };
 
   function process(entry: OntimeEntry): Readonly<RundownMetadata> {
-    const processedRundownMetadata = processEntry(rundownMeta, selectedEventId, entry);
+    const processedRundownMetadata = processEntry(rundownMeta, selectedEventId, links, entry);
     rundownMeta = processedRundownMetadata;
     return rundownMeta;
   }
@@ -111,6 +115,7 @@ export function initRundownMetadata(selectedEventId: MaybeString) {
 function processEntry(
   rundownMetadata: RundownMetadata,
   selectedEventId: MaybeString,
+  links: ReadonlyMap<EntryId, LinkToLoaded>,
   entry: Readonly<OntimeEntry>,
 ): Readonly<RundownMetadata> {
   const processedData = { ...rundownMetadata };
@@ -125,7 +130,13 @@ function processEntry(
   if (entry.id === selectedEventId) {
     processedData.isLoaded = true;
     processedData.isPast = false;
-    processedData.isLinkedToLoaded = true;
+  }
+
+  // entries outside the walk keep the values of the entry before them
+  const link = links.get(entry.id);
+  if (link) {
+    processedData.totalGap = link.totalGap;
+    processedData.isLinkedToLoaded = link.isLinkedToLoaded;
   }
 
   if (isOntimeGroup(entry)) {
@@ -151,17 +162,6 @@ function processEntry(
 
       if (isPlayableEvent(entry)) {
         processedData.isNextDay = checkIsNextDay(entry, processedData.previousEvent);
-
-        if (!processedData.isPast && !processedData.isLoaded) {
-          /**
-           * isLinkToLoaded is a chain value that we maintain until we
-           * a) find an unlinked event
-           * b) find a countToEnd event
-           */
-          processedData.totalGap += entry.gap;
-          processedData.isLinkedToLoaded =
-            entry.linkStart && !processedData.previousEvent?.countToEnd && processedData.isLinkedToLoaded;
-        }
 
         if (isNewLatest(entry, processedData.latestEvent)) {
           // this event is the forward most event in rundown, for next iteration
