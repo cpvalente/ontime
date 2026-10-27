@@ -16,6 +16,20 @@
   }
 }
 
+.hint {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}
+
+.hintTitle {
+  color: $ui-white;
+  font-weight: 600;
+}
+
 .content {
   padding-inline: 0.5rem 1.5rem;
   padding-bottom: 4rem;
