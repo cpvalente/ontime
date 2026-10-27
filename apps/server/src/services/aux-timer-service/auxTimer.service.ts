@@ -1,173 +1,128 @@
 import { RuntimeStore, SimpleDirection, SimplePlayback } from 'ontime-types';
 import { sanitiseAuxTimerNames } from 'ontime-utils';
 
-import { SimpleTimer } from '../../classes/simple-timer/SimpleTimer.js';
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
+import { restoreService } from '../restore-service/restore.service.js';
+import * as auxTimer from './auxTimer.utils.js';
+import type { AuxTimer, AuxTimers } from './auxTimer.utils.js';
 
 type AuxTimerStateUpdate = Partial<Pick<RuntimeStore, 'auxtimer1' | 'auxtimer2' | 'auxtimer3'>>;
 type EmitFn = (state: AuxTimerStateUpdate) => void;
 type GetTimeFn = () => number;
+type SaveFn = (timers: AuxTimers) => void;
 
-export class AuxTimerService {
-  private aux1: SimpleTimer;
-  private aux2: SimpleTimer;
-  private aux3: SimpleTimer;
-  private interval: NodeJS.Timeout | null = null;
-  protected emit: EmitFn;
-  private getTime: GetTimeFn;
-
-  constructor(emit: EmitFn, getTime: GetTimeFn) {
-    this.aux1 = new SimpleTimer(timerConfig.auxTimerDefault);
-    this.aux2 = new SimpleTimer(timerConfig.auxTimerDefault);
-    this.aux3 = new SimpleTimer(timerConfig.auxTimerDefault);
-    this.emit = emit;
-    this.getTime = getTime;
-  }
+export function createAuxTimerService(emit: EmitFn, getTime: GetTimeFn, save: SaveFn) {
+  let timers: AuxTimers = [
+    auxTimer.createAuxTimer(timerConfig.auxTimerDefault),
+    auxTimer.createAuxTimer(timerConfig.auxTimerDefault),
+    auxTimer.createAuxTimer(timerConfig.auxTimerDefault),
+  ];
+  let names = ['', '', ''];
+  let interval: NodeJS.Timeout | null = null;
 
   /**
    * The aux timers are runtime singletons which outlive a project,
    * so loading or editing a project does not refresh them: their names have to be pushed in.
    */
-  loadNames(names?: string[]) {
-    const [name1, name2, name3] = sanitiseAuxTimerNames(names);
-    const patch: AuxTimerStateUpdate = {
-      auxtimer1: this.aux1.setName(name1),
-      auxtimer2: this.aux2.setName(name2),
-      auxtimer3: this.aux3.setName(name3),
-    };
-    this.emit(patch);
+  function loadNames(projectNames?: string[]) {
+    names = sanitiseAuxTimerNames(projectNames);
+    emitAll();
   }
 
   /**
-   * Whether any of the aux timers are currently running
+   * Continues the aux timers from a restore point, names are kept
    */
-  private hasActiveTimers(): boolean {
-    return (
-      this.aux1.state.playback === SimplePlayback.Start ||
-      this.aux2.state.playback === SimplePlayback.Start ||
-      this.aux3.state.playback === SimplePlayback.Start
-    );
+  function resume(savedTimers: AuxTimers) {
+    timers = [...savedTimers];
+    emitAll();
+    updateInterval();
+    save([...timers]);
   }
 
-  private startInterval() {
-    if (!this.interval) {
-      this.interval = setInterval(this.update.bind(this), 500);
+  function setDirection(direction: SimpleDirection, index: number) {
+    return apply(index, (timer, now) => auxTimer.setDirection(timer, direction, now));
+  }
+
+  function start(index: number) {
+    return apply(index, auxTimer.start);
+  }
+
+  function pause(index: number) {
+    return apply(index, auxTimer.pause);
+  }
+
+  function stop(index: number) {
+    return apply(index, auxTimer.stop);
+  }
+
+  function setTime(duration: number, index: number) {
+    return apply(index, (timer, now) => auxTimer.setTime(timer, duration, now));
+  }
+
+  function addTime(millis: number, index: number) {
+    return apply(index, (timer) => auxTimer.addTime(timer, millis));
+  }
+
+  /**
+   * Applies a command to the timer at index (1-3), then broadcasts and saves it
+   */
+  function apply(index: number, command: (timer: AuxTimer, now: number) => AuxTimer) {
+    const now = getTime();
+    const slot = index - 1;
+    timers[slot] = command(timers[slot], now);
+    updateInterval();
+
+    const state = auxTimer.toTimerState(timers[slot], names[slot], now);
+    emit({ [`auxtimer${index}`]: state });
+    save([...timers]);
+    return state;
+  }
+
+  function emitAll() {
+    const now = getTime();
+    emit({
+      auxtimer1: auxTimer.toTimerState(timers[0], names[0], now),
+      auxtimer2: auxTimer.toTimerState(timers[1], names[1], now),
+      auxtimer3: auxTimer.toTimerState(timers[2], names[2], now),
+    });
+  }
+
+  /**
+   * Ticks only while a timer is running
+   */
+  function updateInterval() {
+    const isRunning = timers.some((timer) => timer.playback === SimplePlayback.Start);
+    if (isRunning && !interval) {
+      interval = setInterval(update, 500);
+    } else if (!isRunning) {
+      dispose();
     }
   }
 
   /**
-   * Utility simplifies guarding against multiple intervals being set
+   * Emits the running timers in one patch
    */
-  private stopInterval() {
-    if (this.interval && !this.hasActiveTimers()) {
-      clearInterval(this.interval);
-      this.interval = null;
-    }
-  }
-
-  @broadcastReturn
-  setDirection(direction: SimpleDirection, index: number) {
-    if (index === 1) return this.aux1.setDirection(direction, this.getTime());
-    if (index === 2) return this.aux2.setDirection(direction, this.getTime());
-    return this.aux3.setDirection(direction, this.getTime());
-  }
-
-  @broadcastReturn
-  start(index: number) {
-    this.startInterval();
-    if (index === 1) return this.aux1.start(this.getTime());
-    if (index === 2) return this.aux2.start(this.getTime());
-    return this.aux3.start(this.getTime());
-  }
-
-  @broadcastReturn
-  pause(index: number) {
-    // First pause the timer
-    let result;
-    if (index === 1) result = this.aux1.pause(this.getTime());
-    else if (index === 2) result = this.aux2.pause(this.getTime());
-    else result = this.aux3.pause(this.getTime());
-
-    // Then check if we need to keep the interval running
-    if (!this.hasActiveTimers()) {
-      this.stopInterval();
-    }
-
-    return result;
-  }
-
-  @broadcastReturn
-  stop(index: number) {
-    // First stop the timer
-    let result;
-    if (index === 1) result = this.aux1.stop();
-    else if (index === 2) result = this.aux2.stop();
-    else result = this.aux3.stop();
-
-    // Then check if we need to keep the interval running
-    if (!this.hasActiveTimers()) {
-      this.stopInterval();
-    }
-
-    return result;
-  }
-
-  @broadcastReturn
-  setTime(duration: number, index: number) {
-    if (index === 1) return this.aux1.setTime(duration);
-    if (index === 2) return this.aux2.setTime(duration);
-    return this.aux3.setTime(duration);
-  }
-
-  @broadcastReturn
-  addTime(millis: number, index: number) {
-    const aux = index === 1 ? this.aux1 : index === 2 ? this.aux2 : this.aux3;
-    if (aux.state.playback === SimplePlayback.Start) {
-      aux.addTime(millis);
-      return aux.update(this.getTime());
-    }
-    return aux.addTime(millis);
-  }
-
-  private update() {
-    /**
-     * The update function affects any running timers,
-     * so we decide to emit a patch object rather
-     * than using the decorator which would emit individual updates.
-     */
+  function update() {
+    const now = getTime();
     const patch: AuxTimerStateUpdate = {};
+    timers.forEach((timer, slot) => {
+      if (timer.playback === SimplePlayback.Start) {
+        patch[`auxtimer${slot + 1}` as keyof AuxTimerStateUpdate] = auxTimer.toTimerState(timer, names[slot], now);
+      }
+    });
+    emit(patch);
+  }
 
-    const timeNow = this.getTime();
-    if (this.aux1.state.playback === SimplePlayback.Start) {
-      patch.auxtimer1 = this.aux1.update(timeNow);
-    }
-
-    if (this.aux2.state.playback === SimplePlayback.Start) {
-      patch.auxtimer2 = this.aux2.update(timeNow);
-    }
-
-    if (this.aux3.state.playback === SimplePlayback.Start) {
-      patch.auxtimer3 = this.aux3.update(timeNow);
-    }
-
-    if (Object.keys(patch).length > 0) {
-      this.emit(patch);
+  function dispose() {
+    if (interval) {
+      clearInterval(interval);
+      interval = null;
     }
   }
-}
 
-function broadcastReturn(_target: object, _propertyKey: string, descriptor: PropertyDescriptor) {
-  const originalMethod = descriptor.value;
-
-  descriptor.value = function (this: AuxTimerService, ...args: unknown[]) {
-    const result = originalMethod.apply(this, args);
-    const index = args[args.length - 1] as number;
-    this.emit({ [`auxtimer${index}`]: result });
-    return result;
-  };
-
-  return descriptor;
+  return { loadNames, resume, setDirection, start, pause, stop, setTime, addTime, dispose };
 }
 
 const emit = (state: AuxTimerStateUpdate) => {
@@ -175,6 +130,7 @@ const emit = (state: AuxTimerStateUpdate) => {
     eventStore.set(key as keyof RuntimeStore, value);
   }
 };
-const timeNow = () => Date.now();
+// the restore service handles its errors
+const save = (timers: AuxTimers) => void restoreService.saveAuxTimers(timers);
 
-export const auxTimerService = new AuxTimerService(emit, timeNow);
+export const auxTimerService = createAuxTimerService(emit, timeCore.now, save);

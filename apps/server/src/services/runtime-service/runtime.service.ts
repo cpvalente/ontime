@@ -33,7 +33,7 @@ import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { type Change, onChange } from '../change-service/change.service.js';
 import { restoreService } from '../restore-service/restore.service.js';
-import type { RestorePoint } from '../restore-service/restore.types.js';
+import type { RuntimeRestore } from '../restore-service/restore.types.js';
 import { findNextRollEvent } from './roll.utils.js';
 import {
   findNextPlayableId,
@@ -168,7 +168,7 @@ class RuntimeService {
   }
 
   /** delay initialisation until we have a restore point */
-  public init(resumable: RestorePoint | null) {
+  public init(resumable: RuntimeRestore | null) {
     this.timer.start();
 
     // the project loads before the runtime, nothing is loaded yet so we only catch up with the rundown data
@@ -633,7 +633,7 @@ class RuntimeService {
    * @param restorePoint
    */
   @broadcastResult
-  public resume(restorePoint: RestorePoint) {
+  public resume(restorePoint: RuntimeRestore) {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
       logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'other-rundown', rundown: restorePoint.rundownId });
       return;
