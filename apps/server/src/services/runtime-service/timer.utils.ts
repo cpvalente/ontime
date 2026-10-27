@@ -1,8 +1,18 @@
-import { Day, MaybeNumber, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
-import { MILLIS_PER_HOUR, checkIsNow, dayInMs, isPlaybackActive } from 'ontime-utils';
+import {
+  Day,
+  Duration,
+  Maybe,
+  MaybeNumber,
+  Offset,
+  OffsetMode,
+  OntimeEvent,
+  Playback,
+  TimeOfDay,
+  TimerPhase,
+} from 'ontime-types';
+import { MILLIS_PER_HOUR, checkIsNow, dayInMs, getExpectedEnd, getExpectedStart, isPlaybackActive } from 'ontime-utils';
 
 import * as timeCore from '../../lib/time-core/timeCore.js';
-import { timerConfig } from '../../setup/config.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 
 /**
@@ -20,13 +30,22 @@ export function hasCrossedMidnight(previous: TimeOfDay, current: TimeOfDay): boo
   return backwardJump > 12 * MILLIS_PER_HOUR;
 }
 
+export type TimeToBoundaryInput = {
+  playback: Playback;
+  current: Maybe<Duration>;
+  secondaryTimer: Maybe<Duration>;
+  hasFinished: boolean;
+  /** how far ahead of its end we resolve a running timer */
+  triggerAhead: Duration;
+};
+
 /**
  * Calculates how long until the next playback boundary the timer must resolve
  * ie: the end of a roll pre-roll wait or the (anticipated) end of the running event
- * @returns {number | null} milliseconds until the boundary, or null if there is none to anticipate
+ * @returns time until the boundary, or null if there is none to anticipate
  */
-export function getTimeToBoundary(state: RuntimeState): MaybeNumber {
-  const { playback, secondaryTimer, current } = state.timer;
+export function getTimeToBoundary(input: TimeToBoundaryInput): Maybe<Duration> {
+  const { playback, current, secondaryTimer, hasFinished, triggerAhead } = input;
 
   if (playback !== Playback.Play && playback !== Playback.Roll) {
     return null;
@@ -37,28 +56,33 @@ export function getTimeToBoundary(state: RuntimeState): MaybeNumber {
     return secondaryTimer;
   }
 
-  if (current === null || state._timer.hasFinished) {
+  if (current === null || hasFinished) {
     return null;
   }
 
-  return current - timerConfig.triggerAhead;
+  return (current - triggerAhead) as Duration;
 }
+
+export type ExpectedFinishInput = {
+  clock: TimeOfDay;
+  event: Maybe<{ countToEnd: boolean; timeEnd: TimeOfDay }>;
+  startedAt: Maybe<TimeOfDay>;
+  duration: Maybe<Duration>;
+  addedTime: Duration;
+  pausedAt: Maybe<TimeOfDay>;
+};
 
 /**
  * Calculates expected finish time of a running timer
- * @param {RuntimeState} state runtime state
- * @returns {number | null} new current time or null if nothing is running
+ * @returns time the timer should finish, or null if nothing is running
+ * not wrapped to a time of day for count to end events
  */
-export function getExpectedFinish(state: RuntimeState): MaybeNumber {
-  const { startedAt, duration, addedTime } = state.timer;
+export function getExpectedFinish(input: ExpectedFinishInput): MaybeNumber {
+  const { clock, event, startedAt, duration, addedTime, pausedAt } = input;
 
-  if (state.eventNow === null) {
+  if (event === null) {
     return null;
   }
-
-  const { countToEnd, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
-  const { clock } = state;
 
   if (startedAt === null) {
     return null;
@@ -66,12 +90,12 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
 
   const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
 
-  if (countToEnd) {
-    return timeEnd + addedTime + pausedTime;
+  if (event.countToEnd) {
+    return event.timeEnd + addedTime + pausedTime;
   }
 
   // handle events that finish the day after
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if ther eis a timer
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- duration exists if there is a timer
   const expectedFinish = startedAt + duration! + addedTime + pausedTime;
   if (expectedFinish > dayInMs) {
     return expectedFinish - dayInMs;
@@ -81,28 +105,27 @@ export function getExpectedFinish(state: RuntimeState): MaybeNumber {
   return Math.max(expectedFinish, startedAt);
 }
 
+export type CurrentInput = {
+  clock: TimeOfDay;
+  event: { countToEnd: boolean; timeStart: TimeOfDay; timeEnd: TimeOfDay };
+  startedAt: Maybe<TimeOfDay>;
+  duration: Duration;
+  addedTime: Duration;
+  pausedAt: Maybe<TimeOfDay>;
+};
+
 /**
  * Calculates running countdown
- * @param {RuntimeState} state runtime state
- * @returns {number} current time for timer
+ * @returns time remaining in the timer, negative when in overtime
  */
-
-export function getCurrent(state: RuntimeState): number {
-  // eslint-disable-next-line no-unused-labels -- dev code path
-  DEV: {
-    if (state.eventNow === null || state.timer.duration === null) {
-      throw new Error('timerUtils.getCurrent: invalid state received');
-    }
-  }
-  const { startedAt, duration, addedTime } = state.timer;
-  const { countToEnd, timeStart, timeEnd } = state.eventNow;
-  const { pausedAt } = state._timer;
-  const { clock } = state;
+export function getCurrent(input: CurrentInput): Duration {
+  const { clock, event, startedAt, duration, addedTime, pausedAt } = input;
+  const { countToEnd, timeStart, timeEnd } = event;
 
   if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return correctDay - clock + timeEnd + addedTime;
+    return (correctDay - clock + timeEnd + addedTime) as Duration;
   }
 
   if (startedAt === null) {
@@ -110,39 +133,37 @@ export function getCurrent(state: RuntimeState): number {
   }
 
   if (pausedAt != null) {
-    return duration + addedTime - getTimeSinceStart(pausedAt, startedAt);
+    return (duration + addedTime - timeCore.elapsedTime(pausedAt, startedAt)) as Duration;
   }
 
   const hasPassedMidnight = startedAt > clock;
   const correctDay = hasPassedMidnight ? dayInMs : 0;
-  return startedAt + duration + addedTime - clock - correctDay;
+  return (startedAt + duration + addedTime - clock - correctDay) as Duration;
 }
+
+export type ElapsedInput = {
+  clock: TimeOfDay;
+  startedAt: Maybe<TimeOfDay>;
+  pausedAt: Maybe<TimeOfDay>;
+  /** time spent in pauses which have been resumed */
+  pausedDuration: Duration;
+};
 
 /**
  * Calculates active time elapsed since the timer started.
  */
-export function getElapsed(state: RuntimeState): MaybeNumber {
-  const { clock } = state;
-  const { startedAt } = state.timer;
-  const { pausedAt, pausedDuration } = state._timer;
+export function getElapsed(input: ElapsedInput): Maybe<Duration> {
+  const { clock, startedAt, pausedAt, pausedDuration } = input;
 
   if (startedAt === null) {
     return null;
   }
 
   const referenceClock = pausedAt ?? clock;
-  const elapsedSinceStart = getTimeSinceStart(referenceClock, startedAt);
+  const elapsedSinceStart = timeCore.elapsedTime(referenceClock, startedAt);
   const activeElapsed = elapsedSinceStart - pausedDuration;
 
-  return Math.max(0, activeElapsed);
-}
-
-function getTimeSinceStart(clock: TimeOfDay, startedAt: number): number {
-  if (clock < startedAt) {
-    return clock + dayInMs - startedAt;
-  }
-
-  return clock - startedAt;
+  return Math.max(0, activeElapsed) as Duration;
 }
 
 /**
@@ -172,61 +193,78 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
   return hasSkipped;
 }
 
+export type RuntimeOffsetInput = {
+  clock: TimeOfDay;
+  event: Maybe<{ countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day }>;
+  startedAt: Maybe<TimeOfDay>;
+  current: Maybe<Duration>;
+  addedTime: Duration;
+  pausedAt: Maybe<TimeOfDay>;
+  /** day the rundown started on, relative to its first event */
+  startDayOffset: Maybe<Day>;
+  plannedStart: Maybe<TimeOfDay>;
+  actualStart: Maybe<TimeOfDay>;
+};
+
 /**
  * Calculates difference between the runtime and the schedule of an event
  * Positive offset is over time / behind schedule
  * Negative offset is under time / ahead of schedule
  */
-export function getRuntimeOffset(state: RuntimeState): { absolute: number; relative: number } {
-  const { eventNow, clock, _startDayOffset } = state;
-  const { addedTime, current, startedAt } = state.timer;
+export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duration; relative: Duration } {
+  const { clock, event, startedAt, current, addedTime, pausedAt, startDayOffset, plannedStart, actualStart } = input;
   // nothing to calculate if there are no loaded events or if we havent started
-  if (eventNow === null || startedAt === null || _startDayOffset === null) {
-    return { absolute: 0, relative: 0 };
+  if (event === null || startedAt === null || startDayOffset === null) {
+    return { absolute: 0 as Duration, relative: 0 as Duration };
   }
 
-  const { countToEnd, timeStart, dayOffset } = eventNow;
-  const { plannedStart, actualStart } = state.rundown;
+  const { countToEnd, timeStart, dayOffset } = event;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
     // we know current exists as long as eventNow exists
-    if (current === null) throw new Error('timerUtils.getRuntimeOffset: state.timer.current must be set');
-    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
-    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: state.rundown.plannedStart must be set');
+    if (current === null) throw new Error('timerUtils.getRuntimeOffset: current must be set');
+    if (plannedStart === null) throw new Error('timerUtils.getRuntimeOffset: plannedStart must be set');
+    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: actualStart must be set');
   }
 
   // difference between planned event start and actual event start (will be positive if we started behind)
-  const eventStartOffset = startedAt + _startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
+  const eventStartOffset = startedAt + startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
 
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
 
   // time the playback was paused is added to the offset
-  const pausedTime = state._timer.pausedAt === null ? 0 : timeCore.elapsedTime(clock, state._timer.pausedAt);
+  const pausedTime = pausedAt === null ? 0 : timeCore.elapsedTime(clock, pausedAt);
 
   // absolute offset is difference between schedule and playback time
   // in case of count to end, the absolute offset is overtime and added time
   const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
-  const relative = absolute + plannedStart - actualStart - _startDayOffset * dayInMs;
+  const relative = absolute + plannedStart - actualStart - startDayOffset * dayInMs;
 
-  return { absolute, relative };
+  return { absolute: absolute as Duration, relative: relative as Duration };
 }
+
+export type TimerPhaseInput = {
+  playback: Playback;
+  current: Maybe<Duration>;
+  secondaryTimer: Maybe<Duration>;
+  event: Maybe<{ timeDanger: Duration; timeWarning: Duration }>;
+};
 
 /**
  * Checks running timer to see which phase it currently is in
- * @param state
  */
-export function getTimerPhase(state: RuntimeState): TimerPhase {
-  if (!isPlaybackActive(state.timer.playback)) {
+export function getTimerPhase(input: TimerPhaseInput): TimerPhase {
+  const { playback, current, secondaryTimer, event } = input;
+
+  if (!isPlaybackActive(playback)) {
     return TimerPhase.None;
   }
 
-  const current = state.timer.current;
-
-  if (current === null || state.eventNow === null || state.timer.secondaryTimer != null) {
+  if (current === null || event === null || secondaryTimer != null) {
     return TimerPhase.Pending;
   }
 
@@ -234,17 +272,59 @@ export function getTimerPhase(state: RuntimeState): TimerPhase {
     return TimerPhase.Overtime;
   }
 
-  const danger = state.eventNow.timeDanger;
-  if (current <= danger) {
+  if (current <= event.timeDanger) {
     return TimerPhase.Danger;
   }
 
-  const warning = state.eventNow.timeWarning;
-  if (current <= warning) {
+  if (current <= event.timeWarning) {
     return TimerPhase.Warning;
   }
 
   return TimerPhase.Default;
+}
+
+/** An event after the loaded one, with what is needed to calculate when it is expected */
+export type ExpectedMetadata = {
+  event: OntimeEvent;
+  accumulatedGap: number;
+  isLinkedToLoaded: boolean;
+};
+
+export type ExpectedTimesInput = {
+  mode: OffsetMode;
+  offset: { absolute: Duration; relative: Duration };
+  plannedStart: Maybe<TimeOfDay>;
+  actualStart: Maybe<TimeOfDay>;
+  currentDay: Day;
+  group: Maybe<ExpectedMetadata>;
+  flag: Maybe<ExpectedMetadata>;
+  end: Maybe<ExpectedMetadata>;
+};
+
+/**
+ * Calculates when the current group ends, the next flag starts and the rundown ends
+ */
+export function getExpectedTimes(
+  input: ExpectedTimesInput,
+): Pick<Offset, 'expectedGroupEnd' | 'expectedFlagStart' | 'expectedRundownEnd'> {
+  const { mode, offset, plannedStart, actualStart, currentDay, group, flag, end } = input;
+
+  const getLookaheadStart = ({ event, accumulatedGap, isLinkedToLoaded }: ExpectedMetadata) =>
+    getExpectedStart(event, {
+      currentDay,
+      mode,
+      offset: mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
+      plannedStart,
+      actualStart,
+      totalGap: accumulatedGap,
+      isLinkedToLoaded,
+    });
+
+  return {
+    expectedGroupEnd: group === null ? null : getExpectedEnd(group.event, getLookaheadStart(group), currentDay),
+    expectedFlagStart: flag === null ? null : getLookaheadStart(flag),
+    expectedRundownEnd: end === null ? null : getExpectedEnd(end.event, getLookaheadStart(end), currentDay),
+  };
 }
 
 /**
