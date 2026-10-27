@@ -35,7 +35,7 @@ export default function CountdownLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('countdown.data_error')} />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Countdown {...data} />;

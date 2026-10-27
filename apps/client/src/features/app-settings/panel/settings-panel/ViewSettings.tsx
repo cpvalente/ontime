@@ -10,7 +10,7 @@ import { SwatchPickerRHF } from '../../../../common/components/input/colour-inpu
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
-import useViewSettings from '../../../../common/hooks-query/useViewSettings';
+import useViewSettings, { useUpdateViewSettings } from '../../../../common/hooks-query/useViewSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 import CodeEditorModal from './composite/StyleEditorModal';
@@ -18,7 +18,8 @@ import CodeEditorModal from './composite/StyleEditorModal';
 const cssOverrideDocsUrl = 'https://docs.getontime.no/features/custom-styling/';
 
 export default function ViewSettings() {
-  const { data, status, mutateAsync } = useViewSettings();
+  const { data, status } = useViewSettings();
+  const { updateViewSettings } = useUpdateViewSettings();
   const [isCodeEditorOpen, codeEditorHandler] = useDisclosure();
 
   const {
@@ -45,7 +46,7 @@ export default function ViewSettings() {
 
   const onSubmit = async (formData: ViewSettingsType) => {
     try {
-      await mutateAsync(formData);
+      await updateViewSettings(formData);
     } catch (error) {
       const message = maybeAxiosError(error);
       setError('root', { message });

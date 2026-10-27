@@ -6,7 +6,7 @@ import Button from '../../../../../common/components/buttons/Button';
 import Dialog from '../../../../../common/components/dialog/Dialog';
 import Info from '../../../../../common/components/info/Info';
 import Modal from '../../../../../common/components/modal/Modal';
-import useViewSettings from '../../../../../common/hooks-query/useViewSettings';
+import useViewSettings, { useUpdateViewSettings } from '../../../../../common/hooks-query/useViewSettings';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import style from './StyleEditorModal.module.scss';
@@ -19,7 +19,8 @@ interface CodeEditorModalProps {
 }
 
 export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProps) {
-  const { data: viewSettings, status: viewSettingsStatus, mutateAsync: saveViewSettings } = useViewSettings();
+  const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
+  const { updateViewSettings } = useUpdateViewSettings();
   const [savedCss, setSavedCss] = useState('');
   const [draftCss, setDraftCss] = useState('');
   const [cssLoadStatus, setCssLoadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -71,7 +72,7 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
       setSavedCss(draftCss);
       // saving CSS signals intent to see it, so we enable the override
       if (!isOverrideEnabled) {
-        await saveViewSettings({ ...viewSettings, overrideStyles: true });
+        await updateViewSettings({ ...viewSettings, overrideStyles: true });
       }
     } catch (saveError) {
       setError(maybeAxiosError(saveError));

@@ -12,6 +12,7 @@ import './ProjectInfo.scss';
 
 export default function ProjectInfoLoader() {
   const { data, status } = useProjectInfoData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Project info');
 
@@ -20,7 +21,7 @@ export default function ProjectInfoLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <ProjectInfo {...data} />;
