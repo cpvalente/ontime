@@ -215,10 +215,15 @@ function PresetView() {
    * We inject the preset to the context value for the view to consume
    */
   const Component = PresetViewMap[preset.target as OntimeViewPresettable];
-  return (
-    <PresetContext value={preset}>
+  const view = (
+    <>
       <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
       {Component ? <Component /> : <NotFound />}
+    </>
+  );
+  return (
+    <PresetContext value={preset}>
+      {preset.target === OntimeView.Cuesheet ? view : <ViewLoader>{view}</ViewLoader>}
     </PresetContext>
   );
 }

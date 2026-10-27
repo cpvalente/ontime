@@ -8,7 +8,11 @@ import { TOOL_DEFINITIONS, handleToolCall } from './mcp.tools.js';
 export function createMcpServer(): Server {
   const server = new Server(
     { name: 'ontime-mcp-server', version: '1.0.0' },
-    { capabilities: { tools: {}, prompts: {}, resources: {} } },
+    {
+      capabilities: { tools: {}, prompts: {}, resources: {} },
+      instructions:
+        'Ontime guidance lives in MCP resources. When the user wants to change how screens or views look (colours, fonts, branding, hiding elements) or build a custom view, read ontime://views/customise first; for a custom view, also ontime://views/custom-view-template. For choosing or configuring views, read ontime://views. For rundown structure and colours, read ontime://style-guide.',
+    },
   );
 
   server.setRequestHandler('tools/list', async (): Promise<ListToolsResult> => ({

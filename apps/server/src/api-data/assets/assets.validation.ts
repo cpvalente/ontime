@@ -2,7 +2,11 @@ import { body } from 'express-validator';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 
-export const validatePostCss = [body('css').isString().trim(), requestValidationFunction];
+export const validatePostCss = [
+  body('css').isString().trim(),
+  body('enabled').isBoolean({ strict: true }),
+  requestValidationFunction,
+];
 
 export const validatePostTranslation = [
   body('translation')

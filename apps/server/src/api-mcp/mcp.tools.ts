@@ -33,6 +33,7 @@ import {
   getRundownById,
   groupEntriesForMcp,
   reorderEntryForMcp,
+  setCssOverrideForMcp,
   toRundownList,
   ungroupEntryForMcp,
   updateCustomFieldForMcp,
@@ -385,6 +386,24 @@ export const TOOL_DEFINITIONS = [
     annotations: WRITE_DESTRUCTIVE,
   },
   {
+    name: 'ontime_set_css_override',
+    description:
+      'Change how the screens look (colours, fonts, sizes, hiding elements) by replacing the CSS override and turning it on or off. It applies at once to the display views and the operator view; per-screen URL options are safer when they cover the request. Read ontime://views/customise first and build on the current override it includes. Refuses while a show is loaded or running unless force is true; ask the user before forcing. After applying, describe the change in plain words and ask the user to check their screens. To undo, call again with the CSS and on/off state you read before the change.',
+    inputSchema: {
+      type: 'object',
+      required: ['css'],
+      properties: {
+        css: { type: 'string', description: 'Complete stylesheet that replaces the current override' },
+        enabled: {
+          type: 'boolean',
+          description: "Whether the screens use the override. Default true; false shows Ontime's default look.",
+        },
+        force: { type: 'boolean', description: 'Apply even while a show is running. Only after the user agrees.' },
+      },
+    },
+    annotations: WRITE_DESTRUCTIVE,
+  },
+  {
     name: 'ontime_get_custom_fields',
     description:
       'Get the project custom field definitions. Returns { [key]: { label, type: "text"|"image", colour } }. Keys are referenced in entry.custom[key].',
@@ -652,6 +671,11 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   ontime_update_project_info: async (args) => {
     const updated = await editCurrentProjectData(args as ProjectInfoArgs);
     return ok(updated);
+  },
+
+  ontime_set_css_override: async (args) => {
+    await setCssOverrideForMcp(args as { css: unknown; enabled?: unknown; force?: unknown });
+    return ok({ applied: true });
   },
 
   ontime_get_custom_fields: async () => ok(getProjectCustomFields()),

@@ -1,9 +1,12 @@
+import { defaultCss } from '../bundle/bundledCss.js';
+import { defaultDemoHtml } from '../bundle/bundledDemoHtml.js';
+
 /**
  * Agent-facing Ontime guidance documents.
  *
- * These markdown resources teach agents rundown craft (ontime://style-guide)
- * and Ontime's view ecosystem (ontime://views). Guidance should be concise and
- * clear — verbosity distracts agents and users alike. Keep each document short.
+ * These markdown resources teach agents rundown craft (ontime://style-guide),
+ * Ontime's view ecosystem (ontime://views) and how to customise views (ontime://views/customise).
+ * Guidance should be concise and clear — verbosity distracts agents and users alike. Keep each document short.
  */
 
 // The palette mirrors the editor colour picker swatches in
@@ -91,13 +94,86 @@ Example for a camera operator:
 
 Offer a link like this after creating a department custom field.
 
+## Timer view parameters
+
+Per-screen look, without changing other screens:
+- \`keyColour\`, \`timerColour\`: background and timer colour as hex without \`#\`, eg: \`keyColour=0b1f3a\`. \`timerColour\` also replaces the warning and danger colours.
+- \`font\`: a font installed on the screen's device.
+- \`hideClock\`, \`hideCards\`, \`hideProgress\`, \`hideMessage\`, \`hideSecondary\`, \`hideLogo\`: \`=true\` hides that element.
+
+Example for a branded stage screen without the clock:
+\`/timer?keyColour=0b1f3a&timerColour=ff7a1a&hideClock=true\`
+
 ## URL presets
 
-Presets bundle a configured view under a short alias (e.g. \`/camera-op\`), optionally shown in the nav menu. Managed in **Editor → Settings → URL presets**. When recommending a configured view, spell out the view and query string and suggest saving it as a preset.
+Presets bundle a configured view under a short alias (e.g. \`/camera-op\`), optionally shown in the nav menu. Managed in **Editor → Sharing and reporting → URL Presets**. When recommending a configured view, spell out the view and query string and suggest saving it as a preset.
 Docs: https://docs.getontime.no/features/url-presets/
 
 ## Custom views
 
-For branding or layouts beyond the built-in options: files in Ontime's \`external\` folder are served at \`/external/…\` and can use Ontime's APIs for live data. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
+For branding or layouts beyond the built-in options: users upload a single \`index.html\` in **Editor → Settings → Custom views**, which Ontime serves at \`/external/<name>/\`; it can use Ontime's APIs for live data. Recommend for sponsor branding, unusual layouts, or LED wall graphics.
+To restyle views or write a custom view, read \`ontime://views/customise\`.
 Docs: https://docs.getontime.no/features/custom-views/
 `;
+
+/**
+ * Builds ontime://views/customise around the user's current CSS override
+ */
+export function makeViewsCustomiseMarkdown(userCss: string, overrideEnabled: boolean): string {
+  const currentCss =
+    userCss.trim() === defaultCss.trim()
+      ? 'Unchanged from the example CSS.'
+      : `\`\`\`css
+${userCss.trim()}
+\`\`\``;
+
+  return `# Customising Ontime views
+
+Users ask to change how their screens look; they rarely know how Ontime does it. Pick the narrowest tool for the request:
+
+1. **One screen**: use the view's URL options (see \`ontime://views\`), eg: \`/timer?keyColour=0b1f3a&timerColour=ff7a1a\`. Give the link; it changes only the screens that open it and is undone by dropping the options. Paths are relative to the address the user opens Ontime at.
+2. **Every screen of a view, or every screen**: apply CSS with \`ontime_set_css_override\`. It changes the display views, the operator view and URL presets of them at once, not the editor, cuesheet or custom views. Timer colours for every screen can also be set in **Editor → Settings → View settings**.
+3. **A layout the views cannot give**: build a custom view from \`ontime://views/custom-view-template\`.
+
+Talk about the result, not the code: say what will look different and on which screens. Do not show CSS unless the user asks for it.
+
+## Restyle with CSS
+
+1. The example CSS below is a sample light theme, not Ontime's defaults: copy only the variables and rules the change needs, never the whole example. Its \`--*-override\` variables in \`:root\` cover colours, fonts and the timer states for every view.
+2. To change one view only, scope rules under its root class: \`.stage-timer\` (timer), \`.backstage\`, \`.countdown\`, \`.studio\` and \`.project\` (project info). If you can browse, open the view (eg: \`/timer\`) and inspect its DOM for the elements to change.
+3. Before your first change, note the user's CSS and on/off state below: that is the original. Build on it rather than replacing it, unless they ask to start over. If it is off, it may be old: ask whether to bring it back or start with only the new rules. Re-read this resource before each change, as the user may have edited the CSS since.
+4. Apply it with \`ontime_set_css_override\`. Open screens update without a reload. While a show is running or loaded the tool refuses: ask the user whether to change the screens on air before retrying with \`force\`. Undoing on air needs \`force\` too.
+5. Ask the user to look at their screens and say whether to keep the change. To undo, apply the original CSS and on/off state, unless the user asks to undo only the latest change. If you no longer have the original, eg: in a new conversation, say so and offer \`enabled: false\` for Ontime's default look. The user can also turn the override off or edit it in **Editor → Settings → View settings**.
+
+Global classes, element nesting and \`--*-override\` variables of the display views are stable within a major version. Other selectors, and the timeline, cuesheet, operator and editor views, may change in any release.
+
+## Example CSS
+
+\`\`\`css
+${defaultCss.trim()}
+\`\`\`
+
+## The user's current CSS override
+
+${overrideEnabled ? 'It is on: the screens show it now.' : "It is off: the screens show Ontime's default look, not this CSS."}
+
+${currentCss}
+`;
+}
+
+/**
+ * Builds ontime://views/custom-view-template with the upload rules
+ */
+export function makeCustomViewTemplateMarkdown(customViewMaxSizeMb: number): string {
+  return `# Custom view template
+
+For layouts the built-in views cannot give. Start from the template below, which reads live data from Ontime's websocket.
+- One \`index.html\` file, at most ${customViewMaxSizeMb} MB, with only inline \`<script>\` and \`<style>\`: no external scripts, stylesheets or iframes.
+- Screens may have no internet access: remove the template's remote logo and links, and keep images inline.
+- Tell the user to upload it in **Editor → Settings → Custom views** under a name of lowercase letters, numbers and dashes. It is served at \`/external/<name>/\`.
+
+\`\`\`html
+${defaultDemoHtml.trim()}
+\`\`\`
+`;
+}
