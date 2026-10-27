@@ -128,6 +128,7 @@ export default function RundownEvent({
     const { selectedEvents } = selectionStore.getState();
     return selectedEvents.size > 1
       ? [
+          { type: 'header', label: `${selectedEvents.size} events selected` },
           {
             type: 'item',
             label: 'Link to previous',
@@ -167,7 +168,6 @@ export default function RundownEvent({
             type: 'item',
             label: 'Delete',
             icon: IoTrash,
-            shortcut: `${deviceAlt}+Backspace`,
             onClick: () => {
               clearSelectedEvents();
               deleteEntry(Array.from(selectedEvents));
@@ -288,17 +288,18 @@ export default function RundownEvent({
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    // event.button === 2 is a right-click
-    // disable selection if the user selected events and right clicks
-    // so the context menu shows up
-    if (selectionStore.getState().selectedEvents.size > 1 && event.button === 2) {
-      return;
-    }
-
     // UI indexes are 1 based
     const index = eventIndex - 1;
     const editMode = getSelectionMode(event);
     selectEntry({ id: eventId, index, selectMode: editMode });
+  };
+
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
+    // right-clicking outside the selection targets the clicked event instead
+    if (!selectionStore.getState().selectedEvents.has(eventId)) {
+      selectEntry({ id: eventId, index: eventIndex - 1, selectMode: 'click' });
+    }
+    onContextMenu(event);
   };
 
   const isPlaying = playback ? isPlaybackActive(playback) : false;
@@ -309,7 +310,7 @@ export default function RundownEvent({
       ref={setNodeRef}
       style={dragStyle}
       onClick={handleFocusClick}
-      onContextMenu={onContextMenu}
+      onContextMenu={handleContextMenu}
       data-testid='rundown-event'
       data-selected={isSelected}
       {...(isPlaying ? { 'data-running': true } : {})}
