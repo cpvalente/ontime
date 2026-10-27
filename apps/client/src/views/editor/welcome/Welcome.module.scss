@@ -9,6 +9,9 @@
   flex-direction: column;
   gap: 1rem;
   width: 100%;
+  min-height: 0;
+  // lets long file names truncate instead of widening the grid column
+  min-width: 0;
 }
 
 .about {
@@ -30,6 +33,17 @@
   justify-content: space-between;
 }
 
+.title {
+  margin: 0;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+// the live region stays mounted to be announced, it should not add a gap while empty
+.alert {
+  display: contents;
+}
+
 .logo {
   max-width: 100px;
   height: auto;
@@ -39,57 +53,102 @@
   display: flex;
   gap: 1rem;
   justify-content: end;
-
-  :first-child {
-    margin-right: auto;
-  }
 }
 
-.tableContainer {
-  height: 350px;
-  max-height: 350px;
+.secondaryAction {
+  margin-right: auto;
+}
+
+.projectList {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 8rem;
+  max-height: min(350px, 40vh);
   overflow-y: auto;
+  // keeps a focused row clear of the sticky header
+  scroll-padding-top: 2rem;
+  font-size: calc(1rem - 2px);
 }
 
-.table {
+.projectHeader,
+.project {
+  display: grid;
+  // a fixed date column keeps names truncating at the same point, also while a row shows its loading state
+  grid-template-columns: 1fr 11rem;
+  gap: 1rem;
+  align-items: center;
+  min-height: 2rem;
+  padding-inline: 0.5rem;
+}
+
+.projectHeader {
+  position: sticky;
+  top: 0;
+  // rows dimmed with opacity form their own stacking context, which would paint over the header
+  z-index: 1;
+  background-color: $gray-1250;
+  font-size: calc(1rem - 3px);
+  font-weight: bold;
+  color: $label-gray;
+}
+
+.project {
   width: 100%;
-  font-size: calc(1rem - 2px);
+  border: none;
+  background-color: $gray-1300;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 
-  tbody {
-    background-color: $gray-1300;
-    tr {
-      &:hover:not(.current) {
-        background-color: $gray-1350;
-      }
-      .current {
-        &:hover {
-          background-color: $blue-900;
-        }
-      }
-    }
+  &:hover:not([aria-disabled]) {
+    background-color: $gray-1350;
   }
 
-  tr {
-    height: 2rem;
-    cursor: pointer;
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
   }
 
-  th,
-  td {
-    padding-inline: 0.5rem;
-  }
-
-  th {
-    text-align: left;
-    font-size: calc(1rem - 3px);
-    color: $label-gray;
+  &[aria-disabled] {
+    cursor: default;
   }
 }
 
 .current {
   background-color: $blue-700;
 
-  &:hover {
+  &:hover:not([aria-disabled]) {
     background-color: $blue-900;
   }
+
+  // the blue focus ring would not show on the blue row
+  &:focus-visible {
+    outline-color: $ui-white;
+  }
+}
+
+// matches the disabled look of buttons
+.inactive {
+  opacity: 0.4;
+}
+
+.filename {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail {
+  text-align: end;
+  white-space: nowrap;
+}
+
+.listMessage {
+  display: grid;
+  place-content: center;
+  min-height: 8rem;
+  background-color: $gray-1300;
+  color: $label-gray;
 }

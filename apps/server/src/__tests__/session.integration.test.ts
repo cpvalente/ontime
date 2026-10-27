@@ -1,10 +1,10 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { MessageTag, Playback, RuntimeStore } from 'ontime-types';
+import { Playback, RuntimeStore } from 'ontime-types';
 
 import { publicFiles } from '../setup/index.js';
-import { type TestServer, startTestServer } from './testServer.js';
+import { type TestServer, editorWelcome, startTestServer } from './testServer.js';
 
 async function playback(server: TestServer): Promise<Playback> {
   const { payload }: { payload: RuntimeStore } = await (await server.get('/api/poll')).json();
@@ -125,20 +125,7 @@ describe('session', { timeout: 15_000 }, () => {
     onTestFinished(() => secondRun.stop());
     expect(await playback(secondRun)).toBe(Playback.Stop);
 
-    const dialogs: string[] = [];
-    const socket = new WebSocket(secondRun.socketUrl);
-    onTestFinished(() => socket.close());
-    socket.addEventListener('message', (event) => {
-      const { tag, payload } = JSON.parse(String(event.data));
-      if (tag === MessageTag.Dialog) dialogs.push(payload.dialog);
-    });
-    await new Promise((resolve, reject) => {
-      socket.addEventListener('open', resolve, { once: true });
-      socket.addEventListener('error', reject, { once: true });
-    });
-    socket.send(JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/editor' }));
-
-    await vi.waitFor(() => expect(dialogs).toContain('welcome'));
+    expect(await editorWelcome(secondRun)).toMatchObject({ dialog: 'welcome', reason: 'resumed' });
   });
 
   test('a project file saved before project ids keeps the id it gets, so a crash still resumes the show', async () => {

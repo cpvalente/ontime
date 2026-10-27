@@ -11,6 +11,9 @@ import { addLog, createLog } from '../stores/logger';
  */
 export function maybeAxiosError(error: unknown) {
   if (axios.isAxiosError(error)) {
+    if (!error.response) {
+      return 'Could not reach the Ontime server';
+    }
     const statusText = (error as AxiosError).response?.statusText ?? '';
     let data = (error as AxiosError).response?.data ?? '';
     if (typeof data === 'object') {

@@ -22,4 +22,10 @@ describe('maybeAxiosError', () => {
 
     expect(maybeAxiosError(error)).toBe('Unprocessable Entity: Invalid OSC target');
   });
+
+  it('explains a request which got no response', () => {
+    const error = { isAxiosError: true, message: 'Network Error' };
+
+    expect(maybeAxiosError(error)).toBe('Could not reach the Ontime server');
+  });
 });

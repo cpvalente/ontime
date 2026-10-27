@@ -1,3 +1,5 @@
+import { MessageTag } from 'ontime-types';
+
 /**
  * Starts a real Ontime server in-process, on a free port, against the test file's data folder
  * Every call loads a fresh module graph, so starting again after stop() behaves like an app restart
@@ -29,3 +31,21 @@ export async function startTestServer() {
 }
 
 export type TestServer = Awaited<ReturnType<typeof startTestServer>>;
+
+/** connects an editor, and resolves with the welcome dialog the server greets it with */
+export async function editorWelcome(server: TestServer): Promise<unknown> {
+  const socket = new WebSocket(server.socketUrl);
+  onTestFinished(() => socket.close());
+  const welcome = new Promise((resolve) => {
+    socket.addEventListener('message', (event) => {
+      const { tag, payload } = JSON.parse(String(event.data));
+      if (tag === MessageTag.Dialog) resolve(payload);
+    });
+  });
+  await new Promise((resolve, reject) => {
+    socket.addEventListener('open', resolve, { once: true });
+    socket.addEventListener('error', reject, { once: true });
+  });
+  socket.send(JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/editor' }));
+  return welcome;
+}
