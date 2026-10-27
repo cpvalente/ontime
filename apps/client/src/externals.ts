@@ -8,6 +8,7 @@ import { resolveBaseURI, resolveUrl } from './externals.utils';
 export const githubUrl = 'https://www.github.com/cpvalente/ontime';
 export const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
 export const websiteUrl = 'https://www.getontime.no';
+export const downloadPageUrl = 'https://getontime.no/download';
 export const discordUrl = 'https://discord.com/invite/eje3CSUEXm';
 export const subredditUrl = 'https://www.reddit.com/r/ontimeapp/';
 export const youtubeUrl = 'https://www.youtube.com/@ontimeapp';
