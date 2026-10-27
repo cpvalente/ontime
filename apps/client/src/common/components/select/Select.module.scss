@@ -15,14 +15,6 @@
 
   padding-inline: 0.5rem;
   white-space: nowrap;
-}
-
-.valueText {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 
   &:hover:not([data-disabled]) {
     background-color: $gray-1100;
@@ -45,6 +37,14 @@
     outline: 2px solid $blue-500;
     outline-offset: 2px;
   }
+}
+
+.valueText {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .medium {
