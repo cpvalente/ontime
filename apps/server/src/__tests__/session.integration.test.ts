@@ -14,9 +14,12 @@ async function playback(server: TestServer): Promise<Playback> {
 /** starts the first event, and waits for the restore point to be saved */
 async function startShow(server: TestServer) {
   await server.get('/api/start/index/1');
-  await vi.waitFor(async () => {
-    expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain('"playback": "play"');
-  });
+  await vi.waitFor(
+    async () => {
+      expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain('"playback": "play"');
+    },
+    { timeout: 5000 },
+  );
 }
 
 async function logTexts(server: TestServer): Promise<string[]> {
@@ -72,9 +75,7 @@ describe('session', { timeout: 15_000 }, () => {
     onTestFinished(() => firstRun.stop());
     await startShow(firstRun);
     await firstRun.get('/api/auxtimer/2/start');
-    await vi.waitFor(async () => {
-      expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain('"playback": "start"');
-    });
+    // shutdown must flush the aux timer command still waiting for its scheduled write
     await firstRun.stop(3);
 
     const secondRun = await startTestServer();

@@ -71,6 +71,6 @@ describe('auxTimerService', () => {
     service.resume([{ ...stopped, playback: SimplePlayback.Start, startedAt: -200 }, stopped, stopped]);
 
     expect(lastPatch().auxtimer1).toMatchObject({ name: 'Speaker', playback: SimplePlayback.Start, current: 800 });
-    expect(save).toHaveBeenCalledOnce();
+    expect(save).not.toHaveBeenCalled();
   });
 });
