@@ -67,7 +67,7 @@
 }
 
 .options {
-  padding-inline: 1rem;
+  padding: 0 1rem 0.5rem;
   border-top: 1px solid $white-7;
 }
 
@@ -75,12 +75,8 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 0.25rem;
-  padding: 0.75rem 0;
+  padding: 0.625rem 0;
   font-size: $inner-section-text-size;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid $white-7;
-  }
 }
 
 /**
