@@ -88,7 +88,7 @@ describe('WebsocketAdapter', () => {
   });
 
   it('handles an error emitted while rejecting an unauthenticated socket', () => {
-    socket.init({} as Server, false);
+    socket.init({} as Server, null);
     const rejectedSocket = new websocketMocks.FakeWebSocket();
     const connectionHandler = websocketMocks.getConnectionHandler();
 
@@ -102,7 +102,7 @@ describe('WebsocketAdapter', () => {
   it('keeps a client connected when it does not answer protocol pings', () => {
     vi.useFakeTimers();
     authenticationMocks.reject = false;
-    socket.init({} as Server, false);
+    socket.init({} as Server, null);
     const client = new websocketMocks.FakeWebSocket();
     websocketMocks.getLatestServer()?.clients.add(client);
     websocketMocks.getConnectionHandler()?.(client, {});
@@ -116,7 +116,7 @@ describe('WebsocketAdapter', () => {
   it('replies to a Ping by echoing its payload with the server time of day', () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 12, 30) });
     authenticationMocks.reject = false;
-    socket.init({} as Server, false);
+    socket.init({} as Server, null);
     const client = new websocketMocks.FakeWebSocket();
     websocketMocks.getConnectionHandler()?.(client, {});
 

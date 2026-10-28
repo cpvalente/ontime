@@ -2,13 +2,14 @@ import { existsSync } from 'fs';
 import { copyFile, readFile, stat } from 'fs/promises';
 import { basename, extname, join } from 'path';
 
-import { DatabaseModel, MaybeString, ProjectFile } from 'ontime-types';
+import { DatabaseModel, MaybeString, ProjectFile, ProjectStartup } from 'ontime-types';
 import { generateId } from 'ontime-utils';
 
 import { publicDir } from '../../setup/index.js';
 import {
   dockerSafeRename,
   fileIsReadable,
+  generateUniqueFileName,
   getFilesFromFolder,
   removeFileExtension,
 } from '../../utils/fileManagement.js';
@@ -127,9 +128,10 @@ export function getPathToProject(name: string): string {
 
 /**
  * Moves a file permanently to the corrupted directory
+ * A file of the same name set aside earlier is kept, the new one gets a numbered name
  */
 export async function moveCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(publicDir.corruptDir, name);
+  const newPath = join(publicDir.corruptDir, generateUniqueFileName(publicDir.corruptDir, name));
   return dockerSafeRename(filePath, newPath);
 }
 
@@ -155,4 +157,19 @@ export async function parseJsonFile(filePath: string): Promise<Partial<DatabaseM
 
   const rawdata = await readFile(filePath, 'utf-8');
   return JSON.parse(rawdata);
+}
+
+/**
+ * Decides whether a startup greets the first editor with the welcome dialog
+ * A project which failed to load is always reported, the user would otherwise not know it was replaced
+ * A restore point resumes a running show, which the dialog would interrupt
+ */
+export function shouldShowWelcome(
+  projectStartup: ProjectStartup,
+  restorePointExists: boolean,
+  showSetting: boolean,
+): boolean {
+  if (projectStartup.reason === 'recovered-corrupt') return true;
+  if (restorePointExists) return false;
+  return showSetting;
 }

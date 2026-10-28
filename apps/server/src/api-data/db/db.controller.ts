@@ -1,3 +1,5 @@
+import { rm } from 'node:fs/promises';
+
 import type { Request, Response } from 'express';
 import {
   DatabaseModel,
@@ -10,9 +12,14 @@ import {
 import { getErrorMessage } from 'ontime-utils';
 import sanitize from 'sanitize-filename';
 
+import { getFileToRead } from '../../classes/data-provider/DataProvider.js';
 import { getPartialProject } from '../../models/dataModel.js';
 import * as projectService from '../../services/project-service/project.service.js';
-import { handleImageUpload, handleProjectUploaded } from '../../services/project-service/project.utils.js';
+import {
+  getPathToProject,
+  handleImageUpload,
+  handleProjectUploaded,
+} from '../../services/project-service/project.utils.js';
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
@@ -138,15 +145,22 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     return;
   }
 
+  const { filename, path } = req.file;
+  let moved = false;
   try {
-    const { filename, path } = req.file;
     await handleProjectUploaded(path, filename);
+    moved = true;
     await projectService.loadProjectFile(filename);
 
     res.status(201).send({
       message: `Loaded project ${filename}`,
     });
   } catch (error) {
+    // an unusable upload should not stay in the project list, a file which was never moved is not ours to delete
+    // a load which failed after switching persistence leaves the upload as the loaded project, so it is kept
+    if (moved && (await getFileToRead()) !== getPathToProject(filename)) {
+      await rm(getPathToProject(filename), { force: true }).catch(() => {});
+    }
     const message = getErrorMessage(error);
     if (message.startsWith('Project file')) {
       res.status(403).send({ message });

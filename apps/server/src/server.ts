@@ -3,7 +3,7 @@ import http, { type Server } from 'http';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
+import { LogOrigin, type ProjectStartup, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -28,6 +28,7 @@ import { endSession, getShowWelcomeDialog, startSession } from './services/app-s
 import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
 import * as messageService from './services/message-service/message.service.js';
 import { initialiseProject } from './services/project-service/project.service.js';
+import { shouldShowWelcome } from './services/project-service/project.utils.js';
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
@@ -172,6 +173,7 @@ const checkStart = (currentState: OntimeStartOrder) => {
 };
 
 let restorePoint: RestorePoint | null = null;
+let projectStartup: ProjectStartup | null = null;
 
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
@@ -192,7 +194,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   populateStyles();
   populateTranslation();
   await populateDemo();
-  await initialiseProject();
+  projectStartup = await initialiseProject();
 };
 
 /**
@@ -208,8 +210,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   const projectId = getDataProvider().getProjectId();
   const restored = restoreService.forProject(restorePoint, projectId);
   restoreService.initialise(restored);
-  const showWelcome = await getShowWelcomeDialog(restored?.runtime !== undefined);
-  socket.init(expressServer, showWelcome, prefix);
+  const showWelcome =
+    projectStartup && shouldShowWelcome(projectStartup, restored?.runtime !== undefined, await getShowWelcomeDialog());
+  socket.init(expressServer, showWelcome ? projectStartup : null, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store

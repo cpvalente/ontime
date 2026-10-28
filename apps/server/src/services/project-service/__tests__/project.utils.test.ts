@@ -1,6 +1,7 @@
+import { ProjectStartup } from 'ontime-types';
 import { expect, vi } from 'vitest';
 
-import { getProjectFiles } from '../project.utils.js';
+import { getProjectFiles, shouldShowWelcome } from '../project.utils.js';
 
 vi.mock('fs/promises', () => {
   const mockFiles = ['file1.json', 'file2.json', 'file3.json', 'document.txt', 'image.png'];
@@ -29,5 +30,37 @@ describe('getProjectFiles test', () => {
     expect(result).toEqual(expectedFiles);
     expect(readdir).toHaveBeenCalled();
     expect(stat).toHaveBeenCalledTimes(expectedFiles.length);
+  });
+});
+
+describe('shouldShowWelcome()', () => {
+  const corrupt: ProjectStartup = {
+    reason: 'recovered-corrupt',
+    project: 'new project',
+    corruptProject: 'show',
+    setAside: true,
+  };
+  const resumed: ProjectStartup = { reason: 'resumed', project: 'show' };
+  const firstRun: ProjectStartup = { reason: 'first-run', project: 'demo project' };
+
+  test.each([
+    {
+      name: 'a failed load shows, even with the setting off',
+      startup: corrupt,
+      restore: false,
+      setting: false,
+      show: true,
+    },
+    { name: 'a restore point hides', startup: resumed, restore: true, setting: true, show: false },
+    {
+      name: 'a resumed project follows the setting off',
+      startup: resumed,
+      restore: false,
+      setting: false,
+      show: false,
+    },
+    { name: 'a first run follows the setting on', startup: firstRun, restore: false, setting: true, show: true },
+  ])('$name', ({ startup, restore, setting, show }) => {
+    expect(shouldShowWelcome(startup, restore, setting)).toBe(show);
   });
 });

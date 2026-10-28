@@ -21,6 +21,7 @@ import {
   LogOrigin,
   MaybeNumber,
   MessageTag,
+  ProjectStartup,
   RefetchKey,
   WsPacketToClient,
   WsPacketToServer,
@@ -45,7 +46,8 @@ class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
   private lastConnection: Date | null = null;
-  private shouldShowWelcome = true;
+  /** shown once, to the first editor which connects */
+  private welcome: ProjectStartup | null = null;
 
   constructor() {
     if (instance) {
@@ -58,8 +60,8 @@ class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server: Server, showWelcome: boolean, prefix?: string) {
-    this.shouldShowWelcome = showWelcome;
+  init(server: Server, welcome: ProjectStartup | null, prefix?: string) {
+    this.welcome = welcome;
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws, req) => {
@@ -127,9 +129,9 @@ class SocketServer implements IAdapter {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
               this.clients.set(clientId, updatedClient);
-              if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (this.welcome && updatedClient.path?.toLowerCase().includes('editor')) {
+                sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
+                this.welcome = null;
               }
               this.sendClientList();
               break;
@@ -138,9 +140,9 @@ class SocketServer implements IAdapter {
               const previousData = this.getOrCreateClient(clientId);
               previousData.path = payload;
               this.clients.set(clientId, previousData);
-              if (this.shouldShowWelcome && payload.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (this.welcome && payload.toLowerCase().includes('editor')) {
+                sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
+                this.welcome = null;
               }
               this.sendClientList();
               break;

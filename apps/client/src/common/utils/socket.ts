@@ -201,7 +201,8 @@ export const connectSocket = () => {
 
         case MessageTag.Dialog: {
           if (payload.dialog === 'welcome') {
-            addDialog('welcome');
+            const { dialog, ...projectStartup } = payload;
+            addDialog(dialog, projectStartup);
           }
           break;
         }
