@@ -6,7 +6,9 @@ import { getDisplayedClock, measurePong, sampleClockOffset } from '../clockSync'
 
 describe('measurePong()', () => {
   const sentAt = 100;
-  const pong = { tag: MessageTag.Pong, payload: sentAt, clock: 10000 } as const;
+  // 10s past midnight on the server, an hour east of UTC
+  const tzOffset = 3_600_000;
+  const pong = { tag: MessageTag.Pong, payload: sentAt, epoch: 20 * dayInMs + 10000 - tzOffset, tzOffset } as const;
 
   it('anchors the server clock to the midpoint of the round trip', () => {
     expect(measurePong(pong, sentAt, [], 300)).toEqual({
@@ -20,8 +22,14 @@ describe('measurePong()', () => {
     expect(measurePong({ ...pong, payload: 50 }, sentAt, [], 300)).toBeNull();
   });
 
-  it('ignores a reply without a valid server clock', () => {
-    expect(measurePong({ ...pong, clock: Number.NaN }, sentAt, [], 300)).toBeNull();
+  it('reads the time of day in the server timezone, whatever the browser timezone', () => {
+    const westOfUtc = { ...pong, epoch: 20 * dayInMs + 10000 + 5 * 3_600_000, tzOffset: -5 * 3_600_000 };
+    expect(measurePong(westOfUtc, sentAt, [], 300)?.offset).toBe(9800);
+  });
+
+  it('ignores a reply without a valid server time', () => {
+    expect(measurePong({ ...pong, epoch: Number.NaN }, sentAt, [], 300)).toBeNull();
+    expect(measurePong({ ...pong, tzOffset: undefined as unknown as number }, sentAt, [], 300)).toBeNull();
   });
 
   it('keeps zero-delay replies positive, since a non-positive ping means offline', () => {
