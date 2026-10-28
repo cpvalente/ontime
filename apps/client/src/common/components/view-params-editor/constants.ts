@@ -11,6 +11,7 @@ export enum OptionTitle {
   Animation = 'View animation',
   Schedule = 'Schedule options',
   ReadingLayout = 'Reading layout',
+  Playback = 'Playback',
 
   /** rendered as hidden inputs */
   Hidden = 'Hidden options',

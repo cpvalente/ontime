@@ -29,12 +29,19 @@ export default function RadioGroup<T extends string | number | boolean>({
     >
       {items.map((item) => (
         <label className={style.item} key={item.value.toString()}>
-          <Radio.Root value={item.value.toString()} className={style.radio}>
-            <Radio.Indicator className={style.indicator} />
-          </Radio.Root>
+          <RadioItem value={item.value.toString()} />
           {item.label}
         </label>
       ))}
     </BaseRadioGroup>
+  );
+}
+
+/** A radio of a group, for a parent which lays out its own choices */
+export function RadioItem(props: Omit<Radio.Root.Props, 'className'>) {
+  return (
+    <Radio.Root {...props} className={style.radio}>
+      <Radio.Indicator className={style.indicator} />
+    </Radio.Root>
   );
 }

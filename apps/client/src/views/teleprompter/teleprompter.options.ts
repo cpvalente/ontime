@@ -13,6 +13,7 @@ import type { ViewOption } from '../../common/components/view-params-editor/view
 import { PresetContext } from '../../common/context/PresetContext';
 import { getScriptSourceLabel, makeScriptSourceOptions } from '../../common/utils/teleprompterScriptSource';
 import { isStringBoolean } from '../common/viewUtils';
+import PlaybackOptions from './playback-options/PlaybackOptions';
 
 /** Whose playback a view shows: its own, or the one the controllers and Companion drive */
 export type TeleprompterRole = 'local' | 'remote' | 'controller';
@@ -28,6 +29,7 @@ export type TeleprompterOptions = {
   role: TeleprompterRole;
   /** the field a local view reads, or the project's field */
   source: string;
+  /** a local view which shows only the loaded event */
   onlyLoaded: boolean;
   lineHeight: number;
   textWidth: number;
@@ -64,13 +66,7 @@ const bounds = {
   speed: [teleprompterSpeed.min, teleprompterSpeed.max],
 } as const;
 
-const roleLabels: Record<TeleprompterRole, string> = {
-  local: 'This view only',
-  controller: 'Controller',
-  remote: 'Follows the controller',
-};
-
-const roles = (['local', 'controller', 'remote'] as const).map((value) => ({ value, label: roleLabels[value] }));
+const roles = ['local', 'controller', 'remote'] as const;
 
 export const modeLabels: Record<TeleprompterMode, string> = {
   event: 'Event by event',
@@ -79,57 +75,55 @@ export const modeLabels: Record<TeleprompterMode, string> = {
 
 const modes = (['event', 'script'] as const).map((value) => ({ value, label: modeLabels[value] }));
 
-/** The view options, which only change how a view shows the script */
+const resetOnReload = 'Changes while playing reset on reload.';
+
+/**
+ * The view options, which only change how a view shows the script
+ * The playback role comes first, as it decides which of the options that follow apply
+ */
 export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
+  const projectField = getScriptSourceLabel(shared.script, customFields);
+
   return [
     {
-      title: OptionTitle.DataSources,
+      title: OptionTitle.Playback,
+      component: PlaybackOptions,
+      // the role, then the options which only a view playing on its own reads
       options: [
+        {
+          id: 'role',
+          title: 'Role',
+          description: '',
+          type: 'option',
+          values: roles.map((value) => ({ value, label: value })),
+          defaultValue: defaults.role,
+        },
         {
           id: 'source',
           title: 'Script field',
-          description: 'Local playback only. Shared playback uses the project field.',
+          description: 'The field this screen reads its script from.',
           type: 'option',
           values: [
-            { value: projectSource, label: `Project setting: ${getScriptSourceLabel(shared.script, customFields)}` },
+            { value: projectSource, label: `Same as the project (${projectField})` },
             ...makeScriptSourceOptions(customFields),
           ],
           defaultValue: defaults.source,
         },
-      ],
-    },
-    {
-      title: OptionTitle.BehaviourOptions,
-      options: [
-        {
-          id: 'role',
-          title: 'Playback',
-          description: 'Play independently, control shared playback, or follow it.',
-          type: 'option',
-          values: roles,
-          defaultValue: defaults.role,
-        },
         {
           id: 'mode',
-          title: 'Local playback: starting mode',
-          description: 'For “This view only”: follow loaded events, or read continuously. Live changes are not saved.',
+          title: 'Starting mode',
+          description: `Follow the loaded event or read continuously. ${resetOnReload}`,
           type: 'option',
           values: modes,
           defaultValue: defaults.mode,
         },
         {
           id: 'speed',
-          title: 'Local playback: starting speed',
-          description: `For “This view only”. ${bounds.speed[0]}–${bounds.speed[1]} lines per minute. Live changes are not saved.`,
+          title: 'Starting speed',
+          description: `Lines per minute, ${bounds.speed[0]}–${bounds.speed[1]}. ${resetOnReload}`,
           type: 'number',
           defaultValue: defaults.speed,
         },
-      ],
-    },
-    {
-      title: OptionTitle.ElementVisibility,
-      collapsible: true,
-      options: [
         {
           id: 'onlyLoaded',
           title: 'Show only the loaded event',
@@ -137,6 +131,12 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
           type: 'boolean',
           defaultValue: defaults.onlyLoaded,
         },
+      ],
+    },
+    {
+      title: OptionTitle.ElementVisibility,
+      collapsible: true,
+      options: [
         {
           id: 'hideHeadings',
           title: 'Hide event headings',
@@ -215,10 +215,13 @@ export function getOptionsFromParams(
 ): TeleprompterOptions {
   const getParam = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
 
+  const role = roles.find((value) => value === getParam('role')) ?? defaults.role;
+
   return {
-    role: roles.find(({ value }) => value === getParam('role'))?.value ?? defaults.role,
+    role,
     source: getParam('source') || defaults.source,
-    onlyLoaded: toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
+    // a shared screen cannot keep its place in an event it does not show, so it shows them all
+    onlyLoaded: role === 'local' && toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),
     hideReadingLine: toBoolean(getParam('hideReadingLine'), defaults.hideReadingLine),

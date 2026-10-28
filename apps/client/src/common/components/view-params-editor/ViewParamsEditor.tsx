@@ -1,6 +1,6 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { OntimeView } from 'ontime-types';
-import { FormEvent, memo } from 'react';
+import { FormEvent, memo, useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
@@ -31,6 +31,8 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
   const { isOpen, close } = useViewParamsEditorStore();
   const clearSavedParams = useSavedViewParams((store) => store.clear);
   const isSmallScreen = useIsSmallScreen();
+  // the fields hold their edits in state, which a URL already at its defaults would not reset
+  const [resetCount, setResetCount] = useState(0);
 
   const getPreservedParams = () => getPreservedSearchParams(searchParams, viewOptions);
 
@@ -40,6 +42,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
 
   const resetParams = () => {
     clearSavedParams(target);
+    setResetCount((count) => count + 1);
     setSearchParams(getPreservedParams());
   };
 
@@ -91,13 +94,14 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
               <Info className={style.info}>This view style is being modified by a custom CSS file.</Info>
             )}
             <ViewParamsPresets target={target} />
-            <form id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
+            <form key={resetCount} id='edit-params-form' onSubmit={onParamsFormSubmit} className={style.sectionList}>
               {viewOptions.map((section) => (
                 <ViewParamsSection
                   key={section.title}
                   title={section.title}
                   collapsible={section.collapsible}
                   options={section.options}
+                  component={section.component}
                 />
               ))}
             </form>

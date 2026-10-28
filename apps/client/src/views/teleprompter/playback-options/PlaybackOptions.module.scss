@@ -1,0 +1,99 @@
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-block: 0.75rem;
+}
+
+.card {
+  overflow: hidden;
+  color: $ui-white;
+  background-color: $white-3;
+  border: 1px solid $gray-1100;
+  border-radius: $component-border-radius-md;
+  transition: border-color $transition-time-action;
+
+  &.selected {
+    border-color: $blue-700;
+  }
+
+  &:not(.selected) .cardHeader:hover {
+    background-color: $white-7;
+  }
+}
+
+.cardHeader {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.75rem;
+  row-gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color $transition-time-action;
+
+  > :not(:first-child) {
+    grid-column: 2;
+  }
+
+  // the shared radio is drawn for a plain background, on a card it needs its outline to show
+  [role='radio'][data-unchecked] {
+    border-color: $gray-600;
+    background-color: transparent;
+  }
+}
+
+.title {
+  color: $ui-white;
+  font-size: $inner-section-text-size;
+}
+
+.summary {
+  color: $gray-400;
+  font-size: $aux-text-size;
+  line-height: 1.4;
+}
+
+.unapplied {
+  // under the title, past the radio
+  padding-inline: calc(1rem + 16px + 0.75rem) 1rem;
+  color: $orange-400;
+  font-size: $aux-text-size;
+
+  &:not(:empty) {
+    margin-top: -0.5rem;
+    padding-bottom: 0.75rem;
+  }
+}
+
+.body {
+  padding-inline: 1rem;
+  border-top: 1px solid $white-7;
+}
+
+/** a value the view takes from elsewhere, beside its title */
+.readOnly {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  row-gap: 0.25rem;
+  padding: 0.75rem 0;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid $white-7;
+  }
+
+  > .summary {
+    grid-column: 1 / span 2;
+  }
+}
+
+.value {
+  color: $gray-300;
+  font-size: $inner-section-text-size;
+  text-align: end;
+}
+
+.hidden {
+  display: none;
+}
