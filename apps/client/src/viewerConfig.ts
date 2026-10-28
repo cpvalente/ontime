@@ -21,7 +21,6 @@ const navigatorViews = [
   OntimeView.Timeline,
   OntimeView.StudioClock,
   OntimeView.Countdown,
-  OntimeView.Teleprompter,
   OntimeView.ProjectInfo,
 ];
 
