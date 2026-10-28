@@ -41,7 +41,7 @@ import { isDialogOpen, isTypingTarget, useTeleprompterInput } from './useTelepro
 import './Teleprompter.scss';
 
 const helpNotes: Record<TeleprompterRole, string> = {
-  remote: 'Following shared playback. Use a controller to move the script.',
+  remote: 'Following shared playback. Use a controller screen or Companion to move the script.',
   controller: 'Controls shared playback for all following screens.',
   local: 'Playback stays in this view.',
 };
@@ -64,8 +64,8 @@ export default function Teleprompter() {
   const ownSource = role === 'local' && options.source !== projectSource ? options.source : undefined;
   const sourceLabel = getScriptSourceLabel(ownSource ?? settings.script, customFields);
   const emptyText = ownSource
-    ? `There is no script in ${sourceLabel}. Choose another field in the view options`
-    : `There is no script in ${sourceLabel}. Change the field in the project settings`;
+    ? `There is no script in ${sourceLabel}. Choose another field in Customise`
+    : `There is no script in ${sourceLabel}. Change it in Settings\u00a0›\u00a0Teleprompter`;
 
   return (
     <div

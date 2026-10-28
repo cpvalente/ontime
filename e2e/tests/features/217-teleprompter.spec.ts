@@ -269,6 +269,24 @@ test('Space plays and pauses, and never presses a focused button or opens a menu
   await expect.poll(playing).toBe(false);
 });
 
+test('the view options choose a playback role, keeping the independent options while another is chosen', async ({
+  page,
+}) => {
+  await page.goto('teleprompter?speed=30');
+  await expect(page.getByTestId('teleprompter-speed')).toHaveText('30lpm');
+
+  await page.mouse.move(20, 20);
+  await page.getByTestId('navigation__toggle-settings').click();
+  await expect(page.getByRole('radio', { name: 'Independent' })).toBeChecked();
+  await page.getByRole('radio', { name: 'Follower' }).click();
+  await expect(page.getByText('Not applied yet', { exact: false })).toBeVisible();
+  await page.getByTestId('apply-view-params').click();
+
+  await expect(page).toHaveURL(/role=remote/);
+  await expect(page).toHaveURL(/speed=30/);
+  await expect(page.getByTestId('teleprompter-controls')).toHaveCount(0);
+});
+
 test('the end of an event shows on the reading line', async ({ page, request }) => {
   await page.goto(remoteUrl);
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();

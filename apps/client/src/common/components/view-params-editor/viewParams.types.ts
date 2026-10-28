@@ -1,3 +1,5 @@
+import type { ComponentType } from 'react';
+
 import { OptionTitle } from './constants';
 
 type BaseField = {
@@ -32,4 +34,6 @@ export type ViewOption = {
   title: OptionTitle;
   options: ParamField[];
   collapsible?: boolean;
+  /** lays out section contents when one row per option cannot */
+  component?: ComponentType<{ options: ParamField[] }>;
 };
