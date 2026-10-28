@@ -26,6 +26,7 @@ const targetOptions: SelectOption<OntimeViewPresettable>[] = [
   { value: OntimeView.Timeline, label: viewLabels[OntimeView.Timeline] },
   { value: OntimeView.StudioClock, label: viewLabels[OntimeView.StudioClock] },
   { value: OntimeView.Countdown, label: viewLabels[OntimeView.Countdown] },
+  { value: OntimeView.Teleprompter, label: viewLabels[OntimeView.Teleprompter] },
   { value: OntimeView.ProjectInfo, label: viewLabels[OntimeView.ProjectInfo] },
 ];
 
