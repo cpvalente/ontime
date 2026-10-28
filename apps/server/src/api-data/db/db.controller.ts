@@ -12,6 +12,7 @@ import {
 import { getErrorMessage } from 'ontime-utils';
 import sanitize from 'sanitize-filename';
 
+import { getFileToRead } from '../../classes/data-provider/DataProvider.js';
 import { getPartialProject } from '../../models/dataModel.js';
 import * as projectService from '../../services/project-service/project.service.js';
 import {
@@ -155,7 +156,8 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
     });
   } catch (error) {
     // an unusable upload should not stay in the project list, a file which was never moved is not ours to delete
-    if (moved) {
+    // a load which failed after switching persistence leaves the upload as the loaded project, so it is kept
+    if (moved && (await getFileToRead()) !== getPathToProject(filename)) {
       await rm(getPathToProject(filename), { force: true }).catch(() => {});
     }
     const message = getErrorMessage(error);

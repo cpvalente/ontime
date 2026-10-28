@@ -32,6 +32,7 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loadingProject, setLoadingProject] = useState<string | null>(null);
   const [isLoadingDemo, setIsLoadingDemo] = useState(false);
+  const [isSavingPreference, setIsSavingPreference] = useState(false);
   const { fileInputRef, selectFile, handleFileChange, isImporting } = useProjectImport({
     onImported: onClose,
     onError: setErrorMessage,
@@ -39,7 +40,7 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const { showWelcomeDialog, setShowWelcomeDialog } = useShowWelcomeDialog();
   const { data: projectList, status: projectListStatus } = useOrderedProjectList();
 
-  const isBusy = loadingProject !== null || isLoadingDemo || isImporting;
+  const isBusy = loadingProject !== null || isLoadingDemo || isImporting || isSavingPreference;
   const { reorderedProjectFiles, lastLoadedProject } = projectList;
   // steering waits for the project list, so the actions do not change under the user
   const isListReady = projectListStatus === 'success';
@@ -91,11 +92,16 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   };
 
   const handleShowOnStartup = async (show: boolean) => {
+    // the checkbox stays enabled while saving so it keeps keyboard focus
+    if (isSavingPreference) return;
     setErrorMessage(null);
+    setIsSavingPreference(true);
     try {
       await setShowWelcomeDialog(show);
     } catch (error) {
       setErrorMessage(`Could not save startup preference: ${maybeAxiosError(error)}`);
+    } finally {
+      setIsSavingPreference(false);
     }
   };
 
@@ -176,7 +182,11 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
           </div>
           {showWelcomeDialog !== undefined && (
             <Editor.Label className={style.inline}>
-              <Checkbox checked={showWelcomeDialog} disabled={isBusy} onCheckedChange={handleShowOnStartup} />
+              <Checkbox
+                checked={showWelcomeDialog}
+                disabled={isBusy && !isSavingPreference}
+                onCheckedChange={handleShowOnStartup}
+              />
               Show this modal on next startup
             </Editor.Label>
           )}
