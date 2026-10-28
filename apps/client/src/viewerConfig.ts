@@ -10,6 +10,7 @@ export const viewLabels: Record<OntimeView, string> = {
   [OntimeView.Timeline]: 'Timeline',
   [OntimeView.StudioClock]: 'Studio Clock',
   [OntimeView.Countdown]: 'Countdown',
+  [OntimeView.Teleprompter]: 'Teleprompter',
   [OntimeView.ProjectInfo]: 'Project Info',
 };
 

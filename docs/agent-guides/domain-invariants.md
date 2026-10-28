@@ -27,6 +27,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. A restore point's playback names it and resumes only in that project; the point's aux timers outlive a project and resume in any.
 - Report every committed write through `notifyChange()` (`services/change-service`), never `sendRefetch()` directly. It sends each refetch once at the end of the event loop, after the caller has replied. Routers never write to `DataProvider`.
 - Writers report changes and never call their consumers. Consumers that must stay in step with the data listen with `onChange()` and run in the same call as the write: the runtime reconciles on every change to the loaded rundown, reading it itself, and owns the stop/hot-reload decision.
+- Runtime store keys are state: clients ignore a patch equal to what they hold and receive the whole store on connect. A command which must take effect when repeated changes the state, eg: a new timestamp.
 
 ## Timers
 
@@ -52,6 +53,17 @@ Runtime state owns roll transitions: it decides what loads and starts, the runti
 
 - Playback cycles (load, start, finish, phases, pause, stop) reach reports and automations once each, in the order they happened, after the runtime has committed its state. They are never merged, unlike data changes.
 - Each cycle carries the state it concerns, eg: a finish carries the event which finished; the event a load or stop replaces travels as `unloaded`.
+
+## Teleprompter
+
+- Every screen counts the same lines: the server cuts the script into rows and screens only size the text. Hiding headings keeps their rows.
+- One shared script, shaped only by the project's teleprompter settings, serves controllers, following screens and integrations. Only a local view may read another field. View options change how the script looks, never its lines.
+- Skipped events and events without script are not in the script. Every way of naming an event (index, cue, id, loaded) resolves in it.
+- Only commands change the transport's mode and speed. Views never assert the shared transport's state when they load or connect, and following views send no commands.
+- The reading position is a place in the text, carried through edits; nothing stores an event index or row. Screens derive rows from a sync and the server clock, never by measuring the page, and hold their place until they have the script the sync names.
+- The script source is a custom field reference, renamed or reset with the field like any other usage.
+- Shared playback never carries into another project.
+- The teleprompter state holds no countdown and is published only when it changes; time moves it only when playback stops at an end or the reader reaches another event.
 
 ## Reports
 

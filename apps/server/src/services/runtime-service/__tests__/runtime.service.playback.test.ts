@@ -28,6 +28,8 @@ vi.mock('../../../stores/runtimeState.js', async (importOriginal) => {
   };
 });
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../teleprompter-service/teleprompter.service.js');
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
     setCustomFields: <T>(newData: T) => newData,

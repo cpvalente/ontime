@@ -9,7 +9,7 @@ Ontime consists of 3 distinct parts
 The steps below will assume you have locally installed the necessary dependencies.
 Other dependencies will be installed as part of the setup
 
-- **node** (~22)
+- **node** (~24)
 - **pnpm** (~10)
 - **docker** (only necessary to run and build docker images)
 

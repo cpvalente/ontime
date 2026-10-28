@@ -23,6 +23,7 @@ import {
   generateId,
   getErrorMessage,
   getInsertAfterId,
+  renameScriptSource,
   resolveInsertParent,
   validateRundownTitle,
 } from 'ontime-utils';
@@ -557,12 +558,26 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
       customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
     );
   }
+  const didChangeScriptSource = didChangeKey && (await renameScriptSourceUsage(oldKey, newKey));
 
   // schedule the side effects
   notifyChange(RefetchKey.CustomFields);
+  if (didChangeScriptSource) notifyChange(RefetchKey.Teleprompter);
   notifyChange(RefetchKey.Rundown, revision);
 
   return resultCustomFields;
+}
+
+/**
+ * The teleprompter's script source is a usage of a custom field, renamed or reset with it
+ * @returns whether the source changed
+ */
+async function renameScriptSourceUsage(oldKey: CustomFieldKey, newKey: CustomFieldKey | null): Promise<boolean> {
+  const settings = getDataProvider().getTeleprompterSettings();
+  const script = renameScriptSource(settings.script, oldKey, newKey);
+  if (script === settings.script) return false;
+  await getDataProvider().setTeleprompterSettings({ ...settings, script });
+  return true;
 }
 
 /**
@@ -590,9 +605,11 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
   await updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
     customFieldMutation.removeUsages(backgroundRundown, key),
   );
+  const didChangeScriptSource = await renameScriptSourceUsage(key, null);
 
   // schedule the side effects
   notifyChange(RefetchKey.CustomFields);
+  if (didChangeScriptSource) notifyChange(RefetchKey.Teleprompter);
   notifyChange(RefetchKey.Rundown, revision);
 
   return resultCustomFields;

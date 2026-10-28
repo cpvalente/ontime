@@ -9,6 +9,8 @@ import { applyImportToRundown, createNewRundown, renameRundown, replaceRundown }
 const storedRundowns: Record<string, Rundown> = {};
 const stopMock = vi.hoisted(() => vi.fn<() => void>());
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../../services/teleprompter-service/teleprompter.service.js');
 vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: () => ({
     getRundown: (id: string) => {

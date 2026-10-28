@@ -11,4 +11,5 @@ export enum RefetchKey {
   CssOverride = 'css-override',
   Translation = 'translation',
   Settings = 'settings',
+  Teleprompter = 'teleprompter',
 }
