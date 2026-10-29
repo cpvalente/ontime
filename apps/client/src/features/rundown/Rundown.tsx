@@ -28,7 +28,7 @@ import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import { getGroupDurationFit } from './rundown-event/rundownEvent.utils';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
-import { filterVisibleEntries, makeSortableList } from './rundown.utils';
+import { filterVisibleEntries, makeRevealLocation, makeSortableList } from './rundown.utils';
 import RundownEntry from './RundownEntry';
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEditorFollowMode } from './useEditorFollowMode';
@@ -150,14 +150,83 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
 
+  // The effects below react to the cursor and the live event, never to content changes
+  // reading the latest data through refs keeps edits, local or remote, from scrolling the list or re-opening groups
+  const entriesRef = useRef(entries);
+  const visibleDataRef = useRef(visibleData);
+  const latestCursorRef = useRef(cursor);
+  useEffect(() => {
+    entriesRef.current = entries;
+    visibleDataRef.current = visibleData;
+    latestCursorRef.current = cursor;
+  }, [entries, visibleData, cursor]);
+
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
+  // reveals the entry with the smallest scroll, and only if it is not already in view
   useEffect(() => {
     setScrollHandler((entryId) => {
       if (!virtuosoRef.current || dnd.isDraggingRef.current) {
         return;
       }
-      const index = visibleData.indexOf(entryId);
+      const index = visibleDataRef.current.indexOf(entryId);
       if (index === -1) {
+        return;
+      }
+      virtuosoRef.current.scrollIntoView({
+        index,
+        behavior: 'smooth',
+        calculateViewLocation: revealLocation,
+      });
+    });
+
+    return () => {
+      setScrollHandler(null);
+    };
+  }, [dnd.isDraggingRef, setScrollHandler]);
+
+  // Keep selected cursor visible by expanding its parent group in any mode.
+  // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
+  useEffect(() => {
+    if (!cursor) {
+      return;
+    }
+
+    const entry = entriesRef.current[cursor];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
+    }
+  }, [cursor, expandGroup]);
+
+  // Entering Edit mode reveals the cursor, eg: after switching layout
+  // other cursor changes scroll only when the user asks for it (keyboard, finder), never on click
+  useEffect(() => {
+    const currentCursor = latestCursorRef.current;
+    if (dnd.isDraggingRef.current || editorMode !== AppMode.Edit || !currentCursor) {
+      return;
+    }
+
+    // wait a frame so the list has rendered before measuring
+    const frame = requestAnimationFrame(() => scrollToEntry(currentCursor));
+    return () => cancelAnimationFrame(frame);
+  }, [editorMode, scrollToEntry, dnd.isDraggingRef]);
+
+  // Auto-follow behavior in Run mode: pin the currently playing event to the top when it changes
+  useEffect(() => {
+    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData?.selectedEventId) {
+      return;
+    }
+
+    // Open parent group if the target is inside a collapsed group
+    const selectedEventId = featureData.selectedEventId;
+    const entry = entriesRef.current[selectedEventId];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
+    }
+
+    // wait a frame so an expanded group is part of the visible entries
+    const frame = requestAnimationFrame(() => {
+      const index = visibleDataRef.current.indexOf(selectedEventId);
+      if (index === -1 || !virtuosoRef.current) {
         return;
       }
       virtuosoRef.current.scrollToIndex({
@@ -167,47 +236,8 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         offset: -100, // show the previous entry for context
       });
     });
-
-    return () => {
-      setScrollHandler(null);
-    };
-  }, [visibleData, dnd.isDraggingRef, setScrollHandler]);
-
-  // Keep selected cursor visible by expanding its parent group in any mode.
-  // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
-  useEffect(() => {
-    if (!cursor) {
-      return;
-    }
-
-    const entry = entries[cursor];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
-  }, [cursor, entries, expandGroup]);
-
-  // Auto-follow behavior in Edit mode: follow the user's cursor
-  useEffect(() => {
-    if (dnd.isDraggingRef.current || editorMode !== AppMode.Edit || !cursor) {
-      return;
-    }
-
-    scrollToEntry(cursor);
-  }, [editorMode, cursor, scrollToEntry, dnd.isDraggingRef]);
-
-  // Auto-follow behavior in Run mode: follow the currently playing event
-  useEffect(() => {
-    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData?.selectedEventId) {
-      return;
-    }
-
-    // Open parent group if the target is inside a collapsed group
-    const entry = entries[featureData.selectedEventId];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
-    scrollToEntry(featureData.selectedEventId);
-  }, [editorMode, featureData?.selectedEventId, entries, expandGroup, scrollToEntry, dnd.isDraggingRef]);
+    return () => cancelAnimationFrame(frame);
+  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
@@ -396,6 +426,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
 // Keep entries static; the overlay and drop line indicate the destination.
 const noSortingStrategy: SortingStrategy = () => null;
+
+// keep some room around a revealed entry so its neighbours show for context
+const revealLocation = makeRevealLocation(100);
 
 // Virtuoso components - extracted to prevent recreation on every render
 const VirtuosoListComponent = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(({ children, ...props }, ref) => (

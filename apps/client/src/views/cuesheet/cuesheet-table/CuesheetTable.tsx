@@ -27,6 +27,7 @@ import { useRundownWithMetadata, useScopedSelectedEventId } from '../../../commo
 import { useFlatEntries } from '../../../common/hooks-query/useRundownById';
 import type { RundownMetadataObject } from '../../../common/utils/rundownMetadata';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
+import { makeRevealLocation } from '../../../features/rundown/rundown.utils';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -144,33 +145,41 @@ export default function CuesheetTable({
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // in Run mode, follow the current event
+  // the scroll effects read the latest rows through a ref, so edits, local or remote, never scroll the table
+  const flatRundownRef = useRef(flatRundown);
   useEffect(() => {
-    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId) {
+    flatRundownRef.current = flatRundown;
+  }, [flatRundown]);
+  const hasRows = flatRundown.length > 0;
+
+  // in Run mode, follow the current event: pin it to the top when it changes
+  useEffect(() => {
+    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId || !hasRows) {
       return;
     }
 
-    const eventIndex = flatRundown.findIndex((event) => event.id === selectedEventId);
+    const eventIndex = flatRundownRef.current.findIndex((event) => event.id === selectedEventId);
     if (eventIndex === -1) {
       return;
     }
 
     virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
-  }, [cuesheetMode, flatRundown, selectedEventId]);
+  }, [cuesheetMode, hasRows, selectedEventId]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
+  // reveals the entry with the smallest scroll, and only if it is not already in view
   useEffect(() => {
     const handler = (entryId: string) => {
       if (virtuosoRef.current === null) {
         return;
       }
 
-      const eventIndex = flatRundown.findIndex((event) => event.id === entryId);
+      const eventIndex = flatRundownRef.current.findIndex((event) => event.id === entryId);
       if (eventIndex === -1) {
         return;
       }
 
-      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
+      virtuosoRef.current.scrollIntoView({ index: eventIndex, behavior: 'auto', calculateViewLocation: revealLocation });
     };
 
     setScrollHandler(handler);
@@ -178,7 +187,7 @@ export default function CuesheetTable({
     return () => {
       setScrollHandler(null);
     };
-  }, [flatRundown, setScrollHandler]);
+  }, [setScrollHandler]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -392,6 +401,9 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
     />
   );
 });
+
+// keep room for the sticky header and the neighbouring rows around a revealed row
+const revealLocation = makeRevealLocation(50);
 
 const virtuosoComponents: TableComponents<OntimeEntry, CuesheetVirtuosoContext> = {
   Table: CuesheetTableElement,

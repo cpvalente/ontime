@@ -1,6 +1,6 @@
 import { EntryId, OntimeEvent, OntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
 
-import { makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
+import { makeRevealLocation, makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
 
 describe('makeSortableList()', () => {
   it('generates a list with group ends', () => {
@@ -282,5 +282,38 @@ describe('orderEntries()', () => {
     const flatOrder = ['a', 'b', 'c'];
     const result = orderEntries(unorderedArray, flatOrder);
     expect(result).toEqual([]);
+  });
+});
+
+describe('makeRevealLocation()', () => {
+  const reveal = makeRevealLocation(100);
+  const viewport = { viewportTop: 0, viewportBottom: 1000 };
+  const locationParams = { index: 4, behavior: 'smooth' as const };
+
+  test('does not scroll an entry which is in view', () => {
+    expect(reveal({ ...viewport, itemTop: 400, itemBottom: 450, locationParams })).toBeNull();
+  });
+
+  test('aligns an entry above the view to the top, keeping the margin', () => {
+    expect(reveal({ ...viewport, itemTop: -200, itemBottom: -150, locationParams })).toStrictEqual({
+      index: 4,
+      behavior: 'smooth',
+      align: 'start',
+      offset: -100,
+    });
+  });
+
+  test('aligns an entry below the view to the bottom, keeping the margin', () => {
+    expect(reveal({ ...viewport, itemTop: 1200, itemBottom: 1250, locationParams })).toStrictEqual({
+      index: 4,
+      behavior: 'smooth',
+      align: 'end',
+      offset: 100,
+    });
+  });
+
+  test('treats an entry inside the margin as out of view', () => {
+    expect(reveal({ ...viewport, itemTop: 50, itemBottom: 100, locationParams })).toMatchObject({ align: 'start' });
+    expect(reveal({ ...viewport, itemTop: 880, itemBottom: 950, locationParams })).toMatchObject({ align: 'end' });
   });
 });
