@@ -179,7 +179,11 @@ export default function CuesheetTable({
         return;
       }
 
-      virtuosoRef.current.scrollIntoView({ index: eventIndex, behavior: 'auto', calculateViewLocation: revealLocation });
+      virtuosoRef.current.scrollIntoView({
+        index: eventIndex,
+        behavior: 'auto',
+        calculateViewLocation: revealLocation,
+      });
     };
 
     setScrollHandler(handler);
@@ -402,7 +406,7 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
   );
 });
 
-// keep room for the sticky header and the neighbouring rows around a revealed row
+// keep the neighbouring rows in view around a revealed row
 const revealLocation = makeRevealLocation(50);
 
 const virtuosoComponents: TableComponents<OntimeEntry, CuesheetVirtuosoContext> = {

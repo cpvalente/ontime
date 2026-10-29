@@ -161,28 +161,46 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     latestCursorRef.current = cursor;
   }, [entries, visibleData, cursor]);
 
+  // Scrolls to an entry: 'reveal' with the smallest scroll, only if it is out of view, 'pin' to the top
+  // an entry inside a group that is still expanding is not rendered yet, so we wait for it in the effect below
+  const pendingScrollRef = useRef<{ entryId: EntryId; placement: 'reveal' | 'pin' } | null>(null);
+  const scrollToVisibleEntry = useCallback((entryId: EntryId, placement: 'reveal' | 'pin') => {
+    pendingScrollRef.current = null;
+    const index = visibleDataRef.current.indexOf(entryId);
+    if (index === -1) {
+      pendingScrollRef.current = { entryId, placement };
+      return;
+    }
+    if (placement === 'reveal') {
+      virtuosoRef.current?.scrollIntoView({ index, behavior: 'smooth', calculateViewLocation: revealLocation });
+    } else {
+      // show the previous entry for context
+      virtuosoRef.current?.scrollToIndex({ index, align: 'start', behavior: 'smooth', offset: -100 });
+    }
+  }, []);
+
+  useEffect(() => {
+    // the next render settles it: a target that is still not visible is dropped
+    const pending = pendingScrollRef.current;
+    pendingScrollRef.current = null;
+    if (pending && visibleData.includes(pending.entryId)) {
+      scrollToVisibleEntry(pending.entryId, pending.placement);
+    }
+  }, [visibleData, scrollToVisibleEntry]);
+
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
-  // reveals the entry with the smallest scroll, and only if it is not already in view
   useEffect(() => {
     setScrollHandler((entryId) => {
-      if (!virtuosoRef.current || dnd.isDraggingRef.current) {
+      if (dnd.isDraggingRef.current) {
         return;
       }
-      const index = visibleDataRef.current.indexOf(entryId);
-      if (index === -1) {
-        return;
-      }
-      virtuosoRef.current.scrollIntoView({
-        index,
-        behavior: 'smooth',
-        calculateViewLocation: revealLocation,
-      });
+      scrollToVisibleEntry(entryId, 'reveal');
     });
 
     return () => {
       setScrollHandler(null);
     };
-  }, [dnd.isDraggingRef, setScrollHandler]);
+  }, [dnd.isDraggingRef, setScrollHandler, scrollToVisibleEntry]);
 
   // Keep selected cursor visible by expanding its parent group in any mode.
   // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
@@ -223,21 +241,8 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       expandGroup(entry.parent);
     }
 
-    // wait a frame so an expanded group is part of the visible entries
-    const frame = requestAnimationFrame(() => {
-      const index = visibleDataRef.current.indexOf(selectedEventId);
-      if (index === -1 || !virtuosoRef.current) {
-        return;
-      }
-      virtuosoRef.current.scrollToIndex({
-        index,
-        align: 'start',
-        behavior: 'smooth',
-        offset: -100, // show the previous entry for context
-      });
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef]);
+    scrollToVisibleEntry(selectedEventId, 'pin');
+  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef, scrollToVisibleEntry]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
