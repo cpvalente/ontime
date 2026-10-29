@@ -127,57 +127,32 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
 
-  // The effects below react to the cursor and the live event, never to content changes
-  // reading the latest data through refs keeps edits, local or remote, from scrolling the list or re-opening groups
+  // Mode transitions read the latest selection without reacting to content edits.
   const entriesRef = useRef(entries);
-  const visibleDataRef = useRef(visibleData);
   const latestCursorRef = useRef(cursor);
   useEffect(() => {
     entriesRef.current = entries;
-    visibleDataRef.current = visibleData;
     latestCursorRef.current = cursor;
-  }, [entries, visibleData, cursor]);
+  }, [entries, cursor]);
 
-  // Scrolls to an entry: 'reveal' with the smallest scroll, only if it is out of view, 'pin' to the top
-  // an entry inside a group that is still expanding is not rendered yet, so we wait for it in the effect below
-  const pendingScrollRef = useRef<{ entryId: EntryId; placement: 'reveal' | 'pin' } | null>(null);
-  const scrollToVisibleEntry = useCallback((entryId: EntryId, placement: 'reveal' | 'pin') => {
-    pendingScrollRef.current = null;
-    const index = visibleDataRef.current.indexOf(entryId);
-    if (index === -1) {
-      pendingScrollRef.current = { entryId, placement };
-      return;
-    }
-    if (placement === 'reveal') {
-      virtuosoRef.current?.scrollIntoView({ index, behavior: 'smooth', calculateViewLocation: revealLocation });
-    } else {
-      // show the previous entry for context
-      virtuosoRef.current?.scrollToIndex({ index, align: 'start', behavior: 'smooth', offset: -100 });
-    }
-  }, []);
+  const [revealEntryId, setRevealEntryId] = useState<EntryId | null>(null);
 
-  useEffect(() => {
-    // the next render settles it: a target that is still not visible is dropped
-    const pending = pendingScrollRef.current;
-    pendingScrollRef.current = null;
-    if (pending && visibleData.includes(pending.entryId)) {
-      scrollToVisibleEntry(pending.entryId, pending.placement);
-    }
-  }, [visibleData, scrollToVisibleEntry]);
-
-  // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
+  // Explicit navigation queues a reveal; the list owns expansion and waits for the target to render.
   useEffect(() => {
     setScrollHandler((entryId) => {
-      if (dnd.isDraggingRef.current) {
-        return;
+      if (!dnd.isDraggingRef.current) {
+        setRevealEntryId(entryId);
       }
-      scrollToVisibleEntry(entryId, 'reveal');
     });
+    return () => setScrollHandler(null);
+  }, [dnd.isDraggingRef, setScrollHandler]);
 
-    return () => {
-      setScrollHandler(null);
-    };
-  }, [dnd.isDraggingRef, setScrollHandler, scrollToVisibleEntry]);
+  const pinLiveEvent = useCallback(() => {
+    const index = featureData.selectedEventId ? visibleData.indexOf(featureData.selectedEventId) : -1;
+    if (index !== -1 && !dnd.isDraggingRef.current) {
+      virtuosoRef.current?.scrollToIndex({ index, align: 'start', behavior: 'smooth', offset: -100 });
+    }
+  }, [featureData.selectedEventId, visibleData, dnd.isDraggingRef]);
 
   // Jump to the current element on demand: the running event in Run mode, the edit cursor otherwise.
   // Scrolls only (no selection change) so jumping to the running event does not hijack the edit cursor.
@@ -187,15 +162,15 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       return;
     }
 
-    // Open parent group if the target is inside a collapsed group
-    const entry = entries[targetId];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
     if (editorMode === AppMode.Run) {
       // back to following: pin the running event to the top so the next entries show
+      const entry = entries[targetId];
+      if (entry && 'parent' in entry) {
+        expandGroup(entry.parent);
+      }
       userScrolledRef.current = false;
-      scrollToVisibleEntry(targetId, 'pin');
+      setRevealEntryId(null);
+      pinLiveEvent();
     } else {
       scrollToEntry(targetId);
     }
@@ -206,7 +181,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     entries,
     expandGroup,
     scrollToEntry,
-    scrollToVisibleEntry,
+    pinLiveEvent,
     userScrolledRef,
   ]);
 
@@ -219,63 +194,52 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     jumpToCurrent,
   });
 
-  // Keep selected cursor visible by expanding its parent group in any mode.
-  // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
+  // Entering Edit mode reveals the cursor through the same path as finder and keyboard navigation.
   useEffect(() => {
-    if (!cursor) {
+    if (editorMode === AppMode.Edit) {
+      setRevealEntryId(latestCursorRef.current);
+    }
+  }, [editorMode]);
+
+  // A new live event resumes following and opens its group; content edits do neither.
+  useEffect(() => {
+    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData.selectedEventId) {
       return;
     }
-
-    const entry = entriesRef.current[cursor];
+    const entry = entriesRef.current[featureData.selectedEventId];
     if (entry && 'parent' in entry) {
       expandGroup(entry.parent);
     }
-  }, [cursor, expandGroup]);
-
-  // Entering Edit mode reveals the cursor, eg: after switching layout
-  // other cursor changes scroll only when the user asks for it (keyboard, finder), never on click
-  useEffect(() => {
-    const currentCursor = latestCursorRef.current;
-    if (dnd.isDraggingRef.current || editorMode !== AppMode.Edit || !currentCursor) {
-      return;
-    }
-
-    // wait a frame so the list has rendered before measuring
-    const frame = requestAnimationFrame(() => scrollToEntry(currentCursor));
-    return () => cancelAnimationFrame(frame);
-  }, [editorMode, scrollToEntry, dnd.isDraggingRef]);
-
-  // Auto-follow behavior in Run mode: pin the currently playing event to the top when it changes
-  useEffect(() => {
-    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData?.selectedEventId) {
-      return;
-    }
-
-    // Open parent group if the target is inside a collapsed group
-    const selectedEventId = featureData.selectedEventId;
-    const entry = entriesRef.current[selectedEventId];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
-
     userScrolledRef.current = false;
-    scrollToVisibleEntry(selectedEventId, 'pin');
-  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef, scrollToVisibleEntry, userScrolledRef]);
+  }, [editorMode, featureData.selectedEventId, expandGroup, dnd.isDraggingRef, userScrolledRef]);
 
-  // Edits move rows around the running event: keep it pinned until the user scrolls the list themselves
+  // This is the only automatic pin: it also waits for group expansion and follows content changes.
   useEffect(() => {
-    const selectedEventId = featureData?.selectedEventId;
-    if (
-      dnd.isDraggingRef.current ||
-      userScrolledRef.current ||
-      editorMode !== AppMode.Run ||
-      !selectedEventId ||
-      !visibleData.includes(selectedEventId)
-    ) {
+    if (editorMode === AppMode.Run && !userScrolledRef.current) {
+      pinLiveEvent();
+    }
+  }, [editorMode, pinLiveEvent, userScrolledRef]);
+
+  // Reveal only after the target is visible, including when expansion takes another render.
+  useEffect(() => {
+    if (!revealEntryId || dnd.isDraggingRef.current) {
       return;
     }
-    scrollToVisibleEntry(selectedEventId, 'pin');
-  }, [visibleData, editorMode, featureData?.selectedEventId, dnd.isDraggingRef, scrollToVisibleEntry, userScrolledRef]);
+    const entry = entries[revealEntryId];
+    if (!entry) {
+      setRevealEntryId(null);
+      return;
+    }
+    if ('parent' in entry && entry.parent && getIsCollapsed(entry.parent)) {
+      expandGroup(entry.parent);
+      return;
+    }
+    const index = visibleData.indexOf(revealEntryId);
+    if (index !== -1 && virtuosoRef.current) {
+      virtuosoRef.current.scrollIntoView({ index, behavior: 'smooth', calculateViewLocation: revealLocation });
+      setRevealEntryId(null);
+    }
+  }, [revealEntryId, entries, visibleData, getIsCollapsed, expandGroup, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;

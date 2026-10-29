@@ -154,19 +154,13 @@ export default function CuesheetTable({
   }, [flatRundown]);
   const hasRows = flatRundown.length > 0;
 
-  // in Run mode, follow the current event: pin it to the top when it changes
+  // A new live event or entering Run mode resumes following; the pin effect owns scrolling.
   useEffect(() => {
     if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId || !hasRows) {
       return;
     }
 
-    const eventIndex = flatRundownRef.current.findIndex((event) => event.id === selectedEventId);
-    if (eventIndex === -1) {
-      return;
-    }
-
     userScrolledRef.current = false;
-    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
   }, [cuesheetMode, hasRows, selectedEventId, userScrolledRef]);
 
   // edits move rows around the current event: keep it pinned until the user scrolls the table themselves

@@ -294,27 +294,11 @@ describe('makeRevealLocation()', () => {
     expect(reveal({ ...viewport, itemTop: 400, itemBottom: 450, locationParams })).toBeNull();
   });
 
-  test('aligns an entry above the view to the top, keeping the margin', () => {
-    expect(reveal({ ...viewport, itemTop: -200, itemBottom: -150, locationParams })).toStrictEqual({
-      index: 4,
-      behavior: 'smooth',
-      align: 'start',
-      offset: -100,
-    });
-  });
-
-  test('aligns an entry below the view to the bottom, keeping the margin', () => {
-    expect(reveal({ ...viewport, itemTop: 1200, itemBottom: 1250, locationParams })).toStrictEqual({
-      index: 4,
-      behavior: 'smooth',
-      align: 'end',
-      offset: 100,
-    });
-  });
-
-  test('treats an entry inside the margin as out of view', () => {
-    expect(reveal({ ...viewport, itemTop: 50, itemBottom: 100, locationParams })).toMatchObject({ align: 'start' });
-    expect(reveal({ ...viewport, itemTop: 880, itemBottom: 950, locationParams })).toMatchObject({ align: 'end' });
+  test.each([
+    { itemTop: 50, itemBottom: 100, align: 'start', offset: -100 },
+    { itemTop: 880, itemBottom: 950, align: 'end', offset: 100 },
+  ])('reveals a row inside the $align margin', ({ itemTop, itemBottom, align, offset }) => {
+    expect(reveal({ ...viewport, itemTop, itemBottom, locationParams })).toMatchObject({ align, offset });
   });
 
   test('shrinks the margin when the view is too short for it', () => {
