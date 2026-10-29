@@ -1,5 +1,62 @@
 import { SupportedEntry, TimeStrategy, EndAction, TimerType, Day, Rundown } from 'ontime-types';
 
+/**
+ * What the presenters read from the teleprompter, kept in the Script custom field
+ * They introduce Ontime, in the words of its website and readme, and the teleprompter they are read from
+ * Only what is read on stage has a script: the pre-show, lunch and the crew tracks run without
+ */
+const welcomeScript = [
+  'Welcome to Ontime.',
+  '',
+  'Ontime is a rundown and event timer for live productions. It helps you plan the show and keep every department on the same time.',
+  '',
+  '[PAUSE]',
+  '',
+  'The rundown is the source of truth. Timers, backstage displays, signage and operator views are all generated from it, so one change updates every screen at once.',
+  '',
+  'Every department fills its own columns, and each can have its own cuesheet link. One document, not three spreadsheets.',
+  '',
+  'When the show runs late, Ontime makes the delay visible to the people who need to react, so the production can respond together.',
+  '',
+  'And the words you are reading now come from the same rundown.',
+].join('\n');
+
+const sessionOneScript = [
+  'This is the Ontime teleprompter.',
+  '',
+  'The script lives in the rundown, next to everything else about the show. Each event keeps its own script, in a field of your choosing, so a change to the running order is a change to the script.',
+  '',
+  'The prompter can follow the show event by event, starting each script as its event is loaded, or read the whole script continuously.',
+  '',
+  'Text width, line spacing, reading position and mirroring are set on each screen, so the same script works on a laptop, a monitor or behind a glass.',
+].join('\n');
+
+const sessionTwoScript = [
+  'A teleprompter is rarely a single screen.',
+  '',
+  "In Ontime, one screen can be the controller. It moves every follower with it, so the presenter's prompter, the confidence monitor and the operator's laptop show the same line at the same moment.",
+  '',
+  'Line breaks are set once for the project, so every screen counts the same lines, whatever its size.',
+  '',
+  'The controller can be a person at a keyboard, or Companion and the integration APIs, so prompting sits alongside the rest of your show control.',
+  '',
+  'A screen can also play independently, for a rehearsal or a speaker who wants to read at their own pace.',
+].join('\n');
+
+const wrapUpScript = [
+  'Thank you for trying Ontime.',
+  '',
+  'Run it locally, self-host it, or use Ontime Cloud. Ontime works on Windows, macOS, Linux and Docker, and your projects stay portable, so you can choose the setup that matches the show.',
+  '',
+  'Connect it to the rest of your production with OSC, HTTP and WebSocket APIs, or the Companion module.',
+  '',
+  'You will find the documentation at docs.getontime.no, and our community on Discord and GitHub. Have an idea? Let us know.',
+  '',
+  '[PAUSE]',
+  '',
+  'Have a great show.',
+].join('\n');
+
 export const stageRundown: Rundown = {
   id: 'default',
   title: 'Main Stage',
@@ -119,6 +176,7 @@ export const stageRundown: Rundown = {
         Video_Notes: 'Cameras on stream\nPowerPoint on screens',
         Audio_Notes: '1x Wireless Hand Held',
         PowerPoint_Name: 'HoldingSlide.pptx',
+        Script: welcomeScript,
       },
       triggers: [],
     },
@@ -151,6 +209,7 @@ export const stageRundown: Rundown = {
         Video_Notes: 'Camera + PowerPoint on stream\nPowerPoint on screens',
         Audio_Notes: '2x Wireless Hand Helds',
         PowerPoint_Name: 'Session1.pptx',
+        Script: sessionOneScript,
       },
       triggers: [],
     },
@@ -267,6 +326,7 @@ export const stageRundown: Rundown = {
         Video_Notes: 'Camera + PPT + Video on stream\nPowerPoint + Video on screens\n\nVideo file: Session2.mp4',
         Audio_Notes: '1x Wireless Hand Held\n1x Video with audio',
         PowerPoint_Name: 'Session2.pptx',
+        Script: sessionTwoScript,
       },
       triggers: [],
     },
@@ -299,6 +359,7 @@ export const stageRundown: Rundown = {
         Video_Notes: 'Holding slide on screens',
         Audio_Notes: '1x Wireless Hand Held',
         PowerPoint_Name: 'HoldingSlide.pptx',
+        Script: wrapUpScript,
       },
       triggers: [],
     },

@@ -29,6 +29,8 @@ describe('teleprompter transport', () => {
       .map((id) => rundown.entries[id])
       .filter((entry): entry is OntimeEvent => entry.type === SupportedEntry.Event && !entry.skip);
 
+    // the tests write their scripts in the note, which the demo keeps for production notes
+    expect((await server.send('POST', '/data/teleprompter/settings', { script: 'note' })).ok).toBe(true);
     // short scripts, so playback reaches the end of an event in a moment
     for (const [index, event] of events.slice(0, 3).entries()) {
       // oxlint-disable-next-line no-await-in-loop - each edit commits the rundown in turn

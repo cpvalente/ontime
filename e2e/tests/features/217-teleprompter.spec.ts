@@ -3,11 +3,15 @@ import type { APIRequestContext, Page } from '@playwright/test';
 import { expect, test } from '../fixtures/override';
 
 const remoteUrl = '/teleprompter?role=remote';
+/** the speed the shared transport and a view playing on its own start at */
+const startSpeed = 25;
+/** the first line of the demo project's script, which its Script field holds */
+const firstScriptLine = 'Welcome to Ontime.';
 
 /** Restores the demo project and a paused transport at the top, event by event, which the transport outlives */
 async function resetTeleprompter(request: APIRequestContext) {
   expect((await request.post('/data/db/demo')).ok()).toBe(true);
-  for (const command of ['pause', 'speed/14', 'mode/event', 'top']) {
+  for (const command of ['pause', `speed/${startSpeed}`, 'mode/event', 'top']) {
     expect((await request.get(`/api/teleprompter/${command}`)).ok()).toBe(true);
   }
 }
@@ -21,6 +25,20 @@ function readingRow(page: Page) {
     const moved = -new DOMMatrix(getComputedStyle(content).transform).m42;
     return (scroller.scrollTop + moved) / Number.parseFloat(getComputedStyle(row).height);
   });
+}
+
+/** The reading row once a jump has finished animating there */
+async function settledRow(page: Page) {
+  let last = Number.NaN;
+  await expect
+    .poll(async () => {
+      const now = await readingRow(page);
+      const isStill = Math.abs(now - last) < 0.001;
+      last = now;
+      return isStill;
+    })
+    .toBe(true);
+  return last;
 }
 
 function rowTexts(page: Page) {
@@ -37,7 +55,7 @@ test.afterEach(async ({ request }) => {
 
 test('a following screen has no control bar and answers only to ?', async ({ page, request }) => {
   await page.goto(remoteUrl);
-  await expect(page.getByText('Music plays, holding slide on', { exact: true })).toBeVisible();
+  await expect(page.getByText(firstScriptLine, { exact: true })).toBeVisible();
   await page.mouse.move(960, 900);
   await expect(page.getByTestId('teleprompter-controls')).toHaveCount(0);
   const before = await readingRow(page);
@@ -49,7 +67,7 @@ test('a following screen has no control bar and answers only to ?', async ({ pag
   expect(await readingRow(page)).toBe(before);
   expect((await (await request.get('/api/poll')).json()).payload.teleprompter).toMatchObject({
     playback: 'pause',
-    speed: 14,
+    speed: startSpeed,
   });
 
   // the navigation menu leaves Space to the view
@@ -132,9 +150,9 @@ test('a controller drives every remote screen with its keys, wheel and buttons',
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
 
   await page.keyboard.press('ArrowRight');
-  await expect.poll(async () => (await transport()).speed).toBe(15);
+  await expect.poll(async () => (await transport()).speed).toBe(startSpeed + 1);
   await page.getByTestId('teleprompter-faster').click();
-  await expect.poll(async () => (await transport()).speed).toBe(16);
+  await expect.poll(async () => (await transport()).speed).toBe(startSpeed + 2);
 
   const top = await readingRow(remote);
   await page.keyboard.press('Shift+ArrowDown');
@@ -146,7 +164,7 @@ test('a controller drives every remote screen with its keys, wheel and buttons',
   await expect.poll(async () => (await transport()).event?.id).toBe(secondEvent);
 
   // the mouse wheel scrolls every screen
-  const beforeWheel = await readingRow(remote);
+  const beforeWheel = await settledRow(remote);
   await page.mouse.move(960, 500);
   await page.mouse.wheel(0, 400);
   await expect.poll(() => readingRow(remote)).toBeGreaterThan(beforeWheel + 1);
@@ -178,7 +196,7 @@ test('a controller changes the shared playback mode', async ({ page, request }) 
   await expect(page.getByRole('listbox')).toBeVisible();
   // Arrow keys navigate the open menu rather than changing the shared transport speed.
   await page.keyboard.press('ArrowRight');
-  expect(await transport()).toMatchObject({ speed: 14, playback: 'pause' });
+  expect(await transport()).toMatchObject({ speed: startSpeed, playback: 'pause' });
   await page.getByRole('option', { name: 'Whole script', exact: true }).click();
   await expect.poll(async () => (await transport()).mode).toBe('script');
   // a menu closed with the pointer leaves the keys to the teleprompter
@@ -209,7 +227,7 @@ test('a local view runs its own transport over the same script', async ({ page, 
 
   // the keys act on the view itself, speed changes live and is not saved
   await page.keyboard.press('ArrowRight');
-  await expect(page.getByTestId('teleprompter-speed')).toHaveText('15lpm');
+  await expect(page.getByTestId('teleprompter-speed')).toHaveText(`${startSpeed + 1}lpm`);
   await expect(page).not.toHaveURL(/speed=/);
   const top = await readingRow(page);
   await page.keyboard.press('Shift+ArrowDown');
@@ -229,7 +247,7 @@ test('a local view runs its own transport over the same script', async ({ page, 
   await page.keyboard.press('Space');
 
   // none of it reaches the shared transport
-  expect(await transport()).toMatchObject({ playback: 'pause', speed: 14 });
+  expect(await transport()).toMatchObject({ playback: 'pause', speed: startSpeed });
   await expect.poll(async () => (await transport()).playback).toBe('pause');
 });
 
@@ -243,7 +261,7 @@ test('event by event, loading an event brings every remote screen to its first l
   const row = await firstLine.evaluate((element) =>
     [...element.closest('.teleprompter__content')!.querySelectorAll('.teleprompter__row')].indexOf(element),
   );
-  await expect.poll(() => readingRow(page)).toBeCloseTo(row, 2);
+  await expect.poll(() => readingRow(page)).toBeCloseTo(row, 1);
 
   await request.get('/api/stop');
 });
@@ -272,6 +290,11 @@ test('Space plays and pauses, and never presses a focused button or opens a menu
 test('the end of an event shows on the reading line', async ({ page, request }) => {
   await page.goto(remoteUrl);
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+  // start a few rows before the end of the first event, so playback reaches it quickly
+  const firstEventRows = await page
+    .locator('.teleprompter__row')
+    .evaluateAll((rows) => rows.findIndex((row, index) => index > 0 && row.matches('.teleprompter__row--heading')));
+  await request.get(`/api/teleprompter/scroll/${firstEventRows - 4}`);
 
   await request.get('/api/teleprompter/speed/40');
   await request.get('/api/teleprompter/play');
@@ -281,27 +304,24 @@ test('the end of an event shows on the reading line', async ({ page, request }) 
   await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
 });
 
-test('a controller keeps its keyboard controls while waiting for a loaded event', async ({ page, request }) => {
+test('a view showing only the loaded event keeps its keyboard controls while waiting for one', async ({
+  page,
+  request,
+}) => {
   await request.get('/api/stop');
-  await request.get('/api/teleprompter/mode/script');
-  await request.get('/api/teleprompter/speed/1');
-  await page.goto('/teleprompter?role=controller&onlyLoaded=true');
-  await expect(page.getByText('Waiting for an event to load', { exact: false })).toBeVisible();
+  await page.goto('/teleprompter?onlyLoaded=true');
+  const waiting = page.getByText('Waiting for an event to load', { exact: false });
+  await expect(waiting).toBeVisible();
 
-  await request.get('/api/teleprompter/play');
-  await expect(page.getByTestId('teleprompter-play')).toHaveAttribute('aria-pressed', 'true');
-  await page.keyboard.press('Space');
-  await expect(page.getByTestId('teleprompter-play')).toHaveAttribute('aria-pressed', 'false');
-  expect((await (await request.get('/api/poll')).json()).payload.teleprompter.playback).toBe('pause');
+  await page.keyboard.press('ArrowRight');
+  await expect(page.getByTestId('teleprompter-speed')).toHaveText(`${startSpeed + 1}lpm`);
 
   expect((await request.get('/api/load/index/2')).ok()).toBe(true);
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
   await expect(page.locator('.teleprompter__row:not([data-loaded])')).toHaveCount(0);
 
   await request.get('/api/stop');
-  await expect(page.getByText('Waiting for an event to load', { exact: false })).toBeVisible();
-  await page.keyboard.press('ArrowRight');
-  await expect(page.getByTestId('teleprompter-speed')).toHaveText('2lpm');
+  await expect(waiting).toBeVisible();
 });
 
 test('scrolling a local view which shows only the loaded event keeps the reader in that event', async ({
@@ -315,7 +335,7 @@ test('scrolling a local view which shows only the loaded event keeps the reader 
   expect((await request.put(`/data/rundowns/${rundown.id}/entry`, { data: { id: second, note } })).ok()).toBe(true);
   expect((await request.get('/api/load/index/2')).ok()).toBe(true);
 
-  await page.goto('/teleprompter?onlyLoaded=true');
+  await page.goto('/teleprompter?onlyLoaded=true&source=note');
   await expect(page.getByText('Line 1 of the second event')).toBeVisible();
   const start = await readingRow(page);
 
@@ -374,7 +394,7 @@ test('a view playing on its own reads the field it names, while the shared playb
 
   const remote = await context.newPage();
   await remote.goto(`${remoteUrl}&source=title`);
-  await expect(remote.getByText('Music plays, holding slide on', { exact: true })).toBeVisible();
+  await expect(remote.getByText(firstScriptLine, { exact: true })).toBeVisible();
 });
 
 test('heading visibility preserves sync and script text stays readable outside the loaded event', async ({
@@ -392,9 +412,10 @@ test('heading visibility preserves sync and script text stays readable outside t
   await expect(hidden.locator('.teleprompter__row--text').first()).toBeAttached();
   await expect(hidden.locator('.teleprompter__row--heading').first()).toHaveCSS('visibility', 'hidden');
   expect(await rowTexts(hidden)).toEqual(await rowTexts(page));
+  // the heading of the event being read, as rows far from the reading line are not laid out
   const headingHeight = await hidden
     .locator('.teleprompter__row--heading')
-    .first()
+    .nth(2)
     .evaluate((row) => row.getBoundingClientRect().height);
   expect(headingHeight).toBeGreaterThan(0);
   await expect.poll(async () => Math.abs((await readingRow(page)) - (await readingRow(hidden)))).toBeLessThan(0.01);

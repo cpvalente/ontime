@@ -27,6 +27,7 @@ leaves those unchanged. Only runtime controls and supported view options are con
 - Planning and Tracking use Table view; Control uses List view.
 - Each editor capture reveals the current event through the app's navigation and checks it sits near the top.
 - Operator shows notes and the Video Notes custom field; Countdown subscribes to the upcoming demo events.
+- Every table hides the Script custom field, whose presenter scripts would stretch its rows; the teleprompter reads it.
 - The secondary message asks the speaker to slow down for the interpreters.
 - The main timer message is empty and disabled; only the secondary message is enabled, using the default Timer view.
 - Timeline uses fixed-size mode to show the whole rundown, with event notes as secondary text.

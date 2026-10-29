@@ -102,6 +102,8 @@ Old layering exceptions are context, not precedent. Improve touched boundaries o
 
 ### Display views
 
+- Views are standalone. A view's behaviour lives in its own folder, with `<view>.options.ts` declaring its options, defaults and URL parsing, so one file shows how the view behaves. Repeating code across views is preferred to shared abstractions that couple them.
+
 - Existing global classes, element nesting and `--*-override` variables on display views (timer, backstage, countdown, studio, info) are a user contract. Rename or remove them only in a major, with a release note.
 - New stylable elements use BEM classes under the view's block. Avoid generic names such as `title` or `logo`.
 - A new `--*-override` variable is read in the view's styles as `var(--x-override, $default)`, with its default in `apps/client/src/theme/_viewerDefs.scss`, and listed with a comment in `apps/server/src/bundle/bundledCss.ts`.
