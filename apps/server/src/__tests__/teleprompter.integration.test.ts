@@ -14,6 +14,8 @@ describe('teleprompter script', () => {
     server = await startTestServer();
     rundown = await (await server.get('/data/rundowns/current')).json();
     eventId = rundown.flatOrder.find((id) => rundown.entries[id].type === SupportedEntry.Event)!;
+    // the tests write their scripts in the note, which the demo keeps for production notes
+    expect((await server.send('POST', '/data/teleprompter/settings', { script: 'note' })).ok).toBe(true);
   }, 15_000);
 
   afterAll(async () => {
