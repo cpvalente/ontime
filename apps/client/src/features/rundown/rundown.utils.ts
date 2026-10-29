@@ -255,15 +255,18 @@ export function orderEntries(unorderedArray: EntryId[], flatOrder: EntryId[]): E
  * Builds a Virtuoso calculateViewLocation which reveals an entry with the smallest scroll
  * - an entry fully in view, after keeping `margin` pixels clear at each edge, does not scroll
  * - an entry above the view aligns to the top, an entry below aligns to the bottom
- * The margin keeps room for a sticky header and shows a little of the neighbouring entries
+ * - the margin shows a little of the neighbouring entries, and shrinks when the view is too short for it
  */
 export function makeRevealLocation(margin: number): CalculateViewLocation {
   return ({ itemTop, itemBottom, viewportTop, viewportBottom, locationParams }) => {
-    if (itemTop < viewportTop + margin) {
-      return { ...locationParams, align: 'start', offset: -margin };
+    // on a short list, shrink the margin so a row that fits is not scrolled on every reveal
+    const spare = viewportBottom - viewportTop - (itemBottom - itemTop);
+    const edge = Math.min(margin, Math.max(0, spare / 2));
+    if (itemTop < viewportTop + edge) {
+      return { ...locationParams, align: 'start', offset: -edge };
     }
-    if (itemBottom > viewportBottom - margin) {
-      return { ...locationParams, align: 'end', offset: margin };
+    if (itemBottom > viewportBottom - edge) {
+      return { ...locationParams, align: 'end', offset: edge };
     }
     return null;
   };

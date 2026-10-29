@@ -24,6 +24,7 @@ import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
 import { useRundownCommands } from './hooks/useRundownCommands';
 import { useRundownDnd } from './hooks/useRundownDnd';
 import { useRundownKeyboard } from './hooks/useRundownKeyboard';
+import { useUserScrolled } from './hooks/useUserScrolled';
 import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import { getGroupDurationFit } from './rundown-event/rundownEvent.utils';
 import RundownGroup from './rundown-group/RundownGroup';
@@ -84,6 +85,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
+  const { userScrolledRef, scrollerRef } = useUserScrolled();
 
   /**
    * Handles logic for collapsing groups
@@ -106,31 +108,6 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     entryActions,
     selectEntry,
     handleCollapseGroup,
-  });
-
-  // Jump to the current element on demand: the running event in Run mode, the edit cursor otherwise.
-  // Scrolls only (no selection change) so jumping to the running event does not hijack the edit cursor.
-  const jumpToCurrent = useCallback(() => {
-    const targetId = editorMode === AppMode.Run ? featureData?.selectedEventId : cursor;
-    if (!targetId) {
-      return;
-    }
-
-    // Open parent group if the target is inside a collapsed group
-    const entry = entries[targetId];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
-    scrollToEntry(targetId);
-  }, [editorMode, featureData?.selectedEventId, cursor, entries, expandGroup, scrollToEntry]);
-
-  // Keyboard shortcuts
-  useRundownKeyboard({
-    cursor,
-    commands,
-    clearSelectedEvents,
-    setEntryCopyId,
-    jumpToCurrent,
   });
 
   // DND handlers
@@ -202,6 +179,46 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     };
   }, [dnd.isDraggingRef, setScrollHandler, scrollToVisibleEntry]);
 
+  // Jump to the current element on demand: the running event in Run mode, the edit cursor otherwise.
+  // Scrolls only (no selection change) so jumping to the running event does not hijack the edit cursor.
+  const jumpToCurrent = useCallback(() => {
+    const targetId = editorMode === AppMode.Run ? featureData?.selectedEventId : cursor;
+    if (!targetId) {
+      return;
+    }
+
+    // Open parent group if the target is inside a collapsed group
+    const entry = entries[targetId];
+    if (entry && 'parent' in entry) {
+      expandGroup(entry.parent);
+    }
+    if (editorMode === AppMode.Run) {
+      // back to following: pin the running event to the top so the next entries show
+      userScrolledRef.current = false;
+      scrollToVisibleEntry(targetId, 'pin');
+    } else {
+      scrollToEntry(targetId);
+    }
+  }, [
+    editorMode,
+    featureData?.selectedEventId,
+    cursor,
+    entries,
+    expandGroup,
+    scrollToEntry,
+    scrollToVisibleEntry,
+    userScrolledRef,
+  ]);
+
+  // Keyboard shortcuts
+  useRundownKeyboard({
+    cursor,
+    commands,
+    clearSelectedEvents,
+    setEntryCopyId,
+    jumpToCurrent,
+  });
+
   // Keep selected cursor visible by expanding its parent group in any mode.
   // Finder can select entries while layout is in Run mode, where we do not follow cursor scroll.
   useEffect(() => {
@@ -241,8 +258,24 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       expandGroup(entry.parent);
     }
 
+    userScrolledRef.current = false;
     scrollToVisibleEntry(selectedEventId, 'pin');
-  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef, scrollToVisibleEntry]);
+  }, [editorMode, featureData?.selectedEventId, expandGroup, dnd.isDraggingRef, scrollToVisibleEntry, userScrolledRef]);
+
+  // Edits move rows around the running event: keep it pinned until the user scrolls the list themselves
+  useEffect(() => {
+    const selectedEventId = featureData?.selectedEventId;
+    if (
+      dnd.isDraggingRef.current ||
+      userScrolledRef.current ||
+      editorMode !== AppMode.Run ||
+      !selectedEventId ||
+      !visibleData.includes(selectedEventId)
+    ) {
+      return;
+    }
+    scrollToVisibleEntry(selectedEventId, 'pin');
+  }, [visibleData, editorMode, featureData?.selectedEventId, dnd.isDraggingRef, scrollToVisibleEntry, userScrolledRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
@@ -387,6 +420,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
         <SortableContext items={sortableData} strategy={noSortingStrategy}>
           <Virtuoso
             ref={virtuosoRef}
+            scrollerRef={scrollerRef}
             data={visibleData}
             computeItemKey={(_index, entryId) => entryId}
             itemContent={itemContent}

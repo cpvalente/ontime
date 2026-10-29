@@ -316,4 +316,19 @@ describe('makeRevealLocation()', () => {
     expect(reveal({ ...viewport, itemTop: 50, itemBottom: 100, locationParams })).toMatchObject({ align: 'start' });
     expect(reveal({ ...viewport, itemTop: 880, itemBottom: 950, locationParams })).toMatchObject({ align: 'end' });
   });
+
+  test('shrinks the margin when the view is too short for it', () => {
+    const short = { viewportTop: 0, viewportBottom: 260 };
+    // a 110px row leaves 75px on each side: it is in view
+    expect(reveal({ ...short, itemTop: 75, itemBottom: 185, locationParams })).toBeNull();
+    expect(reveal({ ...short, itemTop: 200, itemBottom: 310, locationParams })).toMatchObject({
+      align: 'end',
+      offset: 75,
+    });
+    // a row taller than the view aligns without a margin
+    expect(reveal({ ...short, itemTop: -400, itemBottom: -100, locationParams })).toMatchObject({
+      align: 'start',
+      offset: -0,
+    });
+  });
 });

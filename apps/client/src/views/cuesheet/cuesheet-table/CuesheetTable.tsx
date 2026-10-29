@@ -26,6 +26,7 @@ import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import { useRundownWithMetadata, useScopedSelectedEventId } from '../../../common/hooks-query/useRundown';
 import { useFlatEntries } from '../../../common/hooks-query/useRundownById';
 import type { RundownMetadataObject } from '../../../common/utils/rundownMetadata';
+import { useUserScrolled } from '../../../features/rundown/hooks/useUserScrolled';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
 import { makeRevealLocation } from '../../../features/rundown/rundown.utils';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
@@ -92,6 +93,7 @@ export default function CuesheetTable({
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
+  const { userScrolledRef, scrollerRef } = useUserScrolled();
   const { listeners } = useTableNav();
 
   const options = useMemo(
@@ -145,7 +147,7 @@ export default function CuesheetTable({
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // the scroll effects read the latest rows through a ref, so edits, local or remote, never scroll the table
+  // the follow and jump effects read the latest rows through a ref, so edits only scroll the table to keep the current event pinned
   const flatRundownRef = useRef(flatRundown);
   useEffect(() => {
     flatRundownRef.current = flatRundown;
@@ -163,8 +165,23 @@ export default function CuesheetTable({
       return;
     }
 
+    userScrolledRef.current = false;
     virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
-  }, [cuesheetMode, hasRows, selectedEventId]);
+  }, [cuesheetMode, hasRows, selectedEventId, userScrolledRef]);
+
+  // edits move rows around the current event: keep it pinned until the user scrolls the table themselves
+  useEffect(() => {
+    if (virtuosoRef.current === null || userScrolledRef.current || cuesheetMode !== AppMode.Run || !selectedEventId) {
+      return;
+    }
+
+    const eventIndex = flatRundown.findIndex((event) => event.id === selectedEventId);
+    if (eventIndex === -1) {
+      return;
+    }
+
+    virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
+  }, [flatRundown, cuesheetMode, selectedEventId, userScrolledRef]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
   // reveals the entry with the smallest scroll, and only if it is not already in view
@@ -280,6 +297,7 @@ export default function CuesheetTable({
       ) : (
         <TableVirtuoso
           ref={virtuosoRef}
+          scrollerRef={scrollerRef}
           data={flatRundown}
           context={virtuosoContext}
           style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}

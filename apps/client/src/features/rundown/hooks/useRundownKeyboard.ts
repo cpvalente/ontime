@@ -13,7 +13,7 @@ interface UseRundownKeyboardOptions {
     selectPage: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
     cloneEntry: (cursor: EntryId | null) => void;
     moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => void;
-    deleteAtCursor: (cursor: EntryId | null) => void;
+    deleteAtCursor: (cursor: EntryId | null) => EntryId | null;
     insertAtId: (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: EntryId | null, above?: boolean) => void;
     insertCopyAtId: (atId: EntryId | null, above?: boolean) => void;
   };
@@ -147,7 +147,16 @@ export function useRundownKeyboard({
       { preventDefault: true, usePhysicalKeys: true },
     ],
 
-    ['alt + Backspace', () => commands.deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
+    [
+      'alt + Backspace',
+      () => {
+        const nextId = commands.deleteAtCursor(cursor);
+        if (nextId) {
+          scrollToEntry(nextId);
+        }
+      },
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + E',
