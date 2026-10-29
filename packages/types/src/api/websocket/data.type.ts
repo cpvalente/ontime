@@ -20,8 +20,8 @@ export enum MessageTag {
 // CLIENT TO SERVER
 // payload: the client send time, echoed back in the Pong
 type PingPacket = { tag: MessageTag.Ping; payload: number };
-type SetClientPacket = { tag: MessageTag.ClientSetPath; payload: string };
-type SetClientPathPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
+type SetClientPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
+type SetClientPathPacket = { tag: MessageTag.ClientSetPath; payload: string };
 
 // SERVER TO CLIENT
 // clock: server time of day at reply, in milliseconds since midnight in the server's timezone.
