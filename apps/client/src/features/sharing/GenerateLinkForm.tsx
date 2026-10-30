@@ -275,6 +275,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                   <Input
                     defaultValue={generatedAlias.current}
                     {...register('alias', {
+                      setValueAs: (value: string) => value.toLowerCase(),
                       required: 'Alias cannot be empty and must be unique',
                       pattern: {
                         value: isUrlSafe,
