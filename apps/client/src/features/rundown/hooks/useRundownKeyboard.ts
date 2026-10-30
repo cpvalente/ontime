@@ -140,11 +140,15 @@ export function useRundownKeyboard({
 
     [
       'Escape',
-      () => {
+      (event) => {
+        if (event.target instanceof Element && event.target.closest('[role="menu"]')) {
+          return;
+        }
+        event.preventDefault();
         clearSelectedEvents();
         setEntryCopyId(null);
       },
-      { preventDefault: true, usePhysicalKeys: true },
+      { usePhysicalKeys: true },
     ],
 
     ['alt + Backspace', () => commands.deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
