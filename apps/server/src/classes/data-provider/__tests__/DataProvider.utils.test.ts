@@ -1,4 +1,12 @@
-import { AutomationSettings, CustomField, DatabaseModel, Settings, TimerLifeCycle, URLPreset } from 'ontime-types';
+import {
+  AutomationSettings,
+  CustomField,
+  DatabaseModel,
+  OntimeView,
+  Settings,
+  TimerLifeCycle,
+  URLPreset,
+} from 'ontime-types';
 
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { makeNewProject } from '../../../models/dataModel.js';
@@ -101,6 +109,24 @@ describe('safeMerge', () => {
     const mergedData = safeMerge(baseDb, newData);
 
     expect(mergedData.urlPresets).toStrictEqual([...baseDb.urlPresets, ...newData.urlPresets]);
+  });
+
+  it('normalises imported preset aliases and preserves existing presets when names collide', () => {
+    const preset: URLPreset = {
+      alias: 'stage',
+      target: OntimeView.Timer,
+      enabled: true,
+      displayInNav: false,
+      search: 'title=MainStage',
+    };
+    const existing = { ...baseDb, urlPresets: [preset] };
+    const imported = { ...preset, alias: 'STAGE', search: 'title=OtherStage' };
+
+    const merged = safeMerge(existing, { urlPresets: [imported] });
+
+    expect(merged.urlPresets).toEqual([preset, { ...imported, alias: 'stage-2' }]);
+    expect(existing.urlPresets).toEqual([preset]);
+    expect(imported.alias).toBe('STAGE');
   });
 
   it('merges customFields into existing object', () => {
