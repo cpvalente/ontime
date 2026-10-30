@@ -2,6 +2,8 @@ import { DatabaseModel, Settings } from 'ontime-types';
 import { sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { is } from '../../../utils/is.js';
+import type { ErrorEmitter } from '../../../utils/parserUtils.js';
+import { parseUrlPresets } from '../../url-presets/urlPresets.parser.js';
 
 export function shouldMigrateServerPort(jsonData: object): boolean {
   return (
@@ -36,4 +38,13 @@ export function migrateServerPort(jsonData: Partial<DatabaseModel>): {
     app: 'ontime',
   } as Settings;
   return { db, serverPort: settings?.serverPort };
+}
+
+/** Parse and migrate legacy aliases, flagging changes so project loading preserves a backup. */
+export function migrateUrlPresetAliases(jsonData: Partial<DatabaseModel>, emitError?: ErrorEmitter) {
+  const urlPresets = parseUrlPresets(jsonData, emitError);
+  const originalAliases = new Set(jsonData.urlPresets?.map((preset) => preset.alias));
+  const migrated = urlPresets.some((preset) => !originalAliases.has(preset.alias));
+
+  return { urlPresets, migrated };
 }
