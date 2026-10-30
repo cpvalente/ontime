@@ -15,6 +15,7 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import EmptyRundown from '../../common/components/state/EmptyRundown';
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
+import { useRundownScope } from '../../common/context/RundownScopeContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
 import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
@@ -56,7 +57,8 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   const { data: automationSettings, status: automationStatus } = useAutomationSettings();
   const automationsEnabled = automationStatus === 'pending' ? undefined : automationSettings.enabledAutomations;
-  const [sortableData, setSortableData] = useState<EntryId[]>(() => makeSortableList(order, entries));
+  const rundownSortableData = useMemo(() => makeSortableList(order, entries), [order, entries]);
+  const [sortableData, setSortableData] = useState<EntryId[]>(rundownSortableData);
   const [metadata, setMetadata] = useState<RundownMetadataObject>(rundownMetadata);
 
   /**
@@ -64,13 +66,14 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
    * workaround issues with dnd-kit optimistic updates
    */
   useEffect(() => {
-    setSortableData(makeSortableList(order, entries));
+    setSortableData(rundownSortableData);
     setMetadata(rundownMetadata);
-  }, [order, entries, rundownMetadata]);
+  }, [rundownSortableData, rundownMetadata]);
 
   const { getIsCollapsed, collapseGroup, expandGroup } = useCollapsedGroups(id);
 
   const entryActions = useEntryActionsContext();
+  const { selectionStore } = useRundownScope();
   const setEntryCopyId = useSetEntryCopy();
 
   // cursor
@@ -126,14 +129,6 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   const visibleData = useMemo(() => {
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
-
-  // Mode transitions read the latest selection without reacting to content edits.
-  const entriesRef = useRef(entries);
-  const latestCursorRef = useRef(cursor);
-  useEffect(() => {
-    entriesRef.current = entries;
-    latestCursorRef.current = cursor;
-  }, [entries, cursor]);
 
   const [revealEntryId, setRevealEntryId] = useState<EntryId | null>(null);
 
@@ -197,21 +192,27 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // Entering Edit mode reveals the cursor through the same path as finder and keyboard navigation.
   useEffect(() => {
     if (editorMode === AppMode.Edit) {
-      setRevealEntryId(latestCursorRef.current);
+      setRevealEntryId(selectionStore.getState().cursor);
     }
-  }, [editorMode]);
+  }, [editorMode, selectionStore]);
 
-  // A new live event resumes following and opens its group; content edits do neither.
+  const liveEntry = featureData.selectedEventId ? entries[featureData.selectedEventId] : undefined;
+  const liveParentId = liveEntry && 'parent' in liveEntry ? liveEntry.parent : null;
+
+  // A new live event resumes following; content edits never reset the user's scroll suspension.
   useEffect(() => {
     if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData.selectedEventId) {
       return;
     }
-    const entry = entriesRef.current[featureData.selectedEventId];
-    if (entry && 'parent' in entry) {
-      expandGroup(entry.parent);
-    }
     userScrolledRef.current = false;
-  }, [editorMode, featureData.selectedEventId, expandGroup, dnd.isDraggingRef, userScrolledRef]);
+  }, [editorMode, featureData.selectedEventId, dnd.isDraggingRef, userScrolledRef]);
+
+  // Keep a followed event visible when a structural edit moves it into another group.
+  useEffect(() => {
+    if (editorMode === AppMode.Run && !userScrolledRef.current && !dnd.isDraggingRef.current) {
+      expandGroup(liveParentId);
+    }
+  }, [editorMode, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef, userScrolledRef]);
 
   // This is the only automatic pin: it also waits for group expansion and follows content changes.
   useEffect(() => {
@@ -220,9 +221,9 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     }
   }, [editorMode, pinLiveEvent, userScrolledRef]);
 
-  // Reveal only after the target is visible, including when expansion takes another render.
+  // Reveal only after expansion and the latest rundown order have reached the rendered list.
   useEffect(() => {
-    if (!revealEntryId || dnd.isDraggingRef.current) {
+    if (!revealEntryId || dnd.isDraggingRef.current || sortableData !== rundownSortableData) {
       return;
     }
     const entry = entries[revealEntryId];
@@ -239,7 +240,16 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
       virtuosoRef.current.scrollIntoView({ index, behavior: 'smooth', calculateViewLocation: revealLocation });
       setRevealEntryId(null);
     }
-  }, [revealEntryId, entries, visibleData, getIsCollapsed, expandGroup, dnd.isDraggingRef]);
+  }, [
+    revealEntryId,
+    entries,
+    visibleData,
+    sortableData,
+    rundownSortableData,
+    getIsCollapsed,
+    expandGroup,
+    dnd.isDraggingRef,
+  ]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;

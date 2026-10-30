@@ -301,6 +301,16 @@ describe('makeRevealLocation()', () => {
     expect(reveal({ ...viewport, itemTop, itemBottom, locationParams })).toMatchObject({ align, offset });
   });
 
+  test.each([
+    { itemTop: 0, itemBottom: 300 },
+    { itemTop: -40, itemBottom: 260 },
+    { itemTop: -20, itemBottom: 280 },
+  ])('does not move an oversized row spanning the viewport on repeated reveals: %j', (row) => {
+    const params = { viewportTop: 0, viewportBottom: 260, ...row, locationParams };
+    expect(reveal(params)).toBeNull();
+    expect(reveal(params)).toBeNull();
+  });
+
   test('shrinks the margin when the view is too short for it', () => {
     const short = { viewportTop: 0, viewportBottom: 260 };
     // a 110px row leaves 75px on each side: it is in view

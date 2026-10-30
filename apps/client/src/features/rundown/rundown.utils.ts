@@ -259,6 +259,9 @@ export function orderEntries(unorderedArray: EntryId[], flatOrder: EntryId[]): E
  */
 export function makeRevealLocation(margin: number): CalculateViewLocation {
   return ({ itemTop, itemBottom, viewportTop, viewportBottom, locationParams }) => {
+    if (itemTop <= viewportTop && itemBottom >= viewportBottom) {
+      return null;
+    }
     // on a short list, shrink the margin so a row that fits is not scrolled on every reveal
     const spare = viewportBottom - viewportTop - (itemBottom - itemTop);
     const edge = Math.min(margin, Math.max(0, spare / 2));

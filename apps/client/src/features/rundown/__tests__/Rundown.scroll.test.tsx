@@ -11,9 +11,10 @@ import { AppMode } from '../../../ontimeConfig';
 import Rundown from '../Rundown';
 import { useSelectAndRevealEntry } from '../useSelectAndRevealEntry';
 
-const { scrollToIndex, scrollIntoView } = vi.hoisted(() => ({
+const { scrollToIndex, scrollIntoView, move } = vi.hoisted(() => ({
   scrollToIndex: vi.fn(),
   scrollIntoView: vi.fn(),
+  move: vi.fn(),
 }));
 
 // Keep the real selection, collapse and scroll flows; replace the virtualizer's DOM measurements.
@@ -32,7 +33,7 @@ vi.mock('react-virtuoso', () => ({
   },
 }));
 vi.mock('../../../common/context/RundownScopeContext', () => ({ useRundownScope: () => scope }));
-vi.mock('../../../common/context/EntryActionsContext', () => ({ useEntryActionsContext: () => ({}) }));
+vi.mock('../../../common/context/EntryActionsContext', () => ({ useEntryActionsContext: () => ({ move }) }));
 vi.mock('../../../common/hooks-query/useAutomationSettings', () => ({
   default: () => ({ data: { enabledAutomations: false }, status: 'success' }),
 }));
@@ -128,4 +129,140 @@ it('does not scroll when selecting or editing a row in Edit mode', async () => {
   await render();
   expect(scrollIntoView).not.toHaveBeenCalled();
   expect(scrollToIndex).not.toHaveBeenCalled();
+});
+
+it('reveals the latest cursor when entering Edit mode', async () => {
+  await render();
+  await act(async () => scope.selectionStore.getState().setSingleEntrySelection({ id: 'second' }));
+  scrollIntoView.mockClear();
+
+  mode = AppMode.Edit;
+  await render();
+  expect(scrollIntoView).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ index: 1 }));
+});
+
+it.each(['up', 'down'] as const)(
+  'reveals the new index when a move %s and its order update are batched',
+  async (direction) => {
+    mode = AppMode.Edit;
+    const cursor = direction === 'down' ? 'first' : 'second';
+    scope.selectionStore.getState().setSingleEntrySelection({ id: cursor });
+    let completeMove!: () => void;
+    move.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          completeMove = resolve;
+        }),
+    );
+    await render();
+    scrollIntoView.mockClear();
+
+    const key = direction === 'down' ? 'ArrowDown' : 'ArrowUp';
+    await act(async () => {
+      document.body.dispatchEvent(
+        new KeyboardEvent('keydown', { key, code: key, altKey: true, ctrlKey: true, bubbles: true }),
+      );
+    });
+    expect(move).toHaveBeenCalledWith(cursor, direction);
+    expect(scrollIntoView).not.toHaveBeenCalled();
+
+    props = { ...props, order: ['second', 'first'], flatOrder: ['second', 'first'] };
+    await act(async () => {
+      root.render(<Harness />);
+      completeMove();
+    });
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
+    expect(scrollIntoView).toHaveBeenLastCalledWith(expect.objectContaining({ index: direction === 'down' ? 1 : 0 }));
+  },
+);
+
+it.each([false, true])(
+  'handles a live event moving into a collapsed group with following paused: %s',
+  async (paused) => {
+    sessionStorage.setItem('rundown.test-editor-collapsed-groups', JSON.stringify(['group']));
+    props = {
+      ...props,
+      entries: { ...props.entries, group: createGroup({ id: 'group', entries: [] }) },
+      order: ['first', 'group', 'second'],
+      flatOrder: ['first', 'group', 'second'],
+    };
+    await render();
+    if (paused) {
+      container.querySelector('[data-testid="scroller"]')!.dispatchEvent(new WheelEvent('wheel', { bubbles: true }));
+    }
+    scrollToIndex.mockClear();
+    props = {
+      ...props,
+      entries: {
+        ...props.entries,
+        first: { ...createEvent({ id: 'first' })!, parent: 'group' },
+        group: createGroup({ id: 'group', entries: ['first'] }),
+      },
+      order: ['group', 'second'],
+      flatOrder: ['group', 'first', 'second'],
+    };
+    await render();
+    const visible = container.querySelector('[data-testid="scroller"]')!.getAttribute('data-entries')!.split(',');
+    expect(visible.includes('first')).toBe(!paused);
+    expect(scrollToIndex.mock.lastCall?.[0].index).toBe(paused ? undefined : 1);
+  },
+);
+
+it('preserves newer navigation when a pending keyboard move completes', async () => {
+  mode = AppMode.Edit;
+  scope.selectionStore.getState().setSingleEntrySelection({ id: 'first' });
+  let completeMove!: () => void;
+  move.mockImplementationOnce(
+    () =>
+      new Promise<void>((resolve) => {
+        completeMove = resolve;
+      }),
+  );
+  await render();
+  await act(async () => {
+    document.body.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 'ArrowDown',
+        code: 'ArrowDown',
+        altKey: true,
+        ctrlKey: true,
+        bubbles: true,
+      }),
+    );
+  });
+  await act(async () => {
+    scope.selectionStore.getState().setSelectedEvents({ id: 'second', index: 1, selectMode: 'click' });
+    scope.selectionStore.getState().scrollToEntry('second');
+  });
+  scrollIntoView.mockClear();
+  await act(async () => completeMove());
+  expect(scrollIntoView).not.toHaveBeenCalled();
+});
+
+it('expands a collapsed group when the live entry arrives after its runtime selection', async () => {
+  sessionStorage.setItem('rundown.test-editor-collapsed-groups', JSON.stringify(['group']));
+  props = {
+    ...props,
+    entries: { ...props.entries, group: createGroup({ id: 'group', entries: [] }) },
+    order: ['first', 'group', 'second'],
+    flatOrder: ['first', 'group', 'second'],
+  };
+  await render();
+  props = { ...props, featureData: { ...props.featureData, selectedEventId: 'inside' } };
+  await render();
+  scrollToIndex.mockClear();
+  props = {
+    ...props,
+    entries: {
+      ...props.entries,
+      group: createGroup({ id: 'group', entries: ['inside'] }),
+      inside: { ...createEvent({ id: 'inside' })!, parent: 'group' },
+    },
+    flatOrder: ['first', 'group', 'inside', 'second'],
+  };
+  await render();
+  expect(container.querySelector('[data-testid="scroller"]')!.getAttribute('data-entries')!.split(',')).toContain(
+    'inside',
+  );
+  expect(scrollToIndex).toHaveBeenLastCalledWith(expect.objectContaining({ index: 2 }));
 });
