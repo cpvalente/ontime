@@ -1,4 +1,5 @@
 import { EntryId, RundownEntries, SupportedEntry, isOntimeGroup } from 'ontime-types';
+import type { CalculateViewLocation } from 'react-virtuoso';
 
 /**
  * Creates a sortable list of entries
@@ -248,4 +249,28 @@ export function orderEntries(unorderedArray: EntryId[], flatOrder: EntryId[]): E
     }
   }
   return orderedArray;
+}
+
+/**
+ * Builds a Virtuoso calculateViewLocation which reveals an entry with the smallest scroll
+ * - an entry fully in view, after keeping `margin` pixels clear at each edge, does not scroll
+ * - an entry above the view aligns to the top, an entry below aligns to the bottom
+ * - the margin shows a little of the neighbouring entries, and shrinks when the view is too short for it
+ */
+export function makeRevealLocation(margin: number): CalculateViewLocation {
+  return ({ itemTop, itemBottom, viewportTop, viewportBottom, locationParams }) => {
+    if (itemTop <= viewportTop && itemBottom >= viewportBottom) {
+      return null;
+    }
+    // on a short list, shrink the margin so a row that fits is not scrolled on every reveal
+    const spare = viewportBottom - viewportTop - (itemBottom - itemTop);
+    const edge = Math.min(margin, Math.max(0, spare / 2));
+    if (itemTop < viewportTop + edge) {
+      return { ...locationParams, align: 'start', offset: -edge };
+    }
+    if (itemBottom > viewportBottom - edge) {
+      return { ...locationParams, align: 'end', offset: edge };
+    }
+    return null;
+  };
 }

@@ -1,6 +1,6 @@
 import { EntryId, OntimeEvent, OntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
 
-import { makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
+import { makeRevealLocation, makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
 
 describe('makeSortableList()', () => {
   it('generates a list with group ends', () => {
@@ -282,5 +282,47 @@ describe('orderEntries()', () => {
     const flatOrder = ['a', 'b', 'c'];
     const result = orderEntries(unorderedArray, flatOrder);
     expect(result).toEqual([]);
+  });
+});
+
+describe('makeRevealLocation()', () => {
+  const reveal = makeRevealLocation(100);
+  const viewport = { viewportTop: 0, viewportBottom: 1000 };
+  const locationParams = { index: 4, behavior: 'smooth' as const };
+
+  test('does not scroll an entry which is in view', () => {
+    expect(reveal({ ...viewport, itemTop: 400, itemBottom: 450, locationParams })).toBeNull();
+  });
+
+  test.each([
+    { itemTop: 50, itemBottom: 100, align: 'start', offset: -100 },
+    { itemTop: 880, itemBottom: 950, align: 'end', offset: 100 },
+  ])('reveals a row inside the $align margin', ({ itemTop, itemBottom, align, offset }) => {
+    expect(reveal({ ...viewport, itemTop, itemBottom, locationParams })).toMatchObject({ align, offset });
+  });
+
+  test.each([
+    { itemTop: 0, itemBottom: 300 },
+    { itemTop: -40, itemBottom: 260 },
+    { itemTop: -20, itemBottom: 280 },
+  ])('does not move an oversized row spanning the viewport on repeated reveals: %j', (row) => {
+    const params = { viewportTop: 0, viewportBottom: 260, ...row, locationParams };
+    expect(reveal(params)).toBeNull();
+    expect(reveal(params)).toBeNull();
+  });
+
+  test('shrinks the margin when the view is too short for it', () => {
+    const short = { viewportTop: 0, viewportBottom: 260 };
+    // a 110px row leaves 75px on each side: it is in view
+    expect(reveal({ ...short, itemTop: 75, itemBottom: 185, locationParams })).toBeNull();
+    expect(reveal({ ...short, itemTop: 200, itemBottom: 310, locationParams })).toMatchObject({
+      align: 'end',
+      offset: 75,
+    });
+    // a row taller than the view aligns without a margin
+    expect(reveal({ ...short, itemTop: -400, itemBottom: -100, locationParams })).toMatchObject({
+      align: 'start',
+      offset: -0,
+    });
   });
 });

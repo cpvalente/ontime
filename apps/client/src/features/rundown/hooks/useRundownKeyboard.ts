@@ -1,6 +1,7 @@
 import { useHotkeys } from '@mantine/hooks';
 import { EntryId, type OntimeEntry, SupportedEntry } from 'ontime-types';
 
+import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { useEventSelection } from '../useEventSelection';
 
@@ -12,8 +13,8 @@ interface UseRundownKeyboardOptions {
     selectEdge: (direction: 'top' | 'bottom') => EntryId | null;
     selectPage: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
     cloneEntry: (cursor: EntryId | null) => void;
-    moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => void;
-    deleteAtCursor: (cursor: EntryId | null) => void;
+    moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => Promise<void>;
+    deleteAtCursor: (cursor: EntryId | null) => EntryId | null;
     insertAtId: (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: EntryId | null, above?: boolean) => void;
     insertCopyAtId: (atId: EntryId | null, above?: boolean) => void;
   };
@@ -43,7 +44,18 @@ export function useRundownKeyboard({
   setEntryCopyId,
   jumpToCurrent,
 }: UseRundownKeyboardOptions) {
+  const { selectionStore } = useRundownScope();
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
+
+  const moveAndReveal = async (direction: 'up' | 'down') => {
+    if (!cursor) {
+      return;
+    }
+    await commands.moveEntry(cursor, direction);
+    if (selectionStore.getState().cursor === cursor) {
+      scrollToEntry(cursor);
+    }
+  };
 
   useHotkeys([
     [
@@ -131,12 +143,8 @@ export function useRundownKeyboard({
 
     ['alt + L', () => jumpToCurrent(), { preventDefault: true, usePhysicalKeys: true }],
 
-    [
-      'alt + mod + ArrowDown',
-      () => commands.moveEntry(cursor, 'down'),
-      { preventDefault: true, usePhysicalKeys: true },
-    ],
-    ['alt + mod + ArrowUp', () => commands.moveEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowDown', () => moveAndReveal('down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowUp', () => moveAndReveal('up'), { preventDefault: true, usePhysicalKeys: true }],
 
     [
       'Escape',
@@ -151,7 +159,16 @@ export function useRundownKeyboard({
       { usePhysicalKeys: true },
     ],
 
-    ['alt + Backspace', () => commands.deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
+    [
+      'alt + Backspace',
+      () => {
+        const nextId = commands.deleteAtCursor(cursor);
+        if (nextId) {
+          scrollToEntry(nextId);
+        }
+      },
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + E',

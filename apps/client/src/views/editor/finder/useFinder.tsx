@@ -250,7 +250,7 @@ export default function useFinder(searchValue: string, activeFilter: MaybeString
 
   const select = useCallback(
     (result: FinderResult) => {
-      selectAndRevealEntry({ id: result.id, index: result.index, parent: result.parent });
+      selectAndRevealEntry({ id: result.id, index: result.index });
     },
     [selectAndRevealEntry],
   );
