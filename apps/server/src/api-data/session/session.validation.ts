@@ -13,7 +13,7 @@ export const validateGenerateUrl = [
   body('authenticate').isBoolean(),
   body('lockConfig').isBoolean(),
   body('lockNav').isBoolean(),
-  body('preset').optional().isString().trim().notEmpty(),
+  body('preset').optional().isString().trim().notEmpty().toLowerCase(),
 
   requestValidationFunction,
 ];
