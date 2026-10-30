@@ -144,6 +144,26 @@ describe('roll lifecycle', () => {
     });
   });
 
+  test('restoring roll preserves the timing offset from manual playback', async () => {
+    prepare([event('now', hour, 2 * hour)], hour + 5 * minute);
+    runtimeService.startById('now');
+    runtimeService.roll();
+    await tickAt(hour + 6 * minute);
+    expect(getState().offset.absolute).toBe(5 * minute);
+
+    const [restorePoint] = vi.mocked(restoreService.save).mock.lastCall!;
+    runtimeService.shutdown();
+    clearState();
+    runtimeService.init(restorePoint);
+    await tickAt(hour + 7 * minute);
+
+    expect(getState()).toMatchObject({
+      eventNow: { id: 'now' },
+      timer: { playback: Playback.Roll, current: 58 * minute },
+      offset: { absolute: 5 * minute },
+    });
+  });
+
   test('roll ignores end actions and waits through a gap before starting the next event', async () => {
     prepare(
       [event('now', hour, 2 * hour, { endAction: EndAction.PlayNext }), event('next', 2 * hour + minute, 3 * hour)],
