@@ -31,14 +31,14 @@ export function validateUrlPresetPath(preset: string): { message: string; isVali
  * Checks whether the current location corresponds to a preset and returns the new path if necessary
  */
 export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): string | null {
+  const { path: currentURL, isPresetPath } = parseUrlPresetPath(location.pathname);
   // if we're already on a preset path, no need to redirect
-  if (isPresetPath(location)) {
+  if (isPresetPath) {
     return null;
   }
 
   // NOTE: verify that this resolves correctly in cloud
   const currentPath = `${location.pathname}${location.search}`.substring(1);
-  const currentURL = getCurrentPath(location);
   const locationParams = new URLSearchParams(location.search);
   const token = locationParams.get('token');
 
@@ -69,23 +69,28 @@ export function getRouteFromPreset(location: Path, urlPresets: URLPreset[]): str
   return null;
 }
 
-/**
- * Resolves the current path accounting for the base URI
- * Returns the alias if it's a preset path, or the last segment otherwise
- */
-export function getCurrentPath(location: Path): string {
-  // 1. get path without query parameters
-  const pathWithoutQuery = location.pathname.split('?')[0];
-  // 2. split path into segments and filter out empty segments
-  const segments = pathWithoutQuery.split('/').filter(Boolean);
+/** Parses an external alias into the lowercase form used by saved presets. */
+export function parseUrlPresetAlias(alias: string | null | undefined): string {
+  return alias?.toLowerCase() ?? '';
+}
 
-  // If this is a preset path, return the alias (last segment)
-  if (segments[0] === 'preset' && segments.length > 1) {
-    return segments[1];
-  }
-
-  // Otherwise return the last segment (view name)
-  return segments[segments.length - 1] || '';
+/** Parses short or pasted URL paths, which have not been decoded by React Router. */
+export function parseUrlPresetPath(pathname: string) {
+  const segments = pathname
+    .split('?')[0]
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => {
+      try {
+        return decodeURIComponent(segment);
+      } catch {
+        // Keep malformed escapes unmatched rather than failing to render the view.
+        return segment;
+      }
+    });
+  const isPresetPath = parseUrlPresetAlias(segments[0]) === 'preset';
+  const path = parseUrlPresetAlias(isPresetPath && segments.length > 1 ? segments[1] : segments.at(-1));
+  return { path, isPresetPath };
 }
 
 /**
@@ -183,7 +188,7 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
   }
 
   const url = new URL(sanitisedUrl);
-  const path = getCurrentPath(url);
+  const { path } = parseUrlPresetPath(url.pathname);
 
   if (!isPresettableView(path)) {
     throw new Error(`Invalid target view: ${path}`);
@@ -200,12 +205,4 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
 
 function isPresettableView(view: string): view is OntimeViewPresettable {
   return view !== OntimeView.Editor && Object.values(OntimeView).includes(view as OntimeView);
-}
-
-/**
- * Check if current location is a preset path
- */
-function isPresetPath(location: Path): boolean {
-  const firstSegment = location.pathname.split('/').find(Boolean);
-  return firstSegment === 'preset';
 }
