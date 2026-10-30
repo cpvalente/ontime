@@ -358,6 +358,8 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
       <DelayRow
         key={key}
         duration={entry.duration}
+        options={context.options}
+        visibleColumns={context.visibleColumns}
         injectedStyles={injectedStyles}
         hasCursor={hasCursor}
         {...virtuosoProps}
