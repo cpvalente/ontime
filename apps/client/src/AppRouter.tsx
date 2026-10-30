@@ -7,7 +7,7 @@ import { PresetContext } from './common/context/PresetContext';
 import { RundownScopeProvider } from './common/context/RundownScopeContext';
 import useUrlPresets from './common/hooks-query/useUrlPresets';
 import { useClientPath } from './common/hooks/useClientPath';
-import { getRouteFromPreset } from './common/utils/urlPresets';
+import { getRouteFromPreset, parseUrlPresetAlias } from './common/utils/urlPresets';
 import { getIsNavigationLocked, sessionScope } from './externals';
 import Log from './features/log/Log';
 import { initializeSentry } from './sentry.config';
@@ -188,7 +188,7 @@ const PresetViewMap: Record<OntimeViewPresettable, ComponentType> = {
  */
 function PresetView() {
   const { data, status } = useUrlPresets();
-  const { alias } = useParams();
+  const alias = parseUrlPresetAlias(useParams().alias);
 
   const preset: URLPreset | undefined = useMemo(() => {
     if (status === 'pending' || !alias) return;
