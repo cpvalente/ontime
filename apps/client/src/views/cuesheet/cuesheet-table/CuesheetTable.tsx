@@ -302,6 +302,31 @@ const CuesheetTableElement = memo(function CuesheetTableElement({
       id='cuesheet'
       style={{ ...injectedStyles, ...context.columnSizeVars }}
       {...context.listeners}
+      onKeyDown={(event) => {
+        const cell = event.target;
+        if (
+          cell instanceof HTMLTableCellElement &&
+          (event.key === 'ArrowUp' || event.key === 'ArrowDown') &&
+          !event.altKey &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.shiftKey
+        ) {
+          const row = cell.parentElement;
+          let nextRow = event.key === 'ArrowUp' ? row?.previousElementSibling : row?.nextElementSibling;
+          if (nextRow?.hasAttribute('data-hidden-delay')) {
+            do {
+              nextRow = event.key === 'ArrowUp' ? nextRow.previousElementSibling : nextRow.nextElementSibling;
+            } while (nextRow?.hasAttribute('data-hidden-delay'));
+            const index = row ? Array.from(row.children).indexOf(cell) : -1;
+            const nextCell = nextRow?.children[index];
+            if (nextCell instanceof HTMLElement) nextCell.focus();
+            event.preventDefault();
+            return;
+          }
+        }
+        context.listeners.onKeyDown(event);
+      }}
       {...virtuosoProps}
     />
   );
