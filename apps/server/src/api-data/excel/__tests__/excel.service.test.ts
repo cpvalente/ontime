@@ -118,3 +118,15 @@ it('imports formatted Excel time cells as wall-clock times', async () => {
     duration: 5 * 60 * 1000,
   });
 });
+
+it.each([
+  ["' 'Name", 'Name'],
+  ["Name' ' ", 'Name'],
+  [" '  ' ", 'Rundown'],
+  ['A'.repeat(29) + "' tail", 'A'.repeat(29)],
+])('strips mixed boundary apostrophes and whitespace from %j', (title, expected) => {
+  const rundown = { ...demoDb.rundowns.default, title };
+  for (const buffer of [generateExcelFile(rundown, {}), generateExcelWorkbook([rundown], {})]) {
+    expect(xlsx.read(buffer, { type: 'buffer' }).SheetNames).toEqual([expected]);
+  }
+});

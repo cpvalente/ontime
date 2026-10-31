@@ -1,3 +1,5 @@
+import { UnsupportedSpreadsheetFormatError } from './sheets.errors.js';
+
 // https://developers.google.com/calendar/api/guides/errors
 interface GoogleApiError {
   code: number;
@@ -26,7 +28,7 @@ function isGoogleApiError(error: any): error is GoogleApiError {
 /**
  * Extract utility to handle a common error where a user imports an xlsx file instead of a Google Sheet
  */
-export function catchCommonImportXlsxError(error: any) {
+export function rethrowGoogleSheetError(error: unknown): never {
   if (
     isGoogleApiError(error) &&
     error.code === 400 &&
@@ -35,6 +37,7 @@ export function catchCommonImportXlsxError(error: any) {
     error.errors[0]?.reason === 'failedPrecondition' &&
     error.errors[0]?.message === 'This operation is not supported for this document'
   ) {
-    throw new Error('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
+    throw new UnsupportedSpreadsheetFormatError();
   }
+  throw error;
 }

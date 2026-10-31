@@ -30,7 +30,13 @@ import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils
 import * as logger from '../logs/logs.service.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
-import { catchCommonImportXlsxError } from './googleApi.utils.js';
+import { rethrowGoogleSheetError } from './googleApi.utils.js';
+import {
+  InvalidSheetDataError,
+  InvalidSheetsClientSecretError,
+  SheetsConnectionRequiredError,
+  WorksheetNotFoundError,
+} from './sheets.errors.js';
 import { type ClientSecret, cellRequestFromEvent, getA1Notation, isClientSecret } from './sheets.utils.js';
 
 const sheetScope = 'https://www.googleapis.com/auth/spreadsheets';
@@ -85,10 +91,14 @@ export function revoke(): ReturnType<typeof hasAuth> {
  * Parses and validates a client secret string
  */
 export function handleClientSecret(clientSecret: string): ClientSecret {
-  const clientSecretObject = JSON.parse(clientSecret);
-
-  if (!isClientSecret(clientSecretObject)) {
-    throw new Error('Client secret is invalid');
+  let clientSecretObject: unknown;
+  try {
+    clientSecretObject = JSON.parse(clientSecret);
+  } catch {
+    throw new InvalidSheetsClientSecretError();
+  }
+  if (typeof clientSecretObject !== 'object' || clientSecretObject === null || !isClientSecret(clientSecretObject)) {
+    throw new InvalidSheetsClientSecretError();
   }
 
   return clientSecretObject;
@@ -231,34 +241,29 @@ type VerifySheetResult = {
  */
 async function verifySheet(sheetId = currentSheetId, authClient = currentAuthClient): Promise<VerifySheetResult> {
   if (!sheetId || !authClient) {
-    throw new Error('Missing sheet ID or authentication');
+    throw new SheetsConnectionRequiredError();
   }
 
-  try {
-    const spreadsheets = await sheets({ version: 'v4', auth: authClient }).spreadsheets.get({
+  const spreadsheets = await sheets({ version: 'v4', auth: authClient })
+    .spreadsheets.get({
       spreadsheetId: sheetId,
       includeGridData: false,
-    });
+    })
+    .catch(rethrowGoogleSheetError);
 
-    const worksheets: string[] = [];
-    spreadsheets.data.sheets?.forEach((sheet) => {
-      if (sheet.properties?.title) {
-        worksheets.push(sheet.properties.title);
-      }
-    });
-
-    if (worksheets.length === 0) {
-      throw new Error('No worksheets found');
+  const worksheets: string[] = [];
+  spreadsheets.data.sheets?.forEach((sheet) => {
+    if (sheet.properties?.title) {
+      worksheets.push(sheet.properties.title);
     }
+  });
 
-    const title = spreadsheets.data.properties?.title ?? '';
-    return { worksheets, title };
-  } catch (error) {
-    // attempt to catch errors caused by importing xlsx
-    catchCommonImportXlsxError(error);
-    const errorMessage = getErrorMessage(error);
-    throw new Error(`Failed to verify sheet: ${errorMessage}`);
+  if (worksheets.length === 0) {
+    throw new InvalidSheetDataError('No worksheets found');
   }
+
+  const title = spreadsheets.data.properties?.title ?? '';
+  return { worksheets, title };
 }
 
 export async function handleInitialConnection(
@@ -294,7 +299,7 @@ export async function getWorksheetOptions(
   sheetId: string,
 ): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null; title: string }> {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new SheetsConnectionRequiredError();
   }
   currentSheetId = sheetId;
 
@@ -312,7 +317,7 @@ export async function getWorksheetOptions(
  */
 export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new SheetsConnectionRequiredError();
   }
 
   const { range } = await verifyWorksheet(sheetId, worksheet);
@@ -329,7 +334,7 @@ export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
   }
 
   if (!googleResponse.data.values) {
-    throw new Error('Sheet: No data found in the worksheet');
+    throw new InvalidSheetDataError('Sheet: No data found in the worksheet');
   }
 
   return getWorksheetMetadataFromRows(worksheet, googleResponse.data.values);
@@ -340,7 +345,7 @@ export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
  */
 async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ worksheetId: number; range: string }> {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new SheetsConnectionRequiredError();
   }
 
   const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.get({
@@ -352,7 +357,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   }
 
   if (!spreadsheets.data.sheets) {
-    throw new Error('No worksheets found');
+    throw new InvalidSheetDataError('No worksheets found');
   }
 
   const selectedWorksheet = spreadsheets.data.sheets.find(
@@ -360,7 +365,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   );
 
   if (!selectedWorksheet) {
-    throw new Error('Could not find worksheet');
+    throw new WorksheetNotFoundError();
   }
   /*
     The first spreadsheet provided by google sheet has an id = 0,
@@ -385,7 +390,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
 
 export async function upload(sheetId: string, options: ImportMap) {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new SheetsConnectionRequiredError();
   }
 
   const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
@@ -421,7 +426,7 @@ export async function upload(sheetId: string, options: ImportMap) {
 
   const titleMetadata = Object.values(sheetMetadata)[0];
   if (titleMetadata === undefined) {
-    throw new Error('Sheet read failed: failed to find title row');
+    throw new InvalidSheetDataError('Could not find column headers to write under. Check the import mapping.');
   }
   const titleRow = titleMetadata['row'];
   const updateRundown = Array<sheets_v4.Schema$Request>();
@@ -457,18 +462,14 @@ export async function upload(sheetId: string, options: ImportMap) {
     },
   });
 
-  try {
-    // update the corresponding row with event data
-    sheetOrder.forEach((entryId, index) => {
-      const isGroupEnd = entryId.startsWith('group-end-');
-      const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
-      // cellRequestFromEvent only reads the entry to build a cell request, no clone is needed
-      const entry = isGroupEnd ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup) : rundown.entries[id];
-      updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
-    });
-  } catch (e) {
-    throw new Error(`Sheet write failed to correctly parse rundown: ${e}`);
-  }
+  // update the corresponding row with event data
+  sheetOrder.forEach((entryId, index) => {
+    const isGroupEnd = entryId.startsWith('group-end-');
+    const id = isGroupEnd ? entryId.split('group-end-')[1] : entryId;
+    // cellRequestFromEvent only reads the entry to build a cell request, no clone is needed
+    const entry = isGroupEnd ? ({ id: entryId, type: SupportedEntry.Group } as OntimeGroup) : rundown.entries[id];
+    updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
+  });
 
   const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
     spreadsheetId: sheetId,
@@ -501,7 +502,7 @@ export async function download(
   summary: RundownSummary;
 }> {
   if (!currentAuthClient) {
-    throw new Error('Not authenticated');
+    throw new SheetsConnectionRequiredError();
   }
 
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
@@ -518,7 +519,7 @@ export async function download(
   }
 
   if (!googleResponse.data.values) {
-    throw new Error('Sheet: No data found in the worksheet');
+    throw new InvalidSheetDataError('Sheet: No data found in the worksheet');
   }
 
   const dataFromSheet = parseExcel(googleResponse.data.values, getProjectCustomFields(), 'Rundown', options);
@@ -540,7 +541,7 @@ export async function download(
   }
 
   if (importedRundown.order.length < 1) {
-    throw new Error('Sheet: Could not find data to import in the worksheet');
+    throw new InvalidSheetDataError('Sheet: Could not find data to import in the worksheet');
   }
 
   const processedRundown = processRundown(importedRundown, customFields);

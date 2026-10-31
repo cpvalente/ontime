@@ -166,7 +166,9 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
       const response = await server.send('POST', '/data/sheets/revoke');
 
       expect(await response.json()).toStrictEqual({ authenticated: 'not_authenticated', sheetId: '' });
-      expect((await post('worksheet-options')).body).toStrictEqual({ message: 'Not authenticated' });
+      expect((await post('worksheet-options')).body).toStrictEqual({
+        message: 'Not authenticated. Connect to Google Sheets first.',
+      });
     });
 
     test('hands out the same codes while a connection is pending, instead of asking Google again', async () => {
@@ -196,18 +198,21 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
       expect(response.status).toBe(500);
       expect(await response.json()).toStrictEqual({
-        message: expect.stringContaining('Failed to fetch device codes: 403'),
+        message: 'Internal server error',
       });
       expect(await authStatus()).toMatchObject({ authenticated: 'not_authenticated' });
     });
 
-    test('rejects a client secret which is not valid, without contacting Google', async () => {
-      const response = await connectRequest({ web: { client_id: 'wrong type of credentials' } });
+    test.each([null, 12, { web: { client_id: 'wrong type of credentials' } }])(
+      'rejects invalid client secrets without contacting Google: %j',
+      async (secret) => {
+        const response = await connectRequest(secret);
 
-      expect(response.status).toBe(500);
-      expect(await response.json()).toStrictEqual({ message: 'Client secret is invalid' });
-      expect(oauthRequests).toHaveLength(0);
-    });
+        expect(response.status).toBe(422);
+        expect(await response.json()).toStrictEqual({ message: 'Client secret is invalid' });
+        expect(oauthRequests).toHaveLength(0);
+      },
+    );
 
     test('rejects connection requests without a client secret file or with a malformed sheet id', async () => {
       const noFile = await server.send('POST', `/data/sheets/${sheetId}/connect`, {});
@@ -225,7 +230,10 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
     ['read', { options: importOptions }],
     ['write', { options: importOptions }],
   ])('%s requires an authenticated connection', async (operation, body) => {
-    expect(await post(operation, body)).toStrictEqual({ status: 500, body: { message: 'Not authenticated' } });
+    expect(await post(operation, body)).toStrictEqual({
+      status: 409,
+      body: { message: 'Not authenticated. Connect to Google Sheets first.' },
+    });
     expect(google.getSpreadsheet).not.toHaveBeenCalled();
     expect(google.batchUpdate).not.toHaveBeenCalled();
   });
@@ -266,7 +274,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
       const { status, body } = await post('worksheet-options');
 
-      expect(status).toBe(500);
+      expect(status).toBe(422);
       expect(body.message).toContain('.xlsx');
     });
 
@@ -276,8 +284,8 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
       const { status, body } = await post('worksheet-options');
 
-      expect(status).toBe(500);
-      expect(body.message).toContain('No worksheets found');
+      expect(status).toBe(422);
+      expect(body.message).toBe('No worksheets found');
     });
   });
 
@@ -293,12 +301,21 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
     test('reports a worksheet which does not exist or is empty', async () => {
       await authenticate();
-      expect((await post('metadata', { worksheet: 'Other' })).body.message).toBe('Could not find worksheet');
+      expect(await post('metadata', { worksheet: 'Other' })).toStrictEqual({
+        status: 404,
+        body: { message: 'Could not find worksheet' },
+      });
 
       google.getValues.mockResolvedValue(valuesResponse(null));
-      expect((await post('metadata', { worksheet: 'Main' })).body.message).toBe(
-        'Sheet: No data found in the worksheet',
-      );
+      expect(await post('metadata', { worksheet: 'Main' })).toStrictEqual({
+        status: 422,
+        body: { message: 'Sheet: No data found in the worksheet' },
+      });
+      google.getValues.mockResolvedValue(valuesResponse([['', '']]));
+      expect(await post('metadata', { worksheet: 'Main' })).toStrictEqual({
+        status: 422,
+        body: { message: 'Could not find any data in worksheet: Main' },
+      });
     });
   });
 
@@ -330,14 +347,16 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
     test('reports a sheet without rows to import', async () => {
       await authenticate();
       google.getValues.mockResolvedValue(valuesResponse(null));
-      expect((await post('read', { options: importOptions })).body.message).toBe(
-        'Sheet: No data found in the worksheet',
-      );
+      expect(await post('read', { options: importOptions })).toStrictEqual({
+        status: 422,
+        body: { message: 'Sheet: No data found in the worksheet' },
+      });
 
       google.getValues.mockResolvedValue(valuesResponse([['Cue', 'Time start', 'Title']]));
-      expect((await post('read', { options: importOptions })).body.message).toBe(
-        'Sheet: Could not find data to import in the worksheet',
-      );
+      expect(await post('read', { options: importOptions })).toStrictEqual({
+        status: 422,
+        body: { message: 'Sheet: Could not find data to import in the worksheet' },
+      });
     });
 
     test('reports when Google fails to return the values', async () => {
@@ -347,7 +366,16 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
       const { status, body } = await post('read', { options: importOptions });
 
       expect(status).toBe(500);
-      expect(body.message).toContain('Sheet read failed');
+      expect(body.message).toBe('Internal server error');
+    });
+  });
+
+  test('hides unexpected Google errors from clients', async () => {
+    await authenticate();
+    google.getValues.mockRejectedValue(new Error('private upstream diagnostics'));
+    expect(await post('read', { options: importOptions })).toStrictEqual({
+      status: 500,
+      body: { message: 'Internal server error' },
     });
   });
 
@@ -417,7 +445,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
       const { status, body } = await post('write', { options: importOptions });
 
       expect(status).toBe(500);
-      expect(body.message).toBe('Sheet write failed: Internal error');
+      expect(body.message).toBe('Internal server error');
     });
 
     test('does not write when the sheet has no header row to write under', async () => {
@@ -426,8 +454,8 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
       const { status, body } = await post('write', { options: importOptions });
 
-      expect(status).toBe(500);
-      expect(body.message).toBe('Sheet read failed: failed to find title row');
+      expect(status).toBe(422);
+      expect(body.message).toBe('Could not find column headers to write under. Check the import mapping.');
       expect(google.batchUpdate).not.toHaveBeenCalled();
     });
   });
