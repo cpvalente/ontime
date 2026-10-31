@@ -2,11 +2,12 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { initPersistence, getDataProvider } from '../../../classes/data-provider/DataProvider.js';
+import { initPersistence, getDataProvider, getFileToRead } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject, makeNewRundown } from '../../../models/dataModel.js';
 import { makeCustomField } from '../__mocks__/rundown.mocks.js';
 import { getProjectCustomFields, rundownCache } from '../rundown.dao.js';
-import { applyImportToRundown, createCustomField } from '../rundown.service.js';
+import { InvalidCustomFieldLabelError } from '../rundown.errors.js';
+import { applyImportToRundown, createCustomField, deleteCustomField } from '../rundown.service.js';
 
 describe('custom fields written by an import', () => {
   let directory: string;
@@ -21,6 +22,7 @@ describe('custom fields written by an import', () => {
   });
 
   afterEach(async () => {
+    await getFileToRead();
     await rm(directory, { recursive: true, force: true });
   });
 
@@ -38,5 +40,18 @@ describe('custom fields written by an import', () => {
     await createCustomField(makeCustomField({ label: 'Later' }));
 
     expect(Object.keys(getDataProvider().getCustomFields())).toEqual(['Imported', 'Later']);
+  });
+
+  test('rejects an empty derived key without changing custom fields', async () => {
+    const before = structuredClone(getDataProvider().getCustomFields());
+    await expect(createCustomField(makeCustomField({ label: '   ' }))).rejects.toThrow(InvalidCustomFieldLabelError);
+    expect(getDataProvider().getCustomFields()).toEqual(before);
+    expect(getProjectCustomFields()).toEqual(before);
+  });
+
+  test('deleting a missing custom field remains idempotent', async () => {
+    const before = structuredClone(getDataProvider().getCustomFields());
+    await expect(deleteCustomField('missing')).resolves.toEqual(before);
+    expect(getDataProvider().getCustomFields()).toEqual(before);
   });
 });

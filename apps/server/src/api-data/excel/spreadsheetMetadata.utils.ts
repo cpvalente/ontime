@@ -1,5 +1,7 @@
 import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 
+import { InvalidSpreadsheetDataError } from './excel.errors.js';
+
 function normalizeCell(value: unknown): string {
   if (value === null || value === undefined) {
     return '';
@@ -57,7 +59,7 @@ export function getWorksheetMetadataFromRows(worksheet: string, sheetRows: unkno
   const headerRowIndex = findHeaderRowIndex(rows);
 
   if (headerRowIndex === -1) {
-    throw new Error(`Could not find any data in worksheet: ${worksheet}`);
+    throw new InvalidSpreadsheetDataError(`Could not find any data in worksheet: ${worksheet}`);
   }
 
   const headerEntries = rows[headerRowIndex]
@@ -65,7 +67,7 @@ export function getWorksheetMetadataFromRows(worksheet: string, sheetRows: unkno
     .filter(({ header }) => header.length > 0);
 
   if (headerEntries.length === 0) {
-    throw new Error(`Could not detect worksheet headers in: ${worksheet}`);
+    throw new InvalidSpreadsheetDataError(`Could not detect worksheet headers in: ${worksheet}`);
   }
 
   return {

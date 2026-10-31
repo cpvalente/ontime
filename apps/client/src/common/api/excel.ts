@@ -76,6 +76,36 @@ export async function downloadAsExcel(rundownId: string, fileName?: string, requ
 
     downloadBlob(response.data, `${fileName ?? 'Ontime_rundown'}.xlsx`);
   } catch (error) {
-    console.error('Error downloading file:', error);
+    await rethrowDownloadError(error);
   }
+}
+
+/** Downloads all project rundowns as worksheets in one workbook. */
+export async function downloadAllAsExcel() {
+  try {
+    const response = await axios.get(`${excelPath}/export`, {
+      timeout: axiosConfig.longTimeout,
+      responseType: 'blob',
+    });
+    downloadBlob(response.data, 'Ontime_rundowns.xlsx');
+  } catch (error) {
+    await rethrowDownloadError(error);
+  }
+}
+
+/** Blob downloads also receive error responses as blobs; restore the body for error banners. */
+async function rethrowDownloadError(error: unknown): Promise<never> {
+  if (axios.isAxiosError(error) && error.response?.data instanceof Blob) {
+    try {
+      const body = await error.response.data.text();
+      try {
+        error.response.data = JSON.parse(body);
+      } catch {
+        error.response.data = body;
+      }
+    } catch {
+      // Preserve the original request error if the body cannot be read.
+    }
+  }
+  throw error;
 }

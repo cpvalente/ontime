@@ -47,6 +47,7 @@ import {
   CustomFieldExistsError,
   CustomFieldNotFoundError,
   CustomFieldTypeChangeError,
+  InvalidCustomFieldLabelError,
   InvalidRundownTitleError,
 } from './rundown.errors.js';
 import { parseRundown, sanitiseCustomFields } from './rundown.parser.js';
@@ -477,7 +478,7 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   const key = customFieldLabelToKey(customField.label);
 
   if (!key) {
-    throw new Error('Unable to convert label to a valid key');
+    throw new InvalidCustomFieldLabelError();
   }
 
   const { customFields, commit } = createTransaction({ mutableRundown: false, mutableCustomFields: true });
