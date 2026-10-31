@@ -20,10 +20,14 @@ const maxWorksheetNameLength = 31;
 const invalidWorksheetCharsRegex = /[:\\/?*[\]]/g;
 
 function getValidWorksheetName(title: string): string {
-  const sanitisedTitle = title.replaceAll(invalidWorksheetCharsRegex, ' ').trim().replace(/\s+/g, ' ');
+  const sanitisedTitle = title
+    .replaceAll(invalidWorksheetCharsRegex, ' ')
+    .trim()
+    .replace(/^'+|'+$/g, '')
+    .replace(/\s+/g, ' ');
 
   const withFallback = sanitisedTitle.length > 0 ? sanitisedTitle : 'Rundown';
-  const truncatedTitle = withFallback.slice(0, maxWorksheetNameLength).trim();
+  const truncatedTitle = withFallback.slice(0, maxWorksheetNameLength).trim().replace(/'+$/g, '');
 
   return truncatedTitle.length > 0 ? truncatedTitle : 'Rundown';
 }
@@ -130,10 +134,28 @@ export function generateExcelFile(rundown: Rundown, customFields: CustomFields):
     throw new Error('Cannot generate an Excel file from an empty rundown');
   }
 
+  return generateExcelWorkbook([rundown], customFields);
+}
+
+/** Exports every rundown, including empty ones, with unique Excel-safe worksheet names. */
+export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomFields): Buffer {
+  if (rundowns.length === 0) {
+    throw new Error('Cannot export a project without rundowns');
+  }
   const workbook = xlsx.utils.book_new();
-  const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
-  const worksheetName = getValidWorksheetName(rundown.title || 'Rundown');
-  xlsx.utils.book_append_sheet(workbook, worksheet, worksheetName);
+  const names = new Set<string>();
+  for (const rundown of rundowns) {
+    const baseName = getValidWorksheetName(rundown.title);
+    let name = baseName;
+    let suffix = 2;
+    while (names.has(name.toLowerCase())) {
+      const ending = ` (${suffix++})`;
+      name = `${baseName.slice(0, maxWorksheetNameLength - ending.length)}${ending}`;
+    }
+    names.add(name.toLowerCase());
+    const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
+    xlsx.utils.book_append_sheet(workbook, worksheet, name);
+  }
 
   return xlsx.write(workbook, { type: 'buffer', bookType: 'xlsx' });
 }
