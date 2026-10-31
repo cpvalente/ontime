@@ -54,6 +54,51 @@ describe('createEventSelectionStore', () => {
     expect(afterUnselect).toEqual(new Set(['a2']));
   });
 
+  it('moves the cursor off an entry removed with ctrl + click', () => {
+    const store = createEventSelectionStore(() => makeRundown('rundown-a', ['a1', 'a2', 'a3']));
+
+    store.getState().setSelectedEvents({ id: 'a1', index: 0, selectMode: 'click' });
+    store.getState().setSelectedEvents({ id: 'a2', index: 1, selectMode: 'ctrl' });
+    store.getState().setSelectedEvents({ id: 'a3', index: 2, selectMode: 'ctrl' });
+    expect(store.getState().cursor).toBe('a3');
+
+    store.getState().setSelectedEvents({ id: 'a3', index: 2, selectMode: 'ctrl' });
+    expect(store.getState().cursor).toBe('a2');
+
+    // removing an entry other than the cursor keeps the cursor
+    store.getState().setSelectedEvents({ id: 'a1', index: 0, selectMode: 'ctrl' });
+    expect(store.getState().cursor).toBe('a2');
+
+    store.getState().setSelectedEvents({ id: 'a2', index: 1, selectMode: 'ctrl' });
+    expect(store.getState().selectedEvents).toEqual(new Set());
+    expect(store.getState().cursor).toBeNull();
+  });
+
+  it('moves the cursor off an unselected entry', () => {
+    const store = createEventSelectionStore(() => makeRundown('rundown-a', ['a1', 'a2']));
+
+    store.getState().setSelectedEvents({ id: 'a1', index: 0, selectMode: 'click' });
+    store.getState().setSelectedEvents({ id: 'a2', index: 1, selectMode: 'ctrl' });
+
+    store.getState().unselect('a2');
+    expect(store.getState().cursor).toBe('a1');
+
+    store.getState().unselect('a1');
+    expect(store.getState().cursor).toBeNull();
+  });
+
+  it('keeps the cursor when clearing a multi selection', () => {
+    const store = createEventSelectionStore(() => makeRundown('rundown-a', ['a1', 'a2', 'a3']));
+
+    store.getState().setSelectedEvents({ id: 'a1', index: 0, selectMode: 'click' });
+    store.getState().setSelectedEvents({ id: 'a3', index: 2, selectMode: 'ctrl' });
+    store.getState().setSelectedEvents({ id: 'a2', index: 1, selectMode: 'ctrl' });
+
+    store.getState().clearMultiSelect();
+    expect(store.getState().selectedEvents).toEqual(new Set(['a2']));
+    expect(store.getState().cursor).toBe('a2');
+  });
+
   it('does not select when the rundown is unavailable', () => {
     const store = createEventSelectionStore(() => undefined);
 

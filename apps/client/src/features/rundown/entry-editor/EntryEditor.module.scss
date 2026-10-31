@@ -1,12 +1,15 @@
-.cuesheetEditor,
+.cuesheetEditor {
+  // the modal body owns scrolling
+  display: flex;
+  flex-direction: column;
+}
+
 .rundownEditor {
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow-x: auto;
-}
 
-.rundownEditor {
   // width is locked to swatch picker elements
   min-width: calc(15 * 2rem + 13 * 0.5rem);
 
@@ -14,6 +17,20 @@
   .content {
     overflow-y: scroll;
   }
+}
+
+.hint {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}
+
+.hintTitle {
+  color: $ui-white;
+  font-weight: 600;
 }
 
 .content {

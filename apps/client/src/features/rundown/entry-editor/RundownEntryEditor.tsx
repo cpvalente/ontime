@@ -1,9 +1,10 @@
-import { OntimeEntry, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
+import { OntimeEntry, isOntimeDelay, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 import EventEditorFooter from './composite/EventEditorFooter';
+import { getEditTarget } from './entryEditor.utils';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
@@ -13,6 +14,7 @@ import style from './EntryEditor.module.scss';
 
 export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const cursor = useEventSelection((state) => state.cursor);
   const { data } = useRundown();
 
   const entry = useMemo<OntimeEntry | null>(() => {
@@ -20,14 +22,8 @@ export default function RundownEntryEditor() {
       return null;
     }
 
-    const selectedEventId = Array.from(selectedEvents).at(0);
-    if (!selectedEventId) {
-      return null;
-    }
-
-    const event = data.entries[selectedEventId];
-    return event ?? null;
-  }, [data.order.length, data.entries, selectedEvents]);
+    return getEditTarget(selectedEvents, cursor, data.entries);
+  }, [data.order.length, data.entries, selectedEvents, cursor]);
 
   if (!entry) {
     return <EventEditorEmpty />;
@@ -54,6 +50,17 @@ export default function RundownEntryEditor() {
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
         <GroupEditor group={entry} />
+      </div>
+    );
+  }
+
+  if (isOntimeDelay(entry)) {
+    return (
+      <div className={style.rundownEditor} data-testid='editor-container'>
+        <div className={style.hint}>
+          <span className={style.hintTitle}>Delay selected</span>
+          <span>Edit the delay in its row in the rundown, then make it permanent or cancel it.</span>
+        </div>
       </div>
     );
   }

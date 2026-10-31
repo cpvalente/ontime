@@ -24,7 +24,7 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
 
   if (isOntimeEvent(entry)) {
     return (
-      <div className={style.entryEditor} data-testid='editor-container'>
+      <div className={style.cuesheetEditor} data-testid='editor-container'>
         <EventEditor event={entry} />
       </div>
     );
@@ -32,7 +32,7 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
 
   if (isOntimeMilestone(entry)) {
     return (
-      <div className={style.inModal} data-testid='editor-container'>
+      <div className={style.cuesheetEditor} data-testid='editor-container'>
         <MilestoneEditor milestone={entry} />
       </div>
     );
@@ -40,7 +40,7 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
 
   if (isOntimeGroup(entry)) {
     return (
-      <div className={style.inModal} data-testid='editor-container'>
+      <div className={style.cuesheetEditor} data-testid='editor-container'>
         <GroupEditor group={entry} />
       </div>
     );
