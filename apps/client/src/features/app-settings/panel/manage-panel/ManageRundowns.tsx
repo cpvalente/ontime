@@ -96,7 +96,12 @@ export default function ManageRundowns() {
   };
 
   const handleDownloadXlsx = async (rundownId: string, title: string) => {
-    await downloadAsExcel(rundownId, title);
+    setActionError(null);
+    try {
+      await downloadAsExcel(rundownId, title);
+    } catch (error) {
+      setActionError(`Failed to export rundown. ${maybeAxiosError(error)}`);
+    }
   };
 
   const handleDownloadAll = async () => {

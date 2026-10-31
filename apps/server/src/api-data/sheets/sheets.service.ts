@@ -24,18 +24,19 @@ import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { ImportMap, getErrorMessage } from 'ontime-utils';
 
 import { consoleSubdued } from '../../utils/console.js';
+import { is } from '../../utils/is.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { parseExcel } from '../excel/excel.parser.js';
 import { getWorksheetMetadataFromRows } from '../excel/spreadsheetMetadata.utils.js';
 import * as logger from '../logs/logs.service.js';
 import { getCurrentRundown, getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
-import { rethrowGoogleSheetError } from './googleApi.utils.js';
+import { rethrowGoogleSheetError as translateGoogleSheetError } from './googleApi.utils.js';
 import {
   InvalidSheetDataError,
   InvalidSheetsClientSecretError,
   SheetsConnectionRequiredError,
-  WorksheetNotFoundError,
+  SpreadsheetUnavailableError,
 } from './sheets.errors.js';
 import { type ClientSecret, cellRequestFromEvent, getA1Notation, isClientSecret } from './sheets.utils.js';
 
@@ -69,6 +70,17 @@ function reset() {
   if (cleanupTimeout) {
     clearTimeout(cleanupTimeout);
     cleanupTimeout = null;
+  }
+}
+
+function rethrowGoogleSheetError(error: unknown): never {
+  try {
+    translateGoogleSheetError(error);
+  } catch (failure) {
+    if (failure instanceof SheetsConnectionRequiredError) {
+      reset();
+    }
+    throw failure;
   }
 }
 
@@ -129,8 +141,13 @@ async function getDeviceCodes(clientSecret: ClientSecret): Promise<CodesResponse
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`Failed to fetch device codes: ${response.status} ${response.statusText} - ${errorText}`);
+    if (response.status === 400 && response.headers.get('content-type')?.includes('application/json')) {
+      const failure: unknown = await response.json();
+      if (is.object(failure) && 'error' in failure && failure.error === 'invalid_client') {
+        throw new InvalidSheetsClientSecretError();
+      }
+    }
+    throw new Error(`Failed to fetch device codes: ${response.status} ${response.statusText}`);
   }
 
   const deviceCodes: CodesResponse = await response.json();
@@ -251,8 +268,9 @@ async function verifySheet(sheetId = currentSheetId, authClient = currentAuthCli
     })
     .catch(rethrowGoogleSheetError);
 
+  if (!Array.isArray(spreadsheets.data.sheets)) throw new Error('Invalid Google spreadsheet response');
   const worksheets: string[] = [];
-  spreadsheets.data.sheets?.forEach((sheet) => {
+  spreadsheets.data.sheets.forEach((sheet) => {
     if (sheet.properties?.title) {
       worksheets.push(sheet.properties.title);
     }
@@ -322,12 +340,14 @@ export async function getWorksheetMetadata(sheetId: string, worksheet: string) {
 
   const { range } = await verifyWorksheet(sheetId, worksheet);
 
-  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
-  });
+  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient })
+    .spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      valueRenderOption: 'FORMATTED_VALUE',
+      majorDimension: 'ROWS',
+      range,
+    })
+    .catch(rethrowGoogleSheetError);
 
   if (googleResponse.status !== 200) {
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
@@ -348,15 +368,18 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
     throw new SheetsConnectionRequiredError();
   }
 
-  const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.get({
-    spreadsheetId: sheetId,
-  });
+  const spreadsheets = await sheets({ version: 'v4', auth: currentAuthClient })
+    .spreadsheets.get({
+      spreadsheetId: sheetId,
+    })
+    .catch(rethrowGoogleSheetError);
 
   if (spreadsheets.status !== 200) {
     throw new Error(`Request failed: ${spreadsheets.status} ${spreadsheets.statusText}`);
   }
 
-  if (!spreadsheets.data.sheets) {
+  if (!Array.isArray(spreadsheets.data.sheets)) throw new Error('Invalid Google spreadsheet response');
+  if (spreadsheets.data.sheets.length === 0) {
     throw new InvalidSheetDataError('No worksheets found');
   }
 
@@ -365,7 +388,7 @@ async function verifyWorksheet(sheetId: string, worksheet: string): Promise<{ wo
   );
 
   if (!selectedWorksheet) {
-    throw new WorksheetNotFoundError();
+    throw new SpreadsheetUnavailableError();
   }
   /*
     The first spreadsheet provided by google sheet has an id = 0,
@@ -395,15 +418,20 @@ export async function upload(sheetId: string, options: ImportMap) {
 
   const { worksheetId, range } = await verifyWorksheet(sheetId, options.worksheet);
 
-  const readResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
-  });
+  const readResponse = await sheets({ version: 'v4', auth: currentAuthClient })
+    .spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      valueRenderOption: 'FORMATTED_VALUE',
+      majorDimension: 'ROWS',
+      range,
+    })
+    .catch(rethrowGoogleSheetError);
 
-  if (readResponse.status !== 200 || !readResponse.data.values) {
+  if (readResponse.status !== 200) {
     throw new Error(`Sheet read failed: ${readResponse.statusText}`);
+  }
+  if (!readResponse.data.values) {
+    throw new InvalidSheetDataError('Sheet: No data found in the worksheet');
   }
 
   const { sheetMetadata } = parseExcel(readResponse.data.values, getProjectCustomFields(), 'not-used', options);
@@ -471,14 +499,16 @@ export async function upload(sheetId: string, options: ImportMap) {
     updateRundown.push(cellRequestFromEvent(entry, index, worksheetId, sheetMetadata));
   });
 
-  const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.batchUpdate({
-    spreadsheetId: sheetId,
-    requestBody: {
-      includeSpreadsheetInResponse: false,
-      responseRanges: [range],
-      requests: updateRundown,
-    },
-  });
+  const writeResponse = await sheets({ version: 'v4', auth: currentAuthClient })
+    .spreadsheets.batchUpdate({
+      spreadsheetId: sheetId,
+      requestBody: {
+        includeSpreadsheetInResponse: false,
+        responseRanges: [range],
+        requests: updateRundown,
+      },
+    })
+    .catch(rethrowGoogleSheetError);
 
   if (writeResponse.status === 200) {
     logger.info(LogOrigin.Server, 'Sheet written', { status: writeResponse.status });
@@ -507,12 +537,14 @@ export async function download(
 
   const { range } = await verifyWorksheet(sheetId, options.worksheet);
 
-  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient }).spreadsheets.values.get({
-    spreadsheetId: sheetId,
-    valueRenderOption: 'FORMATTED_VALUE',
-    majorDimension: 'ROWS',
-    range,
-  });
+  const googleResponse = await sheets({ version: 'v4', auth: currentAuthClient })
+    .spreadsheets.values.get({
+      spreadsheetId: sheetId,
+      valueRenderOption: 'FORMATTED_VALUE',
+      majorDimension: 'ROWS',
+      range,
+    })
+    .catch(rethrowGoogleSheetError);
 
   if (googleResponse.status !== 200) {
     throw new Error(`Sheet read failed: ${googleResponse.statusText}`);
@@ -536,6 +568,7 @@ export async function download(
   const parsedRundown = parseRundowns(dataModel, customFields);
 
   const importedRundown = parsedRundown[rundownId];
+  // parseExcel generates the ID and parseRundowns preserves it; losing it is an internal invariant failure.
   if (!importedRundown) {
     throw new Error(`Sheet: Rundown with ID ${rundownId} not found in the worksheet`);
   }

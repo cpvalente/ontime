@@ -1,10 +1,12 @@
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { access, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import xlsx from 'xlsx';
 
+import { InvalidInputError } from '../../../middleware/errors.js';
 import { demoDb } from '../../../models/demoProject.js';
+import { InvalidSpreadsheetDataError } from '../excel.errors.js';
 import { generateExcelWorkbook, generateExcelFile, getWorksheetMetadata, readExcelFile } from '../excel.service.js';
 
 it('reads an uploaded workbook and returns its worksheet metadata', async () => {
@@ -128,5 +130,36 @@ it.each([
   const rundown = { ...demoDb.rundowns.default, title };
   for (const buffer of [generateExcelFile(rundown, {}), generateExcelWorkbook([rundown], {})]) {
     expect(xlsx.read(buffer, { type: 'buffer' }).SheetNames).toEqual([expected]);
+  }
+});
+
+it('rejects a ZIP without workbook contents with a safe error and removes the upload', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'ontime-excel-'));
+  const filePath = join(directory, 'invalid.xlsx');
+  try {
+    const zip = xlsx.CFB.utils.cfb_new();
+    xlsx.CFB.utils.cfb_add(zip, 'notes.txt', 'not a workbook');
+    await writeFile(filePath, xlsx.CFB.write(zip, { type: 'buffer', fileType: 'zip' }));
+    await expect(readExcelFile(filePath)).rejects.toThrow(InvalidSpreadsheetDataError);
+    await expect(access(filePath)).rejects.toMatchObject({ code: 'ENOENT' });
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it('keeps missing temporary files and projects without rundowns as internal failures', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'ontime-excel-'));
+  try {
+    await expect(readExcelFile(join(directory, 'missing.xlsx'))).rejects.not.toBeInstanceOf(InvalidInputError);
+    expect(() => generateExcelWorkbook([], {})).toThrow('Cannot export a project without rundowns');
+    let failure;
+    try {
+      generateExcelWorkbook([], {});
+    } catch (error) {
+      failure = error;
+    }
+    expect(failure).not.toBeInstanceOf(InvalidInputError);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
   }
 });

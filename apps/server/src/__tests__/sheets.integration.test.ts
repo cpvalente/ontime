@@ -64,6 +64,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
   const oauthRequests: string[] = [];
   let userHasApproved = false;
   let deviceCodeStatus = 200;
+  let deviceCodeError: string | undefined;
   let codesExpireInSeconds = 60;
 
   // requests to Google are answered here, anything else (our own server) goes through
@@ -72,6 +73,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
     if (url === codesUrl) {
       oauthRequests.push(url);
       if (deviceCodeStatus !== 200) {
+        if (deviceCodeError) return Response.json({ error: deviceCodeError }, { status: deviceCodeStatus });
         return new Response('quota exceeded', { status: deviceCodeStatus });
       }
       return Response.json({
@@ -105,6 +107,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
     await server.send('POST', '/data/sheets/revoke');
     userHasApproved = false;
     deviceCodeStatus = 200;
+    deviceCodeError = undefined;
     codesExpireInSeconds = 60;
     oauthRequests.length = 0;
     vi.resetAllMocks();
@@ -214,6 +217,15 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
       },
     );
 
+    test('reports credentials rejected by Google without exposing upstream details', async () => {
+      deviceCodeStatus = 400;
+      deviceCodeError = 'invalid_client';
+      const response = await connectRequest();
+      expect(response.status).toBe(422);
+      expect(await response.json()).toEqual({ message: 'Client secret is invalid' });
+      expect(await authStatus()).toMatchObject({ authenticated: 'not_authenticated' });
+    });
+
     test('rejects connection requests without a client secret file or with a malformed sheet id', async () => {
       const noFile = await server.send('POST', `/data/sheets/${sheetId}/connect`, {});
       expect(noFile.status).toBe(422);
@@ -303,7 +315,7 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
       await authenticate();
       expect(await post('metadata', { worksheet: 'Other' })).toStrictEqual({
         status: 404,
-        body: { message: 'Could not find worksheet' },
+        body: { message: 'Cannot find or access the sheet. Check its ID, worksheet name and sharing permissions.' },
       });
 
       google.getValues.mockResolvedValue(valuesResponse(null));
@@ -379,6 +391,61 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
     });
   });
 
+  test.each(['metadata', 'read', 'write'])('recognises unsupported files across %s', async (operation) => {
+    await authenticate();
+    google.getSpreadsheet.mockRejectedValue({
+      response: {
+        status: 400,
+        data: {
+          error: {
+            code: 400,
+            message: 'private upstream detail',
+            errors: [
+              {
+                reason: 'failedPrecondition',
+                message: 'This operation is not supported for this document',
+              },
+            ],
+          },
+        },
+      },
+    });
+    const { status, body } = await post(
+      operation,
+      operation === 'metadata' ? { worksheet: 'Main' } : { options: importOptions },
+    );
+    expect(status).toBe(422);
+    expect(body.message).toBe('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
+    expect(google.batchUpdate).not.toHaveBeenCalled();
+  });
+
+  test('keeps missing and inaccessible Google sheets ambiguous to the client', async () => {
+    await authenticate();
+    google.getSpreadsheet.mockRejectedValue({
+      response: {
+        status: 404,
+        data: {
+          error: {
+            code: 404,
+            message: 'private upstream detail',
+          },
+        },
+      },
+    });
+    const missing = await post('worksheet-options');
+    google.getSpreadsheet.mockRejectedValue({
+      code: 403,
+      message: 'private permission detail',
+      errors: [{ reason: 'forbidden' }],
+    });
+    const inaccessible = await post('read', { options: importOptions });
+    expect(missing).toEqual({
+      status: 404,
+      body: { message: 'Cannot find or access the sheet. Check its ID, worksheet name and sharing permissions.' },
+    });
+    expect(inaccessible).toEqual(missing);
+  });
+
   describe('writing the rundown to a sheet', () => {
     test('exports the loaded rundown in order to the selected worksheet, preserving its header', async () => {
       await authenticate();
@@ -446,6 +513,16 @@ describe('Google Sheets integration', { timeout: 15_000 }, () => {
 
       expect(status).toBe(500);
       expect(body.message).toBe('Internal server error');
+    });
+
+    test('rejects a successful response without rows before attempting a write', async () => {
+      await authenticate();
+      google.getValues.mockResolvedValue(valuesResponse(null));
+      expect(await post('write', { options: importOptions })).toEqual({
+        status: 422,
+        body: { message: 'Sheet: No data found in the worksheet' },
+      });
+      expect(google.batchUpdate).not.toHaveBeenCalled();
     });
 
     test('does not write when the sheet has no header row to write under', async () => {

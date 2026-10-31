@@ -86,6 +86,17 @@ test(
       form.append('excel', new Blob([buffer], { type: EXCEL_MIME }), filename);
       return server.request('/data/excel/upload', { method: 'POST', body: form });
     };
+    for (const operation of ['metadata', 'preview']) {
+      const unavailable = await server.send(
+        'POST',
+        `/data/excel/${operation}`,
+        operation === 'metadata' ? { worksheet: 'Main' } : { options: { ...defaultImportMap, worksheet: 'Main' } },
+      );
+      expect(unavailable.status).toBe(409);
+      expect(await unavailable.json()).toEqual({
+        message: 'No uploaded workbook is available. Upload the spreadsheet again.',
+      });
+    }
     expect((await upload('schedule.xlsx')).status).toBe(200);
     for (const operation of ['metadata', 'preview']) {
       const response = await server.send(

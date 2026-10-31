@@ -6,12 +6,6 @@ export class SheetsConnectionRequiredError extends ConflictError {
   }
 }
 
-export class WorksheetNotFoundError extends NotFoundError {
-  constructor() {
-    super('Could not find worksheet');
-  }
-}
-
 export class InvalidSheetsClientSecretError extends InvalidInputError {
   constructor() {
     super('Client secret is invalid');
@@ -27,5 +21,11 @@ export class InvalidSheetDataError extends InvalidInputError {
 export class UnsupportedSpreadsheetFormatError extends InvalidInputError {
   constructor() {
     super('Cannot read the linked file as a Google Sheet. It may be an .xlsx file instead.');
+  }
+}
+
+export class SpreadsheetUnavailableError extends NotFoundError {
+  constructor() {
+    super('Cannot find or access the sheet. Check its ID, worksheet name and sharing permissions.');
   }
 }

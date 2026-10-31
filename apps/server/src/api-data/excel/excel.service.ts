@@ -11,7 +11,11 @@ import { deleteFile } from '../../utils/fileManagement.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundown } from '../rundown/rundown.parser.js';
-import { InvalidSpreadsheetDataError, SpreadsheetWorksheetNotFoundError } from './excel.errors.js';
+import {
+  InvalidSpreadsheetDataError,
+  SpreadsheetWorkbookUnavailableError,
+  SpreadsheetWorksheetNotFoundError,
+} from './excel.errors.js';
 import { parseExcel } from './excel.parser.js';
 import { rundownToTabular } from './excel.utils.js';
 import { getWorkbook, retainWorkbook } from './excel.workbook.js';
@@ -52,17 +56,26 @@ export async function readExcelFile(
   filePath: string,
 ): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null }> {
   if (!existsSync(filePath)) {
-    throw new InvalidSpreadsheetDataError('Upload of Excel file failed. Upload the file again.');
+    throw new Error('Uploaded Excel file is missing');
   }
   if (extname(filePath) != '.xlsx') {
     throw new InvalidSpreadsheetDataError('Only .xlsx spreadsheet files are supported');
   }
 
   const buffer = await readFile(filePath);
-  const excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
-  retainWorkbook(excelData);
-
   await deleteFile(filePath);
+  let excelData: xlsx.WorkBook;
+  try {
+    excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Unsupported ZIP file') {
+      throw new InvalidSpreadsheetDataError(
+        'The uploaded file is not a supported Excel workbook. Upload a valid .xlsx file.',
+      );
+    }
+    throw error;
+  }
+  retainWorkbook(excelData);
 
   const worksheets = excelData.SheetNames;
   const metadata = getInitialWorksheetMetadata(worksheets);
@@ -78,7 +91,9 @@ export function generateRundownPreview(options: ImportMap): {
   summary: RundownSummary;
   customFields: CustomFields;
 } {
-  const data = getWorkbook()?.Sheets[options.worksheet];
+  const workbook = getWorkbook();
+  if (!workbook) throw new SpreadsheetWorkbookUnavailableError();
+  const data = workbook.Sheets[options.worksheet];
 
   if (!data) {
     throw new SpreadsheetWorksheetNotFoundError(options.worksheet);
@@ -115,7 +130,9 @@ export function generateRundownPreview(options: ImportMap): {
 }
 
 export function getWorksheetMetadata(worksheet: string) {
-  const data = getWorkbook()?.Sheets[worksheet];
+  const workbook = getWorkbook();
+  if (!workbook) throw new SpreadsheetWorkbookUnavailableError();
+  const data = workbook.Sheets[worksheet];
 
   if (!data) {
     throw new SpreadsheetWorksheetNotFoundError(worksheet);
@@ -140,7 +157,7 @@ export function generateExcelFile(rundown: Rundown, customFields: CustomFields):
 /** Exports every rundown, including empty ones, with unique Excel-safe worksheet names. */
 export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomFields): Buffer {
   if (rundowns.length === 0) {
-    throw new InvalidSpreadsheetDataError('Cannot export a project without rundowns');
+    throw new Error('Cannot export a project without rundowns');
   }
   const workbook = xlsx.utils.book_new();
   const names = new Set<string>();
