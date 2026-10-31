@@ -79,3 +79,12 @@ export async function downloadAsExcel(rundownId: string, fileName?: string, requ
     console.error('Error downloading file:', error);
   }
 }
+
+/** Downloads all project rundowns as worksheets in one workbook. */
+export async function downloadAllAsExcel() {
+  const response = await axios.get(`${excelPath}/export`, {
+    timeout: axiosConfig.longTimeout,
+    responseType: 'blob',
+  });
+  downloadBlob(response.data, 'Ontime_rundowns.xlsx');
+}
