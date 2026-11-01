@@ -15,6 +15,19 @@ Choose the smallest explicit, testable design. No extension points, generic engi
 - Keep scope narrow; note unrelated cleanup.
 - Delete clearly obsolete branches, harnesses, and shims. Ask when ownership or compatibility is unclear.
 
+## Defensive code
+
+Ontime runs one server with few clients. Guard real failure paths, not theoretical ones.
+
+- Validate external input, including third-party response data, once at its owner (see [security](security.md));
+  trust typed internal values after that.
+- Model third-party errors by the shape the installed library throws; check its source, not every shape it could throw.
+- Do not add per-request state, ownership tokens, or locks for races that need concurrent requests plus slow user
+  actions to line up. Accept them when the worst case is recoverable by a retry, refresh, or reconnect. Never for
+  persistence, runtime state, or playback, where a race can lose, corrupt, or misorder state.
+- Do not wrap a fallback in another try/catch, or guard against helpers failing in ways they do not.
+- Match error intent, not library message strings, when any failure of that call means the same thing to the user.
+
 ## Comments
 
 Keep comments for:
