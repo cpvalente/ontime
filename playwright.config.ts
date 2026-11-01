@@ -5,18 +5,47 @@ import { devices } from '@playwright/test';
 
 const isDevMode = process.env.NODE_ENV === 'development';
 
+const server: PlaywrightTestConfig['webServer'] = {
+  name: 'SERVER',
+  command: 'pnpm --filter ontime-server dev',
+  reuseExistingServer: !process.env.CI,
+  timeout: 60 * 1000,
+  wait: {
+    stdout: /Local: http:\/\/localhost:4001\/editor\n/,
+  },
+  env: {
+    PORT: '4001',
+    ONTIME_DATA: join(import.meta.dirname, 'e2e/tests/fixtures/tmp/main-server'),
+  },
+};
+
+const uiDevServer: PlaywrightTestConfig['webServer'] = isDevMode
+  ? [
+      {
+        name: 'UI',
+        command: 'pnpm --filter ontime-ui dev',
+        reuseExistingServer: !process.env.CI,
+        timeout: 60 * 1000,
+        wait: {
+          stdout: /Local:   http:\/\/localhost:3000\/\n/,
+        },
+      },
+    ]
+  : [];
+
 /**
  * A second server protected with a password, used by the password spec
  * it has its own port and data folder so it does not share state with the main server
  * it serves the built client, which the dev mode flow does not otherwise build
  */
-const passwordServer = {
-  command: isDevMode
-    ? 'pnpm --filter ontime-ui build && pnpm --filter ontime-server dev'
-    : 'pnpm --filter ontime-server dev',
-  port: 4002,
+const passwordServer: PlaywrightTestConfig['webServer'] = {
+  name: 'PASSWORD-SERVER',
+  command: 'pnpm --filter ontime-server dev',
   reuseExistingServer: false,
   timeout: 60 * 1000,
+  wait: {
+    stdout: /Local: http:\/\/localhost:4002\/editor\n/,
+  },
   env: {
     PORT: '4002',
     SESSION_PASSWORD: 'e2e-password',
@@ -38,29 +67,7 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: 'html',
-  webServer: [
-    {
-      command: 'pnpm --filter ontime-server dev',
-      port: 4001,
-      reuseExistingServer: false,
-      timeout: 60 * 1000,
-      env: {
-        PORT: '4001',
-        ONTIME_DATA: join(import.meta.dirname, 'e2e/tests/fixtures/tmp/main-server'),
-      },
-    },
-    ...(isDevMode
-      ? [
-          {
-            command: 'pnpm --filter ontime-ui dev',
-            port: 3000,
-            reuseExistingServer: false,
-            timeout: 60 * 1000,
-          },
-        ]
-      : []),
-    passwordServer,
-  ],
+  webServer: [server, passwordServer, ...uiDevServer],
   use: {
     screenshot: process.env.CI ? 'off' : 'only-on-failure',
     video: process.env.CI ? 'off' : 'retain-on-failure',

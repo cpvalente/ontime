@@ -1,22 +1,24 @@
 import { expect, test } from '../fixtures/override';
 
-test('cuesheet keyboard navigation skips hidden delays', async ({ page }) => {
-  await page.goto('/editor');
-  await page.getByRole('button', { name: 'Edit' }).click();
-  await page.getByRole('button', { name: 'Rundown menu' }).click();
-  await page.getByRole('menuitem', { name: 'Clear all' }).click();
-  await page.getByRole('button', { name: 'Delete all' }).click();
-  await page.getByRole('button', { name: 'Create Event' }).click();
-  await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
-  await page.getByRole('button', { name: 'Delay' }).nth(1).click();
+test('cuesheet keyboard navigation skips hidden delays', async ({ context }) => {
+  const editor = await context.newPage();
+  const cuesheet = await context.newPage();
+  await Promise.all([editor.goto('/editor'), cuesheet.goto('/cuesheet')]);
 
-  await page.goto('/cuesheet');
-  await expect(page.getByTestId('cuesheet-delay-hidden')).toBeAttached();
-  const titles = page.getByTestId('cuesheet-cell-title');
+  await editor.getByRole('button', { name: 'Edit' }).click();
+  await editor.getByRole('button', { name: 'Rundown menu' }).click();
+  await editor.getByRole('menuitem', { name: 'Clear all' }).click();
+  await editor.getByRole('button', { name: 'Delete all' }).click();
+  await editor.getByRole('button', { name: 'Create Event' }).click();
+  await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await editor.getByRole('button', { name: 'Delay' }).nth(1).click();
+
+  await expect(cuesheet.getByTestId('cuesheet-delay-hidden')).toBeAttached();
+  const titles = cuesheet.getByTestId('cuesheet-cell-title');
   await titles.first().focus();
-  await page.keyboard.press('ArrowDown');
+  await cuesheet.keyboard.press('ArrowDown');
   await expect(titles.nth(1)).toBeFocused();
-  await page.keyboard.press('ArrowUp');
+  await cuesheet.keyboard.press('ArrowUp');
   await expect(titles.first()).toBeFocused();
 });
 

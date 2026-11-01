@@ -5,9 +5,7 @@ const aliasUrl =
   'www.getontime.no/team/timer/?hideTimerSeconds=true&showLeadingZeros=true&freezeOvertime=true&hidePhase=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true';
 
 test.describe('URL Preset', () => {
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
+  test('Unwrapping a preset from a view', async ({ page }) => {
     await page.goto('/editor');
 
     // Create the preset that will be used by other tests
@@ -27,10 +25,6 @@ test.describe('URL Preset', () => {
     await page.getByRole('combobox').filter({ hasText: 'Timer' });
     await page.getByRole('button', { name: 'Save' }).click();
 
-    await page.close();
-  });
-
-  test('Unwrapping a preset from a view', async ({ page }) => {
     await page.goto('/timer');
 
     // 1. the URL points to the view
