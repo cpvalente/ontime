@@ -42,7 +42,7 @@
     "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "build": "vite build",
-    "test": "vitest",
+    "test": "vitest watch",
     "test:pipeline": "vitest run",
     "analyse": "npx vite-bundle-visualizer"
   },

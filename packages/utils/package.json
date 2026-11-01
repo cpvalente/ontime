@@ -6,7 +6,7 @@
   "description": "shared logic for ontime",
   "scripts": {
     "lint": "oxlint --quiet --type-aware",
-    "test": "vitest",
+    "test": "vitest watch",
     "test:pipeline": "vitest run"
   },
   "dependencies": {

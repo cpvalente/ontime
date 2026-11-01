@@ -52,7 +52,7 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "prebuild": "tsx --tsconfig tsconfig.app.json ./scripts/bundleDefaults.ts",
     "build": "node esbuild.js",
-    "test": "cross-env IS_TEST=true vitest",
+    "test": "cross-env IS_TEST=true vitest watch",
     "test:inspect": "cross-env IS_TEST=true vitest --inspect --no-file-parallelism",
     "test:pipeline": "cross-env IS_TEST=true vitest run"
   }
