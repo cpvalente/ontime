@@ -21,7 +21,7 @@
     "@tanstack/react-table": "^9.1.2",
     "@uiw/codemirror-theme-vscode": "^4.25.10",
     "autosize": "^6.0.1",
-    "axios": "^1.18.0",
+    "axios": "^1.21.0",
     "csv-stringify": "^6.6.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.7",
