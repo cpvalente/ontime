@@ -19,7 +19,7 @@
     "fast-equals": "^6.0.0",
     "google-auth-library": "^9.4.2",
     "lowdb": "^7.0.1",
-    "multer": "2.2.0",
+    "multer": "^2.5.0",
     "ontime-utils": "workspace:*",
     "osc-min": "2.1.2",
     "sanitize-filename": "^1.6.3",
