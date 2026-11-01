@@ -5,7 +5,7 @@ import type {
   SpreadsheetWorksheetMetadata,
   SpreadsheetWorksheetOptions,
 } from 'ontime-types';
-import { getErrorMessage, ImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -20,6 +20,7 @@ import {
   previewRundown as previewGoogleSheet,
   uploadRundown,
 } from '../../../../../common/api/sheets';
+import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import Info from '../../../../../common/components/info/Info';
 import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
@@ -88,7 +89,7 @@ export default function SourcesPanel() {
       setImportFlow('excel');
       setHasFile('done');
     } catch (error) {
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = maybeAxiosError(error);
       setError(`Error uploading file: ${errorMessage}`);
       setActiveSource(null);
       setHasFile('none');

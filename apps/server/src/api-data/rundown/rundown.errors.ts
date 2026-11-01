@@ -23,3 +23,9 @@ export class InvalidRundownTitleError extends InvalidInputError {
     super(message);
   }
 }
+
+export class InvalidCustomFieldLabelError extends InvalidInputError {
+  constructor() {
+    super('Unable to convert label to a valid key');
+  }
+}

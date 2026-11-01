@@ -1,6 +1,9 @@
+import { defaultImportMap } from 'ontime-utils';
 import { afterEach, expect, it, vi } from 'vitest';
 import xlsx from 'xlsx';
 
+import { SpreadsheetWorkbookUnavailableError } from '../excel.errors.js';
+import { generateRundownPreview, getWorksheetMetadata } from '../excel.service.js';
 import { getWorkbook, retainWorkbook } from '../excel.workbook.js';
 
 afterEach(() => {
@@ -35,4 +38,12 @@ it('keeps a replacement workbook until its own expiry', () => {
 
   vi.advanceTimersByTime(60 * 60 * 1000);
   expect(getWorkbook()).toBeNull();
+});
+
+it('requires another upload after the workbook expires, for both metadata and preview', () => {
+  vi.useFakeTimers();
+  retainWorkbook(xlsx.utils.book_new());
+  vi.advanceTimersByTime(60 * 60 * 1000);
+  expect(() => getWorksheetMetadata('Main')).toThrow(SpreadsheetWorkbookUnavailableError);
+  expect(() => generateRundownPreview(defaultImportMap)).toThrow(SpreadsheetWorkbookUnavailableError);
 });
