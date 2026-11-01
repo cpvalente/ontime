@@ -11,6 +11,11 @@ import { deleteFile } from '../../utils/fileManagement.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import { getProjectCustomFields, processRundown } from '../rundown/rundown.dao.js';
 import { parseRundown } from '../rundown/rundown.parser.js';
+import {
+  InvalidSpreadsheetDataError,
+  SpreadsheetWorkbookUnavailableError,
+  SpreadsheetWorksheetNotFoundError,
+} from './excel.errors.js';
 import { parseExcel } from './excel.parser.js';
 import { rundownToTabular } from './excel.utils.js';
 import { getWorkbook, retainWorkbook } from './excel.workbook.js';
@@ -19,15 +24,19 @@ import { getWorksheetMetadataFromRows } from './spreadsheetMetadata.utils.js';
 const maxWorksheetNameLength = 31;
 const invalidWorksheetCharsRegex = /[:\\/?*[\]]/g;
 
+/** Truncates without leaving half of a surrogate pair, which would corrupt the worksheet name. */
+function truncateWorksheetName(name: string, length: number): string {
+  return name.slice(0, length).replace(/[\uD800-\uDBFF]$/, '');
+}
+
 function getValidWorksheetName(title: string): string {
   const sanitisedTitle = title
     .replaceAll(invalidWorksheetCharsRegex, ' ')
-    .trim()
-    .replace(/^'+|'+$/g, '')
+    .replace(/^[\s']+|[\s']+$/g, '')
     .replace(/\s+/g, ' ');
 
   const withFallback = sanitisedTitle.length > 0 ? sanitisedTitle : 'Rundown';
-  const truncatedTitle = withFallback.slice(0, maxWorksheetNameLength).trim().replace(/'+$/g, '');
+  const truncatedTitle = truncateWorksheetName(withFallback, maxWorksheetNameLength).replace(/^[\s']+|[\s']+$/g, '');
 
   return truncatedTitle.length > 0 ? truncatedTitle : 'Rundown';
 }
@@ -52,17 +61,23 @@ export async function readExcelFile(
   filePath: string,
 ): Promise<{ worksheets: string[]; metadata: SpreadsheetWorksheetMetadata | null }> {
   if (!existsSync(filePath)) {
-    throw new Error('Upload of excel file failed');
+    throw new Error('Uploaded Excel file is missing');
   }
-  if (extname(filePath) != '.xlsx') {
-    throw new Error('Wrong file format');
-  }
-
   const buffer = await readFile(filePath);
-  const excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
-  retainWorkbook(excelData);
-
   await deleteFile(filePath);
+  if (extname(filePath).toLowerCase() !== '.xlsx') {
+    throw new InvalidSpreadsheetDataError('Only .xlsx spreadsheet files are supported');
+  }
+  let excelData: xlsx.WorkBook;
+  try {
+    excelData = xlsx.read(buffer, { type: 'buffer', cellDates: true, cellFormula: false });
+  } catch {
+    // the file is user input, any parse failure means it is not a workbook we can read
+    throw new InvalidSpreadsheetDataError(
+      'The uploaded file is not a supported Excel workbook. Upload a valid .xlsx file.',
+    );
+  }
+  retainWorkbook(excelData);
 
   const worksheets = excelData.SheetNames;
   const metadata = getInitialWorksheetMetadata(worksheets);
@@ -78,17 +93,19 @@ export function generateRundownPreview(options: ImportMap): {
   summary: RundownSummary;
   customFields: CustomFields;
 } {
-  const data = getWorkbook()?.Sheets[options.worksheet];
+  const workbook = getWorkbook();
+  if (!workbook) throw new SpreadsheetWorkbookUnavailableError();
+  const data = workbook.Sheets[options.worksheet];
 
   if (!data) {
-    throw new Error(`Could not find data to import, maybe the worksheet name is incorrect: ${options.worksheet}`);
+    throw new SpreadsheetWorksheetNotFoundError(options.worksheet);
   }
 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
 
   const dataFromExcel = parseExcel(arrayOfData, getProjectCustomFields(), options.worksheet, options);
   if (dataFromExcel.rundown.flatOrder.length === 0) {
-    throw new Error(`Could not find data to import in the worksheet: ${options.worksheet}`);
+    throw new InvalidSpreadsheetDataError(`Could not find data to import in the worksheet: ${options.worksheet}`);
   }
 
   // we run the parsed data through an extra step to ensure the objects shape
@@ -115,10 +132,12 @@ export function generateRundownPreview(options: ImportMap): {
 }
 
 export function getWorksheetMetadata(worksheet: string) {
-  const data = getWorkbook()?.Sheets[worksheet];
+  const workbook = getWorkbook();
+  if (!workbook) throw new SpreadsheetWorkbookUnavailableError();
+  const data = workbook.Sheets[worksheet];
 
   if (!data) {
-    throw new Error(`Could not find worksheet: ${worksheet}`);
+    throw new SpreadsheetWorksheetNotFoundError(worksheet);
   }
 
   const arrayOfData: unknown[][] = xlsx.utils.sheet_to_json(data, { header: 1, blankrows: false, raw: false });
@@ -131,7 +150,7 @@ export function getWorksheetMetadata(worksheet: string) {
  */
 export function generateExcelFile(rundown: Rundown, customFields: CustomFields): Buffer {
   if (rundown.order.length === 0) {
-    throw new Error('Cannot generate an Excel file from an empty rundown');
+    throw new InvalidSpreadsheetDataError('Cannot generate an Excel file from an empty rundown');
   }
 
   return generateExcelWorkbook([rundown], customFields);
@@ -139,9 +158,6 @@ export function generateExcelFile(rundown: Rundown, customFields: CustomFields):
 
 /** Exports every rundown, including empty ones, with unique Excel-safe worksheet names. */
 export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomFields): Buffer {
-  if (rundowns.length === 0) {
-    throw new Error('Cannot export a project without rundowns');
-  }
   const workbook = xlsx.utils.book_new();
   const names = new Set<string>();
   for (const rundown of rundowns) {
@@ -150,7 +166,7 @@ export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomF
     let suffix = 2;
     while (names.has(name.toLowerCase())) {
       const ending = ` (${suffix++})`;
-      name = `${baseName.slice(0, maxWorksheetNameLength - ending.length)}${ending}`;
+      name = `${truncateWorksheetName(baseName, maxWorksheetNameLength - ending.length)}${ending}`;
     }
     names.add(name.toLowerCase());
     const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
