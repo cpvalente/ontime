@@ -19,3 +19,4 @@ allowBuilds:
 
 overrides:
   'body-parser': '^2.4.0' #express
+  'hono': '^4.12.34' #modelcontextprotocol/node
