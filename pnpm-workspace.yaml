@@ -16,3 +16,6 @@ allowBuilds:
   electron: true
   electron-winstaller: false
   esbuild: true
+
+overrides:
+  'body-parser': '^2.4.0' #express
