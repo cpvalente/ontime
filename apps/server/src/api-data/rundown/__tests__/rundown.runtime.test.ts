@@ -54,7 +54,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
     setRundown: vi.fn<(id: string, rundown: Rundown) => Promise<void>>(async (id, rundown) => {
       stored.rundowns[id] = rundown;
     }),
-    getProjectRundowns: () => ({}),
+    getProjectRundowns: () => stored.rundowns,
     getCustomFields: () => ({}),
     getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
     setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),

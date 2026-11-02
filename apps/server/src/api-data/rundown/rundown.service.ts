@@ -114,6 +114,9 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
 
   // generate a fully formed entry from the patch
   const newEntry = generateEvent(rundown, eventData, insertPosition.cueAfterId, parent?.id);
+  if (parent && isOntimeGroup(newEntry)) {
+    throw new InvalidEntryOperationError('Cannot add a group to another group');
+  }
 
   // make mutations to rundown
   rundownMutation.add(rundown, newEntry, parent, insertPosition.afterId, insertPosition.beforeId);
@@ -326,8 +329,11 @@ export async function applyDelay(rundownId: string, delayId: EntryId): Promise<R
 
   // check that delay exists
   const delay = rundown.entries[delayId];
-  if (!delay || !isOntimeDelay(delay)) {
+  if (!delay) {
     throw new EntryNotFoundError('Given delay ID not found');
+  }
+  if (!isOntimeDelay(delay)) {
+    throw new InvalidEntryOperationError('Given delay ID not found');
   }
 
   // apply the delay and delete the it
@@ -463,8 +469,11 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
   const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   const group = rundown.entries[groupId];
-  if (!group || !isOntimeGroup(group)) {
+  if (!group) {
     throw new EntryNotFoundError(`Group with ID ${groupId} not found or is not a group`);
+  }
+  if (!isOntimeGroup(group)) {
+    throw new InvalidEntryOperationError(`Group with ID ${groupId} not found or is not a group`);
   }
 
   rundownMutation.ungroup(rundown, group);
