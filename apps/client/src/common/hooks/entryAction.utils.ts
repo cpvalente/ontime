@@ -51,7 +51,7 @@ export function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
     } else if (entry.parent) {
       const parent = entries[entry.parent];
       if (parent && isOntimeGroup(parent)) {
-        entries[parent.id] = { ...parent, entries: parent.entries.filter((childId) => childId !== entry.id) };
+        entries[parent.id] = patchEntry(parent, { entries: parent.entries.filter((childId) => childId !== entry.id) });
       }
     }
 
