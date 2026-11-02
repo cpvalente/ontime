@@ -23,7 +23,10 @@ test.describe('URL Preset', () => {
     await page.getByRole('button', { name: 'Generate' }).click();
 
     await page.getByRole('combobox').filter({ hasText: 'Timer' });
+    // leaving the page before the request completes would drop the preset
+    const saved = page.waitForResponse((r) => r.url().endsWith('/url-presets') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Save' }).click();
+    await saved;
 
     await page.goto('/timer');
 
@@ -122,7 +125,10 @@ test.describe('Sharing from cuesheet', () => {
     await page.getByRole('button', { name: 'Create Event' }).click();
     await page.getByTestId('entry-1').getByTestId('entry__title').click();
     await page.getByTestId('entry-1').getByTestId('entry__title').fill('title 1');
+    // closing the page before the request completes would drop the title
+    const saved = page.waitForResponse((r) => r.url().endsWith('/entry') && r.request().method() === 'PUT');
     await page.getByTestId('entry-1').getByTestId('entry__title').press('Enter');
+    await saved;
 
     await page.close();
   });
