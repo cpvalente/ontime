@@ -49,7 +49,7 @@ function apply(state: TeleprompterTransport, command: TeleprompterTransportComma
 describe('commands on the transport', () => {
   test.each([
     [{ type: 'speed', value: 20 }, 20],
-    [{ type: 'speed', value: 0 }, 1],
+    [{ type: 'speed', value: 0 }, 0],
     [{ type: 'speedBy', value: -5 }, 25],
     [{ type: 'speedBy', value: 200 }, 100],
   ] as const)('%j sets speed %d', (command, speed) => {

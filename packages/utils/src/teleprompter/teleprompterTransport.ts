@@ -18,9 +18,9 @@ import {
   type TeleprompterLayout,
 } from './teleprompterPosition.js';
 
-/** Teleprompter speed bounds, in lines per minute: playback only reads forwards and always moves */
+/** Teleprompter speed bounds, in lines per minute: positive reads forwards, negative backwards, 0 holds */
 export const teleprompterSpeed = {
-  min: 1,
+  min: -100,
   max: 100,
 } as const;
 
@@ -87,22 +87,38 @@ export function positionAt(transport: TeleprompterTransport, layout: Teleprompte
   if (transport.playback !== 'play') return from;
 
   const travelled = (transport.speed * elapsedSince(transport.at, now)) / 60_000;
-  return Math.min(from + travelled, playbackBound(layout, from, transport.mode).row);
+  if (travelled === 0) return from;
+  const bound = playbackBound(layout, from, transport.mode, Math.sign(transport.speed));
+  return travelled > 0 ? Math.min(from + travelled, bound.row) : Math.max(from + travelled, bound.row);
 }
 
-/** Where playback from a row runs to: the end of the event being read event by event, otherwise the end of the script */
+/**
+ * Where playback from a row runs to, in a direction
+ * Forwards: the end of the event being read event by event, otherwise the end of the script
+ * Backwards: the start of the event being read event by event, otherwise the start of the script
+ */
 function playbackBound(
   layout: TeleprompterLayout,
   from: number,
   mode: TeleprompterMode,
+  direction: number,
 ): { row: number; stop: TeleprompterStop } {
   const { events } = layout;
   if (events.length === 0) return { row: from, stop: 'script' };
 
-  const last = events[events.length - 1];
-  const next = mode === 'event' ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
-  if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
-  return { row: next.endRow, stop: 'event' };
+  if (direction > 0) {
+    const last = events[events.length - 1];
+    const next = mode === 'event' ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
+    if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
+    return { row: next.endRow, stop: 'event' };
+  }
+
+  if (mode === 'event') {
+    const prev = [...events].reverse().find((event) => event.startRow < from - boundaryEpsilon);
+    if (!prev) return { row: 0, stop: 'script' };
+    return { row: prev.startRow, stop: 'event' };
+  }
+  return { row: 0, stop: 'script' };
 }
 
 /**
@@ -119,8 +135,10 @@ export function settle(
 
   const from = rowOfAnchor(layout, transport.anchor);
   if (from === null) return transport;
+  // holding: the reader does not move, so playback never reaches an end
+  if (transport.speed === 0) return transport;
 
-  const bound = playbackBound(layout, from, transport.mode);
+  const bound = playbackBound(layout, from, transport.mode, Math.sign(transport.speed));
   const msToBound = ((bound.row - from) / transport.speed) * 60_000;
   if (elapsedSince(transport.at, now) < msToBound) return transport;
 
@@ -264,12 +282,15 @@ export function describeSync(
 ): TeleprompterSync {
   const { playback, speed, at } = transport;
   const row = transport.anchor ? (rowOfAnchor(layout, transport.anchor) ?? 0) : 0;
-  const until = playback === 'play' ? playbackBound(layout, row, transport.mode).row : row;
+  const until =
+    playback === 'play' && speed !== 0 ? playbackBound(layout, row, transport.mode, Math.sign(speed)).row : row;
   return { revision, playback, speed, row, until, at };
 }
 
 /** The row at the reading position at a moment, from what the host published */
 export function syncPositionAt(sync: TeleprompterSync, now: number): number {
   if (sync.playback !== 'play') return sync.row;
-  return Math.min(sync.row + (sync.speed * elapsedSince(sync.at, now)) / 60_000, sync.until);
+  const travelled = (sync.speed * elapsedSince(sync.at, now)) / 60_000;
+  if (travelled === 0) return sync.row;
+  return travelled > 0 ? Math.min(sync.row + travelled, sync.until) : Math.max(sync.row + travelled, sync.until);
 }
