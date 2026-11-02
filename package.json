@@ -41,12 +41,12 @@
     "format:check": "oxfmt --check"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.1",
+    "@playwright/test": "1.64.1",
     "@types/node": "catalog:",
     "cross-env": "^7.0.3",
-    "oxfmt": "^0.63.0",
+    "oxfmt": "^0.75.0",
     "oxlint": "^1.78.0",
-    "oxlint-tsgolint": "^7.0.2001",
+    "oxlint-tsgolint": "^7.0.2005",
     "rimraf": "catalog:",
     "turbo": "2.10.10",
     "typescript": "catalog:"

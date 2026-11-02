@@ -2,9 +2,9 @@
   "name": "@getontime/resolver",
   "version": "4.15.1",
   "type": "module",
-  "repository": "https://github.com/cpvalente/ontime",
+  "repository": "github:cpvalente/ontime",
   "types": "./dist/main.d.mts",
-  "main": "./dist/main.mjs",
+  "exports": "./dist/main.mjs",
   "description": "shared typings for ontime",
   "scripts": {
     "lint": "oxlint --quiet --type-aware",
@@ -19,8 +19,10 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@arethetypeswrong/core": "^0.18.5",
     "ontime-types": "workspace:",
-    "tsdown": "^0.22.4",
+    "publint": "^0.3.25",
+    "tsdown": "^0.23.4",
     "typescript": "catalog:"
   },
   "files": [
