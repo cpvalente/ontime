@@ -11,7 +11,7 @@ test('a password protected server requires login and returns to the requested vi
 
   // views redirect to the login page, remembering where we were going
   await page.goto(`${protectedURL}/timer`);
-  await expect(page).toHaveURL(`${protectedURL}/login?redirect=/timer`);
+  await expect(page).toHaveURL(`${protectedURL}/login?redirect=%2Ftimer`);
 
   // a wrong password is rejected
   await page.getByPlaceholder('Password').fill('not-the-password');

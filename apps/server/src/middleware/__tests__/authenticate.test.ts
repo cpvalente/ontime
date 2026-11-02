@@ -8,10 +8,23 @@ vi.mock('../../api-data/session/session.service.js', () => ({
   hashedPassword: 'valid-token',
 }));
 
-import { authenticateSocket, isPublicAssetRequest, makeAuthenticateMiddleware } from '../authenticate.js';
+// identity hash so the plain password 'valid-token' matches the mocked hashedPassword
+vi.mock('../../utils/hash.js', () => ({
+  hashPassword: (password: string) => password,
+}));
+
+import {
+  authenticateSocket,
+  getSafeRedirect,
+  isPublicAssetRequest,
+  makeAuthenticateMiddleware,
+  makeLoginRouter,
+} from '../authenticate.js';
 
 function makeResponse() {
   return {
+    clearCookie: vi.fn(),
+    cookie: vi.fn(),
     redirect: vi.fn(),
     send: vi.fn(),
     status: vi.fn().mockReturnThis(),
@@ -163,7 +176,7 @@ describe('bearer authentication', () => {
     authenticateAndRedirect(redirectReq, redirectRes, next);
 
     expect(next).not.toHaveBeenCalled();
-    expect(redirectRes.redirect).toHaveBeenCalledWith('/login?redirect=/external/image.png');
+    expect(redirectRes.redirect).toHaveBeenCalledWith('/login?redirect=%2Fexternal%2Fimage.png');
 
     const socketNext = vi.fn();
     authenticateSocket(
@@ -187,4 +200,93 @@ describe('bearer authentication', () => {
       expect(socketNext.mock.calls[0][0]).toEqual(new Error('Unauthorized'));
     },
   );
+});
+
+describe('getSafeRedirect()', () => {
+  it.each([
+    ['/editor', ''],
+    ['/timer?foo=bar', ''],
+    ['/stage-hash/', '/stage-hash'],
+    ['/stage-hash/cuesheet?foo=bar', '/stage-hash'],
+  ])('keeps the path %s', (redirect, prefix) => {
+    expect(getSafeRedirect(redirect, prefix)).toBe(redirect);
+  });
+
+  it.each([
+    undefined,
+    '',
+    'https://example.com',
+    '//example.com',
+    '/\\example.com',
+    'javascript:alert(1)',
+    'example.com',
+  ])('falls back to the root for %j', (redirect) => {
+    expect(getSafeRedirect(redirect, '')).toBe('/');
+    expect(getSafeRedirect(redirect, '/stage-hash')).toBe('/stage-hash/');
+  });
+
+  it.each(['/editor', '/stage-hash-other/timer'])(
+    'falls back to the prefix root for %s outside the prefix',
+    (redirect) => {
+      expect(getSafeRedirect(redirect, '/stage-hash')).toBe('/stage-hash/');
+    },
+  );
+});
+
+describe('makeLoginRouter()', () => {
+  function getLoginHandler(prefix: string) {
+    const router = makeLoginRouter(prefix);
+    const layer = router.stack.find((layer) => layer.route?.path === '/');
+    const handler = layer?.route?.stack[0]?.handle;
+    if (!handler) {
+      throw new Error('Login handler not found');
+    }
+    return handler as (req: Request, res: Response) => void;
+  }
+
+  it('sets the cookie and redirects for the right password', () => {
+    const res = makeResponse();
+    getLoginHandler('/stage-hash')(
+      {
+        body: { password: 'valid-token', redirect: '/stage-hash/cuesheet' },
+      } as Request,
+      res,
+    );
+
+    expect(res.cookie).toHaveBeenCalledWith('token', JSON.stringify({ token: 'valid-token', scope: 'rw' }), {
+      httpOnly: false,
+      secure: true,
+      path: '/stage-hash',
+      sameSite: 'none',
+    });
+    expect(res.redirect).toHaveBeenCalledWith('/stage-hash/cuesheet');
+  });
+
+  it('falls back to the prefix root for a redirect outside this server', () => {
+    const res = makeResponse();
+    getLoginHandler('/stage-hash')(
+      {
+        body: { password: 'valid-token', redirect: 'https://example.com' },
+      } as Request,
+      res,
+    );
+
+    expect(res.redirect).toHaveBeenCalledWith('/stage-hash/');
+  });
+});
+
+it('keeps the query string of the requested view through the login redirect', () => {
+  const originalUrl = '/stage-hash/timer?n=1&lock=true';
+  const { authenticateAndRedirect } = makeAuthenticateMiddleware('/stage-hash');
+  const res = makeResponse();
+  authenticateAndRedirect(
+    { cookies: {}, headers: {}, originalUrl, query: {} } as unknown as Request,
+    res,
+    vi.fn() as NextFunction,
+  );
+
+  const loginUrl = vi.mocked(res.redirect).mock.calls[0][0] as unknown as string;
+  // the login page reads the value with URLSearchParams and posts it back for the login handler
+  const redirect = new URL(loginUrl, 'http://localhost').searchParams.get('redirect');
+  expect(getSafeRedirect(redirect, '/stage-hash')).toBe(originalUrl);
 });
