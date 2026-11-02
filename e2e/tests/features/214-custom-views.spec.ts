@@ -2,8 +2,7 @@ import { readFile } from 'fs/promises';
 
 import { expect, test } from '../fixtures/override';
 
-const baseURL = 'http://localhost:4001';
-const apiURL = `${baseURL}/data/custom-views`;
+const apiURL = 'data/custom-views';
 const testSlug = 'e2e-test-view';
 const fixtureFile = 'e2e/tests/fixtures/custom-view-test.html';
 
@@ -38,7 +37,7 @@ test.describe('custom views', () => {
     expect(uploadedView).toBeDefined();
 
     // 3. Navigate to the custom view URL and verify it renders
-    await page.goto(`${baseURL}/external/${testSlug}/`);
+    await page.goto(`external/${testSlug}/`);
     await expect(page.getByTestId('custom-view-heading')).toBeVisible();
     await expect(page.getByTestId('custom-view-heading')).toHaveText('Custom View E2E Test');
 

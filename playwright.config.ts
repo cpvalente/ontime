@@ -57,6 +57,27 @@ const passwordServer: PlaywrightTestConfig['webServer'] = {
 };
 
 /**
+ * A server which mirrors an Ontime Cloud deployment, used by the prefixed project
+ * the client is served below a router prefix, ie: http://localhost:4003/client-hash/timer
+ * specs navigate with relative paths so they resolve below either base URL
+ */
+const cloudPrefix = 'client-hash';
+const cloudServer: PlaywrightTestConfig['webServer'] = {
+  name: 'CLOUD-SERVER',
+  command: 'node e2e/cloud-server.mjs',
+  url: `http://localhost:4003/${cloudPrefix}/health`,
+  reuseExistingServer: false,
+  timeout: 120 * 1000,
+  wait: {
+    stdout: new RegExp(`Local: http://localhost:4003/${cloudPrefix}/editor\n`),
+  },
+  env: {
+    PORT: '4003',
+    ROUTER_PREFIX: cloudPrefix,
+  },
+};
+
+/**
  * See https://playwright.dev/docs/test-configuration.
  */
 const config: PlaywrightTestConfig = {
@@ -70,13 +91,13 @@ const config: PlaywrightTestConfig = {
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   reporter: 'html',
-  webServer: [server, passwordServer, ...uiDevServer],
+  webServer: [server, passwordServer, cloudServer, ...uiDevServer],
   use: {
     screenshot: process.env.CI ? 'off' : 'only-on-failure',
     video: process.env.CI ? 'off' : 'retain-on-failure',
     viewport: { width: 1920, height: 1080 },
     actionTimeout: 5000,
-    baseURL: isDevMode ? 'http://localhost:3000' : 'http://localhost:4001',
+    baseURL: isDevMode ? 'http://localhost:3000/' : 'http://localhost:4001/',
     ignoreHTTPSErrors: true,
     trace: 'on-first-retry',
     launchOptions: {
@@ -88,6 +109,15 @@ const config: PlaywrightTestConfig = {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
+      },
+    },
+    {
+      name: 'chromium-prefixed',
+      // the password spec targets its own server
+      testIgnore: '**/216-password.spec.ts',
+      use: {
+        ...devices['Desktop Chrome'],
+        baseURL: `http://localhost:4003/${cloudPrefix}/`,
       },
     },
   ],

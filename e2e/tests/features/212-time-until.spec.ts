@@ -5,9 +5,9 @@ test('time until absolute', async ({ context }) => {
   const op = await context.newPage();
   const timeline = await context.newPage();
   const countdown = await context.newPage();
-  await editor.goto('/editor');
-  await op.goto('/op');
-  await timeline.goto('/timeline');
+  await editor.goto('editor');
+  await op.goto('op');
+  await timeline.goto('timeline');
 
   await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();
@@ -33,7 +33,7 @@ test('time until absolute', async ({ context }) => {
   await editor.getByTestId('entry-4').getByTestId('rundown-event').click();
   const entry4Id = await editor.getByTestId('editor-container').getByLabel('Event ID (read only)').inputValue();
 
-  await countdown.goto(`/countdown?${entry1Id}&sub=${entry2Id}&sub=${entry3Id}&sub=${entry4Id}`);
+  await countdown.goto(`countdown?${entry1Id}&sub=${entry2Id}&sub=${entry3Id}&sub=${entry4Id}`);
 
   // Create reusable locator references for different elements
   const entry2 = {
@@ -136,7 +136,7 @@ test('time until absolute', async ({ context }) => {
 
 test('time until relative', async ({ context }) => {
   const editor = await context.newPage();
-  await editor.goto('/editor');
+  await editor.goto('editor');
 
   await editor.getByRole('button', { name: 'Edit' }).click();
   await editor.getByRole('button', { name: 'Rundown menu' }).click();

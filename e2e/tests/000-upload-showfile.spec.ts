@@ -3,7 +3,7 @@ import { expect, test } from './fixtures/override';
 const fileToUpload = 'e2e/tests/fixtures/e2e-test-db.json';
 
 test('project file upload', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
 
   // Try to close welcome modal if it appears (times out silently if not present)
   try {

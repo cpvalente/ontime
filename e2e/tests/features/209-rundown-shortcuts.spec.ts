@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/override';
 
 test('Copy-paste', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -32,7 +32,7 @@ test('Copy-paste', async ({ page }) => {
 });
 
 test('Cut-paste', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -64,7 +64,7 @@ test('Cut-paste', async ({ page }) => {
 });
 
 test('Move', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -99,7 +99,7 @@ test('Move', async ({ page }) => {
 });
 
 test('Add group', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -134,7 +134,7 @@ test('Add group', async ({ page }) => {
 });
 
 test('Add delay', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -165,7 +165,7 @@ test('Add delay', async ({ page }) => {
 });
 
 test('Add event', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -192,11 +192,11 @@ test('Add event', async ({ page }) => {
 });
 
 test('Delete event', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
   await page.getByRole('button', { name: 'Delete all' }).click();
@@ -215,7 +215,7 @@ test('Delete event', async ({ page }) => {
 });
 
 test('Finder searches the rundown and reveals a result', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -268,7 +268,7 @@ test('Finder searches the rundown and reveals a result', async ({ page }) => {
 });
 
 test('Open settings', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
   await expect(page.getByTestId('editor-container')).toBeVisible();
 
   await page.keyboard.press('ControlOrMeta+,');
