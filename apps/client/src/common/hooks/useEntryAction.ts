@@ -52,7 +52,7 @@ import {
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
 import { useEditorSettings } from '../stores/editorSettings';
-import { isStaleRundown, patchEntry } from './entryAction.utils';
+import { isStaleRundown, optimisticDeleteEntries, patchEntry } from './entryAction.utils';
 
 export type EventOptions = Partial<{
   // options of any new entries (event / delay / group)
@@ -1064,36 +1064,6 @@ export function useEntryActions(scopedRundownId: string) {
       matchGroupDuration,
     ],
   );
-}
-
-/**
- * Utility to optimistically delete entries from client cache
- */
-function optimisticDeleteEntries(entryIds: EntryId[], rundown: Rundown) {
-  const entries = { ...rundown.entries };
-  let order = [...rundown.order];
-  let flatOrder = [...rundown.flatOrder];
-
-  for (let i = 0; i < entryIds.length; i++) {
-    const entry = entries[entryIds[i]];
-    deleteEntry(entry);
-  }
-
-  function deleteEntry(entry: OntimeEntry) {
-    if (isOntimeGroup(entry) || !entry.parent) {
-      order = order.filter((id) => id !== entry.id);
-    } else {
-      const parent = entries[entry.parent];
-      if (parent && isOntimeGroup(parent)) {
-        parent.entries = parent.entries.filter((parentEntry) => parentEntry !== entry.id);
-      }
-    }
-
-    delete entries[entry.id];
-    flatOrder = flatOrder.filter((id) => id !== entry.id);
-  }
-
-  return { entries, order, flatOrder };
 }
 
 /**
