@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 import EventEditorFooter from './composite/EventEditorFooter';
+import { getEditTarget } from './entryEditor.utils';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
@@ -13,6 +14,7 @@ import style from './EntryEditor.module.scss';
 
 export default function RundownEntryEditor() {
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
+  const cursor = useEventSelection((state) => state.cursor);
   const { data } = useRundown();
 
   const entry = useMemo<OntimeEntry | null>(() => {
@@ -20,14 +22,8 @@ export default function RundownEntryEditor() {
       return null;
     }
 
-    const selectedEventId = Array.from(selectedEvents).at(0);
-    if (!selectedEventId) {
-      return null;
-    }
-
-    const event = data.entries[selectedEventId];
-    return event ?? null;
-  }, [data.order.length, data.entries, selectedEvents]);
+    return getEditTarget(selectedEvents, cursor, data.entries);
+  }, [data.order.length, data.entries, selectedEvents, cursor]);
 
   if (!entry) {
     return <EventEditorEmpty />;
