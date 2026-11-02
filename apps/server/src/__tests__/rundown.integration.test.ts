@@ -87,17 +87,18 @@ describe('rundown editing', { timeout: 15_000 }, () => {
     const before = await rundown.read();
 
     const duplicate = await rundown.add({ type: 'event', id: ids[0], title: 'again' });
-    expect(duplicate.status).toBe(400);
+    expect(duplicate.status).toBe(409);
     expect(duplicate.body).toMatchObject({ message: expect.stringContaining('already exists') });
 
     const notAGroup = await rundown.add({ type: 'event', title: 'orphan', parent: ids[0] });
-    expect(notAGroup.status).toBe(400);
+    expect(notAGroup.status).toBe(422);
+    expect(notAGroup.body).toMatchObject({ message: `Invalid parent event with ID ${ids[0]}` });
 
     const missingRundown = await json<{ message: string }>(
       await server.send('POST', '/data/rundowns/does-not-exist/entry', { type: 'event', title: 'lost' }),
     );
-    expect(missingRundown.status).toBe(400);
-    expect(missingRundown.body.message).toContain('not found');
+    expect(missingRundown.status).toBe(404);
+    expect(missingRundown.body.message).toBe('Rundown with id: does-not-exist not found');
 
     expect(await rundown.read()).toStrictEqual(before);
   });
@@ -280,12 +281,19 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
     const responses = [
       await rundown.edit({ id: 'missing', title: 'ghost' }),
+      await rundown.edit({ id: ids[0], type: 'delay' }), // an entry cannot change its type
       await rundown.send('PATCH', '/reorder', { entryId: ids[0], destinationId: 'missing', order: 'after' }),
       await rundown.send('POST', `/ungroup/${ids[0]}`), // an event is not a group
       await rundown.send('POST', `/${ids[0]}/fit-group-duration`), // an event outside a group has no target
     ];
 
-    expect(responses.map(({ status }) => status)).toStrictEqual([400, 400, 400, 400]);
+    expect(responses.map(({ status, body }) => [status, (body as { message?: string }).message])).toStrictEqual([
+      [404, 'Entry not found'],
+      [422, 'Invalid event type'],
+      [404, 'Event not found'],
+      [404, `Group with ID ${ids[0]} not found or is not a group`],
+      [422, 'Entry must be in a group'],
+    ]);
     expect(await rundown.read()).toStrictEqual(before);
   });
 
@@ -374,8 +382,8 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       const { rundown } = await rundownWithEvents(['a']);
 
       const loadedAttempt = await json<{ message: string }>(await server.send('DELETE', `/data/rundowns/${loaded}`));
-      expect(loadedAttempt.status).toBe(400);
-      expect(loadedAttempt.body.message).toContain('loaded');
+      expect(loadedAttempt.status).toBe(409);
+      expect(loadedAttempt.body.message).toBe('Cannot delete loaded rundown');
 
       const { status, body } = await json<ProjectRundownsList>(
         await server.send('DELETE', `/data/rundowns/${rundown.id}`),

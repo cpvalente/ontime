@@ -37,6 +37,7 @@ import {
   validateTimes,
 } from 'ontime-utils';
 
+import { InvalidEntryOperationError } from './rundown.errors.js';
 import { RundownMetadata } from './rundown.types.js';
 
 /**
@@ -50,7 +51,7 @@ export function generateEvent(
 ): OntimeEntry {
   if (isOntimeEvent(eventData)) {
     const event = createEvent(eventData, getCueCandidate(rundown.entries, rundown.flatOrder, afterId, parent));
-    if (!event) throw new Error('Invalid event type');
+    if (!event) throw new InvalidEntryOperationError('Invalid event type');
     return event;
   }
 
@@ -69,7 +70,7 @@ export function generateEvent(
     return createMilestone({ ...eventData, id });
   }
 
-  throw new Error('Invalid event type');
+  throw new InvalidEntryOperationError('Invalid event type');
 }
 
 /**
