@@ -650,14 +650,14 @@ export type IncrementNumber = {
  *
  * @param value - Numeric string, e.g. `"123"` or `"123.456"`.
  * @returns `integer` whole part, `faction` digits after the point as a number (0 when no fraction), `precision` digit count after `.`.
- * @throws {Error} When the integer or fractional segment is not parseable as number
+ * @throws {InvalidEntryOperationError} When the integer or fractional segment is not parseable as number
  */
 export function getIntegerAndFraction(value: string): IncrementNumber {
   const [integerStr, factionStr] = value.split('.', 2);
   const integer = parseInt(integerStr);
   const precision = (factionStr ?? '').length;
   const faction = precision === 0 ? 0 : parseInt(factionStr);
-  if (isNaN(integer) || isNaN(faction)) throw new Error('input can not be converted to a number');
+  if (isNaN(integer) || isNaN(faction)) throw new InvalidEntryOperationError('input can not be converted to a number');
   return {
     integer,
     faction,

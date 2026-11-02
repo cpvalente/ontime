@@ -84,6 +84,7 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   test('refuses invalid additions and leaves the rundown untouched', async () => {
     const { rundown, ids } = await rundownWithEvents(['first']);
+    const { body: group } = await rundown.add({ type: 'group', title: 'block' });
     const before = await rundown.read();
 
     const duplicate = await rundown.add({ type: 'event', id: ids[0], title: 'again' });
@@ -93,6 +94,10 @@ describe('rundown editing', { timeout: 15_000 }, () => {
     const notAGroup = await rundown.add({ type: 'event', title: 'orphan', parent: ids[0] });
     expect(notAGroup.status).toBe(422);
     expect(notAGroup.body).toMatchObject({ message: `Invalid parent event with ID ${ids[0]}` });
+
+    const nestedGroup = await rundown.add({ type: 'group', title: 'nested', parent: group.id });
+    expect(nestedGroup.status).toBe(422);
+    expect(nestedGroup.body).toMatchObject({ message: 'Cannot add a group to another group' });
 
     const missingRundown = await json<{ message: string }>(
       await server.send('POST', '/data/rundowns/does-not-exist/entry', { type: 'event', title: 'lost' }),
@@ -283,16 +288,22 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       await rundown.edit({ id: 'missing', title: 'ghost' }),
       await rundown.edit({ id: ids[0], type: 'delay' }), // an entry cannot change its type
       await rundown.send('PATCH', '/reorder', { entryId: ids[0], destinationId: 'missing', order: 'after' }),
+      await rundown.send('PATCH', `/applydelay/${ids[0]}`), // an event is not a delay
+      await rundown.send('POST', '/ungroup/missing'),
       await rundown.send('POST', `/ungroup/${ids[0]}`), // an event is not a group
       await rundown.send('POST', `/${ids[0]}/fit-group-duration`), // an event outside a group has no target
+      await rundown.send('PATCH', '/renumber', { ids, prefix: '', start: '.5', increment: '1' }),
     ];
 
     expect(responses.map(({ status, body }) => [status, (body as { message?: string }).message])).toStrictEqual([
       [404, 'Entry not found'],
       [422, 'Invalid event type'],
       [404, 'Event not found'],
-      [404, `Group with ID ${ids[0]} not found or is not a group`],
+      [422, 'Given delay ID not found'],
+      [404, 'Group with ID missing not found or is not a group'],
+      [422, `Group with ID ${ids[0]} not found or is not a group`],
       [422, 'Entry must be in a group'],
+      [422, 'input can not be converted to a number'],
     ]);
     expect(await rundown.read()).toStrictEqual(before);
   });

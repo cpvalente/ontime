@@ -118,12 +118,11 @@ type Transaction<R> = {
  * @throws RundownNotFoundError if the rundown does not exist
  */
 export function getStoredRundown(rundownId: string): Readonly<Rundown> {
-  try {
-    return getDataProvider().getRundown(rundownId);
-  } catch {
-    // the data provider only throws when the rundown is missing
+  const dataProvider = getDataProvider();
+  if (!Object.hasOwn(dataProvider.getProjectRundowns(), rundownId)) {
     throw new RundownNotFoundError(rundownId);
   }
+  return dataProvider.getRundown(rundownId);
 }
 
 type TransactionOptions = {
