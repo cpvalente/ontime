@@ -8,6 +8,7 @@ const isDevMode = process.env.NODE_ENV === 'development';
 const server: PlaywrightTestConfig['webServer'] = {
   name: 'SERVER',
   command: 'pnpm --filter ontime-server dev',
+  url: 'http://localhost:4001/health',
   reuseExistingServer: !process.env.CI,
   timeout: 60 * 1000,
   wait: {
@@ -24,6 +25,7 @@ const uiDevServer: PlaywrightTestConfig['webServer'] = isDevMode
       {
         name: 'UI',
         command: 'pnpm --filter ontime-ui dev',
+        url: 'http://localhost:3000',
         reuseExistingServer: !process.env.CI,
         timeout: 60 * 1000,
         wait: {
@@ -41,6 +43,7 @@ const uiDevServer: PlaywrightTestConfig['webServer'] = isDevMode
 const passwordServer: PlaywrightTestConfig['webServer'] = {
   name: 'PASSWORD-SERVER',
   command: 'pnpm --filter ontime-server dev',
+  url: 'http://localhost:4002/health',
   reuseExistingServer: false,
   timeout: 60 * 1000,
   wait: {
