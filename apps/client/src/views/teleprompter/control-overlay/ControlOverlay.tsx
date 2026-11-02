@@ -83,7 +83,7 @@ function ControlButton({
 
 /** Playback controls fade while idle and remain visible while hovered or focused. */
 export default function ControlOverlay({ state, loadedEvent, onCommand, onToggleHelp }: ControlOverlayProps) {
-  const isActive = useFadeOutOnInactivity(true);
+  const isActive = useFadeOutOnInactivity(true, !!onCommand);
   const [isHovered, setIsHovered] = useState(false);
   const [hasFocus, setHasFocus] = useState(false);
   const isVisible = isActive || isHovered || hasFocus;
@@ -106,6 +106,7 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
       <div className='teleprompter__group' role='group' aria-label='Transport'>
         <Button
           className='teleprompter__play'
+          data-speed={isPlaying && state.speed === 0}
           variant={isPlaying ? 'primary' : 'subtle-white'}
           size='large'
           aria-pressed={isPlaying}

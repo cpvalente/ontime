@@ -7,8 +7,9 @@ const inactiveTime = 3000; // 3 seconds
 /**
  * Provides whether there has been mouse movement in the page in the last <inactiveTime>
  */
-export const useFadeOutOnInactivity = (initialState = false) => {
+export const useFadeOutOnInactivity = (initialState = false, keepActive = false) => {
   const [isUserActive, setIsUserActive] = useState(initialState);
+  if (keepActive) return true;
 
   // show on mouse move
   useEffect(() => {
