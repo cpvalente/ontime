@@ -6,13 +6,14 @@ import { createRoot, Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getRundownQueryKey } from '../../api/constants';
-import { putEditEntry, requestApplyDelay } from '../../api/rundown';
+import { putEditEntry, requestApplyDelay, requestFitGroupTarget } from '../../api/rundown';
 import { type EntryActions, useEntryActions } from '../useEntryAction';
 
 vi.mock('../../api/rundown', async (importOriginal) => ({
   ...(await importOriginal<typeof import('../../api/rundown')>()),
   putEditEntry: vi.fn<typeof putEditEntry>(),
   requestApplyDelay: vi.fn<typeof requestApplyDelay>(),
+  requestFitGroupTarget: vi.fn<typeof requestFitGroupTarget>(),
 }));
 
 function makeEvent(revision: number, title: string): OntimeEvent {
@@ -202,5 +203,55 @@ describe('useEntryActions()', () => {
       title: 'B',
       revision: 1,
     });
+  });
+
+  it('writes the rundown returned when matching the group duration', async () => {
+    vi.mocked(requestFitGroupTarget).mockResolvedValueOnce({
+      data: { ...makeRundown(makeEvent(2, 'fitted')), revision: 2 },
+    } as Awaited<ReturnType<typeof requestFitGroupTarget>>);
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    queryClient.setQueryData(getRundownQueryKey('rundown'), makeRundown(makeEvent(1, 'original')));
+    root = createRoot(document.createElement('div'));
+    let actions: EntryActions | undefined;
+
+    await act(async () => {
+      root?.render(
+        createElement(
+          QueryClientProvider,
+          { client: queryClient },
+          createElement(EntryActionsReader, { onActions: (value) => (actions = value) }),
+        ),
+      );
+    });
+
+    await act(async () => {
+      await actions?.matchGroupDuration('event');
+    });
+
+    expect(requestFitGroupTarget).toHaveBeenCalledWith('rundown', 'event');
+    expect(queryClient.getQueryData<Rundown>(getRundownQueryKey('rundown'))?.entries.event).toMatchObject({
+      title: 'fitted',
+      revision: 2,
+    });
+  });
+
+  it('resolves without a request when matching the group duration of an uninitialised rundown', async () => {
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    root = createRoot(document.createElement('div'));
+    let actions: EntryActions | undefined;
+
+    await act(async () => {
+      root?.render(
+        createElement(
+          QueryClientProvider,
+          { client: queryClient },
+          createElement(EntryActionsReader, { onActions: (value) => (actions = value) }),
+        ),
+      );
+    });
+
+    await expect(actions?.matchGroupDuration('event')).resolves.toBeUndefined();
+    expect(requestFitGroupTarget).not.toHaveBeenCalled();
   });
 });
