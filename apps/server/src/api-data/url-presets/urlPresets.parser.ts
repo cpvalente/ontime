@@ -1,6 +1,7 @@
 import { DatabaseModel, URLPreset } from 'ontime-types';
 
 import { ErrorEmitter } from '../../utils/parserUtils.js';
+import { normaliseUrlPresets } from './urlPresets.utils.js';
 
 /**
  * Parse URL preset portion of a project file
@@ -16,7 +17,7 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
   const newPresets: URLPreset[] = [];
 
   for (const preset of data.urlPresets) {
-    if (!preset.alias || !preset.target) {
+    if (typeof preset.alias !== 'string' || !preset.alias || !preset.target) {
       emitError?.(`Invalid URL preset: ${JSON.stringify(preset)}`);
       continue;
     }
@@ -34,5 +35,5 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
 
   console.log(`Uploaded ${newPresets.length} preset(s)`);
 
-  return newPresets;
+  return normaliseUrlPresets(newPresets);
 }

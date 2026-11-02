@@ -1,7 +1,8 @@
 /* eslint-disable no-console --  we are mocking the console */
 
-import { SupportedEntry } from 'ontime-types';
+import { OntimeView, SupportedEntry } from 'ontime-types';
 
+import { makeNewProject } from '../../../models/dataModel.js';
 import { demoDb } from '../../../models/demoProject.js';
 import { parseDatabaseModel } from '../db.parser.js';
 
@@ -114,4 +115,28 @@ describe('test parseDatabaseModel() edge cases', () => {
 
     expect(data.settings.auxTimerNames).toStrictEqual(['', '', '']);
   });
+});
+
+it('migrates preset aliases without losing collisions or changing preset settings', () => {
+  const project = makeNewProject();
+  project.urlPresets = ['Stage', 'stage', 'stage-2', 'STAGE'].map((alias, index) => ({
+    alias,
+    target: OntimeView.Cuesheet,
+    enabled: index !== 1,
+    displayInNav: true,
+    search: 'title=MainStage',
+    options: { read: 'full', write: index === 0 ? 'full' : '-' },
+  }));
+  const original = structuredClone(project);
+
+  const { data, migrated } = parseDatabaseModel(project);
+
+  expect(migrated).toBe(true);
+  expect(data.urlPresets).toEqual(
+    ['stage', 'stage-3', 'stage-2', 'stage-4'].map((alias, index) => ({ ...original.urlPresets[index], alias })),
+  );
+  expect(project).toEqual(original);
+  const reloaded = parseDatabaseModel(data);
+  expect(reloaded.migrated).toBe(false);
+  expect(reloaded.data.urlPresets).toEqual(data.urlPresets);
 });

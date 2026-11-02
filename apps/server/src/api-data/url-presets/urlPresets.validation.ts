@@ -9,7 +9,7 @@ import { requestValidationFunction } from '../../middleware/validation.js';
 export const validateNewPreset = [
   body().isObject().withMessage('No data found in request'),
   body('enabled').isBoolean(),
-  body('alias').isString().trim().notEmpty(),
+  body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
   body('search').isString().trim(),
   body('displayInNav').isBoolean(),
@@ -22,10 +22,10 @@ export const validateNewPreset = [
 ];
 
 export const validateUpdatePreset = [
-  param('alias').isString().trim().notEmpty(),
+  param('alias').isString().trim().notEmpty().toLowerCase(),
   body().isObject().withMessage('No data found in request'),
   body('enabled').isBoolean(),
-  body('alias').isString().trim().notEmpty(),
+  body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
   body('search').isString().trim(),
   body('displayInNav').isBoolean(),
@@ -37,4 +37,7 @@ export const validateUpdatePreset = [
   requestValidationFunction,
 ];
 
-export const validatePresetParam = [param('alias').isString().trim().notEmpty(), requestValidationFunction];
+export const validatePresetParam = [
+  param('alias').isString().trim().notEmpty().toLowerCase(),
+  requestValidationFunction,
+];
