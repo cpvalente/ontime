@@ -1,4 +1,4 @@
-import { OntimeDelay, OntimeEntry, OntimeEvent, OntimeGroup, Rundown, SupportedEntry } from 'ontime-types';
+import { OntimeDelay, OntimeEntry, OntimeEvent, Rundown, SupportedEntry } from 'ontime-types';
 import { createEvent, createGroup } from 'ontime-utils';
 
 import { isStaleRundown, optimisticDeleteEntries, patchEntry } from '../entryAction.utils';
@@ -51,6 +51,7 @@ describe('isStaleRundown', () => {
 });
 
 describe('optimisticDeleteEntries', () => {
+  // createEvent drops the parent, so we set it here
   const event = (id: string, parent: string | null = null): OntimeEvent => ({
     ...(createEvent({ id }) as OntimeEvent),
     parent,
@@ -72,42 +73,39 @@ describe('optimisticDeleteEntries', () => {
     revision: 1,
   });
 
-  it('removes a child without mutating the given rundown', () => {
+  // the server edits the group once per removed child, advancing its revision each time
+  it('removes children from their group, as the server does, without mutating the given rundown', () => {
     const rundown = makeRundown();
     const before = structuredClone(rundown);
 
-    const { entries, order, flatOrder } = optimisticDeleteEntries(['a'], rundown);
+    const result = optimisticDeleteEntries(['a', 'c'], rundown);
 
     expect(rundown).toStrictEqual(before);
-    expect(entries.group).not.toBe(rundown.entries.group);
-    expect((entries.group as OntimeGroup).entries).toEqual(['b', 'c']);
-    expect(entries.a).toBeUndefined();
-    expect(order).toEqual(['group', 'd']);
-    expect(flatOrder).toEqual(['group', 'b', 'c', 'd']);
+    expect(result).toStrictEqual({
+      entries: {
+        group: { ...rundown.entries.group, entries: ['b'], revision: 2 },
+        b: rundown.entries.b,
+        d: rundown.entries.d,
+      },
+      order: ['group', 'd'],
+      flatOrder: ['group', 'b', 'd'],
+    });
   });
 
   it('removes a group together with its children', () => {
-    const { entries, order, flatOrder } = optimisticDeleteEntries(['group'], makeRundown());
+    const rundown = makeRundown();
 
-    expect(Object.keys(entries)).toEqual(['d']);
-    expect(order).toEqual(['d']);
-    expect(flatOrder).toEqual(['d']);
+    expect(optimisticDeleteEntries(['group'], rundown)).toStrictEqual({
+      entries: { d: rundown.entries.d },
+      order: ['d'],
+      flatOrder: ['d'],
+    });
   });
 
   it('ignores ids which are not in the rundown', () => {
-    const { entries, order, flatOrder } = optimisticDeleteEntries(['missing', 'd'], makeRundown());
+    const rundown = makeRundown();
+    const { entries, order, flatOrder } = rundown;
 
-    expect(Object.keys(entries)).toEqual(['group', 'a', 'b', 'c']);
-    expect(order).toEqual(['group']);
-    expect(flatOrder).toEqual(['group', 'a', 'b', 'c']);
-  });
-
-  it('removes several siblings and keeps the rest', () => {
-    const { entries, order, flatOrder } = optimisticDeleteEntries(['a', 'c'], makeRundown());
-
-    expect((entries.group as OntimeGroup).entries).toEqual(['b']);
-    expect(Object.keys(entries)).toEqual(['group', 'b', 'd']);
-    expect(order).toEqual(['group', 'd']);
-    expect(flatOrder).toEqual(['group', 'b', 'd']);
+    expect(optimisticDeleteEntries(['missing'], rundown)).toStrictEqual({ entries, order, flatOrder });
   });
 });
