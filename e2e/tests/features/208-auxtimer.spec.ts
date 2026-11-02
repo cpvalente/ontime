@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/override';
 
 test('Aux timer buttons', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
   await page.getByTestId('time-input-aux1').click();
   await page.getByTestId('time-input-aux1').fill('123456');
   await page.getByTestId('time-input-aux1').press('Enter');

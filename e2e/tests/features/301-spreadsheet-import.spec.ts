@@ -5,7 +5,7 @@ import { expect, test } from '../fixtures/override';
 const fileToUpload = 'e2e/tests/fixtures/Ontime rundown template v4.xlsx';
 
 test('imports spreadsheet and applies imported rundown to editor', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear the rundown

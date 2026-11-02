@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/override';
 
 test('View params configures timer view', async ({ page }) => {
-  await page.goto('/timer');
+  await page.goto('timer');
 
   await expect(page.getByText('TIME NOW')).toBeInViewport();
 
@@ -20,7 +20,7 @@ test('View params configures timer view', async ({ page }) => {
  */
 test('View params keeps the values of collapsed sections', async ({ page }) => {
   // hideClock lives in the section we are about to collapse
-  await page.goto('/timer?hideClock=true');
+  await page.goto('timer?hideClock=true');
   await expect(page.getByText('TIME NOW', { exact: true })).not.toBeInViewport();
 
   await page.mouse.move(Math.random() * 100, Math.random() * 100);

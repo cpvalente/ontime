@@ -1,13 +1,13 @@
 import { expect, test } from '../fixtures/override';
 
 test('cuesheet displays events', async ({ page }) => {
-  await page.goto('/cuesheet');
+  await page.goto('cuesheet');
   await expect(page.getByTestId('cuesheet')).toBeVisible();
   await expect(page.getByTestId('cuesheet-event').first()).toBeVisible();
 });
 
 test('cuesheet persists column visibility', async ({ page }) => {
-  await page.goto('/cuesheet');
+  await page.goto('cuesheet');
 
   const noteHeader = page.getByRole('columnheader', { name: 'Note', exact: true });
   const noteCell = page.getByTestId('cuesheet-event').first().getByTestId('cuesheet-cell-note');
@@ -26,7 +26,7 @@ test('cuesheet persists column visibility', async ({ page }) => {
 });
 
 test('cuesheet datagrid does not submit timer cells on tab-out or escape', async ({ page }) => {
-  await page.goto('/cuesheet');
+  await page.goto('cuesheet');
 
   const firstEvent = page.getByTestId('cuesheet-event').first();
   await expect(firstEvent).toBeVisible();
@@ -73,7 +73,7 @@ test('cuesheet datagrid does not submit timer cells on tab-out or escape', async
 });
 
 test('cuesheet datagrid keeps keyboard focus flow while editing text cells', async ({ page }) => {
-  await page.goto('/cuesheet');
+  await page.goto('cuesheet');
 
   const firstEvent = page.getByTestId('cuesheet-event').first();
   await expect(firstEvent).toBeVisible();
@@ -126,7 +126,7 @@ test('cuesheet datagrid keeps keyboard focus flow while editing text cells', asy
 
 test('cuesheet background edit from empty state', async ({ page }) => {
   // create an empty rundown
-  await page.goto('/editor');
+  await page.goto('editor');
   await page.getByRole('button', { name: 'Toggle settings' }).click();
   await page.getByRole('button', { name: 'Manage rundowns' }).click();
   await page.getByRole('button', { name: 'New' }).nth(1).click();

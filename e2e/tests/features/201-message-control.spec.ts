@@ -4,8 +4,8 @@ test('message control sends messages to screens', async ({ context }) => {
   const editorPage = await context.newPage();
   const featurePage = await context.newPage();
 
-  await editorPage.goto('/messagecontrol');
-  await featurePage.goto('/timer');
+  await editorPage.goto('messagecontrol');
+  await featurePage.goto('timer');
 
   // the message overlay is always rendered and shown by fading it in
   const messageOverlay = featurePage.locator('.message-overlay');
