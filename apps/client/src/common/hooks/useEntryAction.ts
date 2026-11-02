@@ -474,23 +474,40 @@ export function useEntryActions(scopedRundownId: string) {
   );
 
   /**
-   * Updates time of existing event so it satisfies the group target duration
+   * Calls mutation to fit an event to its group target duration
+   * @private
+   */
+  const { mutateAsync: fitGroupDurationMutation } = useMutation({
+    mutationFn: ([rundownId, eventId]: Parameters<typeof requestFitGroupTarget>) =>
+      requestFitGroupTarget(rundownId, eventId),
+    onMutate: ([rundownId]) => queryClient.cancelQueries({ queryKey: getRundownCacheKey(rundownId) }),
+    onSuccess: (response, [rundownId]) => {
+      if (!response.data) return;
+      applyRundownResponse(getRundownCacheKey(rundownId), response.data);
+    },
+    onSettled: (_data, _error, [rundownId]) => {
+      void queryClient.invalidateQueries({ queryKey: getRundownCacheKey(rundownId) });
+    },
+  });
+
+  /**
+   * Updates duration of existing event so it satisfies the group target duration
    * @param eventId {EntryId} - id of the event
    */
   const matchGroupDuration = useCallback(
     async (eventId: EntryId) => {
-      const rundownId = getCurrentRundownData()?.id;
-      if (!rundownId) {
-        throw new Error('Rundown not initialised');
-      }
-
       try {
-        await requestFitGroupTarget(rundownId, eventId);
+        const rundownId = getCurrentRundownData()?.id;
+        if (!rundownId) {
+          throw new Error('Rundown not initialised');
+        }
+
+        await fitGroupDurationMutation([rundownId, eventId]);
       } catch (error) {
-        logAxiosError('Error updating event', error);
+        logAxiosError('Error fitting event to group duration', error);
       }
     },
-    [getCurrentRundownData],
+    [fitGroupDurationMutation, getCurrentRundownData],
   );
 
   /**
