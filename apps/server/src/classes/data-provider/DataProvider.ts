@@ -4,6 +4,7 @@ import {
   AutomationSettings,
   CustomFields,
   DatabaseModel,
+  LogOrigin,
   ProjectData,
   ProjectRundowns,
   Rundown,
@@ -12,7 +13,9 @@ import {
   TeleprompterSettings,
   ViewSettings,
 } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
 
+import * as logger from '../../api-data/logs/logs.service.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isPath } from '../../utils/fileManagement.js';
 import { safeMerge } from './DataProvider.utils.js';
@@ -252,7 +255,7 @@ async function persist() {
       activeWrite = db.write();
       await activeWrite;
     } catch (error) {
-      console.error('Failed to persist database:', error);
+      logger.error(LogOrigin.Server, 'Project save failed', { error: getErrorMessage(error) });
     } finally {
       activeWrite = null;
     }

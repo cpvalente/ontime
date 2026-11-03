@@ -14,8 +14,6 @@ export function parseProjectData(data: Partial<DatabaseModel>, emitError?: Error
     return defaultProject;
   }
 
-  console.log('Found project data, importing...');
-
   return {
     title: data.project.title ?? defaultProject.title,
     description: data.project.description ?? defaultProject.description,
