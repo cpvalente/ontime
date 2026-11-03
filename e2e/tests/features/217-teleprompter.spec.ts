@@ -122,15 +122,18 @@ test('every screen shows the same lines, each sized to fit the text width', asyn
     await page.setViewportSize({ width, height });
     await page.goto(remoteUrl);
     await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
-    const fit = await page.locator('.teleprompter__content').evaluate((content) => {
-      const rows = [...content.querySelectorAll<HTMLElement>('.teleprompter__row--text')];
-      return {
-        overflowing: rows.filter((row) => row.scrollWidth > row.clientWidth + 1).length,
-        widest: Math.max(...rows.map((row) => row.scrollWidth)) / content.clientWidth,
-      };
-    });
-    expect(fit.overflowing).toBe(0);
-    expect(fit.widest).toBeGreaterThan(0.85);
+    // the text is sized again once the web font loads
+    await page.evaluate(() => document.fonts.ready);
+    const fit = () =>
+      page.locator('.teleprompter__content').evaluate((content) => {
+        const rows = [...content.querySelectorAll<HTMLElement>('.teleprompter__row--text')];
+        return {
+          overflowing: rows.filter((row) => row.scrollWidth > row.clientWidth + 1).length,
+          widest: Math.max(...rows.map((row) => row.scrollWidth)) / content.clientWidth,
+        };
+      });
+    await expect.poll(async () => (await fit()).overflowing).toBe(0);
+    expect((await fit()).widest).toBeGreaterThan(0.85);
     return rowTexts(page);
   };
 
