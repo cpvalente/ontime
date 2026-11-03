@@ -5,10 +5,10 @@ import { getErrorMessage } from 'ontime-utils';
 import * as logger from './api-data/logs/logs.service.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { stopServices } from './server.js';
+import { recordCrash, sendCrashToCloud } from './services/crash-service/crash.service.js';
 import { environment, isProduction } from './setup/environment.js';
 import { publicDir, srcDir } from './setup/index.js';
 import { consoleError, consoleHighlight } from './utils/console.js';
-import { generateCrashReport } from './utils/generateCrashReport.js';
 
 /**
  * Process entry for the server bundle, used by electron and the node entry (index.ts)
@@ -66,23 +66,25 @@ async function performShutdown(exitCode: number): Promise<void> {
 
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
-process.on('unhandledRejection', async (error) => {
-  if (!isProduction && error instanceof Error && error.stack) {
-    consoleError(error.stack);
-  }
-  generateCrashReport(error);
-  logger.crash(LogOrigin.Server, 'Uncaught rejection', { error: String(error) });
-  await shutdown(1);
-});
+let isCrashing = false;
 
-process.on('uncaughtException', async (error) => {
-  if (!isProduction && error instanceof Error && error.stack) {
-    consoleError(error.stack);
+/**
+ * Records a crash and exits, the first crash owns the report, later ones are only logged
+ */
+async function handleCrash(message: string, error: unknown) {
+  if (isCrashing) {
+    logger.crash(LogOrigin.Server, message, { error: getErrorMessage(error) });
+    return;
   }
-  generateCrashReport(error);
-  logger.crash(LogOrigin.Server, 'Uncaught exception', { error: String(error) });
+  isCrashing = true;
+
+  const report = recordCrash(message, error);
+  await sendCrashToCloud(report);
   await shutdown(1);
-});
+}
+
+process.on('unhandledRejection', (error) => handleCrash('Uncaught rejection', error));
+process.on('uncaughtException', (error) => handleCrash('Uncaught exception', error));
 
 // register shutdown signals
 process.once('SIGHUP', async () => shutdown(0));

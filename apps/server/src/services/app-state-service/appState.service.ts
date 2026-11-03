@@ -2,7 +2,9 @@ import { randomUUID } from 'node:crypto';
 
 import { Low } from 'lowdb';
 import { JSONFile } from 'lowdb/node';
+import type { Instant } from 'ontime-types';
 
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
 import { shouldCrashDev } from '../../utils/development.js';
 import { isPath } from '../../utils/fileManagement.js';
@@ -14,6 +16,8 @@ interface AppState {
   serverPort?: number;
   /** false while a session runs, until it shuts down cleanly */
   sessionEndedCleanly?: boolean;
+  /** when the running, or last, session started */
+  sessionStartedAt?: Instant;
   /** identifies this server, kept across restarts */
   nodeId?: string;
 }
@@ -59,17 +63,18 @@ export async function setShowWelcomeDialog(show: boolean): Promise<boolean> {
 }
 
 /**
- * Marks this session as running, and tells whether the previous one ended cleanly
+ * Marks this session as running, and tells whether the previous one ended cleanly and when it started
  * Creates the node id on the first start
  * A session which crashed or lost power never ends cleanly
  */
-export async function startSession(): Promise<boolean> {
+export async function startSession(): Promise<{ endedCleanly: boolean; startedAt: Instant | undefined }> {
   await config.read();
-  const previousEndedCleanly = config.data.sessionEndedCleanly ?? true;
+  const previous = { endedCleanly: config.data.sessionEndedCleanly ?? true, startedAt: config.data.sessionStartedAt };
   config.data.sessionEndedCleanly = false;
+  config.data.sessionStartedAt = timeCore.now();
   config.data.nodeId ??= randomUUID();
   await config.write();
-  return previousEndedCleanly;
+  return previous;
 }
 
 /**

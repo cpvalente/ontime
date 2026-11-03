@@ -10,6 +10,8 @@ import { srcFiles } from './setup/index.js';
 // =================================================
 export const password = process.env.SESSION_PASSWORD;
 export const routerPrefix = process.env.ROUTER_PREFIX;
+/** where a cloud instance sends its crashes, other hosts never send them */
+export const crashReportUrl = process.env.CRASH_REPORT_URL;
 
 /**
  * Updates the router prefix in the index.html file

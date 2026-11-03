@@ -29,7 +29,7 @@ export function parseLogLine(line: string, offset: number): Log | null {
 }
 
 /** ISO 8601 in the server's timezone, users search the times they saw on the clock */
-function toLocalIsoString(at: number): string {
+export function toLocalIsoString(at: number): string {
   const offsetMinutes = -new Date(at).getTimezoneOffset();
   const local = new Date(at + offsetMinutes * MILLIS_PER_MINUTE).toISOString().slice(0, -1);
   const sign = offsetMinutes >= 0 ? '+' : '-';

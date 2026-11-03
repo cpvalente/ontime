@@ -12,20 +12,23 @@ beforeEach(async () => {
 
 describe('session', () => {
   it('treats a first start as following a clean session', async () => {
-    await expect(appState.startSession()).resolves.toBe(true);
+    await expect(appState.startSession()).resolves.toEqual({ endedCleanly: true, startedAt: undefined });
   });
 
   it('knows a session which ended cleanly', async () => {
     await appState.startSession();
     await appState.endSession();
 
-    await expect(appState.startSession()).resolves.toBe(true);
+    await expect(appState.startSession()).resolves.toMatchObject({ endedCleanly: true });
   });
 
-  it('knows a session which never ended cleanly', async () => {
+  it('knows a session which never ended cleanly, and when it started', async () => {
+    const before = Date.now();
     await appState.startSession();
 
-    await expect(appState.startSession()).resolves.toBe(false);
+    const previous = await appState.startSession();
+    expect(previous.endedCleanly).toBe(false);
+    expect(previous.startedAt).toBeGreaterThanOrEqual(before);
   });
 });
 

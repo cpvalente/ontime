@@ -33,6 +33,7 @@ Validate shape and domain constraints at the owning boundary. Keep existing pars
 - Never commit/log passwords, hashes, tokens, credentials, cookies, private project content.
 - Errors: useful, but no internal paths, stacks, credentials, sensitive payloads.
 - Keep tokens in existing session/authenticated-share flows. Avoid new URL-token patterns.
+- Crash reports stay on the machine. Only a cloud instance sends crash data, to `CRASH_REPORT_URL`, and never its rundown or runtime state.
 
 ## Review prompts
 
