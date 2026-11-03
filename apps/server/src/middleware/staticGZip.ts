@@ -1,3 +1,4 @@
+import { ServerResponse } from 'node:http';
 import { extname } from 'node:path';
 
 import expressStaticGzip from 'express-static-gzip';
@@ -17,7 +18,7 @@ export const compressedStatic = expressStaticGzip(srcDir.clientDir, {
     lastModified: false,
     immutable: true,
     maxAge: '1y',
-    setHeaders: (res, file) => {
+    setHeaders: (res: ServerResponse, file: string) => {
       // make sure the HTML files are always revalidated
       if (extname(file) === '.html') {
         res.setHeader('Cache-Control', 'public, max-age=0');
