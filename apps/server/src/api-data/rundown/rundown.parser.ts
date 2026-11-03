@@ -59,7 +59,6 @@ export function parseRundowns(
 
   // parse all the rundowns individually
   for (const id of iterableRundownsIds) {
-    console.log('Found rundown, importing...');
     const rundown = data.rundowns[id];
     const parsedRundown = parseRundown(rundown, parsedCustomFields, emitError);
     parsedRundowns[parsedRundown.id] = parsedRundown;
@@ -181,7 +180,6 @@ export function parseRundown(
     }
   }
 
-  console.log(`Imported rundown ${parsedRundown.title} with ${parsedRundown.flatOrder.length} entries`);
   return parsedRundown;
 }
 

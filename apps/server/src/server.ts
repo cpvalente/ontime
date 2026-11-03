@@ -24,6 +24,7 @@ import { bodyParser } from './middleware/bodyParser.js';
 import { compressData } from './middleware/compression.middleware.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { clearUploadfolder } from './middleware/upload.js';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { endSession, getShowWelcomeDialog, startSession } from './services/app-state-service/appState.service.js';
 import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
 import * as messageService from './services/message-service/message.service.js';
@@ -38,7 +39,7 @@ import {
   shutdownTeleprompter,
 } from './services/teleprompter-service/teleprompter.service.js';
 import { config, timerConfig } from './setup/config.js';
-import { isProduction } from './setup/environment.js';
+import { isProduction, systemInfo } from './setup/environment.js';
 // import utils
 import { publicDir, publicFiles, srcFiles } from './setup/index.js';
 import { populateDemo } from './setup/loadDemo.js';
@@ -179,6 +180,12 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   ensureDirectory(publicDir.logsDir);
   const sessionLog = createSessionLog(publicFiles.logFile, publicFiles.previousLogFile);
   logger.init(sessionLog, escalateErrorFn);
+  // a downloaded log describes the system it came from
+  logger.info(LogOrigin.Server, 'Session started', {
+    version: ONTIME_VERSION,
+    ...systemInfo,
+    data: publicDir.root,
+  });
 
   const previousEndedCleanly = await startSession();
   if (!previousEndedCleanly) {

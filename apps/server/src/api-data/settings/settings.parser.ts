@@ -15,8 +15,6 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     throw new Error('ERROR: unable to parse settings, missing or incorrect version');
   }
 
-  console.log('Found settings, importing...');
-
   return {
     version: defaultSettings.version,
     editorKey: data.settings.editorKey ?? defaultSettings.editorKey,

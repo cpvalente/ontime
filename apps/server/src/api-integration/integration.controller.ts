@@ -1,5 +1,6 @@
 import {
   ApiActionTag,
+  LogOrigin,
   MessageState,
   OffsetMode,
   OntimeEvent,
@@ -11,6 +12,7 @@ import { MILLIS_PER_HOUR } from 'ontime-utils';
 import { DeepPartial } from 'ts-essentials';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import * as logger from '../api-data/logs/logs.service.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
@@ -27,12 +29,31 @@ import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+/** actions which change playback, the log tells who sent them; others are reads or repeat while typing */
+const attributedActions = new Set<string>([
+  'start',
+  'pause',
+  'stop',
+  'reload',
+  'roll',
+  'load',
+  'addtime',
+  'auxtimer',
+  'offsetmode',
+]);
+
+/**
+ * @param client - name of the websocket client which sent the action
+ */
+export function dispatchFromAdapter(tag: string, payload: unknown, source: 'osc' | 'ws' | 'http', client?: string) {
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
+    if (attributedActions.has(action)) {
+      logger.info(LogOrigin.Api, 'Action received', { action, source, client });
+    }
     return handler(payload);
   } else {
     throw new Error(`Unhandled message ${tag}`);

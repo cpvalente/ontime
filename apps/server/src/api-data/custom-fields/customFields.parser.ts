@@ -11,8 +11,6 @@ export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: Erro
     emitError?.('No data found to import');
     return {};
   }
-  console.log('Found Custom Fields, importing...');
-
   const customFields = sanitiseCustomFields(data.customFields);
 
   if (Object.keys(customFields).length !== Object.keys(data.customFields).length) {
