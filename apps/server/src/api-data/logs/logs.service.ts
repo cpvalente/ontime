@@ -119,4 +119,5 @@ export function shutdown() {
   pending = [];
   recent = [];
   sessionLog = null;
+  escalateErrorFn = null;
 }

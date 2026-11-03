@@ -27,7 +27,6 @@ import { clearUploadfolder } from './middleware/upload.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { endSession, getShowWelcomeDialog, startSession } from './services/app-state-service/appState.service.js';
 import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
-import { findCrashReport } from './services/crash-service/crash.service.js';
 import * as messageService from './services/message-service/message.service.js';
 import { initialiseProject } from './services/project-service/project.service.js';
 import { restoreService } from './services/restore-service/restore.service.js';
@@ -188,11 +187,9 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
     data: publicDir.root,
   });
 
-  const previousSession = await startSession();
-  if (!previousSession.endedCleanly) {
-    // a session which lost power has no report, an older report belongs to an earlier crash
-    const report = previousSession.startedAt === undefined ? undefined : findCrashReport(previousSession.startedAt);
-    logger.warning(LogOrigin.Server, 'Previous session did not end cleanly', { log: config.logs.previous, report });
+  const previousEndedCleanly = await startSession();
+  if (!previousEndedCleanly) {
+    logger.warning(LogOrigin.Server, 'Previous session did not end cleanly', { log: config.logs.previous });
   }
 
   // load restore point if it exists

@@ -5,7 +5,7 @@ import { getErrorMessage } from 'ontime-utils';
 import * as logger from './api-data/logs/logs.service.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { stopServices } from './server.js';
-import { recordCrash, sendCrashToCloud } from './services/crash-service/crash.service.js';
+import { recordCrash } from './services/crash-service/crash.service.js';
 import { environment, isProduction } from './setup/environment.js';
 import { publicDir, srcDir } from './setup/index.js';
 import { consoleError, consoleHighlight } from './utils/console.js';
@@ -27,6 +27,7 @@ if (!canLog) {
 }
 
 let shutdownPromise: Promise<void> | null = null;
+let isCrashing = false;
 
 /**
  * Clean shutdown app services
@@ -38,7 +39,8 @@ export async function shutdown(exitCode = 0): Promise<void> {
     return shutdownPromise;
   }
 
-  shutdownPromise = performShutdown(exitCode);
+  // a crash keeps its exit code, eg: the electron crash dialog asks for a clean quit
+  shutdownPromise = performShutdown(isCrashing ? 1 : exitCode);
   return shutdownPromise;
 }
 
@@ -66,8 +68,6 @@ async function performShutdown(exitCode: number): Promise<void> {
 
 process.on('exit', (code) => consoleHighlight(`Ontime shutdown with code: ${code}`));
 
-let isCrashing = false;
-
 /**
  * Records a crash and exits, the first crash owns the report, later ones are only logged
  */
@@ -78,9 +78,11 @@ async function handleCrash(message: string, error: unknown) {
   }
   isCrashing = true;
 
-  const report = recordCrash(message, error);
-  await sendCrashToCloud(report);
-  await shutdown(1);
+  try {
+    recordCrash(message, error);
+  } finally {
+    await shutdown(1);
+  }
 }
 
 process.on('unhandledRejection', (error) => handleCrash('Uncaught rejection', error));
