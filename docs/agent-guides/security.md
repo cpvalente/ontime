@@ -33,7 +33,7 @@ Validate shape and domain constraints at the owning boundary. Keep existing pars
 - Never commit/log passwords, hashes, tokens, credentials, cookies, private project content.
 - Errors: useful, but no internal paths, stacks, credentials, sensitive payloads.
 - Keep tokens in existing session/authenticated-share flows. Avoid new URL-token patterns.
-- Crash reports hold project content and stay in the data folder; nothing uploads them. Hosts collect crashes from the SEVERE line and stack on stderr.
+- Crash reports hold project content and stay in the data folder; nothing uploads them.
 
 ## Review prompts
 

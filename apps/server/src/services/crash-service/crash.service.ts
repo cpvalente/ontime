@@ -24,10 +24,10 @@ const maxReports = 10;
 export function recordCrash(message: string, maybeError: unknown) {
   const at = timeCore.now();
   const fileName = getCrashReportName(at);
-  const error =
-    maybeError instanceof Error
-      ? { message: maybeError.message, stack: maybeError.stack }
-      : { message: String(maybeError) };
+  const error = {
+    message: getErrorMessage(maybeError),
+    stack: maybeError instanceof Error ? maybeError.stack : undefined,
+  };
   const text = logger.crash(LogOrigin.Server, message, { error: error.message, report: fileName });
   // docker and cloud operators read stderr, the crash line above is mirrored there
   if (error.stack) {
