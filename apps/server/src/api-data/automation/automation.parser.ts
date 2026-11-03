@@ -10,8 +10,6 @@ export function parseAutomationSettings(data: Partial<DatabaseModel>, emitError?
     emitError?.('No data found to import');
     return defaultAutomation;
   }
-  console.log('Found Automation settings, importing...');
-
   return {
     enabledAutomations: data.automation.enabledAutomations ?? defaultAutomation.enabledAutomations,
     enabledOscIn: data.automation.enabledOscIn ?? defaultAutomation.enabledOscIn,

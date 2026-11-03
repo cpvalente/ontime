@@ -149,7 +149,7 @@ class SocketServer implements IAdapter {
               tag satisfies never;
               // Protocol specific stuff handled above
               try {
-                const reply = await dispatchFromAdapter(tag, payload, 'ws');
+                const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
                 if (reply) {
                   ws.send(
                     JSON.stringify({

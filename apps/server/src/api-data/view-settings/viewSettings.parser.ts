@@ -14,8 +14,6 @@ export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: Erro
     return defaultViewSettings;
   }
 
-  console.log('Found view settings, importing...');
-
   return {
     dangerColor: data.viewSettings.dangerColor ?? defaultViewSettings.dangerColor,
     normalColor: data.viewSettings.normalColor ?? defaultViewSettings.normalColor,
