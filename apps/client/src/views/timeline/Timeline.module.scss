@@ -150,6 +150,13 @@ $timeline-color: color-mix(in srgb, transparent 60%, var(--background-color-over
   overflow-wrap: anywhere;
 }
 
+@media screen and (min-width: 1920px) {
+  .title {
+    font-size: clamp(1rem, calc(15 * var(--viewer-font-unit, 1px)), 2rem);
+    line-height: 1;
+  }
+}
+
 .delay {
   color: $ontime-delay-text;
 }
