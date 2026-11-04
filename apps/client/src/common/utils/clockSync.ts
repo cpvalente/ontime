@@ -4,6 +4,7 @@ import { dayInMs } from 'ontime-utils';
 /**
  * Client clock synchronisation
  * - Ping/Pong samples map the client's monotonic clock to the server's time of day (the offset)
+ * - the server time of day comes from its epoch and timezone offset, so it does not depend on the browser's timezone
  * - the least delayed of the latest samples is the estimate, a clock jump starts a new set
  * - the shown clock never moves backwards, so a correction never makes it visibly jump
  */
@@ -23,14 +24,15 @@ export function measurePong(
   if (sentAt === null || pong.payload !== sentAt) {
     return null;
   }
-  // The reply comes off the network: without a valid server clock it is not a sample.
-  if (!Number.isFinite(pong.clock)) {
+  // The reply comes off the network: without a valid server time it is not a sample.
+  if (!Number.isFinite(pong.epoch) || !Number.isFinite(pong.tzOffset)) {
     return null;
   }
 
   // A zero-delay reply still means online: non-positive ping values are status sentinels.
   const ping = Math.max(1, (receivedAt - sentAt) / 2);
-  return { ping, ...sampleClockOffset(samples, pong.clock, sentAt, receivedAt) };
+  const serverClock = toTimeOfDay(pong.epoch + pong.tzOffset);
+  return { ping, ...sampleClockOffset(samples, serverClock, sentAt, receivedAt) };
 }
 
 /** Maps the client's monotonic clock to server time, assuming symmetric network delay. */

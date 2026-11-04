@@ -7,13 +7,22 @@ export function now(): Instant {
 }
 
 /**
+ * Returns the offset of the local timezone from UTC at the given instant, in milliseconds
+ * - Positive east of UTC, so local time is instant + offset
+ * - Accounts for DST
+ */
+export function getTimezoneOffset(instant: Instant): Duration {
+  // getTimezoneOffset is positive west of UTC, subtracting from 0 avoids returning -0 for UTC
+  return (0 - new Date(instant).getTimezoneOffset() * MILLIS_PER_MINUTE) as Duration;
+}
+
+/**
  * Converts an instant to milliseconds since midnight in the local timezone
  * - Accounts for the system's timezone offset including DST
  * - Result is always in the range [0, dayInMs)
  */
 export function toTimeOfDay(instant: Instant): TimeOfDay {
-  const tzOffset = new Date(instant).getTimezoneOffset() * MILLIS_PER_MINUTE;
-  return ((((instant - tzOffset) % dayInMs) + dayInMs) % dayInMs) as TimeOfDay;
+  return ((((instant + getTimezoneOffset(instant)) % dayInMs) + dayInMs) % dayInMs) as TimeOfDay;
 }
 
 /**

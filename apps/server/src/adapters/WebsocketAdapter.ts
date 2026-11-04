@@ -30,7 +30,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { timeOfDayNow } from '../lib/time-core/timeCore.js';
+import { getTimezoneOffset, now } from '../lib/time-core/timeCore.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
@@ -119,7 +119,13 @@ class SocketServer implements IAdapter {
 
           switch (tag) {
             case MessageTag.Ping: {
-              const pong: WsPacketToClient = { tag: MessageTag.Pong, payload, clock: timeOfDayNow() };
+              const epoch = now();
+              const pong: WsPacketToClient = {
+                tag: MessageTag.Pong,
+                payload,
+                epoch,
+                tzOffset: getTimezoneOffset(epoch),
+              };
               ws.send(JSON.stringify(pong));
               break;
             }
