@@ -182,9 +182,10 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   }, [editorMode, selectionStore, reveal]);
 
   // The selection and, in Run, the live event stay visible when they move into a collapsed group.
-  // Keyed on the parent, so edits and a group the user collapses do not re-open it.
+  // Both are keyed on the parent, so edits and a group the user collapses do not re-open it.
   const cursorEntry = cursor ? entries[cursor] : undefined;
   const cursorParentId = cursorEntry && 'parent' in cursorEntry ? cursorEntry.parent : null;
+  // open the group the selection moved into
   useEffect(() => {
     if (!dnd.isDraggingRef.current) {
       expandGroup(cursorParentId);
@@ -192,11 +193,12 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   }, [cursorParentId, expandGroup, dnd.isDraggingRef]);
 
   const isRunMode = editorMode === AppMode.Run;
+  // in Run, open the group the live event moved into
   useEffect(() => {
     if (isRunMode && !dnd.isDraggingRef.current) {
       expandGroup(liveParentId);
     }
-  }, [isRunMode, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef]);
+  }, [isRunMode, liveParentId, expandGroup, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;

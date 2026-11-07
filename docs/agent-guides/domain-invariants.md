@@ -14,6 +14,12 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
   ungroup) only advance the rundown revision. Delays carry no revision. Optimistic client edits apply
   the same bump the server does, so an unchanged entry keeps its identity.
 
+## Rundown lists
+
+- Lists scroll on user intent, never on data changes. In Run they follow the live event until the user scrolls or navigates; a new live event or Alt+L follows again. Clicks, selection and edits never scroll.
+- Explicit navigation (finder, keyboard, title list) reveals with the smallest scroll, opening a collapsed group first.
+- A collapsed group opens only when the selection, or in Run the live event, moves into it. Edits never re-open a group the user collapsed.
+
 ## Persistence, realtime, cache
 
 - No partial commit on failure.

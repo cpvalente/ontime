@@ -55,6 +55,15 @@ function Harness() {
   );
 }
 
+// the collapsed groups store syncs through this event, as when the user collapses a group
+function collapseGroups(groupIds: string[]) {
+  window.dispatchEvent(
+    new CustomEvent('mantine-session-storage', {
+      detail: { key: 'rundown.test-editor-collapsed-groups', value: groupIds },
+    }),
+  );
+}
+
 async function render() {
   await act(async () => root.render(<Harness />));
 }
@@ -194,19 +203,30 @@ describe('Run mode follow', () => {
       expect(scrollToIndex).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
     });
 
+    it('keeps a group the user collapsed closed when the next event inside it goes live', async () => {
+      await moveLiveIntoGroup();
+      props = {
+        ...props,
+        entries: {
+          ...props.entries,
+          second: { ...createEvent({ id: 'second' })!, parent: 'group' },
+          group: createGroup({ id: 'group', entries: ['first', 'second'] }),
+        },
+        order: ['group'],
+        flatOrder: ['group', 'first', 'second'],
+      };
+      await render();
+      await act(async () => collapseGroups(['group']));
+      props = { ...props, featureData: { ...props.featureData, selectedEventId: 'second' } };
+      await render();
+      expect(visibleEntries()).not.toContain('second');
+    });
+
     it('opens the group without scrolling after the user scrolled', async () => {
       scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }));
       await moveLiveIntoGroup();
       expect(visibleEntries()).toContain('first');
       expect(scrollToIndex).not.toHaveBeenCalled();
-    });
-
-    it('opens the group when the selected entry moves into it', async () => {
-      mode = AppMode.Edit;
-      props = { ...props, featureData: { ...props.featureData, selectedEventId: null } };
-      await act(async () => scope.selectionStore.getState().setSingleEntrySelection({ id: 'first' }));
-      await moveLiveIntoGroup();
-      expect(visibleEntries()).toContain('first');
     });
   });
 
@@ -236,6 +256,26 @@ describe('Run mode follow', () => {
 describe('Edit mode reveals', () => {
   beforeEach(() => {
     mode = AppMode.Edit;
+  });
+
+  it('opens a collapsed group when the selected entry moves into it', async () => {
+    sessionStorage.setItem('rundown.test-editor-collapsed-groups', JSON.stringify(['group']));
+    props = { ...props, entries: { ...props.entries, group: createGroup({ id: 'group', entries: [] }) } };
+    withOrder(['first', 'group', 'second']);
+    scope.selectionStore.getState().setSingleEntrySelection({ id: 'first' });
+    await render();
+    props = {
+      ...props,
+      entries: {
+        ...props.entries,
+        first: { ...createEvent({ id: 'first' })!, parent: 'group' },
+        group: createGroup({ id: 'group', entries: ['first'] }),
+      },
+      order: ['group', 'second'],
+      flatOrder: ['group', 'first', 'second'],
+    };
+    await render();
+    expect(visibleEntries()).toContain('first');
   });
 
   it('reveals a finder target after expanding its group', async () => {
