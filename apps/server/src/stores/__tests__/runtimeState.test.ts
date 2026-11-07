@@ -457,24 +457,6 @@ describe('mutation on runtimeState', () => {
       expect(state.offset.relative).toBe(0);
     });
 
-    test('starting an event from another day begins a new run', async () => {
-      const { rundown, metadata } = await initThreeDays();
-
-      load(rundown.entries.day0 as PlayableEvent, rundown, metadata);
-      start(undefined, at('jan 1 09:00'));
-
-      // the operator moves on to rehearse the last day
-      at('jan 1 09:30');
-      load(rundown.entries.day2 as PlayableEvent, rundown, metadata);
-      start(undefined, at('jan 1 09:30'));
-
-      const state = getState();
-      expect(state.rundown.actualStart).toBe(9 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
-      expect(state.rundown.currentDay).toBe(2);
-      expect(state.offset.absolute).toBe(30 * MILLIS_PER_MINUTE);
-      expect(state.offset.relative).toBe(0);
-    });
-
     test('a show running past midnight keeps its run', async () => {
       clearState();
       const entries = {
