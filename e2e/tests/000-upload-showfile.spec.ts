@@ -7,8 +7,10 @@ test('project file upload', async ({ page }) => {
 
   // Try to close welcome modal if it appears (times out silently if not present)
   try {
-    await page.getByText('Welcome to Ontime').waitFor({ timeout: 1000 });
-    await page.getByRole('button', { name: 'close welcome modal' }).click();
+    // the title depends on how the server started, the close button is always there
+    const closeWelcome = page.getByRole('button', { name: 'close welcome modal' });
+    await closeWelcome.waitFor({ timeout: 1000 });
+    await closeWelcome.click();
   } catch {
     // Modal wasn't shown, continue with the test
   }

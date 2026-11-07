@@ -3,7 +3,14 @@ import http, { type Server } from 'http';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
+import {
+  LogOrigin,
+  Playback,
+  type ProjectStartup,
+  SimpleDirection,
+  SimplePlayback,
+  runtimeStorePlaceholder,
+} from 'ontime-types';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -172,6 +179,7 @@ const checkStart = (currentState: OntimeStartOrder) => {
 };
 
 let restorePoint: RestorePoint | null = null;
+let projectStartup: ProjectStartup | null = null;
 
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
@@ -192,7 +200,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   populateStyles();
   populateTranslation();
   await populateDemo();
-  await initialiseProject();
+  projectStartup = await initialiseProject();
 };
 
 /**
@@ -208,8 +216,11 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   const projectId = getDataProvider().getProjectId();
   const restored = restoreService.forProject(restorePoint, projectId);
   restoreService.initialise(restored);
-  const showWelcome = await getShowWelcomeDialog(restored?.runtime !== undefined);
-  socket.init(expressServer, showWelcome, prefix);
+  // any playback change saves a restore point, a stopped or armed timer has no show to interrupt
+  const playback = restored?.runtime?.playback;
+  const isShowRunning = playback !== undefined && playback !== Playback.Stop && playback !== Playback.Armed;
+  const showWelcome = await getShowWelcomeDialog(isShowRunning);
+  socket.init(expressServer, showWelcome ? projectStartup : null, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store

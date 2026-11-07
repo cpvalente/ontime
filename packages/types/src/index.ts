@@ -45,7 +45,7 @@ export type {
 } from './definitions/core/Automation.type.js';
 
 // ---> Project Data
-export type { ProjectData } from './definitions/core/ProjectData.type.js';
+export type { ProjectData, ProjectStartup } from './definitions/core/ProjectData.type.js';
 
 // ---> Settings
 export type { Settings } from './definitions/core/Settings.type.js';
