@@ -198,7 +198,21 @@
   width: clamp(4rem, 6vw, 5.5rem);
   padding-inline: 0;
   flex-shrink: 0;
-  font-size: 1.25rem;
+  font-size: 2rem;
+
+  &[data-speed='true'] {
+    span {
+      animation: blink 0.6s ease-in-out infinite alternate;
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    color: lightcoral;
+  }
+  100% {
+  }
 }
 
 .teleprompter__speed {
