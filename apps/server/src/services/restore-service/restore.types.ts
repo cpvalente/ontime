@@ -13,6 +13,8 @@ export type RuntimeRestore = {
   pausedDuration?: number;
   firstStart: MaybeNumber;
   startEpoch: Maybe<Instant>;
+  /** planned position of the event playback started from, missing in older restore points */
+  startPlanned?: MaybeNumber;
   currentDay: MaybeNumber;
   offsetMode: OffsetMode;
 };

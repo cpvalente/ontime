@@ -82,6 +82,10 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
+  if ('startPlanned' in point && !is.number(point.startPlanned) && point.startPlanned !== null) {
+    return false;
+  }
+
   if (!is.number(point.currentDay) && point.currentDay !== null) {
     return false;
   }
