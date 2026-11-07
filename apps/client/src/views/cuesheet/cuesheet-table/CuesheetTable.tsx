@@ -26,7 +26,9 @@ import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import { useRundownWithMetadata, useScopedSelectedEventId } from '../../../common/hooks-query/useRundown';
 import { useFlatEntries } from '../../../common/hooks-query/useRundownById';
 import type { RundownMetadataObject } from '../../../common/utils/rundownMetadata';
+import { useUserScrolled } from '../../../features/rundown/hooks/useUserScrolled';
 import { usePersistedRundownOptions } from '../../../features/rundown/rundown.options';
+import { makeRevealLocation } from '../../../features/rundown/rundown.utils';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { AppMode } from '../../../ontimeConfig';
 import { useTranslation } from '../../../translation/TranslationProvider';
@@ -91,6 +93,7 @@ export default function CuesheetTable({
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
 
   const virtuosoRef = useRef<TableVirtuosoHandle | null>(null);
+  const { userScrolledRef, scrollerRef } = useUserScrolled();
   const { listeners } = useTableNav();
 
   const options = useMemo(
@@ -144,9 +147,18 @@ export default function CuesheetTable({
     setColumnSizing({});
   }, [setColumnSizing]);
 
-  // in Run mode, follow the current event
+  const hasRows = flatRundown.length > 0;
+
+  // A new live event, entering Run mode or the first rows loading resumes following; the pin effect owns scrolling.
   useEffect(() => {
-    if (virtuosoRef.current === null || cuesheetMode !== AppMode.Run || !selectedEventId) {
+    if (cuesheetMode === AppMode.Run && selectedEventId && hasRows) {
+      userScrolledRef.current = false;
+    }
+  }, [cuesheetMode, hasRows, selectedEventId, userScrolledRef]);
+
+  // edits move rows around the current event: keep it pinned until the user scrolls the table themselves
+  useEffect(() => {
+    if (virtuosoRef.current === null || userScrolledRef.current || cuesheetMode !== AppMode.Run || !selectedEventId) {
       return;
     }
 
@@ -156,9 +168,11 @@ export default function CuesheetTable({
     }
 
     virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
-  }, [cuesheetMode, flatRundown, selectedEventId]);
+  }, [flatRundown, cuesheetMode, selectedEventId, userScrolledRef]);
 
   // Provide an imperative scroll handler for explicit jumps (finder/keyboard)
+  // reveals the entry with the smallest scroll, and only if it is not already in view
+  // navigating means the user took over, so Run stops following until the next event
   useEffect(() => {
     const handler = (entryId: string) => {
       if (virtuosoRef.current === null) {
@@ -170,7 +184,12 @@ export default function CuesheetTable({
         return;
       }
 
-      virtuosoRef.current.scrollToIndex({ index: eventIndex, behavior: 'auto', align: 'start', offset: -50 });
+      virtuosoRef.current.scrollIntoView({
+        index: eventIndex,
+        behavior: 'auto',
+        calculateViewLocation: revealLocation,
+      });
+      userScrolledRef.current = true;
     };
 
     setScrollHandler(handler);
@@ -178,7 +197,7 @@ export default function CuesheetTable({
     return () => {
       setScrollHandler(null);
     };
-  }, [flatRundown, setScrollHandler]);
+  }, [flatRundown, setScrollHandler, userScrolledRef]);
 
   /**
    * To improve performance on resizing, we memoise the column sizes
@@ -267,6 +286,7 @@ export default function CuesheetTable({
       ) : (
         <TableVirtuoso
           ref={virtuosoRef}
+          scrollerRef={scrollerRef}
           data={flatRundown}
           context={virtuosoContext}
           style={tableRoot === 'editor' ? { paddingLeft: '1rem' } : undefined}
@@ -419,6 +439,9 @@ const CuesheetTableRow = memo(function CuesheetTableRow({
     />
   );
 });
+
+// keep the neighbouring rows in view around a revealed row
+const revealLocation = makeRevealLocation(50);
 
 const virtuosoComponents: TableComponents<OntimeEntry, CuesheetVirtuosoContext> = {
   Table: CuesheetTableElement,
