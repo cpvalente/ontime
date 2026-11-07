@@ -1,4 +1,4 @@
-import { copyFile } from 'fs/promises';
+import { copyFile, rm } from 'fs/promises';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
@@ -213,6 +213,21 @@ export async function initialiseProject(): Promise<ProjectStartup> {
     project: removeFileExtension(newName),
     failedProject: removeFileExtension(lastLoaded.projectName),
   };
+}
+
+/**
+ * Loads a project file which was just uploaded
+ * An upload which fails to load is removed, so it does not stay in the project list
+ * @throws
+ * @param fileName file name of the upload in the projects folder, including the extension
+ */
+export async function loadUploadedProject(fileName: string): Promise<string> {
+  try {
+    return await loadProjectFile(fileName);
+  } catch (error) {
+    await rm(getPathToProject(fileName), { force: true }).catch(() => {});
+    throw error;
+  }
 }
 
 /**
