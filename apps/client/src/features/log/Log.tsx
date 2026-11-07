@@ -8,7 +8,7 @@ import Button from '../../common/components/buttons/Button';
 import ToggleButton from '../../common/components/buttons/ToggleButton';
 import { DropdownMenu } from '../../common/components/dropdown-menu/DropdownMenu';
 import Input from '../../common/components/input/input/Input';
-import { useServerLog } from '../../common/hooks-query/useServerLog';
+import { serverLogPollInterval, useServerLog } from '../../common/hooks-query/useServerLog';
 import { useLogData } from '../../common/stores/logger';
 import { cx } from '../../common/utils/styleUtils';
 
@@ -32,7 +32,7 @@ async function download(session: 'current' | 'previous') {
 }
 
 export default function Log() {
-  const serverLogs = useServerLog();
+  const { serverLogs, isPending } = useServerLog();
   const { logs: localLogs } = useLogData();
   const isExtracted = window.location.pathname.includes('/log');
 
@@ -69,7 +69,7 @@ export default function Log() {
             { type: 'item', label: 'Previous session', onClick: () => download('previous') },
           ]}
         >
-          <IoDownloadOutline /> <span className={style.actionLabel}>Download</span> <IoChevronDown />
+          <IoDownloadOutline /> <span className={style.actionLabel}>Download log</span> <IoChevronDown />
         </DropdownMenu>
       </div>
       <div className={style.filters} role='group' aria-label='Filter log entries'>
@@ -89,7 +89,9 @@ export default function Log() {
         </ToggleButton>
       </div>
       <ul className={style.log} aria-label='Event log entries'>
-        {entries.length === 0 && <li className={style.empty}>No entries match the search and filters.</li>}
+        {entries.length === 0 && (
+          <li className={style.empty}>{isPending ? 'Loading…' : 'No entries match the search and filters.'}</li>
+        )}
         {entries.map((logEntry) => (
           <li key={logEntry.id} className={`${style.logEntry} ${style[logEntry.level]}`}>
             <span className={style.time}>{logEntry.time}</span>
@@ -98,6 +100,7 @@ export default function Log() {
           </li>
         ))}
       </ul>
+      <p className={style.note}>Server entries refresh every {serverLogPollInterval / 1000} seconds</p>
     </div>
   );
 }

@@ -113,6 +113,13 @@ $info-hover: $section-white;
   }
 }
 
+.note {
+  margin: 0;
+  padding-top: 0.25rem;
+  font-size: $inner-section-text-size;
+  color: $gray-600;
+}
+
 .empty {
   padding: 2.5rem 1rem;
   color: $gray-600;
