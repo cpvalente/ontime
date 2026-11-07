@@ -635,7 +635,7 @@ const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput>): RuntimeOffs
   addedTime: dur(0),
   pausedAt: null,
   startDayOffset: 0 as Day,
-  plannedStart: tod(100),
+  startPlanned: 100,
   actualStart: tod(100),
   ...patch,
 });
@@ -704,7 +704,7 @@ describe('getRuntimeOffset()', () => {
         startedAt: actualStart,
         current: dur(MILLIS_PER_HOUR),
         startDayOffset: 1 as Day,
-        plannedStart,
+        startPlanned: plannedStart,
         actualStart,
       }),
     );
@@ -719,7 +719,7 @@ describe('getRuntimeOffset()', () => {
         event: { countToEnd: false, timeStart: tod(77400000), dayOffset: 0 as Day },
         current: dur(3600000),
         startedAt: null,
-        plannedStart: tod(77400000),
+        startPlanned: 77400000,
         actualStart: null,
       }),
     );
@@ -733,7 +733,7 @@ describe('getRuntimeOffset()', () => {
         event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
         current: dur(1600000),
         startedAt: tod(78000000),
-        plannedStart: tod(77400000), // 21:30:00
+        startPlanned: 77400000, // 21:30:00
         actualStart: tod(78000000), // 21:40:00
       }),
     );
@@ -748,7 +748,7 @@ describe('getRuntimeOffset()', () => {
         addedTime: dur(-200000),
         current: dur(-400000),
         startedAt: tod(78000000),
-        plannedStart: tod(77400000), // 21:30:00
+        startPlanned: 77400000, // 21:30:00
         actualStart: tod(78000000), // 21:40:00
       }),
     );
@@ -763,7 +763,7 @@ describe('getRuntimeOffset()', () => {
         current: dur(1000000),
         startedAt: tod(78000000),
         pausedAt: tod(79000000),
-        plannedStart: tod(77400000),
+        startPlanned: 77400000,
         actualStart: tod(78000000),
       }),
     );
@@ -794,7 +794,7 @@ describe('getRuntimeOffset()', () => {
         event,
         current,
         startedAt,
-        plannedStart: tod(77400000), // 21:30:00
+        startPlanned: 77400000, // 21:30:00
         actualStart: tod(82000000), // 22:46:40 <--- started now
       }),
     );
@@ -808,7 +808,7 @@ describe('getRuntimeOffset() relative', () => {
     makeRuntimeOffsetInput({
       event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 0 as Day },
       startedAt: tod(startedAt),
-      plannedStart: tod(timeStart),
+      startPlanned: timeStart,
       actualStart: tod(startedAt),
     });
 
@@ -825,6 +825,25 @@ describe('getRuntimeOffset() relative', () => {
   it('relative offset is 0 when starting before the planed time', () => {
     const { absolute, relative } = getRuntimeOffset(makeInput(150, 100));
     expect(absolute).toBe(-50);
+    expect(relative).toBe(0);
+  });
+
+  it('counts from the event playback started from, not the first event of the rundown', () => {
+    // the rundown starts on day 0, playback started at the 09:00 event of day 2, at 09:05
+    const timeStart = 9 * MILLIS_PER_HOUR;
+    const startedAt = tod(timeStart + 5 * MILLIS_PER_MINUTE);
+    const { absolute, relative } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: startedAt,
+        event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 2 as Day },
+        startedAt,
+        current: dur(MILLIS_PER_HOUR),
+        startDayOffset: 2 as Day,
+        startPlanned: timeStart + 2 * dayInMs,
+        actualStart: startedAt,
+      }),
+    );
+    expect(absolute).toBe(5 * MILLIS_PER_MINUTE);
     expect(relative).toBe(0);
   });
 });
@@ -936,8 +955,6 @@ describe('getExpectedTimes()', () => {
   const makeInput = (patch: Partial<ExpectedTimesInput>): ExpectedTimesInput => ({
     mode: OffsetMode.Absolute,
     offset: absoluteOffset(0),
-    plannedStart: tod(MILLIS_PER_HOUR),
-    actualStart: tod(MILLIS_PER_HOUR),
     currentDay: 0 as Day,
     group: null,
     flag: null,
@@ -972,21 +989,20 @@ describe('getExpectedTimes()', () => {
     expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR);
   });
 
-  it('shifts the schedule to the actual start in relative mode', () => {
-    const { expectedRundownEnd } = getExpectedTimes(
-      makeInput({
-        mode: OffsetMode.Relative,
-        actualStart: tod(MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE),
-        end: linked,
-      }),
-    );
+  it('shifts the schedule by how late playback started in relative mode', () => {
+    // started 5 minutes late and kept to time since: the start shift is the absolute minus the relative offset
+    const offset = { absolute: dur(5 * MILLIS_PER_MINUTE), relative: dur(0) };
+    const { expectedRundownEnd } = getExpectedTimes(makeInput({ mode: OffsetMode.Relative, offset, end: linked }));
     expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE);
   });
 
-  it('applies the offset of the selected mode', () => {
+  it('applies the offset of the selected mode to events which gaps cannot absorb', () => {
+    // started 58 minutes late, then lost 2 more
     const offset = { absolute: dur(MILLIS_PER_HOUR), relative: dur(2 * MILLIS_PER_MINUTE) };
-    const { expectedRundownEnd } = getExpectedTimes(makeInput({ mode: OffsetMode.Relative, offset, end: linked }));
-    expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE);
+    const unlinked = { event, accumulatedGap: MILLIS_PER_MINUTE, isLinkedToLoaded: false };
+    const { expectedRundownEnd } = getExpectedTimes(makeInput({ mode: OffsetMode.Relative, offset, end: unlinked }));
+    // the shifted schedule ends at 3:58, the gap absorbs 1 of the 2 minutes lost
+    expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE);
   });
 
   it('places events after midnight relative to the current day', () => {

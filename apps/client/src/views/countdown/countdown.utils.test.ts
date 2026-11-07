@@ -313,7 +313,7 @@ describe('extendEventData()', () => {
       scheduledDuration: hour,
     },
   };
-  const extend = (event: CountdownTarget) => extendEventData(event, 0, null, null, 0, OffsetMode.Absolute, report);
+  const extend = (event: CountdownTarget) => extendEventData(event, 0, 0, 0, OffsetMode.Absolute, report);
 
   it('reports when the event ended, according to the report', () => {
     const event = makeEvent({ id: 'a', timeStart: start, timeEnd: start + hour, duration: hour });
