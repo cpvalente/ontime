@@ -1,4 +1,4 @@
-import type { OntimeEvent } from 'ontime-types';
+import type { Duration, OntimeEvent } from 'ontime-types';
 import { OffsetMode } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
@@ -12,7 +12,8 @@ export function getExpectedStart(
     offset: number;
     mode: OffsetMode;
     /** how late playback started compared to the event it started from, the absolute offset minus the relative */
-    startShift: number;
+    /** how late playback started, compared to the event it started from */
+    startShift: Duration;
   },
 ): number {
   const { timeStart, dayOffset, delay } = event;

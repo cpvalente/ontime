@@ -9,7 +9,7 @@ import {
   SupportedEntry,
   TimerPhase,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import {
   makeOntimeDelay,
@@ -507,7 +507,8 @@ describe('mutation on runtimeState', () => {
           pausedAt: null,
           firstStart: 9 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE,
           startEpoch,
-          startPlanned: 9 * MILLIS_PER_HOUR + 2 * dayInMs,
+          startEventStart: 9 * MILLIS_PER_HOUR,
+          startEventDay: 2,
           currentDay: 2,
           offsetMode: OffsetMode.Relative,
         },
