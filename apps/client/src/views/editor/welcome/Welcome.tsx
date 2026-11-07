@@ -13,8 +13,8 @@ import Info from '../../../common/components/info/Info';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
 import useShowWelcomeDialog from '../../../common/hooks-query/useShowWelcomeDialog';
+import { useProjectImport } from '../../../common/hooks/useProjectImport';
 import { appVersion, discordUrl, documentationUrl, isOntimeCloud, websiteUrl } from '../../../externals';
-import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';
 import { getStartupMessage, getWelcomeTitle } from './welcome.utils';
 
@@ -30,6 +30,7 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const startupMessage = getStartupMessage(projectStartup, Boolean(isOntimeCloud));
   const { showWelcomeDialog, setShowWelcomeDialog } = useShowWelcomeDialog();
+  const { inputProps, selectFile, isImporting } = useProjectImport({ onImported: onClose, onError: setErrorMessage });
 
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
@@ -62,6 +63,11 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
     } catch (error) {
       setErrorMessage(`Could not save startup preference: ${maybeAxiosError(error)}`);
     }
+  };
+
+  const handleImport = () => {
+    setErrorMessage(null);
+    selectFile();
   };
 
   /** handle redirect to create modal */
@@ -112,7 +118,10 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
           {errorMessage && <Info type='error'>{errorMessage}</Info>}
           <div className={style.buttonRow}>
             <Button onClick={handleLoadDemo}>Load demo project</Button>
-            <ImportProjectButton onFinish={() => onClose()} />
+            <input {...inputProps} />
+            <Button onClick={handleImport} disabled={isImporting} loading={isImporting}>
+              Import project
+            </Button>
             <Button variant='primary' onClick={handleCallCreate}>
               Create new...
             </Button>
