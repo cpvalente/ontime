@@ -1,4 +1,5 @@
 import {
+  Duration,
   EntryId,
   MaybeNumber,
   OffsetMode,
@@ -281,7 +282,7 @@ export function groupSubscriptionTargets(targets: CountdownTarget[]): CountdownS
 export function extendEventData(
   event: CountdownTarget,
   currentDay: number,
-  startShift: number,
+  startShift: Duration,
   offset: number,
   mode: OffsetMode,
   reportData: OntimeReport,

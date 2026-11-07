@@ -635,7 +635,8 @@ const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput>): RuntimeOffs
   addedTime: dur(0),
   pausedAt: null,
   startDayOffset: 0 as Day,
-  startPlanned: 100,
+  startEventStart: tod(100),
+  startEventDay: 0 as Day,
   actualStart: tod(100),
   ...patch,
 });
@@ -704,7 +705,8 @@ describe('getRuntimeOffset()', () => {
         startedAt: actualStart,
         current: dur(MILLIS_PER_HOUR),
         startDayOffset: 1 as Day,
-        startPlanned: plannedStart,
+        startEventStart: plannedStart,
+        startEventDay: 0 as Day,
         actualStart,
       }),
     );
@@ -719,7 +721,8 @@ describe('getRuntimeOffset()', () => {
         event: { countToEnd: false, timeStart: tod(77400000), dayOffset: 0 as Day },
         current: dur(3600000),
         startedAt: null,
-        startPlanned: 77400000,
+        startEventStart: tod(77400000),
+        startEventDay: 0 as Day,
         actualStart: null,
       }),
     );
@@ -733,7 +736,8 @@ describe('getRuntimeOffset()', () => {
         event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
         current: dur(1600000),
         startedAt: tod(78000000),
-        startPlanned: 77400000, // 21:30:00
+        startEventStart: tod(77400000), // 21:30:00
+        startEventDay: 0 as Day,
         actualStart: tod(78000000), // 21:40:00
       }),
     );
@@ -748,7 +752,8 @@ describe('getRuntimeOffset()', () => {
         addedTime: dur(-200000),
         current: dur(-400000),
         startedAt: tod(78000000),
-        startPlanned: 77400000, // 21:30:00
+        startEventStart: tod(77400000), // 21:30:00
+        startEventDay: 0 as Day,
         actualStart: tod(78000000), // 21:40:00
       }),
     );
@@ -763,7 +768,8 @@ describe('getRuntimeOffset()', () => {
         current: dur(1000000),
         startedAt: tod(78000000),
         pausedAt: tod(79000000),
-        startPlanned: 77400000,
+        startEventStart: tod(77400000),
+        startEventDay: 0 as Day,
         actualStart: tod(78000000),
       }),
     );
@@ -794,7 +800,8 @@ describe('getRuntimeOffset()', () => {
         event,
         current,
         startedAt,
-        startPlanned: 77400000, // 21:30:00
+        startEventStart: tod(77400000), // 21:30:00
+        startEventDay: 0 as Day,
         actualStart: tod(82000000), // 22:46:40 <--- started now
       }),
     );
@@ -808,7 +815,8 @@ describe('getRuntimeOffset() relative', () => {
     makeRuntimeOffsetInput({
       event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 0 as Day },
       startedAt: tod(startedAt),
-      startPlanned: timeStart,
+      startEventStart: tod(timeStart),
+      startEventDay: 0 as Day,
       actualStart: tod(startedAt),
     });
 
@@ -839,7 +847,8 @@ describe('getRuntimeOffset() relative', () => {
         startedAt,
         current: dur(MILLIS_PER_HOUR),
         startDayOffset: 2 as Day,
-        startPlanned: timeStart + 2 * dayInMs,
+        startEventStart: tod(timeStart),
+        startEventDay: 2 as Day,
         actualStart: startedAt,
       }),
     );
