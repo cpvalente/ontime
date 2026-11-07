@@ -71,7 +71,10 @@ export type RuntimeState = {
   _startEpoch: Maybe<Instant>;
   _startDayOffset: Maybe<Day>;
   /** planned position of the event playback started from, the relative offset counts from it */
-  _startPlanned: MaybeNumber;
+  /** planned start of the event playback started from */
+  _startEventStart: Maybe<TimeOfDay>;
+  /** rundown day of the event playback started from */
+  _startEventDay: Maybe<Day>;
 };
 
 const runtimeState: RuntimeState = {
@@ -98,7 +101,8 @@ const runtimeState: RuntimeState = {
   _end: null,
   _startEpoch: null,
   _startDayOffset: null,
-  _startPlanned: null,
+  _startEventStart: null,
+  _startEventDay: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -184,7 +188,8 @@ function clearStartAnchor(state = runtimeState) {
   state.rundown.currentDay = null;
   state._startEpoch = null;
   state._startDayOffset = null;
-  state._startPlanned = null;
+  state._startEventStart = null;
+  state._startEventDay = null;
 }
 
 /**
@@ -263,12 +268,17 @@ export function load(
     ) {
       runtimeState.rundown.actualStart = firstStart;
       runtimeState._startEpoch = startEpoch;
-      // older restore points have no start anchor, they counted from the first event of the rundown
-      const startPlanned = initialData.startPlanned ?? runtimeState.rundown.plannedStart;
-      if (firstStart !== null && startPlanned !== null) {
-        const startDay = Math.floor(startPlanned / dayInMs);
-        runtimeState._startPlanned = startPlanned;
-        runtimeState._startDayOffset = (findDayOffset(startPlanned - startDay * dayInMs, firstStart) + startDay) as Day;
+      // older restore points have no start event and count from the first event of the rundown
+      const hasStartEvent =
+        typeof initialData.startEventStart === 'number' && typeof initialData.startEventDay === 'number';
+      const startEventStart = (
+        hasStartEvent ? initialData.startEventStart : runtimeState.rundown.plannedStart
+      ) as Maybe<TimeOfDay>;
+      const startEventDay = (hasStartEvent ? initialData.startEventDay : 0) as Day;
+      if (firstStart !== null && startEventStart !== null) {
+        runtimeState._startEventStart = startEventStart;
+        runtimeState._startEventDay = startEventDay;
+        runtimeState._startDayOffset = (findDayOffset(startEventStart, firstStart) + startEventDay) as Day;
       }
       if (currentDay !== undefined) {
         runtimeState.rundown.currentDay = currentDay;
@@ -453,7 +463,8 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
     state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
     state._startEpoch = epoch;
-    state._startPlanned = state.eventNow.timeStart + state.eventNow.dayOffset * dayInMs;
+    state._startEventStart = state.eventNow.timeStart as TimeOfDay;
+    state._startEventDay = state.eventNow.dayOffset;
     state.rundown.actualStart = state.clock;
   }
 
@@ -854,7 +865,8 @@ function backdateShowStart(plannedStart: number, epoch: Instant) {
   const event = runtimeState.eventNow!;
   runtimeState.rundown.actualStart = plannedStart;
   runtimeState._startDayOffset = (findDayOffset(event.timeStart, plannedStart) + event.dayOffset) as Day;
-  runtimeState._startPlanned = event.timeStart + event.dayOffset * dayInMs;
+  runtimeState._startEventStart = event.timeStart as TimeOfDay;
+  runtimeState._startEventDay = event.dayOffset;
   // the instant the event conceptually started
   const timeElapsed = timeCore.elapsedTime(runtimeState.clock, plannedStart as TimeOfDay);
   runtimeState._startEpoch = timeCore.addDuration(epoch, -timeElapsed as Duration);
@@ -952,7 +964,8 @@ function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
     addedTime: timer.addedTime as Duration,
     pausedAt: state._timer.pausedAt,
     startDayOffset: state._startDayOffset,
-    startPlanned: state._startPlanned,
+    startEventStart: state._startEventStart,
+    startEventDay: state._startEventDay,
     actualStart: rundown.actualStart as Maybe<TimeOfDay>,
   };
 }

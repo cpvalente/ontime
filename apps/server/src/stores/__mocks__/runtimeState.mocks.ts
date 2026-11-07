@@ -52,7 +52,8 @@ const baseState: RuntimeState = {
   _flag: null,
   _startDayOffset: null,
   _startEpoch: null,
-  _startPlanned: null,
+  _startEventStart: null,
+  _startEventDay: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState> | Record<string, unknown>): RuntimeState {
