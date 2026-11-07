@@ -1,7 +1,7 @@
 import { copyFile } from 'fs/promises';
 import { join } from 'path';
 
-import { DatabaseModel, LogOrigin, ProjectFileListResponse, RefetchKey } from 'ontime-types';
+import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
@@ -174,16 +174,17 @@ async function handleMigratedFile(filePath: string, fileName: string): Promise<s
 /**
  * Coordinates the initial load of a project on app startup
  * This is different from the load project since we need to always load something
- * @returns {Promise<string>} - name of the loaded file
+ * @returns {Promise<ProjectStartup>} - which project was loaded and why
  */
-export async function initialiseProject(): Promise<string> {
+export async function initialiseProject(): Promise<ProjectStartup> {
   // check what was loaded before
   const lastLoaded = await getLastLoaded();
 
   // in normal circumstances we dont have a previous project if it is the first app start
   // in previousLoaded case we want to load a demo project
   if (!lastLoaded?.projectName) {
-    return loadDemoProject();
+    const demoName = await loadDemoProject();
+    return { reason: 'first-run', project: removeFileExtension(demoName) };
   }
 
   try {
@@ -191,7 +192,7 @@ export async function initialiseProject(): Promise<string> {
       rundownId: lastLoaded.rundownId,
       initialLoad: true,
     });
-    return projectName;
+    return { reason: 'resumed', project: removeFileExtension(projectName) };
   } catch (error) {
     // if we are here, most likely the json parsing failed and the file is corrupt
     logger.warning(LogOrigin.Server, 'Project load failed', {
@@ -206,7 +207,12 @@ export async function initialiseProject(): Promise<string> {
     }
   }
 
-  return loadNewProject();
+  const newName = await loadNewProject();
+  return {
+    reason: 'recovered',
+    project: removeFileExtension(newName),
+    failedProject: removeFileExtension(lastLoaded.projectName),
+  };
 }
 
 /**

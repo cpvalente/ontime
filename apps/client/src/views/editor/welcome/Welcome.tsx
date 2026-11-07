@@ -1,3 +1,4 @@
+import { ProjectStartup } from 'ontime-types';
 import { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -12,19 +13,22 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../common/components/info/Info';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
-import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
+import { appVersion, discordUrl, documentationUrl, isOntimeCloud, websiteUrl } from '../../../externals';
 import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';
+import { getStartupMessage, getWelcomeTitle } from './welcome.utils';
 
 import style from './Welcome.module.scss';
 
 interface WelcomeProps {
+  projectStartup: ProjectStartup | null;
   onClose: () => void;
 }
 
-export default function Welcome({ onClose }: WelcomeProps) {
+export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const startupMessage = getStartupMessage(projectStartup, Boolean(isOntimeCloud));
 
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
@@ -72,11 +76,12 @@ export default function Welcome({ onClose }: WelcomeProps) {
           </div>
           <div className={style.column}>
             <div className={style.header}>
-              Welcome to Ontime
+              {getWelcomeTitle(projectStartup)}
               <IconButton aria-label='close welcome modal' variant='subtle-white' onClick={() => onClose()}>
                 <IoClose />
               </IconButton>
             </div>
+            {startupMessage && <Info type={startupMessage.type}>{startupMessage.text}</Info>}
             <Editor.Title>Select project</Editor.Title>
             <div className={style.tableContainer}>
               <table className={style.table}>
