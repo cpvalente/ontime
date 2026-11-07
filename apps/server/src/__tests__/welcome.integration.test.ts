@@ -60,9 +60,10 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
     expect(await editorWelcome(secondRun)).toBeNull();
   });
 
-  test('a project which fails to load is replaced, and the editor is told', async () => {
+  test('a project which fails to load is replaced, and the editor is told, even with the dialog turned off', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
+    await firstRun.send('POST', '/data/settings/welcomedialog', { show: false });
     const project = await loadedProject(firstRun);
     await firstRun.stop();
 
@@ -77,5 +78,18 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
       project: await loadedProject(secondRun),
       failedProject: project,
     });
+  });
+
+  test('the startup preference is saved, and turned off hides the dialog on the next start', async () => {
+    const firstRun = await startTestServer();
+    onTestFinished(() => firstRun.stop());
+    await firstRun.send('POST', '/data/settings/welcomedialog', { show: false });
+    expect(await (await firstRun.get('/data/settings/welcomedialog')).json()).toEqual({ show: false });
+    await firstRun.stop();
+
+    const secondRun = await startTestServer();
+    onTestFinished(() => secondRun.stop());
+
+    expect(await editorWelcome(secondRun)).toBeNull();
   });
 });
