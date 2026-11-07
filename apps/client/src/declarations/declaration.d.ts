@@ -18,6 +18,7 @@ declare global {
     ipcRenderer: {
       send: (channel: string, args?: string | object) => void;
       on: (channel: string, listener: ListenerType) => void;
+      removeListener: (channel: string, listener: ListenerType) => void;
     };
     process: {
       type: string;

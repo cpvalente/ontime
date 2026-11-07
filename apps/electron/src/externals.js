@@ -74,7 +74,7 @@ const externalPath = path.join(getAppDataPath(), 'external');
 /** path to tray icon */
 const trayIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'background.png');
 /** path to app icon directory */
-const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'logo.png');
+const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'icon.png');
 
 module.exports = {
   linkToDocs,
