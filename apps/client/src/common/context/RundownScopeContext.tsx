@@ -1,23 +1,15 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { MaybeString, Rundown } from 'ontime-types';
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { PropsWithChildren, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getRundownCacheKey } from '../api/constants';
 import { useProjectRundowns } from '../hooks-query/useProjectRundowns';
 import { useEntryActions } from '../hooks/useEntryAction';
-import { createEventSelectionStore, type EventSelectionStoreApi } from '../stores/eventSelectionStore';
+import { createEventSelectionStore } from '../stores/eventSelectionStore';
 import { EntryActionsProvider } from './EntryActionsContext';
+import { RundownScopeContext, type RundownScopeValue } from './rundownScope.context';
 
-export type RundownScopeValue = {
-  /** the rundown this subtree operates on */
-  rundownId: string;
-  /** whether this scope targets the rundown the runtime is playing */
-  isLoaded: boolean;
-  /** selection and cursor, scoped to this rundown */
-  selectionStore: EventSelectionStoreApi;
-};
-
-const RundownScopeContext = createContext<RundownScopeValue | null>(null);
+export type { RundownScopeValue };
 
 interface RundownScopeProviderProps extends PropsWithChildren {
   /** rundown to operate on, null follows the loaded rundown */
