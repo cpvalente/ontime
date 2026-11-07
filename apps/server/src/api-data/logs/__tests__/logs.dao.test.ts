@@ -69,4 +69,14 @@ describe('session log', () => {
     expect(entries.at(-1)?.text).toBe('Entry 9');
     expect(entries.every((entry) => /^Entry \d$/.test(entry.text))).toBe(true);
   });
+
+  it('reads new entries once the file grows', () => {
+    const sessionLog = createSessionLog(file, previousFile);
+    sessionLog.append(makeLog('First'));
+    expect(readLogEntries(file).map((entry) => entry.text)).toEqual(['First']);
+
+    sessionLog.append(makeLog('Second'));
+
+    expect(readLogEntries(file).map((entry) => entry.text)).toEqual(['First', 'Second']);
+  });
 });
