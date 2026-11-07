@@ -47,8 +47,6 @@ export function useListFollow({
   const movedRef = useRef<{ id: EntryId; index: number; pending: number } | null>(null);
   const revealLocation = useMemo(() => makeRevealLocation(offset), [offset]);
 
-  const isFollowing = useCallback(() => isRunMode && !userScrolledRef.current, [isRunMode, userScrolledRef]);
-
   const pin = useCallback(() => {
     const index = liveId ? ids.indexOf(liveId) : -1;
     if (index !== -1 && !blockedRef?.current) {
@@ -143,5 +141,5 @@ export function useListFollow({
     setTarget(null);
   }, [target, ids, prepare, behavior, revealLocation, listRef, blockedRef]);
 
-  return { scrollerRef, reveal, resume, followMove, isFollowing };
+  return { scrollerRef, reveal, resume, followMove };
 }

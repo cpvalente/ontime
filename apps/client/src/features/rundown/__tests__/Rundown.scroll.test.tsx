@@ -194,11 +194,19 @@ describe('Run mode follow', () => {
       expect(scrollToIndex).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
     });
 
-    it('leaves the group closed after the user scrolled', async () => {
+    it('opens the group without scrolling after the user scrolled', async () => {
       scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true }));
       await moveLiveIntoGroup();
-      expect(visibleEntries()).not.toContain('first');
+      expect(visibleEntries()).toContain('first');
       expect(scrollToIndex).not.toHaveBeenCalled();
+    });
+
+    it('opens the group when the selected entry moves into it', async () => {
+      mode = AppMode.Edit;
+      props = { ...props, featureData: { ...props.featureData, selectedEventId: null } };
+      await act(async () => scope.selectionStore.getState().setSingleEntrySelection({ id: 'first' }));
+      await moveLiveIntoGroup();
+      expect(visibleEntries()).toContain('first');
     });
   });
 
