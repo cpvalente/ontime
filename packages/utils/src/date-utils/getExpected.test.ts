@@ -16,8 +16,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: 0,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(testEvent.timeStart);
@@ -35,8 +34,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120);
@@ -54,8 +52,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: -10,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(100); // <-- when running ahead the unlinked timer stays put
@@ -73,8 +70,7 @@ describe('getExpectedStart()', () => {
         totalGap: 20,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(100); // <-- when gap is enough to compensate for the running behind
@@ -92,8 +88,7 @@ describe('getExpectedStart()', () => {
         totalGap: 10,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: 0,
-        plannedStart: 0,
+        startShift: 0,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(110); // <-- when gap is not enough to compensate for the running behind it absorbs at much as possible
@@ -106,8 +101,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -146,7 +140,7 @@ describe('getExpectedStart()', () => {
       ).toBe(120);
 
       // if we actually started 5ms later
-      testState.actualStart = 105;
+      testState.startShift = 105;
 
       //event 2
       expect(
@@ -186,8 +180,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 10,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -196,7 +189,7 @@ describe('getExpectedStart()', () => {
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120);
 
       // if we actually started 5ms later
-      testState.actualStart = 105;
+      testState.startShift = 105;
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: true })).toBe(125);
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(125);
     });
@@ -210,8 +203,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -233,8 +225,7 @@ describe('getExpectedStart()', () => {
     test('next day', () => {
       const testState = {
         currentDay: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -267,8 +258,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: 0,
-      actualStart: 100,
-      plannedStart: 0,
+      startShift: 100,
       offset: 0,
       mode: OffsetMode.Relative,
       isLinkedToLoaded: false,
@@ -286,8 +276,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: -1,
-      actualStart: 23 * MILLIS_PER_HOUR,
-      plannedStart: 0,
+      startShift: 0,
       offset: -1 * MILLIS_PER_HOUR,
       mode: OffsetMode.Absolute,
       isLinkedToLoaded: true,
@@ -304,8 +293,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: -1,
-      actualStart: 23 * MILLIS_PER_HOUR,
-      plannedStart: 0,
+      startShift: 0,
       offset: -1 * MILLIS_PER_HOUR,
       mode: OffsetMode.Absolute,
       isLinkedToLoaded: true,
@@ -321,8 +309,7 @@ describe('getExpectedEnd()', () => {
     currentDay: 0,
     totalGap: 0,
     mode: OffsetMode.Absolute,
-    actualStart: null,
-    plannedStart: null,
+    startShift: 0,
     isLinkedToLoaded: true,
   };
 
@@ -440,8 +427,7 @@ describe('getExpectedEnd()', () => {
     const relativeState = {
       ...baseState,
       mode: OffsetMode.Relative,
-      actualStart: 30,
-      plannedStart: 0,
+      startShift: 30,
       offset: 0,
     };
 
