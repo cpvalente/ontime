@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 /** Text size the width is measured at */
 const referenceSize = 100;
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+/** Rendered text runs a few pixels wider than the canvas measures on some browsers, which would clip the widest line */
+const fitSafety = 0.97;
 
 /**
  * Sizes the text so the widest line of the script fits the text width
@@ -37,7 +39,7 @@ export function useFitText(
         widest = Math.max(widest, context.measureText(' '.repeat(line.indent ?? 0) + line.text).width);
       }
 
-      const available = (container.clientWidth * textWidthPercent) / 100;
+      const available = (container.clientWidth * textWidthPercent * fitSafety) / 100;
       setFontSize(widest > 0 ? (available * referenceSize) / widest : 0);
     };
 
