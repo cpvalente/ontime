@@ -79,4 +79,16 @@ describe('project persistence', { timeout: 15_000 }, () => {
     expect(await readFile(join(corruptDir(), `${project}.json`), 'utf-8')).toBe('{ set aside earlier');
     expect(await readdir(corruptDir())).toContain(`${project} (1).json`);
   });
+
+  test('an imported project which fails to load is not kept', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+    const body = new FormData();
+    body.append('project', new Blob(['{ not json'], { type: 'application/json' }), 'broken import.json');
+
+    const response = await server.request('/data/db/upload', { method: 'POST', body });
+
+    expect(response.status).toBe(400);
+    expect(await readdir(projectsDir())).not.toContain('broken import.json');
+  });
 });
