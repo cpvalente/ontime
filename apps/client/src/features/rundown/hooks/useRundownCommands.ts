@@ -32,12 +32,14 @@ export function useRundownCommands({
 
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
-      if (!cursor) return;
+      if (!cursor) return null;
       const { entry, index } = getPreviousNormal(entries, flatOrder, cursor);
       deleteEntry([cursor]);
       if (entry && index !== null) {
         applySelection({ id: entry.id, selectMode: 'click', index });
+        return entry.id;
       }
+      return null;
     },
     [entries, flatOrder, deleteEntry, applySelection],
   );

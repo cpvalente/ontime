@@ -52,7 +52,6 @@ export type FinderResult = {
   /** groups have no cue */
   cue: string;
   colour: string;
-  parent: MaybeString;
   /** absent when the entry was found by index rather than by matching text */
   match: FinderMatch | null;
 };
@@ -70,7 +69,6 @@ function toResult(entry: SearchableEntry, index: number, eventIndex: MaybeNumber
     title: entry.title,
     cue: 'cue' in entry ? entry.cue : '',
     colour: entry.colour,
-    parent: 'parent' in entry ? entry.parent : null,
     match,
   } satisfies FinderResult;
 }
@@ -250,7 +248,7 @@ export default function useFinder(searchValue: string, activeFilter: MaybeString
 
   const select = useCallback(
     (result: FinderResult) => {
-      selectAndRevealEntry({ id: result.id, index: result.index, parent: result.parent });
+      selectAndRevealEntry({ id: result.id, index: result.index });
     },
     [selectAndRevealEntry],
   );
