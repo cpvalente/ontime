@@ -139,7 +139,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     [entries, getIsCollapsed, expandGroup],
   );
 
-  const { scrollerRef, reveal, resume, followMove, isFollowing } = useListFollow({
+  const { scrollerRef, reveal, resume, followMove } = useListFollow({
     listRef: virtuosoRef,
     ids: visibleData,
     liveId: featureData.selectedEventId,
@@ -181,13 +181,22 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     }
   }, [editorMode, selectionStore, reveal]);
 
-  // Keep a followed event visible when a structural edit moves it into another group.
-  // Runs after the list follow hook has resumed following on a new live event.
+  // The selection and, in Run, the live event stay visible when they move into a collapsed group.
+  // Keyed on the parent, so edits and a group the user collapses do not re-open it.
+  const cursorEntry = cursor ? entries[cursor] : undefined;
+  const cursorParentId = cursorEntry && 'parent' in cursorEntry ? cursorEntry.parent : null;
   useEffect(() => {
-    if (isFollowing() && !dnd.isDraggingRef.current) {
+    if (!dnd.isDraggingRef.current) {
+      expandGroup(cursorParentId);
+    }
+  }, [cursorParentId, expandGroup, dnd.isDraggingRef]);
+
+  const isRunMode = editorMode === AppMode.Run;
+  useEffect(() => {
+    if (isRunMode && !dnd.isDraggingRef.current) {
       expandGroup(liveParentId);
     }
-  }, [isFollowing, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef]);
+  }, [isRunMode, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
