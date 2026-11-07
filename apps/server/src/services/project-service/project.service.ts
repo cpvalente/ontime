@@ -1,5 +1,4 @@
 import { copyFile } from 'fs/promises';
-import { join } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
@@ -36,6 +35,7 @@ import { applyTeleprompterSettings } from '../teleprompter-service/teleprompter.
 import {
   doesProjectExist,
   duplicateLogo,
+  getBackupPath,
   getPathToProject,
   getProjectFiles,
   moveCorruptFile,
@@ -139,8 +139,8 @@ async function loadNewProject(): Promise<string> {
  * @param fileName as extracted from filePath, includes extension
  */
 async function handleCorruptedFile(filePath: string, fileName: string): Promise<string> {
-  // copy file to corrupted folder
-  const copyPath = join(publicDir.corruptDir, fileName);
+  // copy file to corrupted folder, keeping a file of the same name set aside earlier
+  const copyPath = getBackupPath(publicDir.corruptDir, fileName);
   await copyFile(filePath, copyPath).catch((_) => {
     /* while we have to catch the error, we dont need to handle it */
   });
@@ -159,8 +159,8 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
  * @param fileName as extracted from filePath, includes extension
  */
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
-  // copy file to migrated folder
-  const copyPath = join(publicDir.migrateDir, fileName);
+  // copy file to migrated folder, keeping a file of the same name backed up earlier
+  const copyPath = getBackupPath(publicDir.migrateDir, fileName);
   await copyFile(filePath, copyPath).catch((_) => {
     /* while we have to catch the error, we dont need to handle it */
   });
