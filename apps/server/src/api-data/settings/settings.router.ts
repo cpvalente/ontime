@@ -24,6 +24,11 @@ function obfuscateKeys(settings: Readonly<Settings>): Settings {
   return obfuscatedSettings;
 }
 
+router.get('/welcomedialog', async (_req: Request, res: Response<{ show: boolean }>) => {
+  const show = await appState.getShowWelcomeDialog();
+  res.status(200).json({ show });
+});
+
 router.post('/welcomedialog', validateWelcomeDialog, async (req: Request, res: Response) => {
   const show = await appState.setShowWelcomeDialog(req.body.show);
   res.status(200).json({ show });

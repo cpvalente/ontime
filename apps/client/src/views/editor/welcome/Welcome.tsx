@@ -4,7 +4,6 @@ import { IoClose } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
-import { postShowWelcomeDialog } from '../../../common/api/settings';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
@@ -13,6 +12,7 @@ import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import Info from '../../../common/components/info/Info';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
+import useShowWelcomeDialog from '../../../common/hooks-query/useShowWelcomeDialog';
 import { appVersion, discordUrl, documentationUrl, isOntimeCloud, websiteUrl } from '../../../externals';
 import ImportProjectButton from './composite/ImportProjectButton';
 import WelcomeProjectList from './composite/WelcomeProjectList';
@@ -29,6 +29,7 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const navigate = useNavigate();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const startupMessage = getStartupMessage(projectStartup, Boolean(isOntimeCloud));
+  const { showWelcomeDialog, setShowWelcomeDialog } = useShowWelcomeDialog();
 
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
@@ -51,6 +52,15 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
       onClose();
     } catch (error) {
       setErrorMessage(maybeAxiosError(error));
+    }
+  };
+
+  const handleShowOnStartup = async (show: boolean) => {
+    setErrorMessage(null);
+    try {
+      await setShowWelcomeDialog(show);
+    } catch (error) {
+      setErrorMessage(`Could not save startup preference: ${maybeAxiosError(error)}`);
     }
   };
 
@@ -108,7 +118,11 @@ export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
             </Button>
           </div>
           <Editor.Label className={style.inline}>
-            <Checkbox defaultChecked onCheckedChange={(checked) => postShowWelcomeDialog(checked)} />
+            <Checkbox
+              checked={showWelcomeDialog ?? true}
+              disabled={showWelcomeDialog === undefined}
+              onCheckedChange={handleShowOnStartup}
+            />
             Show this modal on next startup
           </Editor.Label>
         </div>

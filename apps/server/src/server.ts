@@ -219,7 +219,9 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   // any playback change saves a restore point, a stopped or armed timer has no show to interrupt
   const playback = restored?.runtime?.playback;
   const isShowRunning = playback !== undefined && playback !== Playback.Stop && playback !== Playback.Armed;
-  const showWelcome = await getShowWelcomeDialog(isShowRunning);
+  // the startup preference only applies to a healthy restart, a replaced project is always reported
+  const isRecovered = projectStartup?.reason === 'recovered';
+  const showWelcome = isRecovered || (!isShowRunning && (await getShowWelcomeDialog()));
   socket.init(expressServer, showWelcome ? projectStartup : null, prefix);
 
   /**

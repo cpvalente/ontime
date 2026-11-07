@@ -45,12 +45,7 @@ export async function setLastLoadedRundown(rundownKey: string): Promise<void> {
   await config.write();
 }
 
-/**
- * @param isShowRunning a restored show which is running would be interrupted by the dialog
- */
-export async function getShowWelcomeDialog(isShowRunning: boolean): Promise<boolean> {
-  if (isShowRunning) return false;
-
+export async function getShowWelcomeDialog(): Promise<boolean> {
   await config.read();
   return config.data.showWelcomeDialog ?? true; // default to  true
 }
