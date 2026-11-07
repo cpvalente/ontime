@@ -1,4 +1,4 @@
-import type { MaybeNumber, OntimeEvent } from 'ontime-types';
+import type { Duration, OntimeEvent } from 'ontime-types';
 import { OffsetMode } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
@@ -11,12 +11,13 @@ export function getExpectedStart(
     isLinkedToLoaded: boolean;
     offset: number;
     mode: OffsetMode;
-    actualStart: MaybeNumber;
-    plannedStart: MaybeNumber;
+    /** how late playback started compared to the event it started from, the absolute offset minus the relative */
+    /** how late playback started, compared to the event it started from */
+    startShift: Duration;
   },
 ): number {
   const { timeStart, dayOffset, delay } = event;
-  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, startShift } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -26,12 +27,8 @@ export function getExpectedStart(
   //The normalised start time of this event relative to the currently running event
   const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
 
-  let relativeStartOffset = 0;
-
-  if (mode === OffsetMode.Relative) {
-    relativeStartOffset = (actualStart ?? 0) + currentDay * dayInMs - (plannedStart ?? 0);
-  }
-
+  // in relative mode, the schedule moves with the start of playback
+  const relativeStartOffset = mode === OffsetMode.Relative ? startShift : 0;
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
 
   const offsetStartTime = scheduledStartTime + offset;

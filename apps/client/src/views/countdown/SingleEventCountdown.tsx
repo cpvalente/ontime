@@ -25,16 +25,8 @@ export default function SingleEventCountdown({ subscribedEvent, goToEditMode }: 
   const showFab = useFadeOutOnInactivity(true);
   const { data: reportData } = useReport();
 
-  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedScheduleData();
-  const countdownEvent = extendEventData(
-    subscribedEvent,
-    currentDay,
-    actualStart,
-    plannedStart,
-    offset,
-    mode,
-    reportData,
-  );
+  const { offset, currentDay, startShift, mode } = useExpectedScheduleData();
+  const countdownEvent = extendEventData(subscribedEvent, currentDay, startShift, offset, mode, reportData);
   const titleTmp = getPropertyValue(subscribedEvent, mainSource ?? 'title');
   const title = titleTmp?.length ? titleTmp : ' '; // insert utf-8 empty space to avoid the line collapsing;
   // while a group is live, surface the running event's title as the secondary line

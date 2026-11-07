@@ -1,4 +1,12 @@
-import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage, TimerType } from 'ontime-types';
+import {
+  Duration,
+  OffsetMode,
+  RuntimeStore,
+  SimpleDirection,
+  SimplePlayback,
+  TimerMessage,
+  TimerType,
+} from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { sendSocket } from '../utils/socket';
@@ -191,8 +199,7 @@ const selectExpectedScheduleData = (state: RuntimeStore) => ({
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
   currentDay: state.rundown.currentDay ?? 0,
-  actualStart: state.rundown.actualStart,
-  plannedStart: state.rundown.plannedStart,
+  startShift: (state.offset.absolute - state.offset.relative) as Duration,
 });
 
 /** Expected schedule times change with the offset, independently of clock ticks. */
@@ -252,8 +259,7 @@ export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
 export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   mode: state.offset.mode,
-  actualStart: state.rundown.actualStart,
-  plannedStart: state.rundown.plannedStart,
+  startShift: (state.offset.absolute - state.offset.relative) as Duration,
   currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
   phase: state.timer.phase,
