@@ -8,7 +8,7 @@ import {
   SupportedEntry,
   TimerPhase,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
@@ -423,6 +423,114 @@ describe('mutation on runtimeState', () => {
     vi.setSystemTime('jan 4 00:00:01');
     update();
     expect(getState().rundown.currentDay).toBe(3);
+  });
+
+  describe('multi-day rundown', () => {
+    const at = (date: string) => {
+      vi.setSystemTime(date);
+      return new Date(date).getTime() as Instant;
+    };
+    const event = (id: string, start: number, end: number) =>
+      ({ ...mockEvent, id, timeStart: start, timeEnd: end, duration: end - start }) as PlayableEvent;
+
+    // three days, each one from 09:00 to 10:00
+    async function initThreeDays() {
+      clearState();
+      const entries = {
+        day0: event('day0', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+        day1: event('day1', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+        day2: event('day2', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+      };
+      await initTestRundown(makeRundown({ entries, order: ['day0', 'day1', 'day2'] }));
+      return rundownCache.get();
+    }
+
+    test('starting from a later day counts the relative offset from that event', async () => {
+      const { rundown, metadata } = await initThreeDays();
+
+      load(rundown.entries.day2 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 09:05'));
+
+      const state = getState();
+      expect(state.rundown.currentDay).toBe(2);
+      expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(0);
+    });
+
+    test('starting an event from another day begins a new run', async () => {
+      const { rundown, metadata } = await initThreeDays();
+
+      load(rundown.entries.day0 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 09:00'));
+
+      // the operator moves on to rehearse the last day
+      at('jan 1 09:30');
+      load(rundown.entries.day2 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 09:30'));
+
+      const state = getState();
+      expect(state.rundown.actualStart).toBe(9 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+      expect(state.rundown.currentDay).toBe(2);
+      expect(state.offset.absolute).toBe(30 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(0);
+    });
+
+    test('a show running past midnight keeps its run', async () => {
+      clearState();
+      const entries = {
+        late: event(
+          'late',
+          23 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+          23 * MILLIS_PER_HOUR + 45 * MILLIS_PER_MINUTE,
+        ),
+        afterMidnight: event('afterMidnight', 10 * MILLIS_PER_MINUTE, MILLIS_PER_HOUR),
+      };
+      await initTestRundown(makeRundown({ entries, order: ['late', 'afterMidnight'] }));
+      const { rundown, metadata } = rundownCache.get();
+
+      load(rundown.entries.late as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 23:35'));
+
+      // the next event is planned for the day after, we reach it early
+      at('jan 1 23:50');
+      load(rundown.entries.afterMidnight as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 23:50'));
+
+      const state = getState();
+      expect(state.rundown.actualStart).toBe(23 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.rundown.currentDay).toBe(0);
+      expect(state.offset.absolute).toBe(-20 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(-25 * MILLIS_PER_MINUTE);
+    });
+
+    test('resume keeps a run started from a later day', async () => {
+      const { rundown, metadata } = await initThreeDays();
+      const startEpoch = at('jan 1 09:05');
+      at('jan 1 09:10');
+
+      resume(
+        {
+          rundownId: rundown.id,
+          playback: Playback.Play,
+          selectedEventId: 'day2',
+          startedAt: 9 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE,
+          addedTime: 0,
+          pausedAt: null,
+          firstStart: 9 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE,
+          startEpoch,
+          startPlanned: 9 * MILLIS_PER_HOUR + 2 * dayInMs,
+          currentDay: 2,
+          offsetMode: OffsetMode.Relative,
+        },
+        rundown.entries.day2 as PlayableEvent,
+        rundown,
+        metadata,
+      );
+
+      const state = getState();
+      expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(0);
+    });
   });
 });
 

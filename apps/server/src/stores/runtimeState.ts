@@ -70,6 +70,8 @@ export type RuntimeState = {
   _end: Maybe<ExpectedMetadata>;
   _startEpoch: Maybe<Instant>;
   _startDayOffset: Maybe<Day>;
+  /** planned position of the event playback started from, the relative offset counts from it */
+  _startPlanned: MaybeNumber;
 };
 
 const runtimeState: RuntimeState = {
@@ -96,6 +98,7 @@ const runtimeState: RuntimeState = {
   _end: null,
   _startEpoch: null,
   _startDayOffset: null,
+  _startPlanned: null,
 };
 
 export function getState(): Readonly<RuntimeState> {
@@ -151,7 +154,6 @@ export function clearState() {
   runtimeState.groupNow = null;
   runtimeState._group = null;
 
-  runtimeState.rundown.actualStart = null;
   runtimeState.rundown.selectedEventIndex = null;
 
   runtimeState.offset.absolute = 0;
@@ -173,9 +175,16 @@ export function clearState() {
   runtimeState._timer.secondaryTarget = null;
   runtimeState._timer.hasFinished = false;
 
-  runtimeState._startEpoch = null;
-  runtimeState._startDayOffset = null;
-  runtimeState.rundown.currentDay = null;
+  clearStartAnchor();
+}
+
+/** forgets where playback started, the next start anchors the offsets again */
+function clearStartAnchor(state = runtimeState) {
+  state.rundown.actualStart = null;
+  state.rundown.currentDay = null;
+  state._startEpoch = null;
+  state._startDayOffset = null;
+  state._startPlanned = null;
 }
 
 /**
@@ -254,8 +263,12 @@ export function load(
     ) {
       runtimeState.rundown.actualStart = firstStart;
       runtimeState._startEpoch = startEpoch;
-      if (firstStart !== null && runtimeState.rundown.plannedStart !== null) {
-        runtimeState._startDayOffset = findDayOffset(runtimeState.rundown.plannedStart, firstStart);
+      // older restore points have no start anchor, they counted from the first event of the rundown
+      const startPlanned = initialData.startPlanned ?? runtimeState.rundown.plannedStart;
+      if (firstStart !== null && startPlanned !== null) {
+        const startDay = Math.floor(startPlanned / dayInMs);
+        runtimeState._startPlanned = startPlanned;
+        runtimeState._startDayOffset = (findDayOffset(startPlanned - startDay * dayInMs, firstStart) + startDay) as Day;
       }
       if (currentDay !== undefined) {
         runtimeState.rundown.currentDay = currentDay;
@@ -436,10 +449,19 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
   state.timer.expectedFinish = getExpectedFinish(expectedFinishInput(state));
   state.timer.elapsed = getElapsed(elapsedInput(state));
 
+  // the day this event plays on, if it started now
+  const startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
+
+  // starting an event from another day begins a new run, an offset of days would be meaningless
+  if (state.rundown.actualStart !== null && startDayOffset !== getRunningDay(state, epoch)) {
+    clearStartAnchor(state);
+  }
+
   if (state.rundown.actualStart === null) {
-    state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
+    state._startDayOffset = startDayOffset;
     state.rundown.currentDay = state._startDayOffset;
     state._startEpoch = epoch;
+    state._startPlanned = state.eventNow.timeStart + state.eventNow.dayOffset * dayInMs;
     state.rundown.actualStart = state.clock;
   }
 
@@ -779,10 +801,7 @@ export function roll(
     runtimeState.timer.current = runtimeState.timer.duration;
 
     // reset rundown state - the rundown will start fresh when the event begins
-    runtimeState.rundown.actualStart = null;
-    runtimeState.rundown.currentDay = null;
-    runtimeState._startDayOffset = null;
-    runtimeState._startEpoch = null;
+    clearStartAnchor();
 
     return {
       eventId: runtimeState.eventNow.id,
@@ -843,11 +862,20 @@ function backdateShowStart(plannedStart: number, epoch: Instant) {
   const event = runtimeState.eventNow!;
   runtimeState.rundown.actualStart = plannedStart;
   runtimeState._startDayOffset = (findDayOffset(event.timeStart, plannedStart) + event.dayOffset) as Day;
+  runtimeState._startPlanned = event.timeStart + event.dayOffset * dayInMs;
   // the instant the event conceptually started
   const timeElapsed = timeCore.elapsedTime(runtimeState.clock, plannedStart as TimeOfDay);
   runtimeState._startEpoch = timeCore.addDuration(epoch, -timeElapsed as Duration);
   runtimeState.rundown.currentDay = (runtimeState._startDayOffset +
     timeCore.daysSinceStart(runtimeState._startEpoch, epoch)) as Day;
+}
+
+/**
+ * The rundown day playback is on, counted from the day it started
+ */
+function getRunningDay(state: RuntimeState, epoch: Instant): Maybe<Day> {
+  if (state._startEpoch === null || state._startDayOffset === null) return null;
+  return (state._startDayOffset + timeCore.daysSinceStart(state._startEpoch, epoch)) as Day;
 }
 
 /**
@@ -869,8 +897,6 @@ function updateExpectedTimes(state = runtimeState) {
   const expectedTimes = getExpectedTimes({
     mode: offset.mode,
     offset: { absolute: offset.absolute as Duration, relative: offset.relative as Duration },
-    plannedStart: rundown.plannedStart as Maybe<TimeOfDay>,
-    actualStart: rundown.actualStart as Maybe<TimeOfDay>,
     currentDay: rundown.currentDay! as Day,
     group: state.groupNow ? state._group : null,
     flag: state.eventFlag ? state._flag : null,
@@ -942,7 +968,7 @@ function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
     addedTime: timer.addedTime as Duration,
     pausedAt: state._timer.pausedAt,
     startDayOffset: state._startDayOffset,
-    plannedStart: rundown.plannedStart as Maybe<TimeOfDay>,
+    startPlanned: state._startPlanned,
     actualStart: rundown.actualStart as Maybe<TimeOfDay>,
   };
 }
