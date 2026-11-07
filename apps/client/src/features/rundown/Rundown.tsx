@@ -22,15 +22,15 @@ import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundo
 import { AppMode } from '../../ontimeConfig';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
 import QuickAddInline from './entry-editor/quick-add-cursor/QuickAddInline';
+import { useListFollow } from './hooks/useListFollow';
 import { useRundownCommands } from './hooks/useRundownCommands';
 import { useRundownDnd } from './hooks/useRundownDnd';
 import { useRundownKeyboard } from './hooks/useRundownKeyboard';
-import { useUserScrolled } from './hooks/useUserScrolled';
 import RundownDragPreview from './rundown-drag-preview/RundownDragPreview';
 import { getGroupDurationFit } from './rundown-event/rundownEvent.utils';
 import RundownGroup from './rundown-group/RundownGroup';
 import RundownGroupEnd from './rundown-group/RundownGroupEnd';
-import { filterVisibleEntries, makeRevealLocation, makeSortableList } from './rundown.utils';
+import { filterVisibleEntries, makeSortableList } from './rundown.utils';
 import RundownEntry from './RundownEntry';
 import { useCollapsedGroups } from './useCollapsedGroups';
 import { useEditorFollowMode } from './useEditorFollowMode';
@@ -80,14 +80,11 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const cursor = useEventSelection((state) => state.cursor);
-  const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
-  const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
   const cursorRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const virtuosoRef = useRef<VirtuosoHandle | null>(null);
-  const { userScrolledRef, scrollerRef } = useUserScrolled();
 
   /**
    * Handles logic for collapsing groups
@@ -129,93 +126,43 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     return filterVisibleEntries(sortableData, entries, getIsCollapsed);
   }, [sortableData, entries, getIsCollapsed]);
 
-  const [revealEntryId, setRevealEntryId] = useState<EntryId | null>(null);
-
-  // Explicit navigation queues a reveal; the list owns expansion and waits for the target to render.
-  // Navigating means the user took over, so Run stops following until the next event or Alt+L.
-  useEffect(() => {
-    setScrollHandler((entryId) => {
-      if (!dnd.isDraggingRef.current) {
-        userScrolledRef.current = true;
-        setRevealEntryId(entryId);
+  // Reveal targets inside a collapsed group wait for it to expand.
+  const prepareReveal = useCallback(
+    (entryId: EntryId) => {
+      const entry = entries[entryId];
+      if (entry && 'parent' in entry && entry.parent && getIsCollapsed(entry.parent)) {
+        expandGroup(entry.parent);
+        return false;
       }
-    });
-    return () => setScrollHandler(null);
-  }, [dnd.isDraggingRef, setScrollHandler, userScrolledRef]);
+      return true;
+    },
+    [entries, getIsCollapsed, expandGroup],
+  );
 
-  const pinLiveEvent = useCallback(() => {
-    const index = featureData.selectedEventId ? visibleData.indexOf(featureData.selectedEventId) : -1;
-    if (index !== -1 && !dnd.isDraggingRef.current) {
-      virtuosoRef.current?.scrollToIndex({ index, align: 'start', behavior: 'smooth', offset: -100 });
-    }
-  }, [featureData.selectedEventId, visibleData, dnd.isDraggingRef]);
+  const { scrollerRef, reveal, resume, followMove, isFollowing } = useListFollow({
+    listRef: virtuosoRef,
+    ids: visibleData,
+    liveId: featureData.selectedEventId,
+    isRunMode: editorMode === AppMode.Run,
+    offset: 100,
+    behavior: 'smooth',
+    blockedRef: dnd.isDraggingRef,
+    prepare: prepareReveal,
+  });
+
+  const liveEntry = featureData.selectedEventId ? entries[featureData.selectedEventId] : undefined;
+  const liveParentId = liveEntry && 'parent' in liveEntry ? liveEntry.parent : null;
 
   // Jump to the current element on demand: the running event in Run mode, the edit cursor otherwise.
   // Scrolls only (no selection change) so jumping to the running event does not hijack the edit cursor.
   const jumpToCurrent = useCallback(() => {
-    const targetId = editorMode === AppMode.Run ? featureData.selectedEventId : cursor;
-    if (!targetId) {
-      return;
-    }
-
     if (editorMode === AppMode.Run) {
-      // back to following: pin the running event to the top so the next entries show
-      const entry = entries[targetId];
-      if (entry && 'parent' in entry) {
-        expandGroup(entry.parent);
-      }
-      userScrolledRef.current = false;
-      setRevealEntryId(null);
-      pinLiveEvent();
+      expandGroup(liveParentId);
+      resume();
     } else {
-      scrollToEntry(targetId);
+      reveal(cursor);
     }
-  }, [
-    editorMode,
-    featureData.selectedEventId,
-    cursor,
-    entries,
-    expandGroup,
-    scrollToEntry,
-    pinLiveEvent,
-    userScrolledRef,
-  ]);
-
-  // Keyboard moves in Edit land with the server reply, so they are followed by the entry's rendered position.
-  // Each move allows one reveal while it is in flight; the optimistic update renders before the reply settles it.
-  const followedMoveRef = useRef<{ id: EntryId; pending: number } | null>(null);
-  const followMove = useCallback(
-    (entryId: EntryId | null, move: Promise<void>) => {
-      if (editorMode !== AppMode.Edit || !entryId) {
-        return;
-      }
-      const followed = followedMoveRef.current?.id === entryId ? followedMoveRef.current : { id: entryId, pending: 0 };
-      followed.pending += 1;
-      followedMoveRef.current = followed;
-      userScrolledRef.current = false;
-      move.finally(() => {
-        followed.pending -= 1;
-        if (followed.pending === 0 && followedMoveRef.current === followed) {
-          followedMoveRef.current = null;
-        }
-      });
-    },
-    [editorMode, userScrolledRef],
-  );
-
-  // Reveal a moved entry when its rendered position changes; navigating, leaving Edit or scrolling stops following.
-  const cursorIndex = cursor ? visibleData.indexOf(cursor) : -1;
-  useEffect(() => {
-    const followed = followedMoveRef.current;
-    if (!followed) {
-      return;
-    }
-    if (followed.id !== cursor || editorMode !== AppMode.Edit || userScrolledRef.current) {
-      followedMoveRef.current = null;
-      return;
-    }
-    setRevealEntryId(cursor);
-  }, [cursor, cursorIndex, editorMode, userScrolledRef]);
+  }, [editorMode, liveParentId, cursor, expandGroup, resume, reveal]);
 
   // Keyboard shortcuts
   useRundownKeyboard({
@@ -230,55 +177,17 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
   // Entering Edit mode reveals the cursor through the same path as finder and keyboard navigation.
   useEffect(() => {
     if (editorMode === AppMode.Edit) {
-      setRevealEntryId(selectionStore.getState().cursor);
+      reveal(selectionStore.getState().cursor);
     }
-  }, [editorMode, selectionStore]);
-
-  const liveEntry = featureData.selectedEventId ? entries[featureData.selectedEventId] : undefined;
-  const liveParentId = liveEntry && 'parent' in liveEntry ? liveEntry.parent : null;
-
-  // A new live event or entering Run resumes following; content edits never reset the user's scroll suspension.
-  useEffect(() => {
-    if (dnd.isDraggingRef.current || editorMode !== AppMode.Run || !featureData.selectedEventId) {
-      return;
-    }
-    userScrolledRef.current = false;
-  }, [editorMode, featureData.selectedEventId, dnd.isDraggingRef, userScrolledRef]);
+  }, [editorMode, selectionStore, reveal]);
 
   // Keep a followed event visible when a structural edit moves it into another group.
+  // Runs after the list follow hook has resumed following on a new live event.
   useEffect(() => {
-    if (editorMode === AppMode.Run && !userScrolledRef.current && !dnd.isDraggingRef.current) {
+    if (isFollowing() && !dnd.isDraggingRef.current) {
       expandGroup(liveParentId);
     }
-  }, [editorMode, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef, userScrolledRef]);
-
-  // While following in Run, pin the live event; re-runs when the visible rows change (edits, group expansion).
-  useEffect(() => {
-    if (editorMode === AppMode.Run && !userScrolledRef.current) {
-      pinLiveEvent();
-    }
-  }, [editorMode, pinLiveEvent, userScrolledRef]);
-
-  // Reveal once the target's group is expanded and the target is rendered.
-  useEffect(() => {
-    if (!revealEntryId || dnd.isDraggingRef.current) {
-      return;
-    }
-    const entry = entries[revealEntryId];
-    if (!entry) {
-      setRevealEntryId(null);
-      return;
-    }
-    if ('parent' in entry && entry.parent && getIsCollapsed(entry.parent)) {
-      expandGroup(entry.parent);
-      return;
-    }
-    const index = visibleData.indexOf(revealEntryId);
-    if (index !== -1 && virtuosoRef.current) {
-      virtuosoRef.current.scrollIntoView({ index, behavior: 'smooth', calculateViewLocation: revealLocation });
-      setRevealEntryId(null);
-    }
-  }, [revealEntryId, entries, visibleData, getIsCollapsed, expandGroup, dnd.isDraggingRef]);
+  }, [isFollowing, featureData.selectedEventId, liveParentId, expandGroup, dnd.isDraggingRef]);
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
@@ -468,9 +377,6 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
 // Keep entries static; the overlay and drop line indicate the destination.
 const noSortingStrategy: SortingStrategy = () => null;
-
-// keep some room around a revealed entry so its neighbours show for context
-const revealLocation = makeRevealLocation(100);
 
 // Virtuoso components - extracted to prevent recreation on every render
 const VirtuosoListComponent = forwardRef<HTMLDivElement, HTMLProps<HTMLDivElement>>(({ children, ...props }, ref) => (
