@@ -21,6 +21,12 @@ describe('getOptionsFromParams()', () => {
     expect(parse('role=both').role).toBe('local');
   });
 
+  test('only a view playing on its own shows just the loaded event', () => {
+    expect(parse('onlyLoaded=true').onlyLoaded).toBe(true);
+    expect(parse('onlyLoaded=true&role=remote').onlyLoaded).toBe(false);
+    expect(parse('onlyLoaded=true&role=controller').onlyLoaded).toBe(false);
+  });
+
   test('reads the project field unless the view names another', () => {
     expect(parse('').source).toBe('project');
     expect(parse('source=').source).toBe('project');

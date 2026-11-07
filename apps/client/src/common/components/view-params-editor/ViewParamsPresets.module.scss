@@ -15,6 +15,7 @@
 }
 
 .presetList {
+  padding-bottom: 0.5rem;
   border-top: 1px solid $white-7;
   max-height: 10rem;
   overflow-y: auto;
@@ -28,10 +29,6 @@
   min-height: 2.5rem;
   padding: 0.375rem 1rem;
   font-size: $inner-section-text-size;
-
-  &:not(:last-child) {
-    border-bottom: 1px solid $white-7;
-  }
 
   &.active {
     background-color: $bg-active;

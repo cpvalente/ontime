@@ -77,6 +77,14 @@ async function request(path, method = 'GET') {
   return response.json();
 }
 
+/** The Script field holds whole presenter scripts, which would stretch every table row */
+async function hideScriptColumn(page) {
+  await page.getByRole('button', { name: 'Table options' }).click();
+  await page.getByRole('checkbox', { name: 'Script', exact: true }).uncheck();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('columnheader', { name: 'Script', exact: true })).toHaveCount(0);
+}
+
 async function poll() {
   return (await request('/api/poll')).payload;
 }
@@ -206,6 +214,7 @@ try {
       } else {
         await page.getByRole('button', { name: 'Table', exact: true }).click();
         await expect(page.getByRole('columnheader', { name: 'Video Notes', exact: true })).toBeVisible();
+        await hideScriptColumn(page);
       }
       if (!path.includes('planning')) {
         await expect(page.getByTestId('flag-plannedStart')).not.toContainText('––');
@@ -213,6 +222,7 @@ try {
     }
     if (label.startsWith('Cuesheet')) {
       await page.getByRole('button', { name: department ? 'Edit' : 'Run', exact: true }).click();
+      await hideScriptColumn(page);
       if (department) {
         await page.getByRole('button', { name: 'Table options' }).click();
         for (const column of ['Audio Notes', 'PowerPoint Name', 'PowerPoint Slide']) {
