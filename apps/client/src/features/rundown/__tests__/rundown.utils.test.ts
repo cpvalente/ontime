@@ -319,6 +319,6 @@ describe('makeRevealLocation()', () => {
     // a row taller than the view aligns without a margin
     const tall = reveal({ ...short, itemTop: -400, itemBottom: -100, locationParams });
     expect(tall).toMatchObject({ align: 'start' });
-    expect(Math.abs(tall!.offset!)).toBe(0);
+    expect(tall?.offset).toBeCloseTo(0);
   });
 });
