@@ -315,6 +315,36 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
     });
 
+    test('a count to end event counts through midnight to its end the day after', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-overnight',
+        timeStart: 23 * MILLIS_PER_HOUR,
+        timeEnd: MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 23:00');
+      load(event, rundown, metadata);
+      start();
+
+      vi.setSystemTime('jan 2 00:30');
+      update();
+      let state = getState();
+      expect(state.timer.current).toBe(30 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(0);
+
+      vi.setSystemTime('jan 2 01:10');
+      update();
+      state = getState();
+      expect(state.timer.current).toBe(-10 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(10 * MILLIS_PER_MINUTE);
+    });
+
     test('a count to end event does not finish while paused past its planned end', async () => {
       clearState();
       const event = {

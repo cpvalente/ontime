@@ -107,7 +107,9 @@ export function getExpectedFinish(input: ExpectedFinishInput): MaybeNumber {
 
 export type CurrentInput = {
   clock: TimeOfDay;
-  event: { countToEnd: boolean; timeStart: TimeOfDay; timeEnd: TimeOfDay };
+  event: { countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day };
+  /** day of the rundown we are in, null before the rundown starts */
+  currentDay: Maybe<Day>;
   startedAt: Maybe<TimeOfDay>;
   duration: Duration;
   addedTime: Duration;
@@ -119,15 +121,16 @@ export type CurrentInput = {
  * @returns time remaining in the timer, negative when in overtime
  */
 export function getCurrent(input: CurrentInput): Duration {
-  const { clock, event, startedAt, duration, addedTime, pausedAt } = input;
-  const { countToEnd, timeStart, timeEnd } = event;
+  const { clock, event, currentDay, startedAt, duration, addedTime, pausedAt } = input;
+  const { countToEnd, timeStart, dayOffset } = event;
 
   if (countToEnd) {
-    const isEventOverMidnight = timeStart > timeEnd;
-    const correctDay = isEventOverMidnight ? dayInMs : 0;
+    // the planned end and the clock, both counted from the first day of the rundown
+    const plannedEnd = dayOffset * dayInMs + timeStart + duration;
+    const clockInRundown = (currentDay ?? dayOffset) * dayInMs + clock;
     // time paused gives the event time, as added time does
     const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
-    return (correctDay - clock + timeEnd + addedTime + pausedTime) as Duration;
+    return (plannedEnd + addedTime + pausedTime - clockInRundown) as Duration;
   }
 
   if (startedAt === null) {
