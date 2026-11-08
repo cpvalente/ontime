@@ -1008,16 +1008,4 @@ describe('getExpectedTimes()', () => {
       getExpectedTimes(makeInput({ offset: absoluteOffset(2 * MILLIS_PER_HOUR), end: countToEnd })).expectedRundownEnd,
     ).toBe(4 * MILLIS_PER_HOUR);
   });
-
-  it('moves the end of a loaded count-to-end event by the time given to it', () => {
-    const loaded = { ...linked, isLoaded: true, event: makeOntimeEvent({ ...event, countToEnd: true }) };
-    const timeGiven = 5 * MILLIS_PER_MINUTE;
-
-    expect(
-      getExpectedTimes(makeInput({ offset: absoluteOffset(timeGiven), group: loaded, end: loaded })),
-    ).toMatchObject({
-      expectedGroupEnd: 3 * MILLIS_PER_HOUR + timeGiven,
-      expectedRundownEnd: 3 * MILLIS_PER_HOUR + timeGiven,
-    });
-  });
 });

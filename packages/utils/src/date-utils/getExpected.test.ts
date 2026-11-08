@@ -479,6 +479,12 @@ describe('getExpectedEnd()', () => {
       expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(150);
     });
 
+    test('keeps its end when a delay moves its start, as its timer counts to the planned end', () => {
+      const delayed = { ...testEvent, delay: 10 };
+      const expectedStart = getExpectedStart(delayed, { ...baseState, offset: timeGiven });
+      expect(getExpectedEnd(delayed, expectedStart, baseState.currentDay, true)).toBe(157);
+    });
+
     test('ends at its planned end plus the time given to it in relative mode', () => {
       const actualStart = 30;
       const plannedStart = 0;
