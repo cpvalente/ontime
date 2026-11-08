@@ -14,6 +14,8 @@ export type RuntimeRestore = {
   firstStart: MaybeNumber;
   startEpoch: Maybe<Instant>;
   currentDay: MaybeNumber;
+  /** day offset of the event the rundown was first started on, missing in older restore points */
+  startDayOffset?: MaybeNumber;
   offsetMode: OffsetMode;
 };
 

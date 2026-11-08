@@ -86,6 +86,10 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
+  if ('startDayOffset' in point && !is.number(point.startDayOffset) && point.startDayOffset !== null) {
+    return false;
+  }
+
   if (!Object.values(OffsetMode).includes(point.offsetMode as OffsetMode)) {
     return false;
   }

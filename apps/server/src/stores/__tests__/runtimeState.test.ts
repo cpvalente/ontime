@@ -572,6 +572,51 @@ describe('mutation on runtimeState', () => {
     update();
     expect(getState().rundown.currentDay).toBe(3);
   });
+
+  test('a restore keeps the day the rundown was first started on', async () => {
+    const mockRundown = makeRundown({
+      entries: {
+        morning: { ...mockEvent, id: 'morning', timeStart: 9 * MILLIS_PER_HOUR, timeEnd: 10 * MILLIS_PER_HOUR },
+        evening: {
+          ...mockEvent,
+          id: 'evening',
+          timeStart: 21 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+          timeEnd: 22 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+          duration: MILLIS_PER_HOUR,
+          countToEnd: true,
+        },
+      },
+      order: ['morning', 'evening'],
+    });
+    await initTestRundown(mockRundown);
+    const { rundown, metadata } = rundownCache.get();
+
+    // the rundown was first started on the evening event, not the morning one
+    const startEpoch = new Date('jan 1 21:30').getTime() as Instant;
+    vi.setSystemTime('jan 1 21:45');
+    resume(
+      {
+        rundownId: rundown.id,
+        playback: Playback.Play,
+        selectedEventId: 'evening',
+        startedAt: 21 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        addedTime: 0,
+        pausedAt: null,
+        firstStart: 21 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        startEpoch,
+        currentDay: 0,
+        startDayOffset: 0,
+        offsetMode: OffsetMode.Absolute,
+      },
+      mockRundown.entries.evening as PlayableEvent,
+      rundown,
+      metadata,
+    );
+    update();
+
+    expect(getState().rundown.currentDay).toBe(0);
+    expect(getState().timer.current).toBe(45 * MILLIS_PER_MINUTE);
+  });
 });
 
 describe('roll mode', () => {

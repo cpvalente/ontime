@@ -42,6 +42,11 @@ describe('parseRestorePoint()', () => {
     expect(parseRestorePoint({ savedAt: 1 })).toMatchObject({ savedAt: 1 });
   });
 
+  it('accepts the day the rundown was first started on, missing in older restore points', () => {
+    expect(parseRestorePoint({ ...restorePoint, runtime: { ...savedRuntime, startDayOffset: 1 } })).not.toBeNull();
+    expect(parseRestorePoint({ ...restorePoint, runtime: { ...savedRuntime, startDayOffset: null } })).not.toBeNull();
+  });
+
   it('accepts nullable stopped fields and a paused duration', () => {
     const stoppedRuntime = {
       ...savedRuntime,
@@ -69,6 +74,7 @@ describe('parseRestorePoint()', () => {
     ['an unknown offset mode', { runtime: { ...savedRuntime, offsetMode: 'unknown' } }],
     ['an invalid timer value', { runtime: { ...savedRuntime, startedAt: 'invalid' } }],
     ['a malformed paused duration', { runtime: { ...savedRuntime, pausedDuration: '3000' } }],
+    ['a malformed start day offset', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
     ['two aux timers', { auxTimers: [running, stopped] }],
     ['a running aux timer without a start', { auxTimers: [running, stopped, { ...running, startedAt: null }] }],
     ['a paused aux timer still counting', { auxTimers: [running, stopped, { ...running, playback: 'pause' }] }],

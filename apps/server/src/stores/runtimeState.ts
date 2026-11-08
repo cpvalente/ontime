@@ -255,13 +255,17 @@ export function load(
     const startEpoch = initialData?.startEpoch;
     const firstStart = initialData?.firstStart;
     const currentDay = initialData?.currentDay;
+    const startDayOffset = initialData?.startDayOffset;
     if (
       (firstStart === null || typeof firstStart === 'number') &&
       (startEpoch === null || typeof startEpoch === 'number')
     ) {
       runtimeState.rundown.actualStart = firstStart;
       runtimeState._startEpoch = startEpoch;
-      if (firstStart !== null && runtimeState.rundown.plannedStart !== null) {
+      if (typeof startDayOffset === 'number') {
+        runtimeState._startDayOffset = startDayOffset as Day;
+      } else if (firstStart !== null && runtimeState.rundown.plannedStart !== null) {
+        // older restore points do not keep the day of the first start
         runtimeState._startDayOffset = findDayOffset(runtimeState.rundown.plannedStart, firstStart);
       }
       if (currentDay !== undefined) {

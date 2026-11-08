@@ -842,6 +842,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
           currentDay: state.rundown.currentDay,
+          startDayOffset: state._startDayOffset,
           offsetMode: state.offset.mode,
         })
         .catch((_e) => {
