@@ -314,6 +314,78 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.current).toBe(110 * MILLIS_PER_MINUTE);
       expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
     });
+
+    test('a count to end event does not finish while paused past its planned end', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-pause-past-end',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:25');
+      update();
+      pause();
+
+      vi.setSystemTime('jan 1 10:35');
+      const { hasTimerFinished } = update();
+      const state = getState();
+      expect(hasTimerFinished).toBe(false);
+      expect(state.timer.current).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.timer.phase).not.toBe(TimerPhase.Overtime);
+    });
+
+    test('a pause gives a count to end event time, as added time does', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-pause',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:10');
+      update();
+      pause();
+
+      // while paused, the countdown holds and the end moves by the time paused
+      vi.setSystemTime('jan 1 10:12');
+      update();
+      let state = getState();
+      expect(state.timer.current).toBe(20 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+
+      // resuming keeps the pause as added time, nothing jumps
+      start();
+      state = getState();
+      expect(state.timer.addedTime).toBe(2 * MILLIS_PER_MINUTE);
+      expect(state.timer.current).toBe(20 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+
+      vi.setSystemTime('jan 1 10:13');
+      update();
+      state = getState();
+      expect(state.timer.current).toBe(19 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+    });
   });
 
   test('runtime offset', async () => {

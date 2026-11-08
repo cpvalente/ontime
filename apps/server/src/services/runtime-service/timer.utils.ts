@@ -125,7 +125,9 @@ export function getCurrent(input: CurrentInput): Duration {
   if (countToEnd) {
     const isEventOverMidnight = timeStart > timeEnd;
     const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return (correctDay - clock + timeEnd + addedTime) as Duration;
+    // time paused gives the event time, as added time does
+    const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
+    return (correctDay - clock + timeEnd + addedTime + pausedTime) as Duration;
   }
 
   if (startedAt === null) {
@@ -238,8 +240,10 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
   const pausedTime = pausedAt === null ? 0 : timeCore.elapsedTime(clock, pausedAt);
 
   // absolute offset is difference between schedule and playback time
-  // in case of count to end, the absolute offset is overtime and added time
-  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
+  // in case of count to end, the absolute offset is overtime and the time given to the event
+  const absolute = countToEnd
+    ? overtime + pausedTime + addedTime
+    : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset is the same as the absolute but adjusted relative to the actual start time
   const relative = absolute + plannedStart - actualStart - startDayOffset * dayInMs;

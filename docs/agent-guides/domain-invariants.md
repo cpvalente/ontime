@@ -56,6 +56,8 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 
 Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
 
+Pausing gives the running event time, the same as added time: a paused countdown holds and its end moves later. A count-to-end event aims at its planned end plus the time given to it.
+
 ## Lifecycle events
 
 - Playback cycles (load, start, finish, phases, pause, stop) reach reports and automations once each, in the order they happened, after the runtime has committed its state. They are never merged, unlike data changes.

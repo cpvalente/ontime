@@ -274,7 +274,7 @@ describe('getCurrent()', () => {
       expect(current).toBe(77);
     });
 
-    it('keeps counting to the end while paused', () => {
+    it('holds while paused, the pause gives the event time', () => {
       const current = getCurrent(
         makeInput({
           event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
@@ -284,7 +284,7 @@ describe('getCurrent()', () => {
           pausedAt: tod(20),
         }),
       );
-      expect(current).toBe(70);
+      expect(current).toBe(80);
     });
 
     it('handles events that finish the day after', () => {
@@ -755,7 +755,7 @@ describe('getRuntimeOffset()', () => {
     expect(absolute).toBe(400000 - 200000); // <--- offset is always the overtime + added time
   });
 
-  it('with time-to-end, paused time is not offset', () => {
+  it('with time-to-end, paused time is offset, as added time is', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(80000000), // 22:13:20
@@ -767,7 +767,7 @@ describe('getRuntimeOffset()', () => {
         actualStart: tod(78000000),
       }),
     );
-    expect(absolute).toBe(0);
+    expect(absolute).toBe(1000000); // paused since 79000000
   });
 
   it('handles time-to-end started after the end time', () => {
