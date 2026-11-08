@@ -386,6 +386,45 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
       expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
     });
+
+    test('the expected group and rundown end follow the time given to a loaded count to end event', async () => {
+      clearState();
+      const group = makeOntimeGroup({ id: 'group', entries: ['count-to-end-end'] });
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-end',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+        parent: group.id,
+      };
+      await initTestRundown(makeRundown({ entries: { [group.id]: group, [event.id]: event }, order: [group.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:10');
+      update();
+      let state = getState();
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+
+      addTime(5 * MILLIS_PER_MINUTE);
+      state = getState();
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+
+      pause();
+      vi.setSystemTime('jan 1 10:12');
+      update();
+      state = getState();
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+    });
   });
 
   test('runtime offset', async () => {

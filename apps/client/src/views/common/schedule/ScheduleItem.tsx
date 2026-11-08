@@ -22,6 +22,7 @@ type ScheduleItemProps = Pick<
   | 'delay'
   | 'totalGap'
   | 'isLinkedToLoaded'
+  | 'isLoaded'
   | 'countToEnd'
   | 'duration'
   | 'colour'
@@ -37,6 +38,7 @@ export default function ScheduleItem({
   delay,
   totalGap,
   isLinkedToLoaded,
+  isLoaded,
   countToEnd,
   colour,
   duration,
@@ -57,6 +59,7 @@ export default function ScheduleItem({
             delay={delay}
             totalGap={totalGap}
             isLinkedToLoaded={isLinkedToLoaded}
+            isLoaded={isLoaded}
             countToEnd={countToEnd}
             duration={duration}
             colour={colour}
@@ -124,6 +127,7 @@ function ExpectedScheduleItem({
   delay,
   totalGap,
   isLinkedToLoaded,
+  isLoaded,
   countToEnd,
   colour,
   duration,
@@ -136,6 +140,7 @@ function ExpectedScheduleItem({
       delay,
       totalGap,
       isLinkedToLoaded,
+      isLoaded,
       countToEnd,
       duration,
     },

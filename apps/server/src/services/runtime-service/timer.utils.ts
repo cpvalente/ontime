@@ -292,6 +292,7 @@ export type ExpectedMetadata = {
   event: OntimeEvent;
   accumulatedGap: number;
   isLinkedToLoaded: boolean;
+  isLoaded: boolean;
 };
 
 export type ExpectedTimesInput = {
@@ -325,9 +326,11 @@ export function getExpectedTimes(
     });
 
   return {
-    expectedGroupEnd: group === null ? null : getExpectedEnd(group.event, getLookaheadStart(group), currentDay),
+    expectedGroupEnd:
+      group === null ? null : getExpectedEnd(group.event, getLookaheadStart(group), currentDay, group.isLoaded),
     expectedFlagStart: flag === null ? null : getLookaheadStart(flag),
-    expectedRundownEnd: end === null ? null : getExpectedEnd(end.event, getLookaheadStart(end), currentDay),
+    expectedRundownEnd:
+      end === null ? null : getExpectedEnd(end.event, getLookaheadStart(end), currentDay, end.isLoaded),
   };
 }
 

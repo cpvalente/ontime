@@ -56,12 +56,13 @@ export function getExpectedEnd(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd'>,
   expectedStart: number,
   currentRuntimeDay: number,
+  isLoaded: boolean,
 ): number {
   /**
-   * Count to end events are a special case
-   * - the end time is always the wall clock
+   * Count to end events after the loaded one end on their planned time, absorbing any delay
+   * the loaded event follows the runtime offset, which holds the time given to a count to end event
    */
-  if (event.countToEnd) {
+  if (event.countToEnd && !isLoaded) {
     // account for day offset
     const relativeDayOffset = event.dayOffset - currentRuntimeDay;
     const plannedEnd = event.timeStart + event.duration + relativeDayOffset * dayInMs;

@@ -181,7 +181,7 @@ export function getExpectedTimesFromExtendedEvent(
 export function getExpectedScheduleTimes(
   event: Pick<
     ExtendedEntry<OntimeEvent>,
-    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'countToEnd' | 'duration'
+    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'isLoaded' | 'countToEnd' | 'duration'
   > | null,
   state: ReturnType<typeof useExpectedScheduleData>,
 ) {
@@ -195,7 +195,7 @@ export function getExpectedScheduleTimes(
       ...state,
     },
   );
-  const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay);
+  const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay, event.isLoaded);
   const plannedEnd = event.timeStart + event.duration + event.delay;
 
   return {

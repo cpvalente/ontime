@@ -1005,6 +1005,7 @@ export function loadGroupFlagAndEnd(
     event,
     accumulatedGap: totalGap,
     isLinkedToLoaded,
+    isLoaded: event.id === loadedId,
   });
 
   const groupEndLink = lastEventInGroup ? links.get(lastEventInGroup.id) : undefined;

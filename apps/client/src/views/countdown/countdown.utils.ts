@@ -301,7 +301,7 @@ export function extendEventData(
     offset,
     mode,
   });
-  const expectedEnd = getExpectedEnd(event, expectedStart, currentDay);
+  const expectedEnd = getExpectedEnd(event, expectedStart, currentDay, event.isLoaded);
   const { endedAt } = reportData[event.reportId ?? event.id] ?? { endedAt: null };
   return { ...event, expectedStart, endedAt, expectedEnd };
 }
