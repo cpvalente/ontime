@@ -16,7 +16,7 @@ interface TitleListItemProps {
   isRunning: boolean;
   mode: AppMode;
   isGroupEnd: boolean;
-  onSelect: (params: { id: string; index: number; parent?: string }) => void;
+  onSelect: (params: { id: string; index: number }) => void;
 }
 
 export default memo(TitleListItem);
@@ -30,8 +30,8 @@ function TitleListItem({
   onSelect,
 }: TitleListItemProps) {
   const handleClick = useCallback(() => {
-    onSelect({ id: entry.id, index: entry.eventIndex - 1, parent: entry.parent ?? undefined });
-  }, [onSelect, entry.id, entry.eventIndex, entry.parent]);
+    onSelect({ id: entry.id, index: entry.eventIndex - 1 });
+  }, [onSelect, entry.id, entry.eventIndex]);
 
   // Show "next" highlight for 2 events after current
   const isNext =

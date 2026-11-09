@@ -1,9 +1,11 @@
-import { MaybeString } from 'ontime-types';
+import { MaybeString, ProjectStartup } from 'ontime-types';
 import { create } from 'zustand';
 
 interface DialogStore {
   showDialog: MaybeString;
-  setDialog: (name: string) => void;
+  /** why the server loaded its project, only known when the server opened the dialog */
+  projectStartup: ProjectStartup | null;
+  setDialog: (name: string, projectStartup?: ProjectStartup) => void;
   clearDialog: () => void;
 }
 
@@ -12,13 +14,14 @@ interface DialogStore {
  */
 export const useDialogStore = create<DialogStore>((set) => ({
   showDialog: null,
-  clearDialog: () => set({ showDialog: null }),
-  setDialog: (name) => set({ showDialog: name }),
+  projectStartup: null,
+  clearDialog: () => set({ showDialog: null, projectStartup: null }),
+  setDialog: (name, projectStartup) => set({ showDialog: name, projectStartup: projectStartup ?? null }),
 }));
 
 /**
  * Allows setting a dialog to show (outside react)
  */
-export function addDialog(name: string): void {
-  useDialogStore.getState().setDialog(name);
+export function addDialog(name: string, projectStartup?: ProjectStartup): void {
+  useDialogStore.getState().setDialog(name, projectStartup);
 }

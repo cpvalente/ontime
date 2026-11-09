@@ -9,6 +9,7 @@ import { publicDir } from '../../setup/index.js';
 import {
   dockerSafeRename,
   fileIsReadable,
+  generateUniqueFileName,
   getFilesFromFolder,
   removeFileExtension,
 } from '../../utils/fileManagement.js';
@@ -126,11 +127,18 @@ export function getPathToProject(name: string): string {
 }
 
 /**
+ * Where a file is kept in a backup directory, eg: corrupted or migrated files
+ * A file of the same name kept earlier stays, the new one gets a numbered name
+ */
+export function getBackupPath(directory: string, name: string): string {
+  return join(directory, generateUniqueFileName(directory, name));
+}
+
+/**
  * Moves a file permanently to the corrupted directory
  */
 export async function moveCorruptFile(filePath: string, name: string): Promise<void> {
-  const newPath = join(publicDir.corruptDir, name);
-  return dockerSafeRename(filePath, newPath);
+  return dockerSafeRename(filePath, getBackupPath(publicDir.corruptDir, name));
 }
 
 /**

@@ -141,7 +141,7 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
   try {
     const { filename, path } = req.file;
     await handleProjectUploaded(path, filename);
-    await projectService.loadProjectFile(filename);
+    await projectService.loadUploadedProject(filename);
 
     res.status(201).send({
       message: `Loaded project ${filename}`,

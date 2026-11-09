@@ -11,7 +11,23 @@ import { addLog, createLog } from '../stores/logger';
  */
 export function maybeAxiosError(error: unknown) {
   if (axios.isAxiosError(error)) {
-    if (!error.response) return error.message;
+    if (axios.isCancel(error)) {
+      return 'Request cancelled';
+    }
+    // the server may have received the request, and may still complete it
+    // axios also reports a request the browser aborted as ECONNABORTED, only a timeout names it
+    const isTimeout =
+      error.code === AxiosError.ETIMEDOUT ||
+      (error.code === AxiosError.ECONNABORTED && error.message.includes('timeout'));
+    if (isTimeout) {
+      return 'The Ontime server took too long to respond';
+    }
+    if (error.code === AxiosError.ERR_NETWORK || error.code === AxiosError.ECONNABORTED) {
+      return 'Could not reach the Ontime server';
+    }
+    if (!error.response) {
+      return error.message;
+    }
     const statusText = (error as AxiosError).response?.statusText ?? '';
     let data = (error as AxiosError).response?.data ?? '';
     if (typeof data === 'object') {

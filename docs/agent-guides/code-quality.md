@@ -65,7 +65,7 @@ brief responsibility label is useful even when the mechanics are straightforward
 - Log what the server did, or deliberately withheld, that nothing on screen explains. Do not log what the UI already shows.
 - Pass values as fields, never in the message: `logger.info(LogOrigin.Automation, 'Automation skipped', { reason: 'filters', title })` writes `Automation skipped reason=filters title="House lights"`. Users find entries by searching the message.
 - The message is subject first, past tense, sentence case, and does not repeat the origin: `Restore skipped`, `HTTP send failed`, `Client connected`. Failures read `<subject> failed` with `error=` or `status=`; deliberate holds read `<subject> skipped` with a kebab-case `reason=`.
-- Reuse field names: `project`, `rundown`, `cue`, `title`, `client`, `target`, `port`, `state`, `reason`, `status`, `error` last. Identify events by `cue` and `title`; use `id` only when both are empty.
+- Reuse field names: `project`, `rundown`, `cue`, `title`, `client`, `source`, `target`, `port`, `state`, `reason`, `status`, `error` last. Identify events by `cue` and `title`; use `id` only when both are empty.
 - Paths that run every second (timer ticks, `onUpdate`/`onClock` automations) log failures only, once per target until it recovers.
 
 ## Review standard

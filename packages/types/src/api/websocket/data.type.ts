@@ -1,4 +1,5 @@
 import type { Client } from '../../definitions/Clients.type.js';
+import type { ProjectStartup } from '../../definitions/core/ProjectData.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { RefetchKey } from './refetch.type.js';
@@ -29,7 +30,7 @@ type PongPacket = { tag: MessageTag.Pong; payload: number; clock: number };
 type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
 type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
 type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };
-type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: string } };
+type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: 'welcome' } & ProjectStartup };
 type ListClientPacket = {
   tag: MessageTag.ClientList;
   payload: Record<string, Client>;

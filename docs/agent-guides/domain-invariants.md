@@ -14,6 +14,12 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
   ungroup) only advance the rundown revision. Delays carry no revision. Optimistic client edits apply
   the same bump the server does, so an unchanged entry keeps its identity.
 
+## Rundown lists
+
+- Lists scroll on user intent, never on data changes. In Run they follow the live event until the user scrolls or navigates; a new live event or Alt+L follows again. Clicks, selection and edits never scroll.
+- Explicit navigation (finder, keyboard, title list) reveals with the smallest scroll, opening a collapsed group first.
+- A collapsed group opens only when the selection, or in Run the live event, moves into it. Edits never re-open a group the user collapsed.
+
 ## Persistence, realtime, cache
 
 - No partial commit on failure.
@@ -24,7 +30,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Reconnect/refetch must converge on authoritative state.
 - Align query keys and websocket refetch keys with the changed resource.
 - Whether the previous session ended cleanly is answered only by the app state service (`startSession`); only a crash or a power loss is unclean, a container stop is not. Do not infer it from logs or other files.
-- A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. A restore point's playback names it and resumes only in that project; the point's aux timers outlive a project and resume in any.
+- The "show welcome dialog on startup" preference only applies to a healthy restart: a startup which replaced a project that failed to load always tells the first editor.
+- A project's `projectId` stays with its file: loading a file without one gives it one and saves it, patches and merges never change it, and a copy made in the app (new, demo, duplicate) gets its own. A restore point's playback names it and resumes only in that project; the point's aux timers outlive a project and resume in any. Every playback change saves a restore point, a stopped one too: test its playback, not its presence, to know whether a show is running.
 - Report every committed write through `notifyChange()` (`services/change-service`), never `sendRefetch()` directly. It sends each refetch once at the end of the event loop, after the caller has replied. Routers never write to `DataProvider`.
 - Writers report changes and never call their consumers. Consumers that must stay in step with the data listen with `onChange()` and run in the same call as the write: the runtime reconciles on every change to the loaded rundown, reading it itself, and owns the stop/hot-reload decision.
 - Runtime store keys are state: clients ignore a patch equal to what they hold and receive the whole store on connect. A command which must take effect when repeated changes the state, eg: a new timestamp.
