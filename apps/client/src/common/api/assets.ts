@@ -16,16 +16,17 @@ export async function getCSSContents(options?: RequestOptions): Promise<string> 
 }
 
 /**
- * HTTP request to post css contents
+ * HTTP request to post css contents and potentially turn on the css override
  */
-export async function postCSSContents(css: string): Promise<void> {
+export async function postCSSContents(css: string, enabled: boolean): Promise<void> {
   await axios.post(`${assetsPath}/css`, {
     css,
+    enabled,
   });
 }
 
 /**
- * HTTP request to get the example css without changing the saved stylesheet
+ * HTTP request to get the example css
  */
 export async function getCSSExample(): Promise<string> {
   const res = await axios.get(`${assetsPath}/css/example`);

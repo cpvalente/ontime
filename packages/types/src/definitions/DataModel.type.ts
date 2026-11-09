@@ -3,10 +3,16 @@ import type { CustomFields } from './core/CustomFields.type.js';
 import type { ProjectData } from './core/ProjectData.type.js';
 import type { ProjectRundowns } from './core/Rundown.type.js';
 import type { Settings } from './core/Settings.type.js';
+import type { TeleprompterSettings } from './core/Teleprompter.type.js';
 import type { URLPreset } from './core/UrlPreset.type.js';
 import type { ViewSettings } from './core/Views.type.js';
 
 export type DatabaseModel = {
+  /**
+   * Stays with the project file, a copy made in the app gets its own
+   * Copies made outside the app keep it, an older 4.x drops it when it saves the file
+   */
+  projectId: string;
   rundowns: ProjectRundowns;
   project: ProjectData;
   settings: Settings;
@@ -14,4 +20,5 @@ export type DatabaseModel = {
   urlPresets: URLPreset[];
   customFields: CustomFields;
   automation: AutomationSettings;
+  teleprompter: TeleprompterSettings;
 };

@@ -19,7 +19,7 @@ interface CodeEditorModalProps {
 }
 
 export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProps) {
-  const { data: viewSettings, status: viewSettingsStatus, mutateAsync: saveViewSettings } = useViewSettings();
+  const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
   const [savedCss, setSavedCss] = useState('');
   const [draftCss, setDraftCss] = useState('');
   const [cssLoadStatus, setCssLoadStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -67,12 +67,8 @@ export default function CodeEditorModal({ isOpen, onClose }: CodeEditorModalProp
     try {
       setError(null);
       setSaveLoading(true);
-      await postCSSContents(draftCss);
+      await postCSSContents(draftCss, true);
       setSavedCss(draftCss);
-      // saving CSS signals intent to see it, so we enable the override
-      if (!isOverrideEnabled) {
-        await saveViewSettings({ ...viewSettings, overrideStyles: true });
-      }
     } catch (saveError) {
       setError(maybeAxiosError(saveError));
     } finally {

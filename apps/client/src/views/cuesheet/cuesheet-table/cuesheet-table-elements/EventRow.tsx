@@ -1,5 +1,5 @@
 import { FlexRender } from '@tanstack/react-table';
-import { EntryId, RGBColour, SupportedEntry } from 'ontime-types';
+import { OntimeEvent, RGBColour, SupportedEntry } from 'ontime-types';
 import { colourToHex, cssOrHexToColour } from 'ontime-utils';
 import { CSSProperties, memo, useMemo } from 'react';
 import { IoEllipsisHorizontal } from 'react-icons/io5';
@@ -8,51 +8,45 @@ import IconButton from '../../../../common/components/buttons/IconButton';
 import { cx, getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { AppMode } from '../../../../ontimeConfig';
 import { useCuesheetTableMenu } from '../cuesheet-table-menu/useCuesheetTableMenu';
-import type { CuesheetTable } from '../cuesheetTable.features';
+import type { CuesheetColumn, CuesheetTable, CuesheetTableMeta } from '../cuesheetTable.features';
 
 import style from './EventRow.module.scss';
 
 interface EventRowProps {
-  rowId: string;
-  id: EntryId;
+  entry: OntimeEvent;
   eventIndex: number;
-  colour: string;
   isFirstAfterGroup: boolean;
   isLoaded: boolean;
   isPast: boolean;
   groupColour: string | undefined;
-  flag: boolean;
-  skip: boolean;
-  parent: EntryId | null;
+  rowId: string;
   rowIndex: number;
   table: CuesheetTable;
+  options: CuesheetTableMeta['options'];
+  visibleColumns: CuesheetColumn[];
   injectedStyles?: CSSProperties;
   hasCursor?: boolean;
 }
 
 export default memo(EventRow);
 function EventRow({
-  rowId,
-  id,
+  entry,
   eventIndex,
-  colour,
   isFirstAfterGroup,
   isLoaded,
   isPast,
   groupColour,
-  flag,
-  skip,
-  parent,
+  rowId,
   rowIndex,
   table,
+  options,
+  visibleColumns,
   injectedStyles,
   hasCursor,
   ...virtuosoProps
 }: EventRowProps) {
-  const { cuesheetMode, hideIndexColumn } = table.options.meta?.options ?? {
-    cuesheetMode: AppMode.Edit,
-    hideIndexColumn: false,
-  };
+  const { id, colour, flag, skip, parent } = entry;
+  const { cuesheetMode, hideIndexColumn } = options;
 
   const openMenu = useCuesheetTableMenu((store) => store.openMenu);
 
@@ -76,6 +70,8 @@ function EventRow({
       mutedText: colourToHex({ ...tmpColour, alpha: tmpColour.alpha * 0.8 }),
     };
   }, [colour, isLoaded]);
+
+  const cells = table.getRow(rowId).getAllCellsByColumnId();
 
   return (
     <tr
@@ -117,26 +113,24 @@ function EventRow({
           {eventIndex}
         </td>
       )}
-      {table
-        .getRow(rowId)
-        .getVisibleCells()
-        .map((cell) => {
-          return (
-            <td
-              key={cell.id}
-              style={{
-                width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
-                backgroundColor: rowBgColour,
-              }}
-              tabIndex={-1}
-              role='cell'
-              data-testid={`cuesheet-cell-${cell.column.id}`}
-              data-column-id={cell.column.id}
-            >
-              <FlexRender cell={cell} />
-            </td>
-          );
-        })}
+      {visibleColumns.map((column) => {
+        const cell = cells[column.id];
+        return (
+          <td
+            key={cell.id}
+            style={{
+              width: `calc(var(--col-${column.id}-size) * 1px)`,
+              backgroundColor: rowBgColour,
+            }}
+            tabIndex={-1}
+            role='cell'
+            data-testid={`cuesheet-cell-${column.id}`}
+            data-column-id={column.id}
+          >
+            <FlexRender cell={cell} />
+          </td>
+        );
+      })}
     </tr>
   );
 }

@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/override';
 
 test('Rearrange while playing', async ({ page }) => {
-  await page.goto('/rundown');
+  await page.goto('rundown');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear rundown
@@ -34,7 +34,7 @@ test('Rearrange while playing', async ({ page }) => {
 });
 
 test('flag and unflag an event while playing', async ({ page }) => {
-  await page.goto('/editor/');
+  await page.goto('editor/');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   await page.getByRole('button', { name: 'Rundown menu' }).click();

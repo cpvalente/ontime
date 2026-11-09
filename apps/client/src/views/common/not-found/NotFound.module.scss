@@ -2,16 +2,41 @@
 
 .notFound {
   display: grid;
-  height: 100vh;
-  padding-top: 20vh;
+  min-height: 100dvh;
+  place-items: start center;
+  align-content: start;
+  padding: clamp(2rem, 8dvh, 6rem) 1.5rem 1rem;
   background-color: var(--background-color-override, $viewer-background-color);
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
-
-  color: $ui-white;
-  align-items: center;
+  width: 100%;
   text-align: center;
+}
+
+.illustration {
+  width: min(100%, 14rem);
+  margin: 0 auto -1.5rem;
+  opacity: 0.6;
+}
+
+h1 {
+  margin: 0;
+  color: var(--color-override, $viewer-color);
+  font-size: clamp(1rem, 1.55vw, 1.5rem);
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.content > p {
+  margin-top: 0.5rem;
+  color: var(--secondary-color-override, $viewer-secondary-color);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
 }

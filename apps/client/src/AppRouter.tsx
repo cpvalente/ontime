@@ -21,6 +21,7 @@ const Backstage = lazy(() => import('./views/backstage/Backstage'));
 const StudioClock = lazy(() => import('./views/studio/Studio'));
 const Timeline = lazy(() => import('./views/timeline/TimelinePage'));
 const ProjectInfo = lazy(() => import('./views/project-info/ProjectInfo'));
+const Teleprompter = lazy(() => import('./views/teleprompter/Teleprompter'));
 
 const Editor = lazy(() => import('./views/editor/ProtectedEditor'));
 const Cuesheet = lazy(() => import('./views/cuesheet/ProtectedCuesheet'));
@@ -96,6 +97,15 @@ export default function AppRouter() {
             </ViewLoader>
           }
         />
+        <Route
+          path='teleprompter'
+          element={
+            <ViewLoader>
+              <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSpaceHotkey />
+              <Teleprompter />
+            </ViewLoader>
+          }
+        />
         {/*/!* Protected Routes *!/*/}
         <Route path='editor' element={<Editor />} />
         <Route path='cuesheet' element={<Cuesheet />} />
@@ -168,6 +178,7 @@ const PresetViewMap: Record<OntimeViewPresettable, ComponentType> = {
   [OntimeView.StudioClock]: StudioClock,
   [OntimeView.Countdown]: Countdown,
   [OntimeView.ProjectInfo]: ProjectInfo,
+  [OntimeView.Teleprompter]: Teleprompter,
 };
 
 /**
@@ -215,10 +226,19 @@ function PresetView() {
    * We inject the preset to the context value for the view to consume
    */
   const Component = PresetViewMap[preset.target as OntimeViewPresettable];
+  const view = (
+    <>
+      <ViewNavigationMenu
+        isNavigationLocked={getIsNavigationLocked()}
+        suppressSettings
+        suppressSpaceHotkey={preset.target === OntimeView.Teleprompter}
+      />
+      {Component ? <Component /> : <NotFound />}
+    </>
+  );
   return (
     <PresetContext value={preset}>
-      <ViewNavigationMenu isNavigationLocked={getIsNavigationLocked()} suppressSettings />
-      {Component ? <Component /> : <NotFound />}
+      {preset.target === OntimeView.Cuesheet ? view : <ViewLoader>{view}</ViewLoader>}
     </PresetContext>
   );
 }

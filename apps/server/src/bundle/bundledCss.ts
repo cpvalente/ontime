@@ -48,17 +48,11 @@ export const defaultCss = `
   /** View specific features: /op */
   --operator-customfield-font-size-override: 1.25rem;
   --operator-running-bg-override: #339e4e;
-
-  /** View specific features: /studio */
-  --studio-active: #101010;
-  --studio-idle: #cfcfcf;
-  --studio-active-label: #101010;
-  --studio-idle-label: #595959;
-  --studio-overtime: #101010;
 }
 
-/** 
- * You can inspect the page in your browser and add the selectors here.
+/**
+ * When a variable is not enough, inspect a running view in your browser and target its elements here.
+ * The global classes of the display views (timer, backstage, countdown, studio, info) are kept stable within a major version.
  * In the below example, we change the colour of the overlay message in the stage-timer view.
  */
 .stage-timer > .message-overlay--active > div {

@@ -1,6 +1,6 @@
 {
   "name": "ontime-ui",
-  "version": "4.14.1",
+  "version": "4.15.1",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -21,7 +21,7 @@
     "@tanstack/react-table": "^9.1.2",
     "@uiw/codemirror-theme-vscode": "^4.25.10",
     "autosize": "^6.0.1",
-    "axios": "^1.18.0",
+    "axios": "^1.21.0",
     "csv-stringify": "^6.6.0",
     "qrcode": "^1.5.4",
     "react": "^19.2.7",
@@ -42,7 +42,7 @@
     "lint": "oxlint --quiet --type-aware",
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "build": "vite build",
-    "test": "vitest",
+    "test": "vitest watch",
     "test:pipeline": "vitest run",
     "analyse": "npx vite-bundle-visualizer"
   },
@@ -66,16 +66,16 @@
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-legacy": "^8.0.1",
-    "@vitejs/plugin-react": "5.2.0",
-    "babel-plugin-react-compiler": "1.0.0",
-    "happy-dom": "^20.9.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "happy-dom": "21.0.3",
     "ontime-types": "workspace:*",
     "ontime-utils": "workspace:*",
-    "sass": "^1.57.1",
+    "oxc-transform-react": "^0.155.0",
+    "sass": "1.105.2",
     "typescript": "catalog:",
-    "vite": "8.2.1",
+    "vite": "8.3.4",
     "vite-plugin-compression2": "2.5.3",
-    "vite-plugin-svgr": "4.5.0",
+    "vite-plugin-svgr": "5.2.0",
     "vitest": "catalog:"
   }
 }

@@ -2,7 +2,7 @@ import { expect, test } from '../fixtures/override';
 
 test('operator shows grouped events and does not dim the running event', async ({ page }) => {
   // make some boilerplate
-  await page.goto('/editor');
+  await page.goto('editor');
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Clear all' }).click();
@@ -56,7 +56,7 @@ test('operator shows grouped events and does not dim the running event', async (
   // start an event
   await page.getByTestId('panel-timer-control').getByRole('button', { name: 'Start' }).click();
 
-  await page.goto('/op');
+  await page.goto('op');
 
   await expect(page.getByText('group 1')).toBeInViewport();
   await expect(page.getByText('title 1')).toBeInViewport();

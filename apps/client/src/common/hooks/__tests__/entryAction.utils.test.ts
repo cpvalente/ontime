@@ -1,6 +1,7 @@
 import { OntimeDelay, OntimeEntry, OntimeEvent, Rundown, SupportedEntry } from 'ontime-types';
+import { createEvent, createGroup } from 'ontime-utils';
 
-import { isStaleRundown, patchEntry } from '../entryAction.utils';
+import { isStaleRundown, optimisticDeleteEntries, patchEntry } from '../entryAction.utils';
 
 const makeEvent = (revision: number, patch: Partial<OntimeEvent> = {}) =>
   ({ id: 'event', type: SupportedEntry.Event, title: 'title', revision, ...patch }) as OntimeEvent;
@@ -46,5 +47,65 @@ describe('isStaleRundown', () => {
     expect(isStaleRundown(cached(5), 5)).toBe(false);
     expect(isStaleRundown(cached(-1), 3)).toBe(false);
     expect(isStaleRundown(undefined, 3)).toBe(false);
+  });
+});
+
+describe('optimisticDeleteEntries', () => {
+  // createEvent drops the parent, so we set it here
+  const event = (id: string, parent: string | null = null): OntimeEvent => ({
+    ...(createEvent({ id }) as OntimeEvent),
+    parent,
+  });
+
+  // group holds a, b and c; d sits at the top level
+  const makeRundown = (): Rundown => ({
+    id: 'rundown',
+    title: 'rundown',
+    order: ['group', 'd'],
+    flatOrder: ['group', 'a', 'b', 'c', 'd'],
+    entries: {
+      group: createGroup({ id: 'group', entries: ['a', 'b', 'c'] }),
+      a: event('a', 'group'),
+      b: event('b', 'group'),
+      c: event('c', 'group'),
+      d: event('d'),
+    },
+    revision: 1,
+  });
+
+  // the server edits the group once per removed child, advancing its revision each time
+  it('removes children from their group, as the server does, without mutating the given rundown', () => {
+    const rundown = makeRundown();
+    const before = structuredClone(rundown);
+
+    const result = optimisticDeleteEntries(['a', 'c'], rundown);
+
+    expect(rundown).toStrictEqual(before);
+    expect(result).toStrictEqual({
+      entries: {
+        group: { ...rundown.entries.group, entries: ['b'], revision: 2 },
+        b: rundown.entries.b,
+        d: rundown.entries.d,
+      },
+      order: ['group', 'd'],
+      flatOrder: ['group', 'b', 'd'],
+    });
+  });
+
+  it('removes a group together with its children', () => {
+    const rundown = makeRundown();
+
+    expect(optimisticDeleteEntries(['group'], rundown)).toStrictEqual({
+      entries: { d: rundown.entries.d },
+      order: ['d'],
+      flatOrder: ['d'],
+    });
+  });
+
+  it('ignores ids which are not in the rundown', () => {
+    const rundown = makeRundown();
+    const { entries, order, flatOrder } = rundown;
+
+    expect(optimisticDeleteEntries(['missing'], rundown)).toStrictEqual({ entries, order, flatOrder });
   });
 });

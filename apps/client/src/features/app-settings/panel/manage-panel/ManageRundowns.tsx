@@ -11,7 +11,7 @@ import {
 } from 'react-icons/io5';
 import { TbGhost3 } from 'react-icons/tb';
 
-import { downloadAsExcel } from '../../../../common/api/excel';
+import { downloadAllAsExcel, downloadAsExcel } from '../../../../common/api/excel';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -96,7 +96,21 @@ export default function ManageRundowns() {
   };
 
   const handleDownloadXlsx = async (rundownId: string, title: string) => {
-    await downloadAsExcel(rundownId, title);
+    setActionError(null);
+    try {
+      await downloadAsExcel(rundownId, title);
+    } catch (error) {
+      setActionError(`Failed to export rundown. ${maybeAxiosError(error)}`);
+    }
+  };
+
+  const handleDownloadAll = async () => {
+    setActionError(null);
+    try {
+      await downloadAllAsExcel();
+    } catch (error) {
+      setActionError(`Failed to export rundowns. ${maybeAxiosError(error)}`);
+    }
   };
 
   const navigateToCuesheet = useDirectLinkToBackgroundEdit();
@@ -108,6 +122,9 @@ export default function ManageRundowns() {
           <Panel.SubHeader>
             Manage rundowns
             <Panel.InlineElements>
+              <Button onClick={handleDownloadAll}>
+                Export all .xlsx <IoDocumentOutline />
+              </Button>
               <Button
                 onClick={() => {
                   setActionError(null);

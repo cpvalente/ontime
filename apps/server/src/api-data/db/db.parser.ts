@@ -2,12 +2,14 @@ import { DatabaseModel, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { portManager } from '../../classes/port-manager/PortManager.js';
+import { makeProjectId } from '../../models/dataModel.js';
 import { parseAutomationSettings } from '../automation/automation.parser.js';
 import { parseCustomFields } from '../custom-fields/customFields.parser.js';
 import * as logger from '../logs/logs.service.js';
 import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
+import { parseTeleprompter } from '../teleprompter/teleprompter.parser.js';
 import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
@@ -75,6 +77,7 @@ export function parseDatabaseModel(
   const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
 
   const data: DatabaseModel = {
+    projectId: migratedData.projectId || makeProjectId(),
     rundowns,
     project: parseProjectData(migratedData, makeEmitError('Project')),
     settings,
@@ -82,6 +85,7 @@ export function parseDatabaseModel(
     urlPresets: parseUrlPresets(migratedData, makeEmitError('URL Presets')),
     customFields,
     automation: parseAutomationSettings(migratedData),
+    teleprompter: parseTeleprompter(migratedData),
   };
 
   return { data, errors, migrated };

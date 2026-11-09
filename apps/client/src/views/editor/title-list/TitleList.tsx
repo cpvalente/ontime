@@ -76,7 +76,7 @@ function TitleListContent({ mode, eventData, selectedEventId, resolvedFollowEven
 
   // Stable selection handler
   const handleSelect = useCallback(
-    (params: { id: string; index: number; parent?: string }) => {
+    (params: { id: string; index: number }) => {
       selectAndRevealEntry(params);
     },
     [selectAndRevealEntry],

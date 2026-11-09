@@ -4,6 +4,7 @@
 .delayRow {
   color: $ontime-delay-text;
   border-left: 4px solid transparent;
+  position: relative;
 
   &[data-cursor='true'] {
     outline: 2px solid $blue-500;
@@ -12,11 +13,34 @@
   }
 
   td {
-    width: calc(100% - 4px);
-    padding-block: 0.5rem;
-    text-align: center;
+    position: static;
+    min-height: 3rem;
+  }
 
-    &:first-letter {
+  .indexColumn {
+    background: transparent;
+  }
+
+  .label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    pointer-events: none;
+    font-size: 0.875rem;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: currentColor;
+      opacity: 0.35;
+    }
+
+    span::first-letter {
       text-transform: uppercase;
     }
   }
@@ -26,9 +50,15 @@
   visibility: hidden;
 
   td {
+    min-height: 0;
     padding: 0;
     height: 1px;
     line-height: 1px;
     font-size: 0;
+
+    &::before,
+    &::after {
+      content: none;
+    }
   }
 }

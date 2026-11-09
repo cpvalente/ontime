@@ -90,7 +90,7 @@ import { getCurrentRundown, getEntryWithId } from '../../../api-data/rundown/run
 import * as runtimeState from '../../../stores/runtimeState.js';
 import { notifyChange } from '../../change-service/change.service.js';
 import { restoreService } from '../../restore-service/restore.service.js';
-import type { RestorePoint } from '../../restore-service/restore.types.js';
+import type { RuntimeRestore } from '../../restore-service/restore.types.js';
 import { runtimeService } from '../runtime.service.js';
 
 function makeRundownMetadata(patch?: Partial<RundownMetadata>): RundownMetadata {
@@ -292,7 +292,7 @@ describe('notifyOfChangedEvents()', () => {
 });
 
 describe('resume()', () => {
-  const restorePoint: RestorePoint = {
+  const restorePoint: RuntimeRestore = {
     rundownId: 'rundown',
     playback: Playback.Play,
     selectedEventId: 'resume-event',
@@ -303,7 +303,6 @@ describe('resume()', () => {
     startEpoch: null,
     currentDay: 0,
     offsetMode: OffsetMode.Relative,
-    savedAt: 0 as Instant,
   };
 
   beforeEach(() => {
@@ -389,7 +388,7 @@ describe('end actions', () => {
 
     vi.advanceTimersByTime(0);
 
-    expect(runtimeState.load).toHaveBeenCalledWith(next, expect.anything(), rundownRef.metadata, undefined);
+    expect(runtimeState.load).toHaveBeenCalledWith(next, expect.anything(), rundownRef.metadata);
     expect(runtimeState.start).not.toHaveBeenCalled();
     expect(logger.info).toHaveBeenCalledWith('PLAYBACK', 'End action triggered', {
       action: 'load-next',

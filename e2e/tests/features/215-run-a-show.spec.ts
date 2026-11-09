@@ -5,7 +5,7 @@ test('operator runs a show from the editor and the output views follow', async (
   const timer = await context.newPage();
   const backstage = await context.newPage();
 
-  await editor.goto('/editor');
+  await editor.goto('editor');
 
   // build a rundown with three events
   await editor.getByRole('button', { name: 'Edit' }).click();
@@ -25,8 +25,8 @@ test('operator runs a show from the editor and the output views follow', async (
   await editor.getByTestId('entry-3').getByTestId('entry__title').press('Enter');
   await expect(editor.getByTestId('rundown-event')).toHaveCount(3);
 
-  await timer.goto('/timer');
-  await backstage.goto('/backstage');
+  await timer.goto('timer');
+  await backstage.goto('backstage');
 
   const timerControl = editor.getByTestId('panel-timer-control');
 

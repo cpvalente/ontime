@@ -7,11 +7,11 @@ import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 import svgrPlugin from 'vite-plugin-svgr';
 
-import { ONTIME_VERSION } from './src/ONTIME_VERSION';
+import { ONTIME_VERSION } from './src/ONTIME_VERSION.js';
 
 const sentryAuthToken = process.env.SENTRY_AUTH_TOKEN;
 
-const ReactCompilerConfig = {
+const compiler = {
   compilationMode: 'annotation',
 };
 
@@ -25,11 +25,7 @@ export default defineConfig({
     legacy({
       targets: ['safari >= 14.1'],
     }),
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
-      },
-    }),
+    react({ compiler }),
     svgrPlugin(),
     sentryAuthToken &&
       sentryVitePlugin({
@@ -100,7 +96,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
   css: {

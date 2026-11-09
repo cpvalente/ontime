@@ -12,9 +12,21 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 1px;
+    height: 3px;
     background: $blue-500;
+    transform: translateY(-50%);
+    pointer-events: none;
   }
+
+  &:hover::before,
+  &:focus-within::before,
+  &:has([data-popup-open])::before {
+    height: 4px;
+  }
+}
+
+.indent {
+  margin-left: 2em;
 }
 
 .addButton {

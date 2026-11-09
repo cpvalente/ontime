@@ -17,15 +17,25 @@ export async function getSettings(options?: RequestOptions): Promise<Settings> {
 /**
  * HTTP request to mutate application settings
  */
-export async function postSettings(data: Settings): Promise<AxiosResponse<Settings>> {
-  return axios.post(settingsPath, data);
+export async function postSettings(data: Settings): Promise<Settings> {
+  const res = await axios.post<Settings>(settingsPath, data);
+  return res.data;
+}
+
+/**
+ * HTTP request to retrieve whether the welcome dialog shows on startup
+ */
+export async function getShowWelcomeDialog(options?: RequestOptions): Promise<boolean> {
+  const res = await axios.get<{ show: boolean }>(`${settingsPath}/welcomedialog`, { signal: options?.signal });
+  return res.data.show;
 }
 
 /**
  * Allows setting the welcome modal dialog state from the clients
  */
-export async function postShowWelcomeDialog(show: boolean) {
-  axios.post(`${settingsPath}/welcomedialog`, { show });
+export async function postShowWelcomeDialog(show: boolean): Promise<boolean> {
+  const res = await axios.post<{ show: boolean }>(`${settingsPath}/welcomedialog`, { show });
+  return res.data.show;
 }
 
 /**

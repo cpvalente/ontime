@@ -34,8 +34,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
           className,
         ])}
         type='button'
-        disabled={loading || buttonProps.disabled}
         {...buttonProps}
+        disabled={loading || buttonProps.disabled}
       >
         <span className={style.content}>{children}</span>
         {loading && (

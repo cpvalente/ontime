@@ -13,7 +13,6 @@ import {
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { useLoadedEntry } from '../../../common/hooks-query/useLoadedRundown';
-import { useAutoTickingClock } from '../../../common/hooks/useAutoTickingClock';
 import {
   useCurrentGroupId,
   useFlagTimerOverView,
@@ -25,6 +24,7 @@ import {
   useStartTimesOverview,
   useTimer,
 } from '../../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../../common/stores/clockStore';
 import { getOffsetState, getOffsetText } from '../../../common/utils/offset';
 import { cx, enDash, timerPlaceholder } from '../../../common/utils/styleUtils';
 import { formatDuration, formatTime } from '../../../common/utils/time';

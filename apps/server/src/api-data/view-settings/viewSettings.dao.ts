@@ -20,3 +20,12 @@ export async function editViewSettings(newData: ViewSettings): Promise<Readonly<
 
   return viewSettings;
 }
+
+/**
+ * Turns the css override on or off, leaving other view settings as they are
+ */
+export async function setOverrideStyles(overrideStyles: boolean): Promise<Readonly<ViewSettings>> {
+  const viewSettings = getViewSettings();
+  if (viewSettings.overrideStyles === overrideStyles) return viewSettings;
+  return editViewSettings({ ...viewSettings, overrideStyles });
+}

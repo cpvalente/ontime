@@ -1,7 +1,7 @@
 import { expect, test } from '../fixtures/override';
 
 test('CRUD operations on the rundown', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
   await page.getByRole('button', { name: 'Rundown menu' }).click();

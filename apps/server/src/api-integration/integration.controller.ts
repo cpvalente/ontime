@@ -1,5 +1,6 @@
 import {
   ApiActionTag,
+  LogOrigin,
   MessageState,
   OffsetMode,
   OntimeEvent,
@@ -11,6 +12,7 @@ import { MILLIS_PER_HOUR } from 'ontime-utils';
 import { DeepPartial } from 'ts-essentials';
 
 import { socket } from '../adapters/WebsocketAdapter.js';
+import * as logger from '../api-data/logs/logs.service.js';
 import { getCurrentRundown, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import { editEntry } from '../api-data/rundown/rundown.service.js';
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
@@ -18,19 +20,40 @@ import { auxTimerService } from '../services/aux-timer-service/auxTimer.service.
 import * as messageService from '../services/message-service/message.service.js';
 import { validateMessage, validateTimerMessage } from '../services/message-service/message.utils.js';
 import { runtimeService } from '../services/runtime-service/runtime.service.js';
+import { handleTeleprompterCommand } from '../services/teleprompter-service/teleprompter.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
 import { coerceEnum } from '../utils/coerceType.js';
+import { parseTeleprompterCommand } from './integration.teleprompter.js';
 import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
 let lastRequest: Date | null = null;
 
-export function dispatchFromAdapter(tag: string, payload: unknown, _source?: 'osc' | 'ws' | 'http') {
+/** actions which change playback, the log tells who sent them; others are reads or repeat while typing */
+const attributedActions = new Set<ApiActionTag>([
+  'start',
+  'pause',
+  'stop',
+  'reload',
+  'roll',
+  'load',
+  'addtime',
+  'auxtimer',
+  'offsetmode',
+]);
+
+/**
+ * @param client - name of the websocket client which sent the action
+ */
+export function dispatchFromAdapter(tag: string, payload: unknown, source: 'osc' | 'ws' | 'http', client?: string) {
   const action = tag.toLowerCase();
   const handler = actionHandlers[action as ApiActionTag];
   lastRequest = new Date();
 
   if (handler) {
+    if (attributedActions.has(action as ApiActionTag)) {
+      logger.info(LogOrigin.Api, 'Action received', { action, source, client });
+    }
     return handler(payload);
   } else {
     throw new Error(`Unhandled message ${tag}`);
@@ -301,6 +324,11 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
     const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
     runtimeService.setOffsetMode(mode);
     return { payload: 'success' };
+  },
+  /* Teleprompter */
+  teleprompter: (payload) => {
+    const command = parseTeleprompterCommand(payload);
+    return { payload: handleTeleprompterCommand(command) };
   },
 };
 

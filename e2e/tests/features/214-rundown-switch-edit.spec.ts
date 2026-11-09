@@ -5,7 +5,7 @@ test('switching rundowns preserves edits per rundown', async ({ page }) => {
   const nameA = `Rundown A ${suffix}`;
   const nameB = `Rundown B ${suffix}`;
 
-  await page.goto('/editor');
+  await page.goto('editor');
 
   await expect(page.getByTestId('editor-container')).toBeVisible();
 

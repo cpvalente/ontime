@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/react';
 import React from 'react';
 import { Routes, createRoutesFromChildren, matchRoutes, useLocation, useNavigationType } from 'react-router';
 
+import { ConnectionStatus, useConnectionStore } from './common/stores/connectionStore';
 import { ONTIME_VERSION } from './ONTIME_VERSION';
 
 // https://docs.sentry.io/platforms/javascript/configuration/filtering/#decluttering-sentry
@@ -42,39 +43,19 @@ export const initializeSentry = () => {
         matchRoutes,
       }),
     ],
-    tracesSampleRate: 0.3,
+    tracesSampleRate: 0.1,
     release: ONTIME_VERSION,
     enabled: import.meta.env.PROD,
-    ignoreErrors: [
-      ...sentryRecommendedIgnore,
-      // Dynamic imports and chunks
-      /Unable to preload CSS/i,
-      /dynamically imported module/i,
-      /Failed to fetch dynamically imported module/i,
-      /Loading chunk \d+ failed/i,
-      /Loading CSS chunk \d+ failed/i,
-      /ChunkLoadError/i,
-      /Loading module .+ failed/i,
-      // Data/offline related errors
-      /Cannot read propert.* of undefined/i,
-      /Cannot read propert.* of null/i,
-      /Network request failed/i,
-      /Failed to fetch/i,
-      /NetworkError/i,
-      /The operation couldn't be completed/i,
-    ],
+    ignoreErrors: sentryRecommendedIgnore,
     denyUrls: [/extensions\//i, /^chrome:\/\//i, /^chrome-extension:\/\//i, /external\//i],
     beforeSend(event) {
-      // Drop errors that happen during known data-unavailable states
+      // Network failures are expected while the server connection is interrupted.
       const error = event.exception?.values?.[0]?.value;
       if (
+        useConnectionStore.getState().status !== ConnectionStatus.Connected &&
         error &&
-        (error.includes('Cannot read property') ||
-          error.includes('Cannot read properties') ||
-          error.includes('Network request failed') ||
-          error.includes('Failed to fetch'))
+        /Network request failed|Failed to fetch|NetworkError/i.test(error)
       ) {
-        // Don't send these errors to Sentry since they're expected when data isn't available
         return null;
       }
 

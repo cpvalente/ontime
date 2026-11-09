@@ -59,7 +59,6 @@ export function parseRundowns(
 
   // parse all the rundowns individually
   for (const id of iterableRundownsIds) {
-    console.log('Found rundown, importing...');
     const rundown = data.rundowns[id];
     const parsedRundown = parseRundown(rundown, parsedCustomFields, emitError);
     parsedRundowns[parsedRundown.id] = parsedRundown;
@@ -78,7 +77,8 @@ export function parseRundown(
 ): Rundown {
   const parsedRundown: Rundown = {
     id: rundown.id || generateId(),
-    title: rundown.title ?? '',
+    // Preserve existing names; title validation applies when creating or renaming a rundown.
+    title: typeof rundown.title === 'string' ? rundown.title : 'untitled',
     entries: {},
     order: [],
     flatOrder: [],
@@ -180,7 +180,6 @@ export function parseRundown(
     }
   }
 
-  console.log(`Imported rundown ${parsedRundown.title} with ${parsedRundown.flatOrder.length} entries`);
   return parsedRundown;
 }
 

@@ -58,4 +58,15 @@ describe.each(['', '/client-hash'])('MCP HTTP integration at %s', (prefix) => {
     expect(prompt.messages[0].content.text.length).toBeGreaterThan(0);
     expect(resource.contents[0]).toMatchObject({ uri: 'ontime://schema', mimeType: 'text/markdown' });
   });
+
+  test('styles the screens through the css override tool', async () => {
+    const css = ':root { --color-override: #123456; }';
+    const applied = await request(8, 'tools/call', { name: 'ontime_set_css_override', arguments: { css } });
+    expect(applied.isError).not.toBe(true);
+    expect(await (await server.get(`${prefix}/data/assets/css`)).text()).toBe(css);
+    expect(await (await server.get(`${prefix}/data/view-settings`)).json()).toMatchObject({ overrideStyles: true });
+
+    await request(9, 'tools/call', { name: 'ontime_set_css_override', arguments: { css, enabled: false } });
+    expect(await (await server.get(`${prefix}/data/view-settings`)).json()).toMatchObject({ overrideStyles: false });
+  });
 });

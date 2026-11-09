@@ -28,7 +28,9 @@ Reserve Playwright for key journeys and high-risk cross-layer integrations: edit
 
 No E2E for edges already proven in lower layers. Add E2E only when lower layers cannot prove the user-facing integration.
 
-Import `test`/`expect` from `e2e/tests/fixtures/override`; it fails tests on uncaught page errors. Specs share the main server: leave its state (timers, playback, settings) as found. The password spec uses its own server.
+Import `test`/`expect` from `e2e/tests/fixtures/override`; it fails tests on uncaught page errors and on server requests outside the base URL. Specs share the main server: leave its state (timers, playback, settings) as found. The password spec uses its own server.
+
+Every spec also runs in the `chromium-prefixed` project against a server below a router prefix (`e2e/cloud-server.mjs`). Use relative paths (`page.goto('editor')`, `request.get('api/poll')`, `toHaveURL('timer')`) so they resolve below either base URL; a leading `/` escapes the prefix.
 
 ## Compact before handoff
 
@@ -49,6 +51,7 @@ Optimise for future readers, not minimum line count.
 - Keep setup local/explicit unless a fixture improves comprehension.
 - Avoid arbitrary waits, wall-clock dependence, cross-test state, weak assertions.
 - Server test files each get a temporary data folder through `ONTIME_DATA` (`apps/server/vitest.setup.ts`); never read or write the user's real data folder.
+- Browser test servers also set `ONTIME_DATA` to isolated fixture folders and must not reuse an existing server, which may hold the user's project.
 - Prefer realistic typed fixtures over large snapshots or masking casts.
 - Test non-mutation when promised.
 - No tests for trivial type/format changes or framework behaviour Ontime does not own.

@@ -1,8 +1,10 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
+import { defaultTeleprompterSettings, scriptSourceOfCustomField } from 'ontime-utils';
 
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
-export const demoDb: DatabaseModel = {
+/** each project made from the demo gets its own id */
+export const demoDb: Omit<DatabaseModel, 'projectId'> = {
   rundowns: {
     default: stageRundown,
     backstage: backstageRundown,
@@ -81,6 +83,11 @@ export const demoDb: DatabaseModel = {
       colour: '#ED3333',
       label: 'PowerPoint Slide',
     },
+    Script: {
+      type: 'text',
+      colour: '#A790F5',
+      label: 'Script',
+    },
   },
   automation: {
     enabledAutomations: false,
@@ -89,4 +96,6 @@ export const demoDb: DatabaseModel = {
     triggers: [],
     automations: {},
   },
+  // the presenters read the Script field, the note holds production notes
+  teleprompter: { ...defaultTeleprompterSettings, script: scriptSourceOfCustomField('Script') },
 };

@@ -2,6 +2,7 @@ import {
   type Day,
   Instant,
   OffsetMode,
+  OntimeEvent,
   PlayableEvent,
   Playback,
   type Rundown,
@@ -10,7 +11,13 @@ import {
 } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
-import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
+import {
+  makeOntimeDelay,
+  makeOntimeEvent,
+  makeOntimeGroup,
+  makeOntimeMilestone,
+  makeRundown,
+} from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
@@ -75,6 +82,8 @@ const mockState = {
   },
 } as RuntimeState;
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../services/teleprompter-service/teleprompter.service.js');
 vi.mock('../../classes/data-provider/DataProvider.js', () => {
   return {
     getDataProvider: vi.fn().mockImplementation(() => {
@@ -397,6 +406,7 @@ describe('mutation on runtimeState', () => {
 
     const { rundown, metadata } = rundownCache.get();
     const restorePoint = {
+      projectId: 'project',
       rundownId: rundown.id,
       playback: Playback.Play,
       selectedEventId: 'event1',
@@ -885,15 +895,15 @@ describe('roll mode', () => {
       vi.setSystemTime('jan 1 00:00:01');
       const { rundown, metadata } = rundownCache.get();
       let result = roll(rundown, metadata);
-      expect(result).toStrictEqual({ eventId: '1', didStart: true });
+      expect(result).toStrictEqual({ eventId: '1', didLoad: true, didStart: true });
 
       vi.setSystemTime('jan 1 00:00:02');
       result = roll(rundown, metadata);
-      expect(result).toStrictEqual({ eventId: '2', didStart: true });
+      expect(result).toStrictEqual({ eventId: '2', didLoad: true, didStart: true });
 
       vi.setSystemTime('jan 1 00:00:03:500');
       result = roll(rundown, metadata);
-      expect(result).toStrictEqual({ eventId: '3', didStart: true });
+      expect(result).toStrictEqual({ eventId: '3', didLoad: true, didStart: true });
     });
   });
 
@@ -917,7 +927,7 @@ describe('roll mode', () => {
       const { rundown, metadata } = rundownCache.get();
       load(rundown.entries[3] as PlayableEvent, rundown, metadata);
       const result = roll(rundown, metadata);
-      expect(result).toStrictEqual({ eventId: '3', didStart: false });
+      expect(result).toStrictEqual({ eventId: '3', didLoad: false, didStart: false });
       const state = getState();
       expect(state.timer.phase).toBe(TimerPhase.Pending);
       expect(state.timer.secondaryTimer).toBe(3000);
@@ -928,7 +938,7 @@ describe('roll mode', () => {
       load(rundown.entries[1] as PlayableEvent, rundown, metadata);
       start();
       const result = roll(rundown, metadata);
-      expect(result).toStrictEqual({ eventId: '1', didStart: false });
+      expect(result).toStrictEqual({ eventId: '1', didLoad: false, didStart: false });
       expect(getState().offset.absolute).toBe(-1000);
     });
   });
@@ -954,18 +964,18 @@ describe('roll mode', () => {
       // the current offset after manual play
       const currentOffset = getState().offset.absolute;
       let result = roll(rundown, metadata, getState().offset);
-      expect(result).toStrictEqual({ eventId: '1', didStart: false });
+      expect(result).toStrictEqual({ eventId: '1', didLoad: false, didStart: false });
       // the current offset should be maintain by roll mode when taking over from play
       expect(getState().offset.absolute).toBe(currentOffset);
 
       vi.setSystemTime('jan 1 00:00:01');
       result = roll(rundown, metadata, getState().offset);
-      expect(result).toStrictEqual({ eventId: '2', didStart: true });
+      expect(result).toStrictEqual({ eventId: '2', didLoad: true, didStart: true });
       expect(getState().offset.absolute).toBe(-1000);
 
       vi.setSystemTime('jan 1 00:00:02');
       result = roll(rundown, metadata, getState().offset);
-      expect(result).toStrictEqual({ eventId: '3', didStart: true });
+      expect(result).toStrictEqual({ eventId: '3', didLoad: true, didStart: true });
       expect(getState().offset.absolute).toBe(-1000);
 
       vi.useRealTimers();
@@ -992,7 +1002,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '3'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '3'],
+      timedEventOrder: ['0', '11', '3'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1020,7 +1034,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '22'],
+      timedEventOrder: ['0', '11', '22'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1048,7 +1066,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '11', '22'], flags: ['1'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '11', '22'],
+      timedEventOrder: ['0', '11', '22'],
+      flags: ['1'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1073,7 +1095,7 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
+    const metadata = { playableEventOrder: ['0', '1'], timedEventOrder: ['0', '1'], flags: ['1'] } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1135,7 +1157,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '1', '2', '3'],
+      timedEventOrder: ['0', '1', '2', '3'],
+      flags: ['3'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1217,7 +1243,11 @@ describe('loadGroupFlagAndEnd()', () => {
       rundown: { actualGroupStart: null },
     } as RuntimeState;
 
-    const metadata = { playableEventOrder: ['0', '1', '2', '3'], flags: ['3'] } as RundownMetadata;
+    const metadata = {
+      playableEventOrder: ['0', '1', '2', '3'],
+      timedEventOrder: ['0', '1', '2', '3'],
+      flags: ['3'],
+    } as RundownMetadata;
 
     loadGroupFlagAndEnd(rundown, metadata, state);
 
@@ -1272,5 +1302,126 @@ describe('loadGroupFlagAndEnd()', () => {
     // the gap between loaded and flagged is accumulated downstream of the loaded event
     expect(state._group).toMatchObject({ event: { id: 'flagged' }, accumulatedGap: 10 });
     expect(state._end).toMatchObject({ event: { id: 'last' }, accumulatedGap: 10 });
+  });
+});
+
+describe('loadGroupFlagAndEnd() gap and link to loaded', () => {
+  function event(id: string, patch: Partial<OntimeEvent> = {}): OntimeEvent {
+    return makeOntimeEvent({
+      id,
+      parent: null,
+      timeStart: 0,
+      duration: 10,
+      dayOffset: 0 as Day,
+      gap: 0,
+      linkStart: false,
+      countToEnd: false,
+      ...patch,
+    });
+  }
+
+  /**
+   * Reads the gap and link state of each event after the loaded one by flagging it
+   */
+  function linkState(
+    rundown: Rundown,
+    loadedId: string | null,
+    playableEventOrder: string[],
+    timedEventOrder = playableEventOrder,
+  ) {
+    const run = (flags: string[]) => {
+      const state = {
+        groupNow: null,
+        eventNow: loadedId ? rundown.entries[loadedId] : null,
+        rundown: { actualGroupStart: null },
+      } as RuntimeState;
+      loadGroupFlagAndEnd(rundown, { playableEventOrder, timedEventOrder, flags } as RundownMetadata, state);
+      return state;
+    };
+    const pick = (meta: RuntimeState['_flag']) =>
+      meta && { id: meta.event.id, accumulatedGap: meta.accumulatedGap, isLinkedToLoaded: meta.isLinkedToLoaded };
+
+    const { _group, _end } = run([]);
+    const flags = Object.fromEntries(playableEventOrder.map((id) => [id, pick(run([id])._flag)]));
+    return { group: pick(_group), end: pick(_end), flags };
+  }
+
+  test('carries the chain through skipped events, delays, milestones and groups', () => {
+    const rundown = makeRundown({
+      entries: {
+        before: event('before', { timeStart: 0 }),
+        loaded: event('loaded', { timeStart: 10 }),
+        skipped: event('skipped', { timeStart: 20, skip: true, gap: 50 }),
+        group: makeOntimeGroup({ id: 'group', entries: ['a', 'delay', 'b'] }),
+        a: event('a', { parent: 'group', timeStart: 20, linkStart: true }),
+        delay: makeOntimeDelay({ id: 'delay', parent: 'group' }),
+        b: event('b', { parent: 'group', timeStart: 30, linkStart: true }),
+        milestone: makeOntimeMilestone({ id: 'milestone', parent: null }),
+        c: event('c', { timeStart: 45, gap: 5 }),
+        d: event('d', { timeStart: 58, gap: 3, linkStart: true }),
+      },
+      order: ['before', 'loaded', 'skipped', 'group', 'milestone', 'c', 'd'],
+    });
+
+    const playable = ['before', 'loaded', 'a', 'b', 'c', 'd'];
+    const timed = ['before', 'loaded', 'skipped', 'a', 'b', 'c', 'd'];
+    expect(linkState(rundown, 'loaded', playable, timed)).toStrictEqual({
+      group: null,
+      end: { id: 'd', accumulatedGap: 8, isLinkedToLoaded: false },
+      flags: {
+        before: null,
+        loaded: null,
+        a: { id: 'a', accumulatedGap: 0, isLinkedToLoaded: true },
+        b: { id: 'b', accumulatedGap: 0, isLinkedToLoaded: true },
+        c: { id: 'c', accumulatedGap: 5, isLinkedToLoaded: false },
+        d: { id: 'd', accumulatedGap: 8, isLinkedToLoaded: false },
+      },
+    });
+  });
+
+  test('reports the group end of the loaded group, including the loaded event itself', () => {
+    const rundown = makeRundown({
+      entries: {
+        group: makeOntimeGroup({ id: 'group', entries: ['a', 'loaded'] }),
+        a: event('a', { parent: 'group', timeStart: 0 }),
+        loaded: event('loaded', { parent: 'group', timeStart: 10 }),
+        after: event('after', { timeStart: 25, gap: 5 }),
+      },
+      order: ['group', 'after'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['a', 'loaded', 'after'])).toMatchObject({
+      group: { id: 'loaded', accumulatedGap: 0, isLinkedToLoaded: true },
+      end: { id: 'after', accumulatedGap: 5, isLinkedToLoaded: false },
+    });
+  });
+
+  test('clears group, flag and end when no event is loaded', () => {
+    const rundown = makeRundown({
+      entries: { a: event('a'), b: event('b', { timeStart: 15, gap: 5 }) },
+      order: ['a', 'b'],
+    });
+
+    expect(linkState(rundown, null, ['a', 'b'])).toStrictEqual({
+      group: null,
+      end: null,
+      flags: { a: null, b: null },
+    });
+  });
+
+  test('walks downstream of a loaded event which is skipped', () => {
+    const rundown = makeRundown({
+      entries: {
+        loaded: event('loaded', { timeStart: 0, skip: true }),
+        next: event('next', { timeStart: 15, gap: 5, linkStart: true }),
+      },
+      order: ['loaded', 'next'],
+    });
+
+    expect(linkState(rundown, 'loaded', ['next'], ['loaded', 'next'])).toStrictEqual({
+      group: null,
+      end: { id: 'next', accumulatedGap: 5, isLinkedToLoaded: true },
+      flags: { next: { id: 'next', accumulatedGap: 5, isLinkedToLoaded: true } },
+    });
   });
 });

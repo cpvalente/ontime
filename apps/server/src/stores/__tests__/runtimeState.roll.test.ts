@@ -46,7 +46,7 @@ describe('roll schedule', () => {
     const { rundown, metadata } = prepare([event('now', hour, 2 * hour)]);
     at(hour + 15 * minute);
 
-    expect(roll(rundown, metadata)).toEqual({ eventId: 'now', didStart: true });
+    expect(roll(rundown, metadata)).toEqual({ eventId: 'now', didLoad: true, didStart: true });
     update();
 
     expect(getState()).toMatchObject({
@@ -65,7 +65,7 @@ describe('roll schedule', () => {
     ]);
     at(2 * hour + 5 * minute);
 
-    expect(roll(rundown, metadata)).toEqual({ eventId: 'next', didStart: true });
+    expect(roll(rundown, metadata)).toEqual({ eventId: 'next', didLoad: true, didStart: true });
     update();
     expect(getState().timer).toMatchObject({ startedAt: 2 * hour, current: 55 * minute });
   });

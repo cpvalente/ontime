@@ -5,10 +5,8 @@ const aliasUrl =
   'www.getontime.no/team/timer/?hideTimerSeconds=true&showLeadingZeros=true&freezeOvertime=true&hidePhase=true&hideClock=true&hideCards=true&hideProgress=true&hideMessage=true&hideSecondary=true&hideLogo=true';
 
 test.describe('URL Preset', () => {
-  test.beforeAll(async ({ browser }) => {
-    const context = await browser.newContext();
-    const page = await context.newPage();
-    await page.goto('/editor');
+  test('Unwrapping a preset from a view', async ({ page }) => {
+    await page.goto('editor');
 
     // Create the preset that will be used by other tests
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -25,13 +23,12 @@ test.describe('URL Preset', () => {
     await page.getByRole('button', { name: 'Generate' }).click();
 
     await page.getByRole('combobox').filter({ hasText: 'Timer' });
+    // leaving the page before the request completes would drop the preset
+    const saved = page.waitForResponse((r) => r.url().endsWith('/url-presets') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Save' }).click();
+    await saved;
 
-    await page.close();
-  });
-
-  test('Unwrapping a preset from a view', async ({ page }) => {
-    await page.goto('/timer');
+    await page.goto('timer');
 
     // 1. the URL points to the view
     expect(page.url().includes('hideTimerSeconds=true')).not.toBeTruthy();
@@ -52,7 +49,7 @@ test.describe('URL Preset', () => {
   });
 
   test('Sharing a link to an unwrapped preset', async ({ page }) => {
-    await page.goto('/editor');
+    await page.goto('editor');
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -83,7 +80,7 @@ test.describe('URL Preset', () => {
   });
 
   test('Sharing a link to a masked preset', async ({ page }) => {
-    await page.goto('/editor');
+    await page.goto('editor');
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
@@ -118,7 +115,7 @@ test.describe('Sharing from cuesheet', () => {
   test.beforeAll(async ({ browser }) => {
     const context = await browser.newContext();
     const page = await context.newPage();
-    await page.goto('/editor');
+    await page.goto('editor');
     await page.getByRole('button', { name: 'Edit' }).click();
 
     // we create some elements to test with
@@ -128,7 +125,10 @@ test.describe('Sharing from cuesheet', () => {
     await page.getByRole('button', { name: 'Create Event' }).click();
     await page.getByTestId('entry-1').getByTestId('entry__title').click();
     await page.getByTestId('entry-1').getByTestId('entry__title').fill('title 1');
+    // closing the page before the request completes would drop the title
+    const saved = page.waitForResponse((r) => r.url().endsWith('/entry') && r.request().method() === 'PUT');
     await page.getByTestId('entry-1').getByTestId('entry__title').press('Enter');
+    await saved;
 
     await page.close();
   });
@@ -136,7 +136,7 @@ test.describe('Sharing from cuesheet', () => {
   test('Sharing a link with readonly permissions', async ({ page }, testInfo) => {
     const alias = `cuesheet-read-test-${testInfo.retry}-${Date.now()}`;
 
-    await page.goto('/cuesheet');
+    await page.goto('cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
     await page.getByRole('button', { name: 'Share...' }).click();
@@ -190,7 +190,7 @@ test.describe('Sharing from cuesheet', () => {
   test('Sharing a link with scoped read-write permissions', async ({ page }, testInfo) => {
     const alias = `cuesheet-scope-test-${testInfo.retry}-${Date.now()}`;
 
-    await page.goto('/cuesheet');
+    await page.goto('cuesheet');
     await expect(page.getByTestId('cuesheet')).toBeVisible();
 
     await page.getByRole('button', { name: 'Share...' }).click();

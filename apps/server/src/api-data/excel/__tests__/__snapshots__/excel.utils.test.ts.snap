@@ -23,6 +23,7 @@ exports[`rundownToTabular() > returns an array of arrays describing a rundown 1`
     "Audio Notes",
     "PowerPoint Name",
     "PowerPoint Slide",
+    "Script",
   ],
   [
     "e2163f",
@@ -50,6 +51,7 @@ Speakers
     "",
     "",
     "",
+    "",
   ],
   [
     "7eaf99",
@@ -64,6 +66,7 @@ Speakers
     "",
     "",
     "group",
+    "",
     "",
     "",
     "",
@@ -95,6 +98,7 @@ PowerPoint on screens",
     "2x Wireless Hand Helds",
     "HoldingSlide.pptx",
     "https://www.getontime.no/images/aux/demo-slide1.webp",
+    "",
   ],
   [
     "bf71a2",
@@ -109,6 +113,7 @@ PowerPoint on screens",
     "",
     "",
     "milestone",
+    "",
     "",
     "",
     "",
@@ -140,6 +145,19 @@ PowerPoint on screens",
     "1x Wireless Hand Held",
     "HoldingSlide.pptx",
     "https://www.getontime.no/images/aux/demo-slide1.webp",
+    "Welcome to Ontime.
+
+Ontime is a rundown and event timer for live productions. It helps you plan the show and keep every department on the same time.
+
+[PAUSE]
+
+The rundown is the source of truth. Timers, backstage displays, signage and operator views are all generated from it, so one change updates every screen at once.
+
+Every department fills its own columns, and each can have its own cuesheet link. One document, not three spreadsheets.
+
+When the show runs late, Ontime makes the delay visible to the people who need to react, so the production can respond together.
+
+And the words you are reading now come from the same rundown.",
   ],
   [
     "fa593e",
@@ -163,6 +181,13 @@ PowerPoint on screens",
     "2x Wireless Hand Helds",
     "Session1.pptx",
     "https://www.getontime.no/images/aux/demo-slide2.webp",
+    "This is the Ontime teleprompter.
+
+The script lives in the rundown, next to everything else about the show. Each event keeps its own script, in a field of your choosing, so a change to the running order is a change to the script.
+
+The prompter can follow the show event by event, starting each script as its event is loaded, or read the whole script continuously.
+
+Text width, line spacing, reading position and mirroring are set on each screen, so the same script works on a laptop, a monitor or behind a glass.",
   ],
   [
     "a8b0b3",
@@ -177,6 +202,7 @@ PowerPoint on screens",
     "",
     "",
     "milestone",
+    "",
     "",
     "",
     "",
@@ -225,6 +251,7 @@ PowerPoint on screens",
     "",
     "",
     "",
+    "",
   ],
   [
     "0aaa7d",
@@ -247,6 +274,7 @@ PowerPoint on screens",
     "House music",
     "HoldingSlide.pptx",
     "https://www.getontime.no/images/aux/demo-slide1.webp",
+    "",
   ],
   [
     "",
@@ -287,6 +315,7 @@ PowerPoint on screens",
     "",
     "",
     "",
+    "",
   ],
   [
     "02afca",
@@ -301,6 +330,7 @@ PowerPoint on screens",
     "",
     "",
     "milestone",
+    "",
     "",
     "",
     "",
@@ -335,6 +365,15 @@ Video file: Session2.mp4",
 1x Video with audio",
     "Session2.pptx",
     "https://www.getontime.no/images/aux/demo-slide3.webp",
+    "A teleprompter is rarely a single screen.
+
+In Ontime, one screen can be the controller. It moves every follower with it, so the presenter's prompter, the confidence monitor and the operator's laptop show the same line at the same moment.
+
+Line breaks are set once for the project, so every screen counts the same lines, whatever its size.
+
+The controller can be a person at a keyboard, or Companion and the integration APIs, so prompting sits alongside the rest of your show control.
+
+A screen can also play independently, for a rehearsal or a speaker who wants to read at their own pace.",
   ],
   [
     "e10ed9",
@@ -357,6 +396,17 @@ Video file: Session2.mp4",
     "1x Wireless Hand Held",
     "HoldingSlide.pptx",
     "https://www.getontime.no/images/aux/demo-slide1.webp",
+    "Thank you for trying Ontime.
+
+Run it locally, self-host it, or use Ontime Cloud. Ontime works on Windows, macOS, Linux and Docker, and your projects stay portable, so you can choose the setup that matches the show.
+
+Connect it to the rest of your production with OSC, HTTP and WebSocket APIs, or the Companion module.
+
+You will find the documentation at docs.getontime.no, and our community on Discord and GitHub. Have an idea? Let us know.
+
+[PAUSE]
+
+Have a great show.",
   ],
   [
     "07df89",
@@ -371,6 +421,7 @@ Video file: Session2.mp4",
     "",
     "",
     "milestone",
+    "",
     "",
     "",
     "",

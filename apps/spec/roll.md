@@ -1,7 +1,7 @@
 # ROLL Mode
 
-Roll mode is intended to be a fully automatic playback that takes precedence over event end actions.
-It can be user either on its own, or as in conjunction with manual playback to allow for automated rundown sections.
+Roll mode is intended to be fully automatic playback that takes precedence over event end actions.
+It can be used on its own or after manual playback to automate sections of a rundown.
 
 ## Overview
 
@@ -14,9 +14,9 @@ It can be user either on its own, or as in conjunction with manual playback to a
 
 ### starting to roll
 
-> RuntimeService.roll(rundown)
+> `runtimeService.roll()` calls `runtimeState.roll(rundown, metadata)`
 
-When calling the roll function, we try and find events to load. There should always be an event as long as the rundown is not empty.
+When starting roll, the runtime state finds an event to load from the playable event order. Roll requires at least one playable event.
 
 #### Taking over playback
 
@@ -32,43 +32,75 @@ If we do not find an event that should be playing now, but find an event for the
 
 ### tick update
 
-> RuntimeState.onUpdate()
+> `runtimeState.update(epoch)` updates the clock and timer; the runtime service handles its result
 
-Updating in roll mode attempts to have the least amount of custom logic in relation to normal updates. The only difference in behaviour is the automation of loading the next event when the current one is finished.
+Roll shares normal timer updates and phase changes with Play mode. The runtime state also owns the transitions from a pending cue into playback and from a finished cue to the next one.
 
 #### normal update
 
-On the update of timers, there is no logic specific to Roll mode, all side effects (ie: integrations) should have the same behaviour as Play mode
+While a cue is running, timer phases and their integration notifications work the same way as in Play mode.
 
 #### waiting to start
 
 If we are currently waiting to start, we just need to update the `secondaryTimer`.
-If waiting to start is finished, we load the next event and start it
+When the countdown finishes, `runtimeState.roll()` starts the cue that is already loaded.
 
 #### an event is finished
 
-If an event is finished, we check if the next event is ready to start, this is similarly as if we had a conditional `load-next` `play-next` automation
-If there is a gap between the events, we add `secondaryTimer` to match and wait for the next event to start
+When an event finishes, `runtimeState.rollNext()` uses `findNextRollEvent()` to skip zero-duration cues, load the next playable cue, and continue with the offset the finished event had. After the last cue it wraps to the first. If no cue has a duration, roll finds its place by the clock.
+If there is a gap between the events, `secondaryTimer` counts down to the loaded cue's start.
 Finish time should account for `timer.addedTime`
 Finish actions are ignored in roll mode
 
 #### time has skipped
 
-If we find that the new time update has slid in comparison to the old update (either too long, or time went backwards), we re-calculate
+The runtime service checks for a time skip while a cue is running and reloads roll from the clock. A jump that finishes the cue takes the finish transition first; the current clock-jump behaviour is pinned by tests.
+
+### Playback notifications
+
+The runtime service reports load, start, finish, phase, pause, and stop lifecycle events after changing runtime state, following the [lifecycle invariants](../../docs/agent-guides/domain-invariants.md#lifecycle-events). Reports use the state carried by each event; automations currently read the live runtime store when the event is delivered.
+
+When a rolling cue finishes, the transition and notifications follow this sequence:
+
+```mermaid
+sequenceDiagram
+    participant Timer
+    participant Service as Runtime service
+    participant State as Runtime state
+    participant Events as Lifecycle events
+    participant Clients
+    participant Consumers as Reports and automations
+
+    Timer->>State: update(epoch)
+    State-->>Service: cue finished
+    Service->>Events: onFinish(finished state)
+    Service->>State: rollNext()
+    State->>State: choose next cue, preserve offset
+    State-->>Service: didLoad, didStart
+    opt didLoad
+        Service->>Events: onLoad(next state, unloaded state)
+    end
+    opt didStart
+        Service->>Events: onStart(next state)
+    end
+    Service->>Clients: broadcast updated runtime
+    Events-->>Consumers: deliver queued events in order
+```
 
 ### Finding an event
 
-> loadRoll(timedEvents: OntimeEvent[], timeNow: number)
-> This is a helper function which iterates trough a rundown to find the first matching element in the current time. As a trade-off, the wrong event will be loaded if the rundown is not in order.
+> `loadRoll(rundown, metadata, timeNow)` finds the first matching cue when entering roll from the clock. `findNextRollEvent(rundown, metadata, fromId)` selects the next cue after one finishes.
+
+As a trade-off, entering roll can load the wrong cue if the rundown is not in time order.
 
 It is important to note that all times in the rundown are in milliseconds from midnight. In the case of multiple days being scheduled, Roll will return the first match.
 
 ### Assumptions
 
-The function receives a pre-filtered list of `TimedEvents`. This is to avoid issues with inconsistent index references.
+Both helpers use `metadata.playableEventOrder` to keep cue selection aligned with rundown indexes.
 
-- `TimedEvents` cannot be an empty array
-- `TimedEvents` is assumed to be in order
+- Roll needs at least one playable event
+- Playable events are assumed to be in time order
 
 ### Specification
 

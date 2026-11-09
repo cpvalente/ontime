@@ -1,4 +1,5 @@
 import type { Client } from '../../definitions/Clients.type.js';
+import type { ProjectStartup } from '../../definitions/core/ProjectData.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
 import type { RefetchKey } from './refetch.type.js';
@@ -18,16 +19,18 @@ export enum MessageTag {
 }
 
 // CLIENT TO SERVER
-type PingPacket = { tag: MessageTag.Ping; payload: Date };
-type SetClientPacket = { tag: MessageTag.ClientSetPath; payload: string };
-type SetClientPathPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
+// payload: the client send time, echoed back in the Pong
+type PingPacket = { tag: MessageTag.Ping; payload: number };
+type SetClientPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
+type SetClientPathPacket = { tag: MessageTag.ClientSetPath; payload: string };
 
 // SERVER TO CLIENT
-type PongPacket = { tag: MessageTag.Pong; payload: Date };
+// clock: server time of day at reply, in milliseconds since midnight in the server's timezone.
+type PongPacket = { tag: MessageTag.Pong; payload: number; clock: number };
 type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
 type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
 type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };
-type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: string } };
+type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: 'welcome' } & ProjectStartup };
 type ListClientPacket = {
   tag: MessageTag.ClientList;
   payload: Record<string, Client>;

@@ -63,10 +63,21 @@ export default function GSheetSetup(props: GSheetSetupProps) {
 
   const loadWorksheetOptions = useCallback(
     async (nextSheetId: string) => {
-      const worksheetOptions = await getWorksheetOptions(nextSheetId);
-      persistSheetId(nextSheetId);
-      onSheetLoaded(nextSheetId, worksheetOptions);
-      setWorksheetError('');
+      try {
+        const worksheetOptions = await getWorksheetOptions(nextSheetId);
+        persistSheetId(nextSheetId);
+        onSheetLoaded(nextSheetId, worksheetOptions);
+        setWorksheetError('');
+      } catch (error) {
+        // A failed Google session is invalidated by the server; expose the connection form again.
+        try {
+          const result = await verifyAuthenticationStatus();
+          setAuthenticationStatus(result.authenticated);
+        } catch {
+          // Keep the worksheet failure if the authentication check also fails.
+        }
+        throw error;
+      }
     },
     [onSheetLoaded],
   );
@@ -74,12 +85,13 @@ export default function GSheetSetup(props: GSheetSetupProps) {
   const pollUntilAuthenticated = useCallback(
     async (attempts: number = 0) => {
       clearPollTimeout();
-      if (closedByUser) return;
 
       try {
         const result = await verifyAuthenticationStatus();
         setAuthenticationStatus(result.authenticated);
         setSheetId(result.sheetId);
+
+        if (closedByUser) return;
 
         if (result.authenticated === 'pending') {
           if (attempts < 10) {

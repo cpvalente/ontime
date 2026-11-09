@@ -42,7 +42,6 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   const { clone, ungroup, deleteEntry, updateEntry } = useEntryActionsContext();
 
   const selectSingleEntry = useEventSelection((state) => state.setSingleEntrySelection);
-  const selectedEvents = useEventSelection((state) => state.selectedEvents);
   const isCopyTarget = useIsEntryCopyTarget(data.id);
 
   const isDurationMatching = data.targetDuration !== null && data.targetDuration === data.duration;
@@ -119,15 +118,13 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
   const handleFocusClick = (event: MouseEvent) => {
     event.stopPropagation();
 
-    // event.button === 2 is a right-click
-    // disable selection if the user selected events and right clicks
-    // so the context menu shows up
-    if (selectedEvents.size > 1 && event.button === 2) {
-      return;
-    }
-
-    // UI indexes are 1 based
     selectSingleEntry({ id: data.id });
+  };
+
+  const handleContextMenu = (event: MouseEvent<HTMLDivElement>) => {
+    // the menu acts on this entry alone, so the selection should show that
+    selectSingleEntry({ id: data.id });
+    onContextMenu(event);
   };
 
   const binderColours = data.colour && getAccessibleColour(data.colour);
@@ -149,7 +146,7 @@ export default function RundownGroup({ data, hasCursor, collapsed, onCollapse }:
       ])}
       ref={setNodeRef}
       onClick={handleFocusClick}
-      onContextMenu={onContextMenu}
+      onContextMenu={handleContextMenu}
       style={{
         ...dragStyle,
         '--user-bg': data.colour || '#929292',

@@ -38,7 +38,7 @@ export function useCollapsedGroups(rundownId: string) {
   const expandGroup = useCallback(
     (groupId: EntryId | null | undefined) => {
       if (!groupId) return;
-      setCollapsedGroups((prev) => prev.filter((id) => id !== groupId));
+      setCollapsedGroups((prev) => (prev.includes(groupId) ? prev.filter((id) => id !== groupId) : prev));
     },
     [setCollapsedGroups],
   );

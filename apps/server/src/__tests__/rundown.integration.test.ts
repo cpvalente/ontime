@@ -27,7 +27,7 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   async function createRundown(title = 'Test rundown') {
     const { body } = await json<ProjectRundownsList>(await server.send('POST', '/data/rundowns', { title }));
-    return body.rundowns.find((rundown) => rundown.title === title)!.id;
+    return body.rundowns.find((rundown) => rundown.title === title.trim())!.id;
   }
 
   async function readRundown(id: string): Promise<Rundown> {
@@ -84,20 +84,26 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
   test('refuses invalid additions and leaves the rundown untouched', async () => {
     const { rundown, ids } = await rundownWithEvents(['first']);
+    const { body: group } = await rundown.add({ type: 'group', title: 'block' });
     const before = await rundown.read();
 
     const duplicate = await rundown.add({ type: 'event', id: ids[0], title: 'again' });
-    expect(duplicate.status).toBe(400);
+    expect(duplicate.status).toBe(409);
     expect(duplicate.body).toMatchObject({ message: expect.stringContaining('already exists') });
 
     const notAGroup = await rundown.add({ type: 'event', title: 'orphan', parent: ids[0] });
-    expect(notAGroup.status).toBe(400);
+    expect(notAGroup.status).toBe(422);
+    expect(notAGroup.body).toMatchObject({ message: `Invalid parent event with ID ${ids[0]}` });
+
+    const nestedGroup = await rundown.add({ type: 'group', title: 'nested', parent: group.id });
+    expect(nestedGroup.status).toBe(422);
+    expect(nestedGroup.body).toMatchObject({ message: 'Cannot add a group to another group' });
 
     const missingRundown = await json<{ message: string }>(
       await server.send('POST', '/data/rundowns/does-not-exist/entry', { type: 'event', title: 'lost' }),
     );
-    expect(missingRundown.status).toBe(400);
-    expect(missingRundown.body.message).toContain('not found');
+    expect(missingRundown.status).toBe(404);
+    expect(missingRundown.body.message).toBe('Rundown with id: does-not-exist not found');
 
     expect(await rundown.read()).toStrictEqual(before);
   });
@@ -280,12 +286,25 @@ describe('rundown editing', { timeout: 15_000 }, () => {
 
     const responses = [
       await rundown.edit({ id: 'missing', title: 'ghost' }),
+      await rundown.edit({ id: ids[0], type: 'delay' }), // an entry cannot change its type
       await rundown.send('PATCH', '/reorder', { entryId: ids[0], destinationId: 'missing', order: 'after' }),
+      await rundown.send('PATCH', `/applydelay/${ids[0]}`), // an event is not a delay
+      await rundown.send('POST', '/ungroup/missing'),
       await rundown.send('POST', `/ungroup/${ids[0]}`), // an event is not a group
       await rundown.send('POST', `/${ids[0]}/fit-group-duration`), // an event outside a group has no target
+      await rundown.send('PATCH', '/renumber', { ids, prefix: '', start: '.5', increment: '1' }),
     ];
 
-    expect(responses.map(({ status }) => status)).toStrictEqual([400, 400, 400, 400]);
+    expect(responses.map(({ status, body }) => [status, (body as { message?: string }).message])).toStrictEqual([
+      [404, 'Entry not found'],
+      [422, 'Invalid event type'],
+      [404, 'Event not found'],
+      [422, 'Given delay ID not found'],
+      [404, 'Group with ID missing not found or is not a group'],
+      [422, `Group with ID ${ids[0]} not found or is not a group`],
+      [422, 'Entry must be in a group'],
+      [422, 'input can not be converted to a number'],
+    ]);
     expect(await rundown.read()).toStrictEqual(before);
   });
 
@@ -293,6 +312,29 @@ describe('rundown editing', { timeout: 15_000 }, () => {
     async function listRundowns() {
       return (await json<ProjectRundownsList>(await server.get('/data/rundowns'))).body;
     }
+
+    test('rejects symbol-only rundown titles on create and rename', async () => {
+      const id = await createRundown();
+      expect((await server.send('POST', '/data/rundowns', { title: '-,.' })).status).toBe(422);
+      expect((await server.send('PATCH', `/data/rundowns/${id}`, { title: '🎉' })).status).toBe(422);
+    });
+
+    test('rejects an oversized title before trimming', async () => {
+      const result = await server.send('POST', '/data/rundowns', { title: 'a'.repeat(64) + ' ' });
+      expect(result.status).toBe(422);
+    });
+
+    test('keeps Unicode titles through create, rename and project reload', async () => {
+      const id = await createRundown('  東京 – ١٢٣ 🎉  ');
+      expect((await readRundown(id)).title).toBe('東京 – ١٢٣ 🎉');
+
+      const renamed = await server.send('PATCH', `/data/rundowns/${id}`, { title: '  Café — 2026 🎉  ' });
+      expect(renamed.status).toBe(200);
+      await server.stop();
+      server = await startTestServer();
+
+      expect((await readRundown(id)).title).toBe('Café — 2026 🎉');
+    });
 
     test('creates, renames and duplicates a rundown without touching the loaded one', async () => {
       const { loaded } = await listRundowns();
@@ -313,6 +355,20 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       await json(await server.send('PUT', `/data/rundowns/${copy.id}/entry`, { id: ids[0], title: 'changed in copy' }));
       expect(titles(await rundown.read())).toStrictEqual(['a', 'b']);
       expect(titles(await readRundown(copy.id))).toStrictEqual(['changed in copy', 'b']);
+    });
+
+    test('bounds duplicated rundown titles', async () => {
+      const title = 'a'.repeat(64);
+      const sourceId = await createRundown(title);
+      const before = await listRundowns();
+      const { status, body } = await json<ProjectRundownsList>(
+        server.send('POST', `/data/rundowns/${sourceId}/duplicate`),
+      );
+      const copy = body.rundowns.find((entry) => !before.rundowns.some((existing) => existing.id === entry.id))!;
+
+      expect(status).toBe(201);
+      expect(copy.title).toBe(`Copy of ${'a'.repeat(56)}`);
+      expect((await readRundown(sourceId)).title).toBe(title);
     });
 
     test('loads a rundown, which becomes the current one', async () => {
@@ -337,8 +393,8 @@ describe('rundown editing', { timeout: 15_000 }, () => {
       const { rundown } = await rundownWithEvents(['a']);
 
       const loadedAttempt = await json<{ message: string }>(await server.send('DELETE', `/data/rundowns/${loaded}`));
-      expect(loadedAttempt.status).toBe(400);
-      expect(loadedAttempt.body.message).toContain('loaded');
+      expect(loadedAttempt.status).toBe(409);
+      expect(loadedAttempt.body.message).toBe('Cannot delete loaded rundown');
 
       const { status, body } = await json<ProjectRundownsList>(
         await server.send('DELETE', `/data/rundowns/${rundown.id}`),
