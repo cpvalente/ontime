@@ -203,6 +203,11 @@ export const useExpectedStartData = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
 }));
 
+export const useTeleprompterState = createSelector((state: RuntimeStore) => state.teleprompter);
+
+/** What following screens animate from, which changes only on commands and boundaries */
+export const useTeleprompterSync = createSelector((state: RuntimeStore) => state.teleprompterSync);
+
 export const usePing = createSelector((state: RuntimeStore) => state.ping);
 
 /** convert ping into a derived value which changes less often */
@@ -261,7 +266,6 @@ export const useTimerSocket = createSelector((state: RuntimeStore) => ({
   eventNow: state.eventNow,
   message: state.message,
   time: state.timer,
-  clock: state.clock,
   timerTypeNow: state.eventNow?.timerType ?? TimerType.CountDown,
   countToEndNow: state.eventNow?.countToEnd ?? false,
   auxTimer: {

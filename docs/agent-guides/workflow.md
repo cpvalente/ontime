@@ -47,6 +47,14 @@ PR CI: `.github/workflows/test.yml`; runs format, lint, types, unit, Playwright.
 
 Before code commit: `pnpm lint`, `pnpm test`; add `pnpm typecheck` for TypeScript and `pnpm format:check` for formatted files. Claim only observed results.
 
+## Product screenshots
+
+Build the client, then run `node e2e/screenshots/capture.mjs`; see [capture instructions](../../e2e/screenshots/README.md).
+Use the built-in demo project as the source. Improve its models when content is missing, rather than patching a separate
+screenshot rundown. The capture command stages runtime controls on an isolated server and captures every navigation view,
+including all three editor layouts. The standard views serve the website and unannotated documentation
+view pages; supplemental captures show a department Cuesheet and a delayed show.
+
 ## TypeScript and imports
 
 - Strict TypeScript. Prefer `ontime-types` domain types over local copies.

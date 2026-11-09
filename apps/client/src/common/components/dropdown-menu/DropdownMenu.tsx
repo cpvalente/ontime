@@ -5,6 +5,7 @@ import { IconType } from 'react-icons';
 import style from './DropdownMenu.module.scss';
 
 type DropdownMenuItemDivider = { type: 'divider' };
+type DropdownMenuItemHeader = { type: 'header'; label: string };
 type DropdownMenuItem = {
   type: 'item' | 'destructive';
   label: string;
@@ -15,7 +16,7 @@ type DropdownMenuItem = {
   shortcut?: string;
 };
 
-export type DropdownMenuOption = DropdownMenuItemDivider | DropdownMenuItem;
+export type DropdownMenuOption = DropdownMenuItemDivider | DropdownMenuItemHeader | DropdownMenuItem;
 
 interface DropdownMenuProps extends BaseMenu.Trigger.Props {
   items: DropdownMenuOption[];
@@ -31,6 +32,13 @@ export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChil
             {items.map((item, index) => {
               if (item.type === 'divider') {
                 return <BaseMenu.Separator key={index} className={style.separator} />;
+              }
+              if (item.type === 'header') {
+                return (
+                  <BaseMenu.Group key={index}>
+                    <BaseMenu.GroupLabel className={style.header}>{item.label}</BaseMenu.GroupLabel>
+                  </BaseMenu.Group>
+                );
               }
               return (
                 <BaseMenu.Item
@@ -59,7 +67,7 @@ export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChil
 }
 
 interface PositionedDropdownMenuProps {
-  items: Array<DropdownMenuItemDivider | DropdownMenuItem>;
+  items: DropdownMenuOption[];
   isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
@@ -80,6 +88,13 @@ export function PositionedDropdownMenu({ items, isOpen, position, onClose }: Pos
             {items.map((item, index) => {
               if (item.type === 'divider') {
                 return <BaseMenu.Separator key={index} className={style.separator} />;
+              }
+              if (item.type === 'header') {
+                return (
+                  <BaseMenu.Group key={index}>
+                    <BaseMenu.GroupLabel className={style.header}>{item.label}</BaseMenu.GroupLabel>
+                  </BaseMenu.Group>
+                );
               }
               return (
                 <BaseMenu.Item key={index} className={style.item} onClick={item.onClick} disabled={item.disabled}>

@@ -38,6 +38,7 @@ import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
+import { EntryNotFoundError, InvalidEntryOperationError, RundownNotFoundError } from './rundown.errors.js';
 import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
 import {
@@ -112,6 +113,18 @@ type Transaction<R> = {
   }>;
 };
 
+/**
+ * Reads a rundown from the project data
+ * @throws RundownNotFoundError if the rundown does not exist
+ */
+export function getStoredRundown(rundownId: string): Readonly<Rundown> {
+  const dataProvider = getDataProvider();
+  if (!Object.hasOwn(dataProvider.getProjectRundowns(), rundownId)) {
+    throw new RundownNotFoundError(rundownId);
+  }
+  return dataProvider.getRundown(rundownId);
+}
+
 type TransactionOptions = {
   mutableRundown?: boolean;
   mutableCustomFields?: boolean;
@@ -132,7 +145,7 @@ export function createTransaction(
 ): Transaction<Rundown> | Transaction<DeepReadonly<Rundown>> {
   const targetId = options.rundownId ?? cachedRundown.id;
   const isLoaded = targetId === cachedRundown.id;
-  const sourceRundown: Rundown = isLoaded ? cachedRundown : (getDataProvider().getRundown(targetId) as Rundown);
+  const sourceRundown: Rundown = isLoaded ? cachedRundown : (getStoredRundown(targetId) as Rundown);
   const rundown = options.mutableRundown ? cloneRundown(sourceRundown) : sourceRundown;
   const customFields = options.mutableCustomFields ? structuredClone(projectCustomFields) : projectCustomFields;
 
@@ -220,7 +233,7 @@ export function createTransaction(
 function edit(rundown: Rundown, patch: PatchWithId): { entry: OntimeEntry; didInvalidate: boolean } {
   const entry = rundown.entries[patch.id];
   if (!entry) {
-    throw new Error(`Entry with id ${patch.id} not found`);
+    throw new EntryNotFoundError(`Entry with id ${patch.id} not found`);
   }
 
   // apply the patch and replace the entry
@@ -299,7 +312,7 @@ function reorder(rundown: Rundown, eventFrom: OntimeEntry, eventTo: OntimeEntry,
       if (order === 'insert') {
         // prevent groups from being inserted into other groups
         if (isOntimeGroup(eventFrom)) {
-          throw new Error('Cannot insert a group into another group');
+          throw new InvalidEntryOperationError('Cannot insert a group into another group');
         }
         return eventTo.id;
       }
@@ -578,7 +591,8 @@ function renumber(
   for (let i = 0; i < ids.length; i++) {
     const currentId = ids[i];
     const currentEntry = rundown.entries[currentId];
-    if (!currentEntry || !isOntimeEvent(currentEntry)) throw new Error('A given id was not an event');
+    if (!currentEntry || !isOntimeEvent(currentEntry))
+      throw new InvalidEntryOperationError('A given id was not an event');
 
     //note: we know this dose not handle role over from the fraction into the integer
     const integer = String(start.integer + increment.integer * i);
@@ -616,7 +630,7 @@ export function getProcessedRundown(rundownId: string): Readonly<Rundown> {
     return cachedRundown;
   }
 
-  const stored = getDataProvider().getRundown(rundownId);
+  const stored = getStoredRundown(rundownId);
   const processed = processRundown(stored, getDataProvider().getCustomFields());
   return {
     id: stored.id,
@@ -699,6 +713,28 @@ export const customFieldMutation = {
   renameUsages: customFieldRenameUsages,
   removeUsages: customFieldRemoveUsages,
 };
+
+/**
+ * Stores a parsed rundown in place of the stored one of the same id, loaded or background
+ * The rundown is processed against the project custom fields, as with any commit
+ * Replacing the loaded rundown does not switch rundowns, the runtime reconciles on the change
+ */
+export async function replaceStoredRundown(parsedRundown: Readonly<Rundown>) {
+  if (parsedRundown.id === cachedRundown.id) {
+    init(parsedRundown, projectCustomFields);
+    return;
+  }
+
+  const processed = processRundown(parsedRundown, projectCustomFields);
+  await getDataProvider().setRundown(parsedRundown.id, {
+    id: parsedRundown.id,
+    title: parsedRundown.title,
+    entries: processed.entries,
+    order: processed.order,
+    flatOrder: processed.flatEntryOrder,
+    revision: parsedRundown.revision,
+  });
+}
 
 /**
  * Expose function to add an initial rundown to the system

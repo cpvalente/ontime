@@ -27,6 +27,13 @@ describe('checkRegex()', () => {
     expect(checkRegex.isAlphanumericWithSpace('abc-123')).toBe(false);
   });
 
+  it('isAlphanumericOrEmpty', () => {
+    expect(checkRegex.isAlphanumericOrEmpty('')).toBe(true);
+    expect(checkRegex.isAlphanumericOrEmpty('aB9')).toBe(true);
+    expect(checkRegex.isAlphanumericOrEmpty('_abc')).toBe(false);
+    expect(checkRegex.isAlphanumericOrEmpty('1 2')).toBe(false);
+  });
+
   it('isASCII', () => {
     expect(checkRegex.isASCII('Hello, World!')).toBe(true);
     expect(checkRegex.isASCII('こんにちは')).toBe(false);

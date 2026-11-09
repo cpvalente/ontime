@@ -16,12 +16,22 @@ interface SelectProps<T> extends Omit<BaseSelect.Root.Props<T>, 'items'> {
   options: SelectOption<T>[];
   fluid?: boolean;
   size?: 'medium' | 'large';
+  'aria-label'?: string;
+  /** where focus goes when the menu closes, the trigger by default */
+  finalFocus?: BaseSelect.Popup.Props['finalFocus'];
 }
 
-export default function Select<T>({ options, fluid, size = 'medium', ...selectRootProps }: SelectProps<T>) {
+export default function Select<T>({
+  options,
+  fluid,
+  size = 'medium',
+  'aria-label': ariaLabel,
+  finalFocus,
+  ...selectRootProps
+}: SelectProps<T>) {
   return (
     <BaseSelect.Root items={options} {...selectRootProps}>
-      <BaseSelect.Trigger className={cx([styles.select, styles[size], fluid && styles.fluid])}>
+      <BaseSelect.Trigger aria-label={ariaLabel} className={cx([styles.select, styles[size], fluid && styles.fluid])}>
         <span className={styles.valueText}>
           <BaseSelect.Value />
         </span>
@@ -32,7 +42,7 @@ export default function Select<T>({ options, fluid, size = 'medium', ...selectRo
       <BaseSelect.Portal>
         <BaseSelect.Positioner side='bottom' align='start'>
           <BaseSelect.ScrollUpArrow className={styles.scrollArrow} keepMounted />
-          <BaseSelect.Popup className={styles.popup}>
+          <BaseSelect.Popup className={styles.popup} finalFocus={finalFocus}>
             <BaseSelect.Arrow />
             <BaseSelect.List className={styles.list}>
               {options.map(({ disabled, label, value }) => (

@@ -21,6 +21,7 @@ import {
   LogOrigin,
   MaybeNumber,
   MessageTag,
+  ProjectStartup,
   RefetchKey,
   WsPacketToClient,
   WsPacketToServer,
@@ -30,6 +31,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
+import { timeOfDayNow } from '../lib/time-core/timeCore.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
@@ -44,7 +46,8 @@ class SocketServer implements IAdapter {
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
   private lastConnection: Date | null = null;
-  private shouldShowWelcome = true;
+  /** sent once, to the first editor which connects */
+  private welcome: ProjectStartup | null = null;
 
   constructor() {
     if (instance) {
@@ -57,8 +60,8 @@ class SocketServer implements IAdapter {
     this.wss = null;
   }
 
-  init(server: Server, showWelcome: boolean, prefix?: string) {
-    this.shouldShowWelcome = showWelcome;
+  init(server: Server, welcome: ProjectStartup | null, prefix?: string) {
+    this.welcome = welcome;
     this.wss = new WebSocketServer({ path: `${prefix}/ws`, server, maxPayload: this.MAX_PAYLOAD });
 
     this.wss.on('connection', (ws, req) => {
@@ -118,16 +121,17 @@ class SocketServer implements IAdapter {
 
           switch (tag) {
             case MessageTag.Ping: {
-              sendPacket(MessageTag.Pong, payload);
+              const pong: WsPacketToClient = { tag: MessageTag.Pong, payload, clock: timeOfDayNow() };
+              ws.send(JSON.stringify(pong));
               break;
             }
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
               this.clients.set(clientId, updatedClient);
-              if (this.shouldShowWelcome && updatedClient.path?.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (this.welcome && updatedClient.path?.toLowerCase().includes('editor')) {
+                sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
+                this.welcome = null;
               }
               this.sendClientList();
               break;
@@ -136,9 +140,9 @@ class SocketServer implements IAdapter {
               const previousData = this.getOrCreateClient(clientId);
               previousData.path = payload;
               this.clients.set(clientId, previousData);
-              if (this.shouldShowWelcome && payload.toLowerCase().includes('editor')) {
-                this.shouldShowWelcome = false;
-                sendPacket(MessageTag.Dialog, { dialog: 'welcome' });
+              if (this.welcome && payload.toLowerCase().includes('editor')) {
+                sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
+                this.welcome = null;
               }
               this.sendClientList();
               break;
@@ -147,7 +151,7 @@ class SocketServer implements IAdapter {
               tag satisfies never;
               // Protocol specific stuff handled above
               try {
-                const reply = await dispatchFromAdapter(tag, payload, 'ws');
+                const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
                 if (reply) {
                   ws.send(
                     JSON.stringify({

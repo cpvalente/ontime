@@ -14,6 +14,10 @@ export default function useViewSettings() {
     staleTime: MILLIS_PER_HOUR,
   });
 
+  return { data: data ?? viewsSettingsPlaceholder, status };
+}
+
+export function useUpdateViewSettings() {
   const { mutateAsync } = useMutation({
     mutationFn: postViewSettings,
     onMutate: () => {
@@ -24,5 +28,5 @@ export default function useViewSettings() {
     },
   });
 
-  return { data: data ?? viewsSettingsPlaceholder, status, mutateAsync };
+  return { updateViewSettings: mutateAsync };
 }

@@ -40,6 +40,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => {
         setRundown: setRundownMock,
         setCustomFields: setCustomFieldsMock,
         getRundown: getRundownMock,
+        getProjectRundowns: () => ({ background: {} }),
         getCustomFields: () => ({}),
       };
     }),

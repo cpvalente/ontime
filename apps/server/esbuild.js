@@ -5,7 +5,7 @@ const isDocker = process.env.NODE_ENV === 'docker';
 await esbuild.build({
   logLevel: 'error',
   platform: 'node',
-  target: ['node20'],
+  target: ['node24'],
   format: 'cjs',
   tsconfig: 'tsconfig.app.json',
   bundle: true,

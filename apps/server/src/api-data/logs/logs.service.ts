@@ -31,8 +31,13 @@ type EscalateErrorFn = (error: string, unrecoverable: boolean) => void;
 /** the console only mirrors entries in development, crashes are always shown */
 const canLog = !isProduction;
 
+/** a crash report carries this many of the newest entries */
+const recentSize = 100;
+
 /** entries logged before the session log opened, written to it once it does */
 let pending: LogLine[] = [];
+/** the newest entries, whether or not the session log has opened */
+let recent: LogLine[] = [];
 let sessionLog: SessionLog | null = null;
 /** shows an error in a dialog, only exists in electron */
 let escalateErrorFn: EscalateErrorFn | null = null;
@@ -61,6 +66,11 @@ function emit(level: LogLevel, origin: string, text: string) {
     }
   }
 
+  recent.push(entry);
+  if (recent.length > recentSize) {
+    recent.shift();
+  }
+
   if (sessionLog) {
     sessionLog.append(entry);
   } else {
@@ -87,15 +97,27 @@ export function error(origin: string, message: string, fields: LogFields = {}, e
   }
 }
 
-/** Logs a crash, and shows it in a dialog in electron */
-export function crash(origin: string, message: string, fields: LogFields = {}) {
+/** Logs a crash, returning the text written */
+export function crash(origin: string, message: string, fields: LogFields = {}): string {
   const text = formatText(message, fields);
   emit(LogLevel.Severe, origin, text);
+  return text;
+}
+
+/** Shows a crash in a dialog, only in electron, where the dialog blocks until dismissed */
+export function escalateCrash(text: string) {
   escalateErrorFn?.(text, true);
+}
+
+/** The newest entries, including those not yet in the session log */
+export function getRecentEntries(): readonly LogLine[] {
+  return recent;
 }
 
 /** Stops writing, the process is about to exit */
 export function shutdown() {
   pending = [];
+  recent = [];
   sessionLog = null;
+  escalateErrorFn = null;
 }

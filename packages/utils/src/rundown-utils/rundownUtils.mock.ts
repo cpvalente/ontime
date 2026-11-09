@@ -2,6 +2,7 @@ import type { DatabaseModel } from 'ontime-types';
 import { EndAction, OntimeView, SupportedEntry, TimeStrategy, TimerType } from 'ontime-types';
 
 export const demoDb: DatabaseModel = {
+  projectId: 'demo',
   rundowns: {
     default: {
       id: 'default',

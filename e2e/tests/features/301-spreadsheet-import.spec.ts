@@ -5,7 +5,7 @@ import { expect, test } from '../fixtures/override';
 const fileToUpload = 'e2e/tests/fixtures/Ontime rundown template v4.xlsx';
 
 test('imports spreadsheet and applies imported rundown to editor', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
   await page.getByRole('button', { name: 'Edit' }).click();
 
   // clear the rundown
@@ -18,7 +18,7 @@ test('imports spreadsheet and applies imported rundown to editor', async ({ page
   await page.getByRole('button', { name: 'Toggle settings' }).click();
   await page.getByRole('button', { name: 'Project settings' }).click();
   await page.getByRole('button', { name: 'Import spreadsheet' }).first().click();
-  await expect(page.getByText('Synchronize your rundown with an external source')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Import spreadsheet' })).toBeVisible();
 
   // upload the spreadsheet
   const fileChooserPromise = page.waitForEvent('filechooser');

@@ -32,6 +32,7 @@ const followTolerance = 50;
 
 export default function OperatorLoader() {
   const { data, status } = useOperatorData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Operator');
 
@@ -40,7 +41,7 @@ export default function OperatorLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Operator {...data} />;

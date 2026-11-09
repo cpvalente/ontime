@@ -35,7 +35,18 @@ export function handleLinks(
 ) {
   // we handle the link manually
   event?.preventDefault();
+  openLink(getAppUrl(location, externalServerUrl, externalBaseURI));
+}
 
+/**
+ * The full URL of a page of this Ontime app, respecting Ontime Clouds base URL
+ * serverUrl and baseURI are used for testing
+ */
+export function getAppUrl(
+  location: string,
+  externalServerUrl: string = serverURL,
+  externalBaseURI: string = baseURI,
+): string {
   const destination = new URL(externalServerUrl);
   // split off any query string so it is not encoded into the pathname
   const [pathname, search] = location.split('?');
@@ -43,7 +54,7 @@ export function handleLinks(
   if (search) {
     destination.search = search;
   }
-  openLink(destination.toString());
+  return destination.toString();
 }
 
 export function linkToOtherHost(
@@ -72,4 +83,10 @@ export function hostToBaseUrl(host: string, port: number, externalServerUrl: str
   const pagePort = page.port === '' ? (page.protocol === 'https:' ? 443 : 80) : Number(page.port);
   const scheme = page.protocol === 'https:' && pagePort === port ? 'https' : 'http';
   return `${scheme}://${host}:${port}`;
+}
+
+/** Whether an address (or URL host) points back to the machine itself: localhost, 127.x.x.x or ::1 */
+export function isLoopbackAddress(address: string): boolean {
+  const host = address.replace(/^\[|\]$/g, '').toLowerCase();
+  return host === 'localhost' || host === '::1' || /^127(\.\d{1,3}){3}$/.test(host);
 }

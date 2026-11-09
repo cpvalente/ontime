@@ -14,7 +14,7 @@ export default function ManagePanel({ location }: PanelBaseProps) {
 
   return (
     <>
-      <Panel.Header>Project data</Panel.Header>
+      <Panel.Header>Project settings</Panel.Header>
       <div ref={defaultsRef}>
         <RundownDefaultSettings />
       </div>

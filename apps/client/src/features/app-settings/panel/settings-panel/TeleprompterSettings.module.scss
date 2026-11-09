@@ -1,0 +1,39 @@
+.body {
+  margin-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .card {
+    --panel-card-padding: 1rem;
+
+    > h3 {
+      flex-wrap: wrap;
+
+      > div {
+        flex-wrap: wrap;
+      }
+    }
+  }
+
+  .info {
+    padding: 0.75rem;
+
+    > svg {
+      display: none;
+    }
+  }
+}
+
+.fields {
+  padding: 0;
+
+  > li {
+    grid-template-columns: minmax(0, 1fr) 12rem;
+  }
+
+  @media (max-width: 600px) {
+    > li {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+}

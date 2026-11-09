@@ -1,4 +1,4 @@
-import type { GetPromptResult, ListPromptsResult } from '@modelcontextprotocol/sdk/types.js';
+import type { GetPromptResult, ListPromptsResult } from '@modelcontextprotocol/server';
 
 export const PROMPT_DEFINITIONS: ListPromptsResult['prompts'] = [
   {

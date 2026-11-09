@@ -12,6 +12,10 @@ const maxBytesPerRead = 128 * 1024;
 
 export type SessionLog = ReturnType<typeof createSessionLog>;
 
+/** counts entries written, the log view polls and usually nothing was written since its last read */
+let writeCount = 0;
+let lastRead: { file: string; writeCount: number; entries: Log[] } | null = null;
+
 /**
  * Starts a log file for this session, keeping the previous session's file
  * Synchronous writes avoid leaving asynchronous appends pending when the process exits
@@ -32,6 +36,7 @@ export function createSessionLog(file: string, previousFile: string, maxSize = m
     try {
       appendFileSync(file, line);
       size += Buffer.byteLength(line);
+      writeCount++;
     } catch (_error) {
       // the session log is a diagnostic, it must never stop the server
     }
@@ -66,6 +71,10 @@ export function createSessionLog(file: string, previousFile: string, maxSize = m
  * Writes are synchronous, so the file never ends in a line still being written
  */
 export function readLogEntries(file: string, maxBytes = maxBytesPerRead): Log[] {
+  if (lastRead?.file === file && lastRead.writeCount === writeCount) {
+    return lastRead.entries;
+  }
+
   let tail: Buffer;
   let start = 0;
   try {
@@ -91,5 +100,6 @@ export function readLogEntries(file: string, maxBytes = maxBytesPerRead): Log[] 
     if (entry) entries.push(entry);
     offset += Buffer.byteLength(line) + 1;
   }
+  lastRead = { file, writeCount, entries };
   return entries;
 }

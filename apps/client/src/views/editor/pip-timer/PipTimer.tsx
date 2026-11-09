@@ -3,6 +3,7 @@ import { ViewSettings } from 'ontime-types';
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
 import { useTimerSocket } from '../../../common/hooks/useSocket';
+import { useAutoTickingClock } from '../../../common/stores/clockStore';
 import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
 import {
@@ -23,7 +24,8 @@ interface PipTimerProps {
 }
 
 export function PipTimer({ viewSettings }: PipTimerProps) {
-  const { eventNow, message, time, clock, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const { eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
+  const clock = useAutoTickingClock();
 
   // gather modifiers
   const showOverlay = getShowMessage(message.timer);

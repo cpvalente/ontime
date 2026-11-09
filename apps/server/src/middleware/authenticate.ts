@@ -37,6 +37,20 @@ export function isPublicAssetRequest(originalUrl: string, prefix: string): boole
 }
 
 /**
+ * Returns the redirect target if it is a path within the prefix root, otherwise the prefix root
+ * Rejects protocol-relative targets (eg: //host or /\host) which browsers resolve to another origin
+ * @param {unknown} redirect - Redirect target as received from the login form
+ * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
+ */
+export function getSafeRedirect(redirect: unknown, prefix: string): string {
+  const root = `${prefix}/`;
+  if (typeof redirect !== 'string' || !redirect.startsWith(root) || redirect[1] === '/' || redirect[1] === '\\') {
+    return root;
+  }
+  return redirect;
+}
+
+/**
  * Creates a login router with the provided prefix
  * @param {string} prefix - Prefix is used for the client hashes in Ontime Cloud
  */
@@ -53,8 +67,7 @@ export function makeLoginRouter(prefix: string) {
 
     if (hashPassword(reqPassword) === hashedPassword) {
       setSessionCookie(res, hashedPassword, prefix);
-      // If redirect is provided, use it; otherwise redirect to the prefix root
-      res.redirect(redirect || (prefix ? `${prefix}/` : '/'));
+      res.redirect(getSafeRedirect(redirect, prefix));
       return;
     }
 
@@ -71,7 +84,10 @@ export function makeLoginRouter(prefix: string) {
 export function makeAuthenticateMiddleware(prefix: string) {
   // we dont need to initialise the authenticate middleware if there is no password
   if (!hasPassword) {
-    return { authenticate: noopMiddleware, authenticateAndRedirect: noopMiddleware };
+    return {
+      authenticate: noopMiddleware,
+      authenticateAndRedirect: noopMiddleware,
+    };
   }
 
   // pre-compute the login redirect base URL to avoid string concatenation on every request
@@ -122,7 +138,7 @@ export function makeAuthenticateMiddleware(prefix: string) {
       return next();
     }
 
-    res.redirect(loginRedirectBase + req.originalUrl);
+    res.redirect(loginRedirectBase + encodeURIComponent(req.originalUrl));
   }
 
   return { authenticate, authenticateAndRedirect };

@@ -5,7 +5,7 @@ test('switching rundowns preserves edits per rundown', async ({ page }) => {
   const nameA = `Rundown A ${suffix}`;
   const nameB = `Rundown B ${suffix}`;
 
-  await page.goto('/editor');
+  await page.goto('editor');
 
   await expect(page.getByTestId('editor-container')).toBeVisible();
 
@@ -16,7 +16,7 @@ test('switching rundowns preserves edits per rundown', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Manage Rundowns...' }).click();
 
-  await page.getByRole('heading', { name: 'Manage project rundowns' }).getByRole('button', { name: 'New' }).click();
+  await page.getByRole('heading', { name: 'Manage rundowns' }).getByRole('button', { name: 'New' }).click();
   await page.getByPlaceholder('Your rundown name').fill(nameA);
   await page.getByRole('button', { name: 'Create rundown' }).click();
   await expect(page.getByRole('row', { name: nameA })).toBeVisible();
@@ -37,7 +37,7 @@ test('switching rundowns preserves edits per rundown', async ({ page }) => {
   await page.getByRole('button', { name: 'Rundown menu' }).click();
   await page.getByRole('menuitem', { name: 'Manage Rundowns...' }).click();
 
-  await page.getByRole('heading', { name: 'Manage project rundowns' }).getByRole('button', { name: 'New' }).click();
+  await page.getByRole('heading', { name: 'Manage rundowns' }).getByRole('button', { name: 'New' }).click();
   await page.getByPlaceholder('Your rundown name').fill(nameB);
   await page.getByRole('button', { name: 'Create rundown' }).click();
   await expect(page.getByRole('row', { name: nameB })).toBeVisible();

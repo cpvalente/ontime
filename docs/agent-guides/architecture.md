@@ -47,7 +47,7 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 | `services/<name>-service/` | One service with its helpers and tests     |
 | `stores/`                  | Mutable runtime state                      |
 | `adapters/`                | Inbound protocol adapters                  |
-| `middleware/`              | Express middleware shared across routers   |
+| `middleware/`              | Express middleware and error categories    |
 | `lib/`                     | Self-contained libraries (eg: `time-core`) |
 | `utils/`                   | Generic, domain-free helpers               |
 
@@ -62,11 +62,13 @@ Do not duplicate canonical rules or distort an abstraction to force reuse. Small
 
 Name files `name.role.ts`. Keep tests in a sibling `__tests__/`.
 
-Known gaps, not precedent: `runtimeState` reads the clock and mutates a module singleton; some routers read from `DataProvider` directly.
+Known gaps, not precedent: `runtimeState` reads the clock and mutates a module singleton; some routers read from `DataProvider` directly; automations read the live store when a lifecycle event is delivered, not the state it carries.
 
 ### Routers and controllers
 
-Routers declare paths and middleware. Controllers map validated HTTP input to typed service arguments, then results/errors to responses.
+Routers declare paths and middleware. Controllers map validated HTTP input to typed service arguments, then results to responses.
+
+`/data` handlers throw instead of catching. Each slice declares its errors in `<resource>.errors.ts`, extending a category from `middleware/errors.ts`; the error builds its own message. `middleware/errorHandler.ts` maps categories only: `NotFoundError` 404, `ConflictError` 409, `InvalidInputError` 422, anything else 500, all as `{ message }`. The domain never sees HTTP statuses. Request shape stays with express-validator (422).
 
 Keep reusable calculations, domain decisions, transformations, persistence workflows, and integration coordination out of handlers. Simple reads may stay direct when a service would only pass through.
 
@@ -98,11 +100,20 @@ Old layering exceptions are context, not precedent. Improve touched boundaries o
 - `views`: route-level composition.
 - `common`: genuinely cross-feature code.
 
+### Display views
+
+- Views are standalone. A view's behaviour lives in its own folder, with `<view>.options.ts` declaring its options, defaults and URL parsing, so one file shows how the view behaves. Repeating code across views is preferred to shared abstractions that couple them.
+- Existing global classes, element nesting and `--*-override` variables on display views (timer, backstage, countdown, studio, info) are a user contract. Rename or remove them only in a major, with a release note.
+- New stylable elements use BEM classes under the view's block. Avoid generic names such as `title` or `logo`.
+- A new `--*-override` variable is read in the view's styles as `var(--x-override, $default)`, with its default in `apps/client/src/theme/_viewerDefs.scss`, and listed with a comment in `apps/server/src/bundle/bundledCss.ts`.
+- Timeline and other complex views are not part of the contract beyond the shared variables.
+
 Keep substantial rules out of JSX, effects, and handlers. Use tested, colocated pure utilities. TanStack Query owns server state; established Zustand/context owns local state. No parallel caches.
 
-Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown.
+Rundown data has two sources. Editing surfaces mount `RundownScopeProvider` and read data, selection, and entry actions from that scope (`useRundown`, `useEventSelection`, `useEntryActionsContext`). Runtime-only surfaces use the `useLoaded*` hooks. Runtime state (playing event, playback) applies only when the scope `isLoaded`. Mutations resolve their cache key from the rundown ID they were sent with, never from the current scope. Rows of virtualised lists receive entry data as props from the list and never call rundown query hooks, since each mount would refetch the rundown. Memoised rows must receive everything they render as props: the entry from the query cache, metadata as primitives, and table layout and options; they read handlers only when an event fires.
 
 Limit subscriptions with selectors. Keep effect dependencies stable. Clean up listeners, intervals, external resources.
+Preserve previous Zustand snapshots when patching state so selectors and subscriptions can detect changes.
 
 ## Shared packages
 

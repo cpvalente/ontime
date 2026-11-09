@@ -4,17 +4,25 @@ import { LogOrigin } from 'ontime-types';
 import { MILLIS_PER_HOUR, getErrorMessage } from 'ontime-utils';
 
 import * as logger from '../../api-data/logs/logs.service.js';
+import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { publicFiles } from '../../setup/index.js';
-import { isRestorePoint } from './restore.parser.js';
-import type { RestorePoint } from './restore.types.js';
+import type { AuxTimers } from '../aux-timer-service/auxTimer.utils.js';
+import { parseRestorePoint } from './restore.parser.js';
+import type { RestorePoint, RuntimeRestore } from './restore.types.js';
 
 /** a point older than this belongs to a show which is no longer running */
 const maxRestoreAge = 5 * MILLIS_PER_HOUR;
+const writeDelayMs = 3000;
 
 let failedCreateAttempts = 0;
+let runtime: RestorePoint['runtime'];
+let auxTimers: AuxTimers | undefined;
 let savedState: Omit<RestorePoint, 'savedAt'> | null = null;
 let fileRef: JSONFile<RestorePoint | null> | null = null;
+let pendingWrite: NodeJS.Timeout | null = null;
+let pendingWriter = write;
+let activeWrite: Promise<void> | null = null;
 
 /**
  * Service manages saving snapshot of application state
@@ -22,30 +30,91 @@ let fileRef: JSONFile<RestorePoint | null> | null = null;
  */
 export const restoreService = {
   save,
+  saveAuxTimers,
   load,
+  forProject,
+  initialise,
+  flush,
   clear,
 };
 
+/** Seeds both parts before playback or aux timers resume, without rewriting the file. */
+function initialise(point: RestorePoint | null) {
+  runtime = point?.runtime;
+  auxTimers = point?.auxTimers;
+  savedState = { runtime, auxTimers };
+}
+
 /**
- * Saves a restore point
+ * Saves the runtime part of the restore point
  * @param [writeFn=write] - allows overriding the write function for testing
  * @public
  */
-async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
+async function save(data: RuntimeRestore, writeFn = write) {
+  runtime = { ...data, projectId: getDataProvider().getProjectId() };
+  scheduleWrite(writeFn);
+}
+
+/**
+ * Saves the aux timers part of the restore point
+ * @param [writeFn=write] - allows overriding the write function for testing
+ * @public
+ */
+async function saveAuxTimers(timers: AuxTimers, writeFn = write) {
+  auxTimers = timers;
+  scheduleWrite(writeFn);
+}
+
+function scheduleWrite(writeFn: typeof write) {
+  pendingWriter = writeFn;
+  // Later commands update the state without postponing the scheduled write.
+  if (pendingWrite) return;
+  pendingWrite = setTimeout(() => {
+    pendingWrite = null;
+    startWrite();
+  }, writeDelayMs);
+}
+
+function startWrite() {
+  const previousWrite = activeWrite;
+  const writeFn = pendingWriter;
+  activeWrite = (async () => {
+    await previousWrite;
+    await persist(writeFn);
+  })();
+}
+
+/** Writes the latest pending state and waits for in-flight writes before shutdown. */
+async function flush() {
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+    pendingWrite = null;
+    startWrite();
+  }
+  await activeWrite;
+}
+
+/**
+ * Writes both parts into the restore point
+ */
+async function persist(writeFn: typeof write) {
   // after three failed attempts, mark the service as unavailable
-  if (failedCreateAttempts > 3) {
+  if (failedCreateAttempts > 3 || (runtime === undefined && auxTimers === undefined)) {
     return;
   }
 
-  if (deepEqual(data, savedState)) {
+  const point = { runtime, auxTimers };
+  if (deepEqual(point, savedState)) {
     return;
   }
 
+  // compared with the last requested write, so a change back while a write is pending is saved too
+  savedState = point;
   try {
-    await writeFn({ ...data, savedAt: timeCore.now() });
-    savedState = { ...data };
+    await writeFn({ ...point, savedAt: timeCore.now() });
     failedCreateAttempts = 0;
   } catch (error) {
+    savedState = null;
     failedCreateAttempts += 1;
     if (failedCreateAttempts > 3) {
       logger.warning(LogOrigin.Server, 'Restore saving stopped', { error: getErrorMessage(error) });
@@ -54,33 +123,50 @@ async function save(data: Omit<RestorePoint, 'savedAt'>, writeFn = write) {
 }
 
 /**
- * Attempts reading a restore point from a given file path
- * Returns null if none found or it is too old to resume, restore point otherwise
+ * Attempts reading the restore point
+ * Returns null if none found or it is too old to resume, the restore point otherwise
  * @param [readFn=read] - allows overriding the read function for testing
  * @public
  */
-async function load(readFn = read): Promise<RestorePoint | null> {
+async function load(readFn: () => Promise<unknown> = read): Promise<RestorePoint | null> {
   try {
-    const maybeRestorePoint = await readFn();
-    if (maybeRestorePoint === null) {
+    const file = await readFn();
+    if (file === null) {
       return null;
     }
 
-    if (!isRestorePoint(maybeRestorePoint)) {
+    const restorePoint = parseRestorePoint(file);
+    if (restorePoint === null) {
       logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'invalid-file' });
       return null;
     }
 
-    if (timeCore.timeSince(timeCore.now(), maybeRestorePoint.savedAt) > maxRestoreAge) {
-      logger.info(LogOrigin.Server, 'Restore skipped', { reason: 'stale', savedAt: maybeRestorePoint.savedAt });
+    if (timeCore.timeSince(timeCore.now(), restorePoint.savedAt) > maxRestoreAge) {
+      logger.info(LogOrigin.Server, 'Restore skipped', { reason: 'stale', savedAt: restorePoint.savedAt });
       return null;
     }
 
-    return maybeRestorePoint;
+    return restorePoint;
   } catch (error) {
     logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'read-failed', error: getErrorMessage(error) });
     return null;
   }
+}
+
+/**
+ * Keeps playback only in the project it was saved in, aux timers resume in any project
+ * @public
+ */
+function forProject(restorePoint: RestorePoint | null, projectId: string): RestorePoint | null {
+  if (!restorePoint?.runtime || restorePoint.runtime.projectId === projectId) {
+    return restorePoint;
+  }
+
+  logger.warning(LogOrigin.Server, 'Restore skipped', {
+    reason: 'other-project',
+    projectId: restorePoint.runtime.projectId,
+  });
+  return { ...restorePoint, runtime: undefined };
 }
 
 /**
@@ -89,8 +175,16 @@ async function load(readFn = read): Promise<RestorePoint | null> {
  * @public
  */
 async function clear(writeFn = write) {
+  if (pendingWrite) {
+    clearTimeout(pendingWrite);
+    pendingWrite = null;
+  }
+  await activeWrite;
   try {
     await writeFn(null);
+    runtime = undefined;
+    auxTimers = undefined;
+    savedState = null;
   } catch (_error) {
     // nothing to do
   }

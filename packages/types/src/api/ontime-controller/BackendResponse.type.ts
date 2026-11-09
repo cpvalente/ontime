@@ -20,6 +20,8 @@ export interface SessionStats {
   playback: Playback;
   timezone: string;
   version: string;
+  nodeId: string;
+  projectId: string;
 }
 
 export interface GetInfo {

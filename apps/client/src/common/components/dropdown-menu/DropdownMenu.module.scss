@@ -104,3 +104,12 @@
   height: 1px;
   background-color: $white-7;
 }
+
+.header {
+  padding-block: 0.25rem 0.5rem;
+  padding-inline: 1rem;
+  color: $gray-500;
+  font-size: calc(1rem - 4px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}

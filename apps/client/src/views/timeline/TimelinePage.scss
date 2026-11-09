@@ -104,14 +104,12 @@
     color: $green-500;
   }
 
-  .section-content {
+  .section-content .title-card__title {
     min-height: 2em;
     line-height: 1em;
     font-size: $timer-value-size;
     text-transform: uppercase;
-    font-weight: 600;
-
-    max-height: 2em;
+    max-height: 2.4em;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -120,7 +118,7 @@
     text-overflow: ellipsis;
   }
 
-  .section-content--now {
+  .section-content--now .title-card__title {
     color: $red-500;
   }
 

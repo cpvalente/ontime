@@ -501,6 +501,7 @@ describe('v3 to v4', () => {
 
 describe('v4 remove server port', () => {
   const demoDb = {
+    projectId: 'project',
     rundowns: {},
     project: {
       title: 'Eurovision Song Contest',

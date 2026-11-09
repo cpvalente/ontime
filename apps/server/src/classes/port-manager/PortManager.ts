@@ -7,6 +7,7 @@ import * as appState from '../../services/app-state-service/appState.service.js'
 import { config } from '../../setup/config.js';
 import { envPort, isDocker, isOntimeCloud } from '../../setup/environment.js';
 import { shouldCrashDev } from '../../utils/development.js';
+import { PortChangeInDockerError } from './PortManager.errors.js';
 import { isAddressInfo, isPortInUseError } from './PortManager.utils.js';
 
 class PortManager {
@@ -29,7 +30,7 @@ class PortManager {
    * @returns {void}
    */
   public changePort(newPort: number): void {
-    if (isDocker) throw new Error('Can not change port when running inside docker');
+    if (isDocker) throw new PortChangeInDockerError();
     if (PortManager.port === newPort) return;
     PortManager.newPort = newPort;
     PortManager.pendingRestart = true;

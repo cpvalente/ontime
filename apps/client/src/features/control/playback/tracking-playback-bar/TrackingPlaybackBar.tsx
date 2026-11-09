@@ -72,8 +72,9 @@ export default function TrackingPlaybackBar() {
   };
 
   useHotkeys([
-    ['Space', () => !disableGo && goAction(), { preventDefault: true }],
-    ['N', () => !disableNext && setPlayback.next(), { preventDefault: true }],
+    // a held key auto-repeats, which must not skip cues
+    ['Space', (event) => !event.repeat && !disableGo && goAction(), { preventDefault: true }],
+    ['N', (event) => !event.repeat && !disableNext && setPlayback.next(), { preventDefault: true }],
     ['Escape', () => playback !== Playback.Stop && setPlayback.stop(), { preventDefault: true }],
   ]);
 

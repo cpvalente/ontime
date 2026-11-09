@@ -1,6 +1,6 @@
 import { generateId } from './generateId.js';
 
-test('generate a valid 6 digit id', () => {
+test('generates a 6 character id without ambiguous characters', () => {
   const id = generateId();
-  expect(id.length).toBe(6);
+  expect(id).toMatch(/^[2-9a-hjkmnp-z]{6}$/);
 });

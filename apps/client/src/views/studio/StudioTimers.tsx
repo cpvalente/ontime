@@ -1,6 +1,7 @@
 import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
+import { useLoadedRundown } from '../../common/hooks-query/useLoadedRundown';
 import { useAuxTimersName, useAuxTimersTime, useStudioTimersSocket } from '../../common/hooks/useSocket';
 import { getAuxTimerLabel } from '../../common/utils/auxTimerUtils';
 import { getOffsetState } from '../../common/utils/offset';
@@ -19,8 +20,9 @@ interface StudioTimersProps {
 
 export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const { getLocalizedString } = useTranslation();
-  const { mainSource } = useStudioOptions();
+  const { mainSource, secondarySource } = useStudioOptions();
   const { eventNow, eventNext, message, time, offset, rundown, expectedRundownEnd } = useStudioTimersSocket();
+  const { data: loadedRundown } = useLoadedRundown();
 
   const schedule = getFormattedScheduleTimes({
     offset: offset,
@@ -29,6 +31,8 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   });
   const event = getFormattedEventData(eventNow, time, mainSource);
   const eventNextTitle = getPropertyValue(eventNext, mainSource ?? 'title') || '-';
+  const eventNowSecondary = getPropertyValue(eventNow, secondarySource, loadedRundown.entries);
+  const eventNextSecondary = getPropertyValue(eventNext, secondarySource, loadedRundown.entries);
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
   const formattedSecondaryMessage = message.timer.secondarySource === 'secondary' ? message.secondary || '-' : '-';
 
@@ -62,14 +66,16 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
       </div>
 
       <div className='card' id='card-event-now'>
-        <div className='card__row'>
+        <div className='card__row card__row--event-text'>
           <div>
             <div className='label'>{getLocalizedString('common.now')}</div>
             <div className='title'>{event.title}</div>
+            {eventNowSecondary && <div className='secondary'>{eventNowSecondary}</div>}
           </div>
           <div>
             <div className='label right'>{getLocalizedString('common.next')}</div>
             <div className='title right'>{eventNextTitle}</div>
+            {eventNextSecondary && <div className='secondary right'>{eventNextSecondary}</div>}
           </div>
         </div>
 

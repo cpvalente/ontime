@@ -16,8 +16,8 @@ import { handleImageUpload, handleProjectUploaded } from '../../services/project
 
 export async function patchPartialProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
   try {
-    const { rundowns, project, settings, viewSettings, urlPresets, customFields, automation } = req.body;
-    const patchDb: DatabaseModel = {
+    const { rundowns, project, settings, viewSettings, urlPresets, customFields, automation, teleprompter } = req.body;
+    const patchDb: Partial<DatabaseModel> = {
       rundowns,
       project,
       settings,
@@ -25,6 +25,7 @@ export async function patchPartialProjectFile(req: Request, res: Response<Databa
       urlPresets,
       customFields,
       automation,
+      teleprompter,
     };
 
     const newData = await projectService.patchCurrentProject(patchDb);
@@ -140,7 +141,7 @@ export async function postProjectFile(req: Request, res: Response<MessageRespons
   try {
     const { filename, path } = req.file;
     await handleProjectUploaded(path, filename);
-    await projectService.loadProjectFile(filename);
+    await projectService.loadUploadedProject(filename);
 
     res.status(201).send({
       message: `Loaded project ${filename}`,

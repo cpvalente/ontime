@@ -10,9 +10,9 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useBackstageSocket } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -27,6 +27,7 @@ import './Backstage.scss';
 
 export default function BackstageLoader() {
   const { data, status } = useBackstageData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Backstage');
 
@@ -35,7 +36,7 @@ export default function BackstageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Backstage {...data} />;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { CustomViewError } from '../customViews.errors.js';
+import { CustomViewFileError, CustomViewNameError } from '../customViews.errors.js';
 import { isValidCustomViewSlug, resolveCustomViewDirectory, validateHtmlContent } from '../customViews.service.js';
 
 describe('isValidCustomViewSlug()', () => {
@@ -29,10 +29,10 @@ describe('isValidCustomViewSlug()', () => {
 });
 
 describe('resolveCustomViewDirectory()', () => {
-  it('throws CustomViewError on invalid slugs', () => {
-    expect(() => resolveCustomViewDirectory('Hello-World')).toThrow(CustomViewError);
-    expect(() => resolveCustomViewDirectory('../escape')).toThrow(CustomViewError);
-    expect(() => resolveCustomViewDirectory('')).toThrow(CustomViewError);
+  it('rejects invalid slugs', () => {
+    expect(() => resolveCustomViewDirectory('Hello-World')).toThrow(CustomViewNameError);
+    expect(() => resolveCustomViewDirectory('../escape')).toThrow(CustomViewNameError);
+    expect(() => resolveCustomViewDirectory('')).toThrow(CustomViewNameError);
   });
 });
 
@@ -51,8 +51,8 @@ describe('validateHtmlContent()', () => {
   });
 
   it('rejects content that is not HTML', () => {
-    expect(() => validateHtmlContent('just some text')).toThrow(CustomViewError);
-    expect(() => validateHtmlContent('{"json": true}')).toThrow(CustomViewError);
+    expect(() => validateHtmlContent('just some text')).toThrow(CustomViewFileError);
+    expect(() => validateHtmlContent('{"json": true}')).toThrow(CustomViewFileError);
   });
 
   it('rejects external script imports', () => {

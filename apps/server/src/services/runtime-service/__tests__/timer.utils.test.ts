@@ -1,12 +1,21 @@
-import { EndAction, Playback, TimeOfDay, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
+import { Day, Duration, OffsetMode, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
+import { makeOntimeEvent } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import type { RuntimeState } from '../../../stores/runtimeState.js';
 import {
+  type CurrentInput,
+  type ElapsedInput,
+  type ExpectedFinishInput,
+  type ExpectedTimesInput,
+  type RuntimeOffsetInput,
+  type TimeToBoundaryInput,
+  type TimerPhaseInput,
   findDayOffset,
   getCurrent,
   getElapsed,
   getExpectedFinish,
+  getExpectedTimes,
   getRuntimeOffset,
   getTimeToBoundary,
   getTimerPhase,
@@ -16,546 +25,316 @@ import {
 } from '../timer.utils.js';
 
 const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeState['clock'];
+const tod = (value: number) => value as TimeOfDay;
+const dur = (value: number) => value as Duration;
 
 describe('getElapsed()', () => {
-  it('returns active elapsed time from startedAt without add-time adjustments', () => {
-    const state = {
-      clock: 5 * MILLIS_PER_MINUTE,
-      timer: {
-        addedTime: -10 * MILLIS_PER_MINUTE,
-        current: 15 * MILLIS_PER_MINUTE,
-        duration: 20 * MILLIS_PER_MINUTE,
-        startedAt: 2 * MILLIS_PER_MINUTE,
-      },
-      _timer: {
-        pausedAt: null,
-        pausedDuration: 0,
-      },
-    } as RuntimeState;
+  const makeInput = (patch: Partial<ElapsedInput>): ElapsedInput => ({
+    clock: tod(0),
+    startedAt: null,
+    pausedAt: null,
+    pausedDuration: dur(0),
+    ...patch,
+  });
 
-    expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
+  it('is null if the timer has not started', () => {
+    expect(getElapsed(makeInput({ clock: tod(5 * MILLIS_PER_MINUTE) }))).toBeNull();
+  });
+
+  it('returns active elapsed time from startedAt', () => {
+    const input = makeInput({ clock: tod(5 * MILLIS_PER_MINUTE), startedAt: tod(2 * MILLIS_PER_MINUTE) });
+    expect(getElapsed(input)).toBe(3 * MILLIS_PER_MINUTE);
   });
 
   it('subtracts accumulated pause time', () => {
-    const state = {
-      clock: 10 * MILLIS_PER_MINUTE,
-      timer: {
-        startedAt: 2 * MILLIS_PER_MINUTE,
-      },
-      _timer: {
-        pausedAt: null,
-        pausedDuration: 5 * MILLIS_PER_MINUTE,
-      },
-    } as RuntimeState;
-
-    expect(getElapsed(state)).toBe(3 * MILLIS_PER_MINUTE);
+    const input = makeInput({
+      clock: tod(10 * MILLIS_PER_MINUTE),
+      startedAt: tod(2 * MILLIS_PER_MINUTE),
+      pausedDuration: dur(5 * MILLIS_PER_MINUTE),
+    });
+    expect(getElapsed(input)).toBe(3 * MILLIS_PER_MINUTE);
   });
 
   it('uses the current pause start while paused', () => {
-    const state = {
-      clock: 10 * MILLIS_PER_MINUTE,
-      timer: {
-        startedAt: 2 * MILLIS_PER_MINUTE,
-      },
-      _timer: {
-        pausedAt: 7 * MILLIS_PER_MINUTE,
-        pausedDuration: 1 * MILLIS_PER_MINUTE,
-      },
-    } as RuntimeState;
+    const input = makeInput({
+      clock: tod(10 * MILLIS_PER_MINUTE),
+      startedAt: tod(2 * MILLIS_PER_MINUTE),
+      pausedAt: tod(7 * MILLIS_PER_MINUTE),
+      pausedDuration: dur(1 * MILLIS_PER_MINUTE),
+    });
+    expect(getElapsed(input)).toBe(4 * MILLIS_PER_MINUTE);
+  });
 
-    expect(getElapsed(state)).toBe(4 * MILLIS_PER_MINUTE);
+  it('counts across midnight', () => {
+    const input = makeInput({
+      clock: tod(3 * MILLIS_PER_MINUTE), // 00:03
+      startedAt: tod(dayInMs - 2 * MILLIS_PER_MINUTE), // 23:58
+    });
+    expect(getElapsed(input)).toBe(5 * MILLIS_PER_MINUTE);
+  });
+
+  it('counts a pause which started after midnight', () => {
+    const input = makeInput({
+      clock: tod(10 * MILLIS_PER_MINUTE), // 00:10
+      startedAt: tod(dayInMs - 2 * MILLIS_PER_MINUTE), // 23:58
+      pausedAt: tod(1 * MILLIS_PER_MINUTE), // 00:01
+    });
+    expect(getElapsed(input)).toBe(3 * MILLIS_PER_MINUTE);
   });
 });
 
 describe('getExpectedFinish()', () => {
+  const makeInput = (patch: Partial<ExpectedFinishInput>): ExpectedFinishInput => ({
+    clock: tod(0),
+    event: { countToEnd: false, timeEnd: tod(0) },
+    startedAt: null,
+    duration: null,
+    addedTime: dur(0),
+    pausedAt: null,
+    ...patch,
+  });
+
+  it('is null if there is no event loaded', () => {
+    expect(getExpectedFinish(makeInput({ event: null, startedAt: tod(10), duration: dur(10) }))).toBeNull();
+  });
   it('is null if we havent started', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 0,
-        duration: 10,
-        startedAt: null,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(makeInput({ duration: dur(10) }));
     expect(calculatedFinish).toBe(null);
   });
-  it('is hasFinished if defined', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 20,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 0,
-        duration: 10,
-        startedAt: 10,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: true,
-      },
-    } as RuntimeState;
-    const calculatedFinish = getExpectedFinish(state);
-    expect(calculatedFinish).toBe(20);
-  });
   it('calculates the finish time', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 11,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 0,
-        duration: 10,
-        startedAt: 1,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(makeInput({ duration: dur(10), startedAt: tod(1) }));
     expect(calculatedFinish).toBe(11);
   });
   it('adds paused and added times', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 11,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 20,
-        duration: 10,
-        startedAt: 1,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(makeInput({ addedTime: dur(20), duration: dur(10), startedAt: tod(1) }));
     expect(calculatedFinish).toBe(31);
   });
   it('added time could be negative', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 11,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: -10,
-        duration: 10,
-        startedAt: 1,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(
+      makeInput({ addedTime: dur(-10), duration: dur(10), startedAt: tod(1) }),
+    );
     expect(calculatedFinish).toBe(1);
   });
   it('user could add enough time for it to be negative', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 11,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: -100,
-        duration: 10,
-        startedAt: 1,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(
+      makeInput({ addedTime: dur(-100), duration: dur(10), startedAt: tod(1) }),
+    );
     expect(calculatedFinish).toBe(1);
   });
   it('timer can have no duration', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 0,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 0,
-        duration: 0,
-        startedAt: 1,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(makeInput({ duration: dur(0), startedAt: tod(1) }));
     expect(calculatedFinish).toBe(1);
   });
   it('finish can be the day after', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      timer: {
-        addedTime: 0,
-        duration: dayInMs,
-        startedAt: 10,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const calculatedFinish = getExpectedFinish(state);
+    const calculatedFinish = getExpectedFinish(makeInput({ duration: dur(dayInMs), startedAt: tod(10) }));
     expect(calculatedFinish).toBe(10);
+  });
+  it('pushes the finish by the time spent in the current pause', () => {
+    const calculatedFinish = getExpectedFinish(
+      makeInput({
+        clock: tod(10 * MILLIS_PER_MINUTE),
+        startedAt: tod(0),
+        duration: dur(20 * MILLIS_PER_MINUTE),
+        pausedAt: tod(7 * MILLIS_PER_MINUTE),
+      }),
+    );
+    expect(calculatedFinish).toBe(23 * MILLIS_PER_MINUTE);
+  });
+  it('counts a pause across midnight', () => {
+    const calculatedFinish = getExpectedFinish(
+      makeInput({
+        clock: tod(1 * MILLIS_PER_MINUTE), // 00:01
+        startedAt: tod(23 * MILLIS_PER_HOUR), // 23:00
+        duration: dur(2 * MILLIS_PER_HOUR),
+        pausedAt: tod(dayInMs - 1 * MILLIS_PER_MINUTE), // 23:59
+      }),
+    );
+    expect(calculatedFinish).toBe(1 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE);
   });
   describe('on timers of type time-to-end', () => {
     it('finish time is as schedule + added time', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 30,
-          countToEnd: true,
-        },
-        timer: {
-          addedTime: 10,
-          duration: dayInMs,
-          startedAt: 10,
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
-
-      const calculatedFinish = getExpectedFinish(state);
+      const calculatedFinish = getExpectedFinish(
+        makeInput({
+          event: { countToEnd: true, timeEnd: tod(30) },
+          addedTime: dur(10),
+          duration: dur(dayInMs),
+          startedAt: tod(10),
+        }),
+      );
       expect(calculatedFinish).toBe(40);
     });
     it('handles events that finish the day after', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 600000, // 00:10:00
-          countToEnd: true,
-        },
-        timer: {
-          addedTime: 0,
-          startedAt: 79200000, // 22:00:00
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-        rundown: {
-          actualStart: 79200000,
-          plannedEnd: 600000,
-        },
-      } as RuntimeState;
-
-      const calculatedFinish = getExpectedFinish(state);
+      const calculatedFinish = getExpectedFinish(
+        makeInput({
+          event: { countToEnd: true, timeEnd: tod(600000) }, // 00:10:00
+          startedAt: tod(79200000), // 22:00:00
+        }),
+      );
       // expected finish is not a duration but a point in time
       expect(calculatedFinish).toBe(600000);
+    });
+    it('pushes the finish by the time spent in the current pause', () => {
+      const calculatedFinish = getExpectedFinish(
+        makeInput({
+          event: { countToEnd: true, timeEnd: tod(100) },
+          clock: tod(50),
+          startedAt: tod(10),
+          pausedAt: tod(30),
+        }),
+      );
+      expect(calculatedFinish).toBe(120);
     });
   });
 });
 
 describe('getCurrent()', () => {
-  it('is duration if it hasnt started', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 30,
-        timerType: TimerType.CountDown,
-      },
-      clock: 0,
-      timer: {
-        addedTime: 10,
-        duration: 111, // <-- we take the duration value
-        startedAt: null,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
+  const makeInput = (patch: Partial<CurrentInput>): CurrentInput => ({
+    clock: tod(0),
+    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(0) },
+    startedAt: null,
+    duration: dur(0),
+    addedTime: dur(0),
+    pausedAt: null,
+    ...patch,
+  });
 
-    const current = getCurrent(state);
+  it('is duration if it hasnt started', () => {
+    const current = getCurrent(makeInput({ addedTime: dur(10), duration: dur(111) }));
     expect(current).toBe(111);
   });
   it('is the remaining time in clock', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      clock: 1,
-      timer: {
-        addedTime: 0,
-        duration: 10,
-        startedAt: 0,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const current = getCurrent(state);
+    const current = getCurrent(makeInput({ clock: tod(1), duration: dur(10), startedAt: tod(0) }));
     expect(current).toBe(9);
   });
   it('accounts for added times', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      clock: 1,
-      timer: {
-        addedTime: 10,
-        duration: 10,
-        startedAt: 0,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const current = getCurrent(state);
+    const current = getCurrent(makeInput({ clock: tod(1), addedTime: dur(10), duration: dur(10), startedAt: tod(0) }));
     expect(current).toBe(19);
   });
   it('counts over midnight', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 20,
-        timerType: TimerType.CountDown,
-      },
-      clock: 10,
-      timer: {
-        addedTime: 0,
-        duration: dayInMs + 10,
-        startedAt: 10,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const current = getCurrent(state);
+    const current = getCurrent(makeInput({ clock: tod(10), duration: dur(dayInMs + 10), startedAt: tod(10) }));
     expect(current).toBe(dayInMs + 10);
   });
   it('rolls over midnight', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 20,
-        timerType: TimerType.CountDown,
-      },
-      clock: 5,
-      timer: {
-        addedTime: 0,
-        duration: dayInMs + 10,
-        startedAt: 10,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const current = getCurrent(state);
+    const current = getCurrent(makeInput({ clock: tod(5), duration: dur(dayInMs + 10), startedAt: tod(10) }));
     expect(current).toBe(15);
   });
   it('midnight holds delays', () => {
-    const state = {
-      eventNow: {
-        timeEnd: 20,
-        timerType: TimerType.CountDown,
-      },
-      clock: 5,
-      timer: {
-        addedTime: 20,
-        duration: dayInMs + 10,
-        startedAt: 10,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
-
-    const current = getCurrent(state);
+    const current = getCurrent(
+      makeInput({ clock: tod(5), addedTime: dur(20), duration: dur(dayInMs + 10), startedAt: tod(10) }),
+    );
     expect(current).toBe(35);
+  });
+  it('holds at the pause time while paused', () => {
+    const current = getCurrent(
+      makeInput({ clock: tod(9), addedTime: dur(3), duration: dur(10), startedAt: tod(0), pausedAt: tod(4) }),
+    );
+    expect(current).toBe(9);
+  });
+  it('holds a pause which started after midnight', () => {
+    const current = getCurrent(
+      makeInput({ clock: tod(50), duration: dur(100), startedAt: tod(dayInMs - 5), pausedAt: tod(5) }),
+    );
+    expect(current).toBe(90);
   });
 
   describe('on timers of type count-to-end', () => {
     it('current time is the time to end even if it hasnt started, this is weird, but by design', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 100,
-          countToEnd: true,
-        },
-        clock: 30,
-        timer: {
-          addedTime: 0,
-          duration: 100,
-          startedAt: null,
-        },
-        rundown: {
-          plannedEnd: null,
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          clock: tod(30),
+          duration: dur(100),
+        }),
+      );
       expect(current).toBe(70);
     });
 
     it('current time is the time to end', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 100,
-          countToEnd: true,
-        },
-        clock: 30,
-        timer: {
-          addedTime: 0,
-          duration: 100,
-          startedAt: 10,
-        },
-        rundown: {
-          plannedEnd: 100,
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          clock: tod(30),
+          duration: dur(100),
+          startedAt: tod(10),
+        }),
+      );
       expect(current).toBe(70);
     });
 
     it('current time is the time to end + added time', () => {
-      const state = {
-        eventNow: {
-          timeEnd: 100,
-          countToEnd: true,
-        },
-        clock: 30,
-        timer: {
-          addedTime: 7,
-          duration: 100,
-          startedAt: 10,
-        },
-        rundown: {
-          plannedEnd: 100,
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          clock: tod(30),
+          addedTime: dur(7),
+          duration: dur(100),
+          startedAt: tod(10),
+        }),
+      );
       expect(current).toBe(77);
     });
 
-    it('handles events that finish the day after', () => {
-      const state = {
-        eventNow: {
-          timeStart: 79200000, // 22:00:00
-          timeEnd: 600000, // 00:10:00
-          countToEnd: true,
-        },
-        clock: 79500000, // 22:05:00
-        timer: {
-          addedTime: 0,
-          duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
-        },
-        rundown: {
-          actualStart: 79200000,
-          plannedEnd: 600000,
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
+    it('keeps counting to the end while paused', () => {
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          clock: tod(30),
+          duration: dur(100),
+          startedAt: tod(10),
+          pausedAt: tod(20),
+        }),
+      );
+      expect(current).toBe(70);
+    });
 
-      const current = getCurrent(state);
+    it('handles events that finish the day after', () => {
+      const current = getCurrent(
+        makeInput({
+          event: {
+            countToEnd: true,
+            timeStart: tod(79200000), // 22:00:00
+            timeEnd: tod(600000), // 00:10:00
+          },
+          clock: tod(79500000), // 22:05:00
+          startedAt: tod(79200000), // 22:00:00
+        }),
+      );
       expect(current).toBe(dayInMs - 79500000 + 600000);
     });
 
     it('handles events that were started late', () => {
-      const state = {
-        clock: 82000000, // 22:46:40 <--- starting 16 min after the scheduled end
-        eventNow: {
-          timeStart: 77400000, // 21:30:00
-          timeEnd: 81000000, // 22:30:00
-          duration: 3600000, // 01:00:00
-          countToEnd: true,
-        },
-        timer: {
-          addedTime: 0,
-          duration: Infinity, // not relevant,
-          startedAt: 79200000, // 22:00:00
-        },
-        rundown: {
-          actualStart: 82000000, // 22:46:40 <--- started now
-          plannedEnd: 81000000, // 22:30:00
-        },
-        _timer: {
-          pausedAt: null,
-          hasFinished: false,
-        },
-      } as RuntimeState;
-
-      const current = getCurrent(state);
+      const current = getCurrent(
+        makeInput({
+          clock: tod(82000000), // 22:46:40 <--- starting 16 min after the scheduled end
+          event: {
+            countToEnd: true,
+            timeStart: tod(77400000), // 21:30:00
+            timeEnd: tod(81000000), // 22:30:00
+          },
+          startedAt: tod(79200000), // 22:00:00
+        }),
+      );
       expect(current).toBe(81000000 - 82000000); // <-- planned end - now
     });
   });
 });
 
 describe('getExpectedFinish() and getCurrentTime() combined', () => {
+  const makeInput = (clock: number, addedTime: number): CurrentInput => ({
+    clock: tod(clock),
+    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(10) },
+    startedAt: tod(0),
+    duration: dur(10),
+    addedTime: dur(addedTime),
+    pausedAt: null,
+  });
+
   it('without added times, they combine to be duration', () => {
     const duration = 10;
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      clock: 0,
-      timer: {
-        addedTime: 0,
-        duration,
-        startedAt: 0,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
+    const input = makeInput(0, 0);
 
-    const expectedFinish = getExpectedFinish(state);
-    const current = getCurrent(state);
+    const expectedFinish = getExpectedFinish(input);
+    const current = getCurrent(input);
 
     const elapsed = duration - current;
     expect(expectedFinish).toBe(10);
@@ -565,25 +344,10 @@ describe('getExpectedFinish() and getCurrentTime() combined', () => {
   });
   it('added times influence expected finish', () => {
     const duration = 10;
-    const state = {
-      eventNow: {
-        timeEnd: 10,
-        timerType: TimerType.CountDown,
-      },
-      clock: 5,
-      timer: {
-        addedTime: 3,
-        duration,
-        startedAt: 0,
-      },
-      _timer: {
-        pausedAt: null,
-        hasFinished: false,
-      },
-    } as RuntimeState;
+    const input = makeInput(5, 3);
 
-    const expectedFinish = getExpectedFinish(state);
-    const current = getCurrent(state);
+    const expectedFinish = getExpectedFinish(input);
+    const current = getCurrent(input);
 
     const elapsed = duration - current;
     expect(expectedFinish).toBe(13);
@@ -863,575 +627,250 @@ test('normaliseEndTime()', () => {
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
 
+const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput>): RuntimeOffsetInput => ({
+  clock: tod(0),
+  event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day },
+  startedAt: null,
+  current: dur(0),
+  addedTime: dur(0),
+  pausedAt: null,
+  startDayOffset: 0 as Day,
+  plannedStart: tod(100),
+  actualStart: tod(100),
+  ...patch,
+});
+
 describe('getRuntimeOffset()', () => {
   it('is the difference between scheduled and when we actually started', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 100,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 150,
-        addedTime: 0,
-        current: 0,
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 150,
-        plannedStart: 100,
-        currentDay: 0,
-      },
-      clock: 150,
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({ clock: tod(150), startedAt: tod(150), actualStart: tod(150) }),
+    );
     expect(absolute).toBe(50);
   });
 
   it('added time subtracts time offset (positive offset)', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 100,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 150, // we started 50ms delayed
-        addedTime: 10, // we compensated with 10ms
-        current: 10, // we are 10ms into the timer
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 150,
-        plannedStart: 100,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        startedAt: tod(150), // we started 50ms delayed
+        addedTime: dur(10), // we compensated with 10ms
+        current: dur(10), // we are 10ms into the timer
+        actualStart: tod(150),
+      }),
+    );
     expect(absolute).toBe(60);
   });
 
   it('considers running overtime (negative offset)', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 100,
-        timeEnd: 140,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 100, // we started ontime
-        current: -10, // we are 10 seconds over
-        addedTime: 0, // we have not compensated with added time
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 100,
-        plannedStart: 100,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        startedAt: tod(100), // we started ontime
+        current: dur(-10), // we are 10 seconds over
+      }),
+    );
     expect(absolute).toBe(10);
   });
 
   it('paused time is delayed time (negative offset)', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 100,
-        timeEnd: 150,
-        dayOffset: 0,
-      },
-      clock: 150,
-      timer: {
-        startedAt: 100, // started on time
-        current: 25, // are 25ms into it
-        addedTime: 0,
-      },
-      _timer: {
-        pausedAt: 125, // we have been paused for 25ms (see clock)
-      },
-      rundown: {
-        actualStart: 100,
-        plannedStart: 100,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(150),
+        startedAt: tod(100), // started on time
+        current: dur(25), // are 25ms into it
+        pausedAt: tod(125), // we have been paused for 25ms (see clock)
+      }),
+    );
     expect(absolute).toBe(25);
   });
 
-  it('offset doesnt exist if we havent started', () => {
-    const state = {
-      clock: 78480789,
-      eventNow: {
-        id: 'd6a2ce',
-        timeStart: 77400000,
-        timeEnd: 81000000,
-        duration: 3600000,
-        timeStrategy: 'lock-duration',
-        linkStart: false,
-        dayOffset: 0,
-      },
-      rundown: {
-        selectedEventIndex: 0,
-        numEvents: 2,
-        plannedStart: 77400000,
-        plannedEnd: 84600000,
-        actualStart: null,
-        currentDay: 0,
-      },
-      offset: {
-        absolute: -77400000,
-        expectedRundownEnd: null,
-      },
-      timer: {
-        addedTime: 0,
-        current: 3600000,
-        duration: 3600000,
-        elapsed: null,
-        expectedFinish: null,
-        playback: 'armed',
-        secondaryTimer: null,
-        startedAt: null,
-      },
-      _startDayOffset: 0,
-      _timer: { pausedAt: null },
-    } as RuntimeState;
+  it('counts a pause across midnight', () => {
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(1 * MILLIS_PER_MINUTE), // 00:01
+        startedAt: tod(100), // started on time
+        current: dur(25),
+        pausedAt: tod(dayInMs - 1 * MILLIS_PER_MINUTE), // 23:59
+      }),
+    );
+    expect(absolute).toBe(2 * MILLIS_PER_MINUTE);
+  });
 
-    const { absolute } = getRuntimeOffset(state);
+  it('accounts for a rundown started after midnight', () => {
+    const plannedStart = tod(23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE); // 23:50
+    const actualStart = tod(5 * MILLIS_PER_MINUTE); // 00:05 the day after
+    const { absolute, relative } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: actualStart,
+        event: { countToEnd: false, timeStart: plannedStart, dayOffset: 0 as Day },
+        startedAt: actualStart,
+        current: dur(MILLIS_PER_HOUR),
+        startDayOffset: 1 as Day,
+        plannedStart,
+        actualStart,
+      }),
+    );
+    expect(absolute).toBe(15 * MILLIS_PER_MINUTE);
+    expect(relative).toBe(0);
+  });
+
+  it('offset doesnt exist if we havent started', () => {
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(78480789),
+        event: { countToEnd: false, timeStart: tod(77400000), dayOffset: 0 as Day },
+        current: dur(3600000),
+        startedAt: null,
+        plannedStart: tod(77400000),
+        actualStart: null,
+      }),
+    );
     expect(absolute).toBe(0);
   });
 
   it('with time-to-end, offsets dont exist if we are not in overtime', () => {
-    const state = {
-      clock: 80000000, // 22:13:20
-      eventNow: {
-        id: 'd6a2ce',
-        type: 'event',
-        title: '',
-        timeStart: 77400000, // 21:30:00
-        timeEnd: 81000000, // 22:30:00
-        duration: 3600000, // 01:00:00
-        timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        countToEnd: true,
-        dayOffset: 0,
-        skip: false,
-        note: '',
-        colour: '',
-        cue: '1',
-        revision: 0,
-        timeWarning: 120000,
-        timeDanger: 60000,
-        custom: {},
-        delay: 0,
-      },
-      rundown: {
-        selectedEventIndex: 0,
-        numEvents: 1,
-        plannedStart: 77400000, // 21:30:00
-        plannedEnd: 81000000, // 22:30:00
-        actualStart: 78000000, // 21:40:00
-        currentDay: 0,
-      },
-      offset: {
-        absolute: 0,
-        expectedRundownEnd: 81600000, // 22:40:00
-      },
-      timer: {
-        addedTime: 0,
-        current: 1600000,
-        duration: 3600000,
-        elapsed: 2000000,
-        expectedFinish: 81600000,
-        playback: Playback.Play,
-        secondaryTimer: null,
-        startedAt: 78000000,
-      },
-      _startDayOffset: 0,
-      _timer: { pausedAt: null },
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(80000000), // 22:13:20
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        current: dur(1600000),
+        startedAt: tod(78000000),
+        plannedStart: tod(77400000), // 21:30:00
+        actualStart: tod(78000000), // 21:40:00
+      }),
+    );
     expect(absolute).toBe(0);
   });
 
   it('with time-to-end, offset is the overtime', () => {
-    const state = {
-      clock: 82000000, // 22:46:40
-      eventNow: {
-        id: 'd6a2ce',
-        type: 'event',
-        title: '',
-        timeStart: 77400000, // 21:30:00
-        timeEnd: 81000000, // 22:30:00
-        duration: 3600000, // 01:00:00
-        dayOffset: 0,
-        timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        countToEnd: true,
-        skip: false,
-        note: '',
-        colour: '',
-        cue: '1',
-        revision: 0,
-        timeWarning: 120000,
-        timeDanger: 60000,
-        custom: {},
-        delay: 0,
-      },
-      rundown: {
-        selectedEventIndex: 0,
-        numEvents: 1,
-        plannedStart: 77400000, // 21:30:00
-        plannedEnd: 81000000, // 22:30:00
-        actualStart: 78000000, // 21:40:00
-        currentDay: 0,
-      },
-      offset: {
-        absolute: 0,
-        expectedRundownEnd: 81600000, // 22:40:00
-      },
-      timer: {
-        addedTime: -200000,
-        current: -400000,
-        duration: 3600000,
-        elapsed: 4000000,
-        expectedFinish: 81600000,
-        playback: Playback.Play,
-        secondaryTimer: null,
-        startedAt: 78000000,
-      },
-      _startDayOffset: 0,
-      _timer: { pausedAt: null },
-    } as RuntimeState;
-
-    const { absolute } = getRuntimeOffset(state);
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(82000000), // 22:46:40
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        addedTime: dur(-200000),
+        current: dur(-400000),
+        startedAt: tod(78000000),
+        plannedStart: tod(77400000), // 21:30:00
+        actualStart: tod(78000000), // 21:40:00
+      }),
+    );
     expect(absolute).toBe(400000 - 200000); // <--- offset is always the overtime + added time
   });
 
-  it('handles time-to-end started after the end time', () => {
-    const state = {
-      clock: 82000000, // 22:46:40 <--- starting 16m 40s after the scheduled end
-      eventNow: {
-        id: 'd6a2ce',
-        timeStart: 77400000, // 21:30:00
-        timeEnd: 81000000, // 22:30:00
-        duration: 3600000, // 01:00:00
-        timeStrategy: TimeStrategy.LockEnd,
-        linkStart: false,
-        endAction: EndAction.None,
-        timerType: TimerType.CountDown,
-        countToEnd: true,
-        dayOffset: 0,
-      },
-      rundown: {
-        selectedEventIndex: 0,
-        numEvents: 1,
-        plannedStart: 77400000, // 21:30:00
-        plannedEnd: 81000000, // 22:30:00
-        actualStart: 82000000, // 22:46:40 <--- started now
-        currentDay: 0,
-      },
-      offset: {
-        absolute: 0,
-        expectedRundownEnd: 82000000 + 3600000, // <--- now + duration
-      },
-      timer: {
-        addedTime: 0,
-        current: 0,
-        duration: 3600000,
-        elapsed: 0,
-        expectedFinish: 82000000 + 3600000, // <--- now + duration
-        playback: Playback.Play,
-        secondaryTimer: null,
-        startedAt: 82000000, // <--- started now
-      },
-      _startDayOffset: 0,
-      _timer: { pausedAt: null },
-    } as RuntimeState;
+  it('with time-to-end, paused time is not offset', () => {
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(80000000), // 22:13:20
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        current: dur(1000000),
+        startedAt: tod(78000000),
+        pausedAt: tod(79000000),
+        plannedStart: tod(77400000),
+        actualStart: tod(78000000),
+      }),
+    );
+    expect(absolute).toBe(0);
+  });
 
-    const updateCurrent = getCurrent(state);
-    state.timer.current = updateCurrent;
-    const { absolute } = getRuntimeOffset(state);
+  it('handles time-to-end started after the end time', () => {
+    const clock = tod(82000000); // 22:46:40 <--- starting 16m 40s after the scheduled end
+    const event = {
+      countToEnd: true,
+      timeStart: tod(77400000), // 21:30:00
+      timeEnd: tod(81000000), // 22:30:00
+      dayOffset: 0 as Day,
+    };
+    const startedAt = tod(82000000); // <--- started now
+
+    const current = getCurrent({
+      clock,
+      event,
+      startedAt,
+      duration: dur(3600000),
+      addedTime: dur(0),
+      pausedAt: null,
+    });
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock,
+        event,
+        current,
+        startedAt,
+        plannedStart: tod(77400000), // 21:30:00
+        actualStart: tod(82000000), // 22:46:40 <--- started now
+      }),
+    );
     expect(millisToString(absolute)).toBe('00:16:40');
     expect(absolute).toBe(82000000 - 81000000); // <-- now - planned end
   });
 });
 
 describe('getRuntimeOffset() relative', () => {
-  it('relative offset is 0 when starting at the planed time', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 150,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 150,
-        addedTime: 0,
-        current: 0,
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 150,
-        plannedStart: 150,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
+  const makeInput = (timeStart: number, startedAt: number) =>
+    makeRuntimeOffsetInput({
+      event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 0 as Day },
+      startedAt: tod(startedAt),
+      plannedStart: tod(timeStart),
+      actualStart: tod(startedAt),
+    });
 
-    const { absolute, relative } = getRuntimeOffset(state);
+  it('relative offset is 0 when starting at the planed time', () => {
+    const { absolute, relative } = getRuntimeOffset(makeInput(150, 150));
     expect(absolute).toBe(0);
     expect(relative).toBe(0);
   });
   it('relative offset is 0 when starting after the planed time', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 100,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 150,
-        addedTime: 0,
-        current: 0,
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 150,
-        plannedStart: 100,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute, relative } = getRuntimeOffset(state);
+    const { absolute, relative } = getRuntimeOffset(makeInput(100, 150));
     expect(absolute).toBe(50);
     expect(relative).toBe(0);
   });
   it('relative offset is 0 when starting before the planed time', () => {
-    const state = {
-      eventNow: {
-        id: '1',
-        timeStart: 150,
-        dayOffset: 0,
-      },
-      timer: {
-        startedAt: 100,
-        addedTime: 0,
-        current: 0,
-      },
-      _timer: {
-        pausedAt: null,
-      },
-      rundown: {
-        actualStart: 100,
-        plannedStart: 150,
-        currentDay: 0,
-      },
-      _startDayOffset: 0,
-    } as RuntimeState;
-
-    const { absolute, relative } = getRuntimeOffset(state);
+    const { absolute, relative } = getRuntimeOffset(makeInput(150, 100));
     expect(absolute).toBe(-50);
     expect(relative).toBe(0);
   });
 });
 
 describe('getTimerPhase()', () => {
-  it('should be None if the timer is not running', () => {
-    const state = {
-      timer: {
-        addedTime: 0,
-        current: null,
-        duration: null,
-        elapsed: null,
-        expectedFinish: null,
-        playback: Playback.Stop,
-        phase: TimerPhase.None,
-        secondaryTimer: null,
-        startedAt: null,
-      },
-    } as RuntimeState;
+  const event = { timeDanger: dur(100), timeWarning: dur(200) };
+  const makeInput = (patch: Partial<TimerPhaseInput>): TimerPhaseInput => ({
+    playback: Playback.Play,
+    current: null,
+    secondaryTimer: null,
+    event,
+    ...patch,
+  });
 
-    const phase = getTimerPhase(state);
+  it('should be None if the timer is not running', () => {
+    const phase = getTimerPhase(makeInput({ playback: Playback.Stop, event: null }));
     expect(phase).toBe(TimerPhase.None);
   });
 
   it('can be in overtime', () => {
-    const state = {
-      timer: {
-        addedTime: 0,
-        current: -50,
-        duration: 1000,
-        playback: Playback.Play,
-      },
-      eventNow: {
-        timeDanger: 100,
-        timeWarning: 200,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
+    const phase = getTimerPhase(makeInput({ current: dur(-50) }));
     expect(phase).toBe(TimerPhase.Overtime);
   });
 
   it('can be danger', () => {
-    const state = {
-      timer: {
-        addedTime: 0,
-        current: 0,
-        duration: 1000,
-        playback: Playback.Play,
-      },
-      eventNow: {
-        timeDanger: 100,
-        timeWarning: 200,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
+    const phase = getTimerPhase(makeInput({ current: dur(0) }));
     expect(phase).toBe(TimerPhase.Danger);
   });
 
   it('can be warning', () => {
-    const state = {
-      timer: {
-        addedTime: 0,
-        current: 150,
-        duration: 1000,
-        playback: Playback.Play,
-      },
-      eventNow: {
-        timeDanger: 100,
-        timeWarning: 200,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
+    const phase = getTimerPhase(makeInput({ current: dur(150) }));
     expect(phase).toBe(TimerPhase.Warning);
   });
 
   it('is default if the timer is playing and there is none of the above', () => {
-    const state = {
-      timer: {
-        addedTime: 0,
-        current: 250,
-        duration: 1000,
-        playback: Playback.Play,
-      },
-      eventNow: {
-        timeDanger: 100,
-        timeWarning: 200,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
+    const phase = getTimerPhase(makeInput({ current: dur(250) }));
     expect(phase).toBe(TimerPhase.Default);
   });
 
-  it('#1042 identifies waiting to roll', () => {
-    const state = {
-      clock: 55691050,
-      eventNow: null,
-      eventNext: null,
-      rundown: {
-        selectedEventIndex: null,
-        numEvents: 1,
-        plannedStart: 55860000,
-        plannedEnd: 55880000,
-        actualStart: null,
-      },
-      offset: {
-        absolute: 0,
-        expectedRundownEnd: null,
-      },
-      timer: {
-        addedTime: 0,
-        current: null,
-        duration: null,
-        elapsed: 0,
-        expectedFinish: null,
-        phase: 'none',
-        playback: 'roll',
-        secondaryTimer: 168950,
-        startedAt: null,
-      },
-      _timer: {
-        forceFinish: null,
-        pausedAt: null,
-      },
-      _rundown: {
-        totalDelay: 0,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
-    expect(phase).toBe(TimerPhase.Pending);
+  it('keeps the phase while paused', () => {
+    const phase = getTimerPhase(makeInput({ playback: Playback.Pause, current: dur(150) }));
+    expect(phase).toBe(TimerPhase.Warning);
   });
 
   it('#1042 identifies waiting to roll', () => {
-    const state = {
-      clock: 55691050,
-      eventNow: null,
-      eventNext: null,
-      rundown: {
-        selectedEventIndex: null,
-        numEvents: 1,
-        plannedStart: 55860000,
-        plannedEnd: 55880000,
-        actualStart: null,
-      },
-      offset: {
-        absolute: 0,
-        expectedRundownEnd: null,
-      },
-      timer: {
-        addedTime: 0,
-        current: null,
-        duration: null,
-        elapsed: 0,
-        expectedFinish: null,
-        phase: 'none',
-        playback: 'roll',
-        secondaryTimer: 168950,
-        startedAt: null,
-      },
-      _timer: {
-        forceFinish: null,
-        pausedAt: null,
-      },
-      _rundown: {
-        totalDelay: 0,
-      },
-    } as RuntimeState;
-
-    const phase = getTimerPhase(state);
+    const phase = getTimerPhase(makeInput({ playback: Playback.Roll, event: null, secondaryTimer: dur(168950) }));
     expect(phase).toBe(TimerPhase.Pending);
   });
 });
@@ -1455,27 +894,118 @@ describe('findDay()', () => {
 });
 
 describe('getTimeToBoundary()', () => {
-  const makeState = (
-    timer: Pick<RuntimeState['timer'], 'playback' | 'current' | 'secondaryTimer'>,
-    hasFinished = false,
-  ) => ({ timer, _timer: { hasFinished } }) as RuntimeState;
+  const makeInput = (patch: Partial<TimeToBoundaryInput>): TimeToBoundaryInput => ({
+    playback: Playback.Play,
+    current: null,
+    secondaryTimer: null,
+    hasFinished: false,
+    triggerAhead: dur(10),
+    ...patch,
+  });
 
   it.each([Playback.Stop, Playback.Armed, Playback.Pause])('returns null when playback is %s', (playback) => {
-    expect(getTimeToBoundary(makeState({ playback, current: 1000, secondaryTimer: null }))).toBeNull();
+    expect(getTimeToBoundary(makeInput({ playback, current: dur(1000) }))).toBeNull();
   });
 
   it('returns null once the timer has finished', () => {
-    expect(
-      getTimeToBoundary(makeState({ playback: Playback.Play, current: -100, secondaryTimer: null }, true)),
-    ).toBeNull();
+    expect(getTimeToBoundary(makeInput({ current: dur(-100), hasFinished: true }))).toBeNull();
   });
 
   it('anticipates the end of a running timer', () => {
-    expect(getTimeToBoundary(makeState({ playback: Playback.Play, current: 1000, secondaryTimer: null }))).toBe(990);
-    expect(getTimeToBoundary(makeState({ playback: Playback.Roll, current: 1000, secondaryTimer: null }))).toBe(990);
+    expect(getTimeToBoundary(makeInput({ playback: Playback.Play, current: dur(1000) }))).toBe(990);
+    expect(getTimeToBoundary(makeInput({ playback: Playback.Roll, current: dur(1000) }))).toBe(990);
   });
 
   it('returns the pre-roll wait when waiting to roll', () => {
-    expect(getTimeToBoundary(makeState({ playback: Playback.Roll, current: null, secondaryTimer: 500 }))).toBe(500);
+    expect(getTimeToBoundary(makeInput({ playback: Playback.Roll, secondaryTimer: dur(500) }))).toBe(500);
+  });
+});
+
+describe('getExpectedTimes()', () => {
+  const event = makeOntimeEvent({
+    id: 'last',
+    timeStart: 2 * MILLIS_PER_HOUR,
+    duration: MILLIS_PER_HOUR,
+    dayOffset: 0 as Day,
+    delay: 0,
+    countToEnd: false,
+  });
+  const linked = { event, accumulatedGap: 0, isLinkedToLoaded: true };
+  const absoluteOffset = (offset: number) => ({ absolute: dur(offset), relative: dur(0) });
+
+  const makeInput = (patch: Partial<ExpectedTimesInput>): ExpectedTimesInput => ({
+    mode: OffsetMode.Absolute,
+    offset: absoluteOffset(0),
+    plannedStart: tod(MILLIS_PER_HOUR),
+    actualStart: tod(MILLIS_PER_HOUR),
+    currentDay: 0 as Day,
+    group: null,
+    flag: null,
+    end: null,
+    ...patch,
+  });
+
+  it('has no expected times without events to look ahead to', () => {
+    expect(getExpectedTimes(makeInput({ offset: absoluteOffset(5 * MILLIS_PER_MINUTE) }))).toStrictEqual({
+      expectedGroupEnd: null,
+      expectedFlagStart: null,
+      expectedRundownEnd: null,
+    });
+  });
+
+  it('moves linked events by the offset', () => {
+    const offset = 5 * MILLIS_PER_MINUTE;
+    expect(
+      getExpectedTimes(makeInput({ offset: absoluteOffset(offset), group: linked, flag: linked, end: linked })),
+    ).toStrictEqual({
+      expectedGroupEnd: 3 * MILLIS_PER_HOUR + offset,
+      expectedFlagStart: 2 * MILLIS_PER_HOUR + offset,
+      expectedRundownEnd: 3 * MILLIS_PER_HOUR + offset,
+    });
+  });
+
+  it('lets gaps absorb the offset of unlinked events', () => {
+    const unlinked = { event, accumulatedGap: 10 * MILLIS_PER_MINUTE, isLinkedToLoaded: false };
+    const { expectedRundownEnd } = getExpectedTimes(
+      makeInput({ offset: absoluteOffset(5 * MILLIS_PER_MINUTE), end: unlinked }),
+    );
+    expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR);
+  });
+
+  it('shifts the schedule to the actual start in relative mode', () => {
+    const { expectedRundownEnd } = getExpectedTimes(
+      makeInput({
+        mode: OffsetMode.Relative,
+        actualStart: tod(MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE),
+        end: linked,
+      }),
+    );
+    expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE);
+  });
+
+  it('applies the offset of the selected mode', () => {
+    const offset = { absolute: dur(MILLIS_PER_HOUR), relative: dur(2 * MILLIS_PER_MINUTE) };
+    const { expectedRundownEnd } = getExpectedTimes(makeInput({ mode: OffsetMode.Relative, offset, end: linked }));
+    expect(expectedRundownEnd).toBe(3 * MILLIS_PER_HOUR + 2 * MILLIS_PER_MINUTE);
+  });
+
+  it('places events after midnight relative to the current day', () => {
+    const afterMidnight = makeOntimeEvent({ ...event, timeStart: 30 * MILLIS_PER_MINUTE, dayOffset: 1 as Day });
+    const end = { event: afterMidnight, accumulatedGap: 0, isLinkedToLoaded: true };
+
+    expect(getExpectedTimes(makeInput({ end })).expectedRundownEnd).toBe(dayInMs + 90 * MILLIS_PER_MINUTE);
+    expect(getExpectedTimes(makeInput({ currentDay: 1 as Day, end })).expectedRundownEnd).toBe(90 * MILLIS_PER_MINUTE);
+  });
+
+  it('keeps the planned end of a count-to-end event unless it would start after it', () => {
+    const countToEnd = { ...linked, event: makeOntimeEvent({ ...event, countToEnd: true }) };
+
+    expect(
+      getExpectedTimes(makeInput({ offset: absoluteOffset(5 * MILLIS_PER_MINUTE), end: countToEnd }))
+        .expectedRundownEnd,
+    ).toBe(3 * MILLIS_PER_HOUR);
+    expect(
+      getExpectedTimes(makeInput({ offset: absoluteOffset(2 * MILLIS_PER_HOUR), end: countToEnd })).expectedRundownEnd,
+    ).toBe(4 * MILLIS_PER_HOUR);
   });
 });

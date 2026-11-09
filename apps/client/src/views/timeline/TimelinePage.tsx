@@ -5,9 +5,9 @@ import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
@@ -23,6 +23,7 @@ import './TimelinePage.scss';
 
 export default function TimelinePageLoader() {
   const { data, status } = useTimelineData();
+  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Timeline');
 
@@ -31,7 +32,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <TimelinePage {...data} />;
@@ -39,7 +40,7 @@ export default function TimelinePageLoader() {
 
 function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
   const selectedEventId = useSelectedEventId();
-  const { mainSource, timeformat } = useTimelineOptions();
+  const { mainSource, secondarySource, timeformat } = useTimelineOptions();
   const { getLocalizedString } = useTranslation();
 
   // holds copy of the rundown with only relevant events
@@ -67,7 +68,13 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
         <TimelineClock timeformat={timeformat} />
       </div>
 
-      <TimelineSections now={now} next={next} followedBy={followedBy} mainSource={mainSource} />
+      <TimelineSections
+        now={now}
+        next={next}
+        followedBy={followedBy}
+        mainSource={mainSource}
+        secondarySource={secondarySource}
+      />
 
       {hasContent ? (
         <Timeline

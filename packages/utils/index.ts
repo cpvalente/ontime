@@ -28,7 +28,7 @@ export {
   resolveInsertParent,
   swapEventData,
 } from './src/rundown-utils/rundownUtils.js';
-export { getFirstRundown } from './src/rundown/rundown.utils.js';
+export { getFirstRundown, validateRundownTitle } from './src/rundown/rundown.utils.js';
 export {
   event as eventDef,
   group as groupDef,
@@ -81,6 +81,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 // feature business logic
 
 export { getExpectedStart, getExpectedEnd } from './src/date-utils/getExpected.js';
+export { getLinksToLoaded, type LinkToLoaded } from './src/date-utils/getLinksToLoaded.js';
 
 // feature business logic - rundown
 export { checkIsNow } from './src/date-utils/checkIsNow.js';
@@ -101,6 +102,33 @@ export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 
 // aux timers
 export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-utils/auxTimerUtils.js';
+
+// teleprompter
+export {
+  anchorAtRow,
+  eventAtRow,
+  makeTeleprompterLayout,
+  rowOfAnchor,
+  type TeleprompterLayout,
+} from './src/teleprompter/teleprompterPosition.js';
+export {
+  customFieldOfScriptSource,
+  defaultTeleprompterSettings,
+  renameScriptSource,
+  scriptSourceOfCustomField,
+  teleprompterCharsPerLine,
+} from './src/teleprompter/teleprompterSettings.js';
+export {
+  applyTransportCommand,
+  describeSync,
+  describeTransport,
+  reanchorTransport,
+  settle,
+  syncPositionAt,
+  teleprompterSpeed,
+  type TeleprompterCommand,
+  type TeleprompterTransportCommand,
+} from './src/teleprompter/teleprompterTransport.js';
 
 //Colour
 export {

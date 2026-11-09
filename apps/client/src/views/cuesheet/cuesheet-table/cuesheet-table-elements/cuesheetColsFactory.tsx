@@ -1,9 +1,8 @@
-import { CustomFields, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
+import { CustomFields, OntimeEntry, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
-import type { ExtendedEntry } from '../../../../common/utils/rundownMetadata';
 import { formatDuration, formatTime } from '../../../../common/utils/time';
 import { AppMode } from '../../../../ontimeConfig';
 import { getCuesheetColumnAccessPolicy } from '../../cuesheet.policies';
@@ -34,9 +33,7 @@ function MakeStart({ getValue, row, table, column }: CuesheetCellContext) {
     return <MutedText numeric>{formatTime(getValue() as number, formatOpts)}</MutedText>;
   }
 
-  const { handleUpdateTimer } = table.options.meta;
-
-  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeStart', newValue);
+  const update = (newValue: string) => table.options.meta?.handleUpdateTimer(row.original.id, 'timeStart', newValue);
 
   const startTime = getValue() as number;
   const isStartLocked = !event.linkStart;
@@ -73,9 +70,7 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
     return <MutedText numeric>{formatTime(getValue() as number, formatOpts)}</MutedText>;
   }
 
-  const { handleUpdateTimer } = table.options.meta;
-
-  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'timeEnd', newValue);
+  const update = (newValue: string) => table.options.meta?.handleUpdateTimer(row.original.id, 'timeEnd', newValue);
 
   const endTime = getValue() as number;
   const isEndLocked = event.timeStrategy === TimeStrategy.LockEnd;
@@ -111,9 +106,7 @@ function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
     return <MutedText numeric>{formatDuration(duration, false)}</MutedText>;
   }
 
-  const { handleUpdateTimer } = table.options.meta;
-
-  const update = (newValue: string) => handleUpdateTimer(row.original.id, 'duration', newValue);
+  const update = (newValue: string) => table.options.meta?.handleUpdateTimer(row.original.id, 'duration', newValue);
 
   const duration = getValue() as number;
   const isDurationLocked = event.timeStrategy === TimeStrategy.LockDuration;
@@ -134,13 +127,13 @@ function MakeDuration({ getValue, row, table, column }: CuesheetCellContext) {
 function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
-      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, false);
     },
-    [column.id, row.index, table.options.meta],
+    [column.id, row.original.id, table],
   );
 
   // not all entries have all properties (eg groups)
-  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  const initialValue = row.original[column.id as keyof OntimeEntry];
   if (typeof initialValue !== 'string') {
     return null;
   }
@@ -163,9 +156,9 @@ function MakeMultiLineField({ row, column, table }: CuesheetCellContext) {
 function LazyImage({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
-      table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, true);
     },
-    [column.id, row.index, table.options.meta],
+    [column.id, row.original.id, table],
   );
 
   const event = row.original;
@@ -181,13 +174,13 @@ function LazyImage({ row, column, table }: CuesheetCellContext) {
 function MakeSingleLineField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
-      table.options.meta?.handleUpdate(row.index, column.id, newValue, false);
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, false);
     },
-    [column.id, row.index, table.options.meta],
+    [column.id, row.original.id, table],
   );
 
   // not all entries have all properties (eg groups)
-  const initialValue = row.original[column.id as keyof ExtendedEntry];
+  const initialValue = row.original[column.id as keyof OntimeEntry];
   if (typeof initialValue !== 'string') {
     return null;
   }
@@ -218,9 +211,9 @@ function MakeFlagField({ row }: CuesheetCellContext) {
 function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   const update = useCallback(
     (newValue: string) => {
-      table.options.meta?.handleUpdate(row.index, column.id, newValue, true);
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, true);
     },
-    [column.id, row.index, table.options.meta],
+    [column.id, row.original.id, table],
   );
 
   const event = row.original;

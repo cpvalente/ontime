@@ -1,7 +1,29 @@
 import { expect, test } from '../fixtures/override';
 
+test('cuesheet keyboard navigation skips hidden delays', async ({ context }) => {
+  const editor = await context.newPage();
+  const cuesheet = await context.newPage();
+  await Promise.all([editor.goto('editor'), cuesheet.goto('cuesheet')]);
+
+  await editor.getByRole('button', { name: 'Edit' }).click();
+  await editor.getByRole('button', { name: 'Rundown menu' }).click();
+  await editor.getByRole('menuitem', { name: 'Clear all' }).click();
+  await editor.getByRole('button', { name: 'Delete all' }).click();
+  await editor.getByRole('button', { name: 'Create Event' }).click();
+  await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
+  await editor.getByRole('button', { name: 'Delay' }).nth(1).click();
+
+  await expect(cuesheet.getByTestId('cuesheet-delay-hidden')).toBeAttached();
+  const titles = cuesheet.getByTestId('cuesheet-cell-title');
+  await titles.first().focus();
+  await cuesheet.keyboard.press('ArrowDown');
+  await expect(titles.nth(1)).toBeFocused();
+  await cuesheet.keyboard.press('ArrowUp');
+  await expect(titles.first()).toBeFocused();
+});
+
 test('delays add time to events', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
 
   // delete all events and add a new one
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -50,7 +72,7 @@ test('delays add time to events', async ({ page }) => {
 });
 
 test('delays are shown in the editor, cuesheet and backstage', async ({ page }) => {
-  await page.goto('/editor');
+  await page.goto('editor');
 
   // add a test event
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -81,10 +103,10 @@ test('delays are shown in the editor, cuesheet and backstage', async ({ page }) 
   await expect(page.getByText('New start 00:11')).toBeVisible();
 
   // delay is shown in the cuesheet
-  await page.goto('/cuesheet');
+  await page.goto('cuesheet');
   await expect(page.getByRole('cell', { name: 'Delayed by 1 min' })).toBeVisible();
 
   // delay is shown in the backstage view
-  await page.goto('/backstage');
+  await page.goto('backstage');
   await expect(page.getByText('00:11→00:21')).toBeVisible();
 });

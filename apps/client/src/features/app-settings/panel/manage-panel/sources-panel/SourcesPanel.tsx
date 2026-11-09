@@ -5,7 +5,7 @@ import type {
   SpreadsheetWorksheetMetadata,
   SpreadsheetWorksheetOptions,
 } from 'ontime-types';
-import { getErrorMessage, ImportMap } from 'ontime-utils';
+import { ImportMap } from 'ontime-utils';
 import { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { IoCloudOutline, IoDownloadOutline } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
@@ -20,6 +20,7 @@ import {
   previewRundown as previewGoogleSheet,
   uploadRundown,
 } from '../../../../../common/api/sheets';
+import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
 import Info from '../../../../../common/components/info/Info';
 import ExternalLink from '../../../../../common/components/link/external-link/ExternalLink';
@@ -88,7 +89,7 @@ export default function SourcesPanel() {
       setImportFlow('excel');
       setHasFile('done');
     } catch (error) {
-      const errorMessage = getErrorMessage(error);
+      const errorMessage = maybeAxiosError(error);
       setError(`Error uploading file: ${errorMessage}`);
       setActiveSource(null);
       setHasFile('none');
@@ -239,7 +240,7 @@ export default function SourcesPanel() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Synchronize your rundown with an external source</Panel.SubHeader>
+        <Panel.SubHeader>Import spreadsheet</Panel.SubHeader>
         {error && <Panel.Error>{error}</Panel.Error>}
         {showInput && (
           <div className={style.introStack}>
@@ -264,7 +265,7 @@ export default function SourcesPanel() {
             <div className={style.sourceGrid}>
               <section className={style.sourceCard}>
                 <div className={style.sourceHeader}>
-                  <h4 className={style.sourceTitle}>Import spreadsheet</h4>
+                  <h4 className={style.sourceTitle}>Upload an Excel file</h4>
                 </div>
                 <p className={style.sourceDescription}>
                   Bring in a one-off spreadsheet, review the mapping, and apply the data to the current rundown.

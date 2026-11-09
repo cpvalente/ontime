@@ -24,8 +24,15 @@ Completed foundation:
 Remaining ambiguity:
 
 - `TimerState`, `RundownState`, and `Offset` expose temporal fields as `number`/`MaybeNumber`;
-- `timerUtils` accepts/returns raw numbers with different meanings;
+- `timerUtils` timer calculations take typed inputs, and `runtimeState` brands their fields when building them; `skippedOutOfEvent`, `findDayOffset` and `normaliseEndTime` still take raw numbers or `RuntimeState`;
 - `runtimeState` retains raw duration fields, manual arithmetic, and `as TimeOfDay`/`as Duration` casts.
+- `getExpectedFinish` returns `MaybeNumber`: the count-to-end finish is not wrapped to a time of day.
+
+Before the pure timer calculations can move to `ontime-utils` for client use:
+
+- `timeCore.elapsedTime` is environment-independent but lives in the server; it moves with them;
+- `getRuntimeOffset` asserts its inputs in `DEV` blocks, which only the server build strips;
+- clients do not receive `pausedAt`, `pausedDuration`, `_startDayOffset`, `hasFinished`, `triggerAhead` or the expected-time lookahead.
 
 ## Migration rules
 

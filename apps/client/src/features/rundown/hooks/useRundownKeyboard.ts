@@ -12,14 +12,15 @@ interface UseRundownKeyboardOptions {
     selectEdge: (direction: 'top' | 'bottom') => EntryId | null;
     selectPage: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
     cloneEntry: (cursor: EntryId | null) => void;
-    moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => void;
-    deleteAtCursor: (cursor: EntryId | null) => void;
+    moveEntry: (cursor: EntryId | null, direction: 'up' | 'down') => Promise<void>;
+    deleteAtCursor: (cursor: EntryId | null) => EntryId | null;
     insertAtId: (patch: Partial<OntimeEntry> & { type: SupportedEntry }, id: EntryId | null, above?: boolean) => void;
     insertCopyAtId: (atId: EntryId | null, above?: boolean) => void;
   };
   clearSelectedEvents: () => void;
   setEntryCopyId: (id: EntryId | null, mode?: 'copy' | 'cut') => void;
   jumpToCurrent: () => void;
+  followMove: (cursor: EntryId | null, move: Promise<void>) => void;
 }
 
 /**
@@ -42,8 +43,13 @@ export function useRundownKeyboard({
   clearSelectedEvents,
   setEntryCopyId,
   jumpToCurrent,
+  followMove,
 }: UseRundownKeyboardOptions) {
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
+
+  const moveAndFollow = (direction: 'up' | 'down') => {
+    followMove(cursor, commands.moveEntry(cursor, direction));
+  };
 
   useHotkeys([
     [
@@ -131,23 +137,32 @@ export function useRundownKeyboard({
 
     ['alt + L', () => jumpToCurrent(), { preventDefault: true, usePhysicalKeys: true }],
 
-    [
-      'alt + mod + ArrowDown',
-      () => commands.moveEntry(cursor, 'down'),
-      { preventDefault: true, usePhysicalKeys: true },
-    ],
-    ['alt + mod + ArrowUp', () => commands.moveEntry(cursor, 'up'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowDown', () => moveAndFollow('down'), { preventDefault: true, usePhysicalKeys: true }],
+    ['alt + mod + ArrowUp', () => moveAndFollow('up'), { preventDefault: true, usePhysicalKeys: true }],
 
     [
       'Escape',
-      () => {
+      (event) => {
+        if (event.target instanceof Element && event.target.closest('[role="menu"]')) {
+          return;
+        }
+        event.preventDefault();
         clearSelectedEvents();
         setEntryCopyId(null);
       },
-      { preventDefault: true, usePhysicalKeys: true },
+      { usePhysicalKeys: true },
     ],
 
-    ['alt + Backspace', () => commands.deleteAtCursor(cursor), { preventDefault: true, usePhysicalKeys: true }],
+    [
+      'alt + Backspace',
+      () => {
+        const nextId = commands.deleteAtCursor(cursor);
+        if (nextId) {
+          scrollToEntry(nextId);
+        }
+      },
+      { preventDefault: true, usePhysicalKeys: true },
+    ],
 
     [
       'alt + E',

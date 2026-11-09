@@ -4,6 +4,7 @@ import { parseUserTime } from 'ontime-utils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
+import Tag from '../../../../common/components/tag/Tag';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -34,7 +35,10 @@ export default function RundownDefaultSettings() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Rundown defaults</Panel.SubHeader>
+        <Panel.SubHeader>
+          Rundown defaults
+          <Tag>This browser only</Tag>
+        </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
           <Panel.Title>Default settings for new events</Panel.Title>

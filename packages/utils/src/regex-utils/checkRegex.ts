@@ -4,6 +4,7 @@ export const regex = {
   startsWithHttp: /^https?:\/\//,
   startsWithSlash: /^\//,
   isAlphanumeric: /^[a-z0-9]+$/i,
+  isAlphanumericOrEmpty: /^[a-z0-9]*$/i,
   isAlphanumericWithSpace: /^[a-z0-9_ ]+$/i,
   isASCII: /^[ -~]+$/, // https://catonmat.net/my-favorite-regex
   isASCIIorEmpty: /^$|^[ -~]+$/, // https://catonmat.net/my-favorite-regex
@@ -16,6 +17,7 @@ export const checkRegex = {
   startsWithHttp: (text: string): boolean => regex.startsWithHttp.test(text),
   startsWithSlash: (text: string): boolean => regex.startsWithSlash.test(text),
   isAlphanumeric: (text: string): boolean => regex.isAlphanumeric.test(text),
+  isAlphanumericOrEmpty: (text: string): boolean => regex.isAlphanumericOrEmpty.test(text),
   isAlphanumericWithSpace: (text: string): boolean => regex.isAlphanumericWithSpace.test(text),
   isASCII: (text: string): boolean => regex.isASCII.test(text),
   isASCIIorEmpty: (text: string): boolean => regex.isASCIIorEmpty.test(text),

@@ -8,12 +8,14 @@ import {
   OntimeGroup,
   OntimeMilestone,
   PatchWithId,
+  Playback,
   ProjectRundowns,
   Rundown,
   SupportedEntry,
 } from 'ontime-types';
 import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
 
+import { writeCssFile } from '../api-data/assets/assets.service.js';
 import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
 import {
   addEntry,
@@ -28,7 +30,9 @@ import {
   ungroupEntries,
 } from '../api-data/rundown/rundown.service.js';
 import { normalisedToRundownArray } from '../api-data/rundown/rundown.utils.js';
+import { setOverrideStyles } from '../api-data/view-settings/viewSettings.dao.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
+import { getState } from '../stores/runtimeState.js';
 
 export type EventFieldArgs = Partial<
   Pick<
@@ -388,4 +392,43 @@ export async function updateCustomFieldForMcp(args: { key: string; label?: strin
 export async function deleteCustomFieldForMcp(args: { key: string }) {
   const updated = await deleteCustomField(args.key);
   return { customFields: updated };
+}
+
+const cssOverrideMaxLength = 64_000;
+// Views often run without internet access. Catch common remote loads in agent output;
+// this is a best-effort check, not a security boundary. The settings editor accepts any CSS.
+const remoteCssPattern = /@import|url\(\s*['"]?\s*(?:https?:)?\/\//i;
+
+/** Resolves comments and escapes, so they cannot hide a remote load from remoteCssPattern */
+function normaliseCss(css: string): string {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/\\([0-9a-f]{1,6})\s?/gi, (_, hex: string) => String.fromCodePoint(Math.min(parseInt(hex, 16), 0x10ffff)))
+    .replace(/\\(.)/gs, '$1');
+}
+
+export async function setCssOverrideForMcp(args: { css: unknown; enabled?: unknown; force?: unknown }) {
+  const { css, enabled = true, force } = args;
+  if (typeof css !== 'string') {
+    throw new Error('css must be a string');
+  }
+  if (typeof enabled !== 'boolean') {
+    throw new Error('enabled must be a boolean');
+  }
+  if (css.length > cssOverrideMaxLength) {
+    throw new Error(`css must be at most ${cssOverrideMaxLength} characters`);
+  }
+  if (remoteCssPattern.test(normaliseCss(css))) {
+    throw new Error('css cannot use @import or remote url() references');
+  }
+  if (force !== true && getState().timer.playback !== Playback.Stop) {
+    throw new Error(
+      'A show is loaded or running, so the screens would change on air. Ask the user, then call again with force: true.',
+    );
+  }
+
+  // switch off before writing, so screens never show css that is meant to be off
+  if (!enabled) await setOverrideStyles(false);
+  await writeCssFile(css);
+  if (enabled) await setOverrideStyles(true);
 }

@@ -16,8 +16,8 @@ export const langDe: TranslationObject = {
   'common.started_at': 'Gestartet am',
   'common.time_now': 'Aktuelle Zeit',
   'common.no_data': 'Keine Daten',
+  'common.data_error': 'Diese Ansicht konnte nicht geladen werden. Bitte laden Sie die Seite neu.',
   'countdown.skipped': 'Übersprungen',
-  'countdown.data_error': 'Diese Ansicht konnte nicht geladen werden. Bitte laden Sie die Seite neu.',
   'countdown.no_events_description':
     'Fügen Sie im Editor Ereignisse hinzu und wählen Sie dann aus, was hier angezeigt werden soll.',
   'countdown.empty_description': 'Wählen Sie Ereignisse aus, die hier angezeigt werden sollen.',

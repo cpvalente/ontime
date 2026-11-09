@@ -6,6 +6,8 @@ import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { addTime, clearState, getState, load, pause, roll, start, update } from '../runtimeState.js';
 
+// the teleprompter follows rundown changes, which these tests do not look at
+vi.mock('../../services/teleprompter-service/teleprompter.service.js');
 vi.mock('../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: vi.fn(() => ({
     setCustomFields: vi.fn((newData) => newData),

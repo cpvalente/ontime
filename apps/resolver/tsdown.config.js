@@ -1,6 +1,8 @@
 import { defineConfig } from 'tsdown';
 
 const config = defineConfig({
+  publint: true,
+  attw: true,
   clean: false, // we can't use clean as it runs after the copy plugin
   entry: ['src/main.ts'],
   outDir: 'dist',

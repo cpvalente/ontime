@@ -1,18 +1,24 @@
 import { body, param } from 'express-validator';
 import { type EntryId, type InsertOptions, type OntimeGroup, type Rundown } from 'ontime-types';
+import { validateRundownTitle } from 'ontime-utils';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
+import { InvalidEntryOperationError } from './rundown.errors.js';
 
 // #region operations on project rundowns =========================
 
 const rundownTitleValidator = body('title')
   .isString()
-  .trim()
-  .notEmpty()
   .withMessage('No title provided')
   .bail()
-  .isLength({ max: 64 })
-  .withMessage('Title must be 64 characters or fewer');
+  .custom((value: string) => {
+    const error = validateRundownTitle(value);
+    if (error) {
+      throw new Error(error);
+    }
+    return true;
+  })
+  .trim();
 
 export const rundownPostValidator = [rundownTitleValidator, requestValidationFunction];
 export const rundownPatchValidator = [
@@ -120,7 +126,7 @@ export const entryRenumberValidator = [
  */
 export function assertSingleInsertAnchor(options: InsertOptions) {
   if (options.after !== undefined && options.before !== undefined) {
-    throw new Error('Use only one insertion anchor: after or before');
+    throw new InvalidEntryOperationError('Use only one insertion anchor: after or before');
   }
 }
 
@@ -132,12 +138,12 @@ export function assertInsertAnchorInOrder(rundown: Rundown, parent: OntimeGroup 
   if (anchor === undefined) return;
 
   if (!Object.hasOwn(rundown.entries, anchor)) {
-    throw new Error(`Insertion anchor with ID ${anchor} does not exist`);
+    throw new InvalidEntryOperationError(`Insertion anchor with ID ${anchor} does not exist`);
   }
 
   const insertionList = parent ? parent.entries : rundown.order;
   if (!insertionList.includes(anchor)) {
-    throw new Error(`Insertion anchor with ID ${anchor} is not in the target order`);
+    throw new InvalidEntryOperationError(`Insertion anchor with ID ${anchor} is not in the target order`);
   }
 }
 
@@ -145,7 +151,7 @@ export function assertInsertAnchorInOrder(rundown: Rundown, parent: OntimeGroup 
 export function assertInsertAnchorExists(rundown: Rundown, options: InsertOptions) {
   const anchor = getStringInsertAnchor(options);
   if (anchor !== undefined && !Object.hasOwn(rundown.entries, anchor)) {
-    throw new Error(`Insertion anchor with ID ${anchor} does not exist`);
+    throw new InvalidEntryOperationError(`Insertion anchor with ID ${anchor} does not exist`);
   }
 }
 

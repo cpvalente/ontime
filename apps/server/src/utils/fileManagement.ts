@@ -2,6 +2,10 @@ import { type Dirent, PathLike, type Stats, constants, existsSync, mkdirSync } f
 import { access, copyFile, mkdir, readdir, rm, stat, unlink, writeFile } from 'fs/promises';
 import { basename, join, parse } from 'path';
 
+import { LogOrigin } from 'ontime-types';
+import { getErrorMessage } from 'ontime-utils';
+
+import * as logger from '../api-data/logs/logs.service.js';
 import { consoleError } from './console.js';
 import { is } from './is.js';
 
@@ -149,7 +153,7 @@ export function incrementProjectNumber(path: string): string {
  */
 export const deleteFile = async (filePath: string) => {
   return await unlink(filePath).catch((error) => {
-    console.error('Could not delete file:', error);
+    logger.warning(LogOrigin.Server, 'File delete failed', { error: getErrorMessage(error) });
   });
 };
 

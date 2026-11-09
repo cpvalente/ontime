@@ -1,48 +1,73 @@
+import { ProjectStartup } from 'ontime-types';
+import { useState } from 'react';
 import { IoClose } from 'react-icons/io5';
 import { useNavigate } from 'react-router';
 
 import { loadDemo, loadProject } from '../../../common/api/db';
-import { postShowWelcomeDialog } from '../../../common/api/settings';
-import { invalidateAllCaches } from '../../../common/api/utils';
+import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
 import Checkbox from '../../../common/components/checkbox/Checkbox';
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
+import Info from '../../../common/components/info/Info';
 import ExternalLink from '../../../common/components/link/external-link/ExternalLink';
 import Modal from '../../../common/components/modal/Modal';
-import { appVersion, discordUrl, documentationUrl, websiteUrl } from '../../../externals';
-import ImportProjectButton from './composite/ImportProjectButton';
+import useShowWelcomeDialog from '../../../common/hooks-query/useShowWelcomeDialog';
+import { useProjectImport } from '../../../common/hooks/useProjectImport';
+import { appVersion, discordUrl, documentationUrl, isOntimeCloud, websiteUrl } from '../../../externals';
 import WelcomeProjectList from './composite/WelcomeProjectList';
+import { getStartupMessage, getWelcomeTitle } from './welcome.utils';
 
 import style from './Welcome.module.scss';
 
 interface WelcomeProps {
+  projectStartup: ProjectStartup | null;
   onClose: () => void;
 }
 
-export default function Welcome({ onClose }: WelcomeProps) {
+export default function Welcome({ projectStartup, onClose }: WelcomeProps) {
   const navigate = useNavigate();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const startupMessage = getStartupMessage(projectStartup, Boolean(isOntimeCloud));
+  const { showWelcomeDialog, setShowWelcomeDialog } = useShowWelcomeDialog();
+  const { inputProps, selectFile, isImporting } = useProjectImport({ onImported: onClose, onError: setErrorMessage });
 
   /** handle loading a selected project */
   const handleLoadProject = async (filename: string) => {
+    setErrorMessage(null);
     try {
       await loadProject(filename);
       await invalidateAllCaches();
       onClose();
-    } catch (_error) {
-      /** no error handling for now */
+    } catch (error) {
+      setErrorMessage(maybeAxiosError(error));
     }
   };
 
   /** handle loading the demo project */
   const handleLoadDemo = async () => {
+    setErrorMessage(null);
     try {
       await loadDemo();
       await invalidateAllCaches();
       onClose();
-    } catch (_error) {
-      /** no error handling for now */
+    } catch (error) {
+      setErrorMessage(maybeAxiosError(error));
     }
+  };
+
+  const handleShowOnStartup = async (show: boolean) => {
+    setErrorMessage(null);
+    try {
+      await setShowWelcomeDialog(show);
+    } catch (error) {
+      setErrorMessage(`Could not save startup preference: ${maybeAxiosError(error)}`);
+    }
+  };
+
+  const handleImport = () => {
+    setErrorMessage(null);
+    selectFile();
   };
 
   /** handle redirect to create modal */
@@ -67,11 +92,12 @@ export default function Welcome({ onClose }: WelcomeProps) {
           </div>
           <div className={style.column}>
             <div className={style.header}>
-              Welcome to Ontime
+              {getWelcomeTitle(projectStartup)}
               <IconButton aria-label='close welcome modal' variant='subtle-white' onClick={() => onClose()}>
                 <IoClose />
               </IconButton>
             </div>
+            {startupMessage && <Info type={startupMessage.type}>{startupMessage.text}</Info>}
             <Editor.Title>Select project</Editor.Title>
             <div className={style.tableContainer}>
               <table className={style.table}>
@@ -89,15 +115,23 @@ export default function Welcome({ onClose }: WelcomeProps) {
       }
       footerElements={
         <div className={style.column}>
+          {errorMessage && <Info type='error'>{errorMessage}</Info>}
           <div className={style.buttonRow}>
             <Button onClick={handleLoadDemo}>Load demo project</Button>
-            <ImportProjectButton onFinish={() => onClose()} />
+            <input {...inputProps} />
+            <Button onClick={handleImport} disabled={isImporting} loading={isImporting}>
+              Import project
+            </Button>
             <Button variant='primary' onClick={handleCallCreate}>
               Create new...
             </Button>
           </div>
           <Editor.Label className={style.inline}>
-            <Checkbox defaultChecked onCheckedChange={(checked) => postShowWelcomeDialog(checked)} />
+            <Checkbox
+              checked={showWelcomeDialog ?? true}
+              disabled={showWelcomeDialog === undefined}
+              onCheckedChange={handleShowOnStartup}
+            />
             Show this modal on next startup
           </Editor.Label>
         </div>

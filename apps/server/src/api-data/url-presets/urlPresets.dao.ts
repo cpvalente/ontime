@@ -2,6 +2,7 @@ import { RefetchKey, type URLPreset } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { notifyChange } from '../../services/change-service/change.service.js';
+import { UrlPresetAliasChangeError, UrlPresetExistsError, UrlPresetNotFoundError } from './urlPresets.errors.js';
 
 /**
  * Gets the stored URL presets
@@ -17,7 +18,7 @@ export function getUrlPresets(): Readonly<URLPreset[]> {
 export async function addUrlPreset(newPreset: URLPreset): Promise<URLPreset[]> {
   const currentPresets = getDataProvider().getUrlPresets();
   if (currentPresets.some((preset) => preset.alias === newPreset.alias)) {
-    throw new Error(`Preset with alias ${newPreset.alias} already exists.`);
+    throw new UrlPresetExistsError(newPreset.alias);
   }
 
   return saveChanges([...currentPresets, newPreset]);
@@ -31,11 +32,11 @@ export async function editUrlPreset(alias: string, newPreset: URLPreset): Promis
   const currentPresets = getDataProvider().getUrlPresets();
   const existingPreset = currentPresets.find((preset) => preset.alias === alias);
   if (!existingPreset) {
-    throw new Error(`Preset with alias ${alias} does not exist.`);
+    throw new UrlPresetNotFoundError(alias);
   }
 
   if (alias !== newPreset.alias) {
-    throw new Error('Changing alias is not permitted');
+    throw new UrlPresetAliasChangeError();
   }
 
   const updatedPreset: URLPreset = { ...newPreset, options: newPreset.options ?? existingPreset.options };

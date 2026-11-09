@@ -1,11 +1,11 @@
 import { Settings } from 'ontime-types';
+import { regex } from 'ontime-utils';
 import { PropsWithChildren, useState } from 'react';
 import { UseFormRegister } from 'react-hook-form';
 import { IoEyeOutline } from 'react-icons/io5';
 
 import IconButton from '../../../../../common/components/buttons/IconButton';
 import Input from '../../../../../common/components/input/input/Input';
-import { isAlphanumeric } from '../../../../../common/utils/regex';
 
 import style from './GeneralPinInput.module.scss';
 
@@ -25,7 +25,7 @@ export default function GeneralPinInput({ register, formName, disabled }: PropsW
         maxLength={4}
         {...register(formName, {
           pattern: {
-            value: isAlphanumeric,
+            value: regex.isAlphanumericOrEmpty,
             message: 'Only alphanumeric characters are allowed',
           },
         })}

@@ -7,8 +7,8 @@ import Empty from '../../common/components/state/Empty';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
-import { useAutoTickingClock } from '../../common/hooks/useAutoTickingClock';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
+import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
@@ -35,7 +35,7 @@ export default function CountdownLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('countdown.data_error')} />;
+    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
   }
 
   return <Countdown {...data} />;

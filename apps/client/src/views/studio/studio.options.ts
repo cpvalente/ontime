@@ -16,6 +16,13 @@ import { isStringBoolean } from '../common/viewUtils';
 export const getStudioOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
+  const secondaryOptions = makeOptionsFromCustomFields(customFields, [
+    { value: 'none', label: 'None' },
+    { value: 'title', label: 'Title' },
+    { value: 'note', label: 'Note' },
+    { value: 'parent', label: 'Group Title' },
+  ]);
+
   return [
     { title: OptionTitle.ClockOptions, collapsible: true, options: [getTimeOption(timeFormat)] },
     {
@@ -29,6 +36,14 @@ export const getStudioOptions = (timeFormat: string, customFields: CustomFields)
           type: 'option',
           values: mainOptions,
           defaultValue: 'title',
+        },
+        {
+          id: 'secondary-src',
+          title: 'Event secondary text',
+          description: 'Select the data source for the secondary text shown in the now and next cards',
+          type: 'option',
+          values: secondaryOptions,
+          defaultValue: 'none',
         },
       ],
     },
@@ -50,12 +65,13 @@ export const getStudioOptions = (timeFormat: string, customFields: CustomFields)
 
 type StudioOptions = {
   mainSource: keyof OntimeEvent | null;
+  secondarySource: keyof OntimeEvent | null | 'none';
   hideCards: boolean;
 } & TimeOptions;
 
 /**
  * Utility extract the view options from URL Params
- * the names and fallback are manually matched with timerOptions
+ * the names and fallback are manually matched with getStudioOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): StudioOptions {
   // Helper to get value from either source, prioritizing defaultValues
@@ -63,6 +79,7 @@ function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URL
 
   return {
     mainSource: getValue('main') as keyof OntimeEvent | null,
+    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
     hideCards: isStringBoolean(getValue('hideCards')),
     timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
   };

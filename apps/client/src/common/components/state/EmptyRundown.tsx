@@ -15,7 +15,11 @@ interface EmptyRundownProps {
 export default function EmptyRundown({ handleAddNew, className }: EmptyRundownProps) {
   const { getLocalizedString } = useTranslation();
   return (
-    <EmptyFill text={getLocalizedString('common.no_data')} className={className}>
+    <EmptyFill
+      text={handleAddNew ? 'This rundown is empty' : getLocalizedString('common.no_data')}
+      className={className}
+    >
+      {handleAddNew && <p className={style.guidance}>Add your first event. Groups collect events into sections.</p>}
       {handleAddNew && (
         <div className={style.inline}>
           <Button onClick={() => handleAddNew(SupportedEntry.Event)} variant='primary' size='large'>

@@ -13,6 +13,15 @@ const TimerControl = lazy(() => import('../../features/control/playback/TimerCon
 const MessageControl = lazy(() => import('../../features/control/message/MessageControlExport'));
 
 export default function Editor() {
+  return (
+    // the titles and the rundown share a scope, so they follow one cursor, which survives a layout change
+    <RundownScopeProvider rundownId={null}>
+      <EditorLayout />
+    </RundownScopeProvider>
+  );
+}
+
+function EditorLayout() {
   const { layoutMode } = useEditorLayout();
 
   if (layoutMode === EditorLayoutMode.CONTROL) {
@@ -22,9 +31,7 @@ export default function Editor() {
           <TimerControl />
           <MessageControl />
         </div>
-        <RundownScopeProvider rundownId={null}>
-          <Rundown />
-        </RundownScopeProvider>
+        <Rundown />
       </div>
     );
   }
@@ -32,17 +39,14 @@ export default function Editor() {
   if (layoutMode === EditorLayoutMode.TRACKING) {
     return (
       <div id='panels' className={`${styles.panelContainer} ${styles.panelContainerTracking}`}>
-        {/* the titles and the rundown share a scope, so they follow one cursor */}
-        <RundownScopeProvider rundownId={null}>
-          <div className={styles.rundownLayout}>
-            <div className={styles.titlesPanel}>
-              <TitleList mode={AppMode.Run} />
-            </div>
-            <div className={styles.rundownPanel}>
-              <Rundown />
-            </div>
+        <div className={styles.rundownLayout}>
+          <div className={styles.titlesPanel}>
+            <TitleList mode={AppMode.Run} />
           </div>
-        </RundownScopeProvider>
+          <div className={styles.rundownPanel}>
+            <Rundown />
+          </div>
+        </div>
         <TrackingPlaybackBar />
       </div>
     );
@@ -50,16 +54,14 @@ export default function Editor() {
 
   return (
     <div id='panels' className={styles.panelContainer}>
-      <RundownScopeProvider rundownId={null}>
-        <div className={styles.rundownLayout}>
-          <div className={styles.titlesPanel}>
-            <TitleList mode={AppMode.Edit} />
-          </div>
-          <div className={styles.rundownPanel}>
-            <Rundown />
-          </div>
+      <div className={styles.rundownLayout}>
+        <div className={styles.titlesPanel}>
+          <TitleList mode={AppMode.Edit} />
         </div>
-      </RundownScopeProvider>
+        <div className={styles.rundownPanel}>
+          <Rundown />
+        </div>
+      </div>
     </div>
   );
 }

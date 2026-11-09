@@ -1,7 +1,6 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
-import type { ErrorResponse, ProjectData } from 'ontime-types';
-import { getErrorMessage } from 'ontime-utils';
+import type { ProjectData } from 'ontime-types';
 
 import { removeUndefined } from '../../utils/parserUtils.js';
 import { postProjectLogo } from '../db/db.controller.js';
@@ -15,24 +14,19 @@ router.get('/', (_req: Request, res: Response<ProjectData>) => {
   res.status(200).json(projectDao.getProjectData());
 });
 
-router.post('/', projectSanitiser, async (req: Request, res: Response<ProjectData | ErrorResponse>) => {
-  try {
-    const newData: Partial<ProjectData> = removeUndefined({
-      title: req.body?.title,
-      description: req.body?.description,
-      url: req.body?.url,
-      info: req.body?.info,
-      logo: req.body?.logo,
-      custom: req.body?.custom,
-    });
+router.post('/', projectSanitiser, async (req: Request, res: Response<ProjectData>) => {
+  const newData: Partial<ProjectData> = removeUndefined({
+    title: req.body?.title,
+    description: req.body?.description,
+    url: req.body?.url,
+    info: req.body?.info,
+    logo: req.body?.logo,
+    custom: req.body?.custom,
+  });
 
-    const updatedData = await projectDao.editCurrentProjectData(newData);
+  const updatedData = await projectDao.editCurrentProjectData(newData);
 
-    res.status(200).send(updatedData);
-  } catch (error) {
-    const message = getErrorMessage(error);
-    res.status(400).send({ message });
-  }
+  res.status(200).send(updatedData);
 });
 
 router.post('/upload', uploadImageFile, postProjectLogo);

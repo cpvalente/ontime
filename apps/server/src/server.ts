@@ -3,7 +3,14 @@ import http, { type Server } from 'http';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
-import { LogOrigin, SimpleDirection, SimplePlayback, runtimeStorePlaceholder } from 'ontime-types';
+import {
+  LogOrigin,
+  Playback,
+  type ProjectStartup,
+  SimpleDirection,
+  SimplePlayback,
+  runtimeStorePlaceholder,
+} from 'ontime-types';
 import serverTiming from 'server-timing';
 
 import { oscServer } from './adapters/OscAdapter.js';
@@ -15,7 +22,6 @@ import { createSessionLog } from './api-data/logs/logs.dao.js';
 // Services
 import * as logger from './api-data/logs/logs.service.js';
 import { integrationRouter } from './api-integration/integration.router.js';
-import { mcpRouter } from './api-mcp/mcp.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
@@ -25,6 +31,7 @@ import { bodyParser } from './middleware/bodyParser.js';
 import { compressData } from './middleware/compression.middleware.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { clearUploadfolder } from './middleware/upload.js';
+import { ONTIME_VERSION } from './ONTIME_VERSION.js';
 import { endSession, getShowWelcomeDialog, startSession } from './services/app-state-service/appState.service.js';
 import { auxTimerService } from './services/aux-timer-service/auxTimer.service.js';
 import * as messageService from './services/message-service/message.service.js';
@@ -32,8 +39,14 @@ import { initialiseProject } from './services/project-service/project.service.js
 import { restoreService } from './services/restore-service/restore.service.js';
 import type { RestorePoint } from './services/restore-service/restore.types.js';
 import { runtimeService } from './services/runtime-service/runtime.service.js';
+import {
+  getTeleprompterState,
+  getTeleprompterSync,
+  initTeleprompter,
+  shutdownTeleprompter,
+} from './services/teleprompter-service/teleprompter.service.js';
 import { config, timerConfig } from './setup/config.js';
-import { isProduction } from './setup/environment.js';
+import { isProduction, systemInfo } from './setup/environment.js';
 // import utils
 import { publicDir, publicFiles, srcFiles } from './setup/index.js';
 import { populateDemo } from './setup/loadDemo.js';
@@ -97,7 +110,10 @@ app.get(`${prefix}/ready`, (_req, res) => {
 app.use(`${prefix}/login`, loginRouter); // router for login flow
 app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
 app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, mcpRouter); // router for MCP agent integration
+app.use(`${prefix}/mcp`, authenticate, async (req, res, next) => {
+  const { mcpRouter } = await import('./api-mcp/mcp.router.js');
+  mcpRouter(req, res, next);
+});
 
 // serve static external files
 app.use(
@@ -121,9 +137,9 @@ app.get(`${prefix}/timer-legacy`, authenticateAndRedirect, (_req, res) => {
 app.use(`${prefix}`, authenticateAndRedirect, compressedStatic);
 app.use(`${prefix}/*splat`, authenticateAndRedirect, compressedStatic);
 
-// Implement catch all
-app.use((_error, response) => {
-  response.status(400).send('Unhandled request');
+// answers requests no route above matched
+app.use((_req, res) => {
+  res.status(400).send('Unhandled request');
 });
 
 /***************  START SERVICES ***************/
@@ -164,6 +180,7 @@ const checkStart = (currentState: OntimeStartOrder) => {
 };
 
 let restorePoint: RestorePoint | null = null;
+let projectStartup: ProjectStartup | null = null;
 
 export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable: boolean) => void) => {
   checkStart(OntimeStartOrder.InitAssets);
@@ -171,6 +188,12 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   ensureDirectory(publicDir.logsDir);
   const sessionLog = createSessionLog(publicFiles.logFile, publicFiles.previousLogFile);
   logger.init(sessionLog, escalateErrorFn);
+  // a downloaded log describes the system it came from
+  logger.info(LogOrigin.Server, 'Session started', {
+    version: ONTIME_VERSION,
+    ...systemInfo,
+    data: publicDir.root,
+  });
 
   const previousEndedCleanly = await startSession();
   if (!previousEndedCleanly) {
@@ -184,7 +207,7 @@ export const initAssets = async (escalateErrorFn?: (error: string, unrecoverable
   populateStyles();
   populateTranslation();
   await populateDemo();
-  await initialiseProject();
+  projectStartup = await initialiseProject();
 };
 
 /**
@@ -197,8 +220,16 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   expressServer = http.createServer(app);
   const resultPort = await portManager.attachServer(expressServer);
 
-  const showWelcome = await getShowWelcomeDialog(!!restorePoint);
-  socket.init(expressServer, showWelcome, prefix);
+  const projectId = getDataProvider().getProjectId();
+  const restored = restoreService.forProject(restorePoint, projectId);
+  restoreService.initialise(restored);
+  // any playback change saves a restore point, a stopped or armed timer has no show to interrupt
+  const playback = restored?.runtime?.playback;
+  const isShowRunning = playback !== undefined && playback !== Playback.Stop && playback !== Playback.Armed;
+  // the startup preference only applies to a healthy restart, a replaced project is always reported
+  const isRecovered = projectStartup?.reason === 'recovered';
+  const showWelcome = isRecovered || (!isShowRunning && (await getShowWelcomeDialog()));
+  socket.init(expressServer, showWelcome ? projectStartup : null, prefix);
 
   /**
    * Module initialises the services and provides initial payload for the store
@@ -235,6 +266,8 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
       direction: SimpleDirection.CountDown,
       name: '',
     },
+    teleprompter: getTeleprompterState(),
+    teleprompterSync: getTeleprompterSync(),
     ping: 1,
   });
 
@@ -245,7 +278,12 @@ export const startServer = async (): Promise<{ message: string; serverPort: numb
   messageService.init(eventStore.set, eventStore.get);
 
   // apply the restore point if it exists
-  runtimeService.init(restorePoint);
+  runtimeService.init(restored?.runtime ?? null);
+  initTeleprompter();
+
+  if (restored?.auxTimers) {
+    auxTimerService.resume(restored.auxTimers);
+  }
 
   const nif = getNetworkInterfaces();
   consoleSuccess(`Local: http://localhost:${resultPort}${prefix}/editor`);
@@ -308,6 +346,8 @@ const shutdownTimeout = 4_000; // 4 seconds
 export async function stopServices(exitCode: number): Promise<void> {
   isShuttingDown = true;
   runtimeService.shutdown();
+  auxTimerService.dispose();
+  shutdownTeleprompter();
 
   // only a crash leaves the session open, recorded first so a failed cleanup cannot turn a stop into a crash
   if (exitCode === 0 || exitCode === 3 || exitCode === 99) {
@@ -336,6 +376,8 @@ export async function stopServices(exitCode: number): Promise<void> {
   if (exitCode === 0 || exitCode === 99) {
     await withTimeout(restoreService.clear(), shutdownTimeout);
     await withTimeout(portManager.shutdown(), shutdownTimeout);
+  } else {
+    await withTimeout(restoreService.flush(), shutdownTimeout);
   }
 
   await withTimeout(

@@ -11,8 +11,6 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
     return [];
   }
 
-  console.log('Found URL presets, importing...');
-
   const newPresets: URLPreset[] = [];
 
   for (const preset of data.urlPresets) {
@@ -31,8 +29,6 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
     };
     newPresets.push(newPreset);
   }
-
-  console.log(`Uploaded ${newPresets.length} preset(s)`);
 
   return newPresets;
 }

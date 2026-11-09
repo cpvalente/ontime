@@ -45,7 +45,7 @@ export default function URLPresets() {
       <Panel.Card>
         {formState.isOpen && <URLPresetForm urlPreset={formState.preset} onClose={closeForm} />}
         <Panel.SubHeader>
-          URL presets
+          URL Presets
           <Button onClick={openNewForm}>
             New <IoAdd />
           </Button>

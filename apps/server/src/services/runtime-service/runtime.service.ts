@@ -4,7 +4,6 @@ import {
   EntryId,
   Instant,
   LogOrigin,
-  Offset,
   OffsetMode,
   OntimeEvent,
   Playback,
@@ -12,7 +11,6 @@ import {
   RuntimeStore,
   TimerLifeCycle,
   TimerPhase,
-  TimerState,
   isOntimeEvent,
   isPlayableEvent,
 } from 'ontime-types';
@@ -35,7 +33,9 @@ import * as runtimeState from '../../stores/runtimeState.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 import { type Change, onChange } from '../change-service/change.service.js';
 import { restoreService } from '../restore-service/restore.service.js';
-import type { RestorePoint } from '../restore-service/restore.types.js';
+import type { RuntimeRestore } from '../restore-service/restore.types.js';
+import { followLoadedEvent, onClockTick } from '../teleprompter-service/teleprompter.service.js';
+import { findNextRollEvent } from './roll.utils.js';
 import {
   findNextPlayableId,
   findNextPlayableWithCue,
@@ -86,30 +86,20 @@ class RuntimeService {
     const timerPhaseChanged = RuntimeService.previousState.timer?.phase !== newState.timer.phase;
     if (timerPhaseChanged) {
       if (newState.timer.phase === TimerPhase.Warning) {
-        process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onWarning);
-        });
+        emitLifecycle({ cycle: TimerLifeCycle.onWarning, state: newState });
       } else if (newState.timer.phase === TimerPhase.Danger) {
-        process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onDanger);
-        });
+        emitLifecycle({ cycle: TimerLifeCycle.onDanger, state: newState });
       }
     }
 
-    // 2. handle edge cases related to roll
+    // 2. roll moves on by itself, the runtime decides where to
     if (newState.timer.playback === Playback.Roll) {
-      // check if we need to call any side effects
       if (hasSecondaryTimerFinished) {
-        // if the secondary timer has finished, we need to call roll
-        // since event is already loaded
-        this.rollLoaded(newState.offset);
+        // the loaded event we were waiting for is due
+        this.handleRollTransition(newState, () => runtimeState.roll(getCurrentRundown(), getRundownMetadata()));
       } else if (hasTimerFinished) {
-        // if the timer has finished, we need to load next and keep rolling
-        process.nextTick(() => {
-          triggerAutomations(TimerLifeCycle.onFinish);
-        });
-        this.handleLoadNext();
-        this.rollLoaded(newState.offset);
+        emitLifecycle({ cycle: TimerLifeCycle.onFinish, state: newState });
+        this.handleRollTransition(newState, () => runtimeState.rollNext(getCurrentRundown(), getRundownMetadata()));
       } else if (
         // if there is no previous clock, we could not have skipped
         RuntimeService.previousState?.clock &&
@@ -125,9 +115,7 @@ class RuntimeService {
 
     // 3. find if we need to process actions related to the timer finishing
     if (newState.timer.playback === Playback.Play && hasTimerFinished) {
-      process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onFinish);
-      });
+      emitLifecycle({ cycle: TimerLifeCycle.onFinish, state: newState });
 
       // handle end action if there was a timer playing
       // actions are added to the queue stack to ensure that the order of operations is maintained
@@ -168,26 +156,20 @@ class RuntimeService {
     // 4. find if we need to update the timer
     const shouldUpdateTimer = isNewSecond(this.lastIntegrationTimerValue, newState.timer.current);
     if (shouldUpdateTimer) {
-      process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onUpdate);
-      });
-
+      emitLifecycle({ cycle: TimerLifeCycle.onUpdate, state: newState });
       this.lastIntegrationTimerValue = newState.timer.current ?? -1;
     }
 
     // 5. find if we need to update the clock
     const shouldUpdateClock = getShouldClockUpdate(this.lastIntegrationClockUpdate, newState.clock);
     if (shouldUpdateClock) {
-      process.nextTick(() => {
-        triggerAutomations(TimerLifeCycle.onClock);
-      });
-
+      emitLifecycle({ cycle: TimerLifeCycle.onClock, state: newState });
       this.lastIntegrationClockUpdate = newState.clock;
     }
   }
 
   /** delay initialisation until we have a restore point */
-  public init(resumable: RestorePoint | null) {
+  public init(resumable: RuntimeRestore | null) {
     this.timer.start();
 
     // the project loads before the runtime, nothing is loaded yet so we only catch up with the rundown data
@@ -258,10 +240,9 @@ class RuntimeService {
   /**
    * makes calls for loading and starting given event
    * @param {PlayableEvent} event
-   * @param {Partial<TimerState & RestorePoint>} initialData
    * @return {boolean} success - whether an event was loaded
    */
-  private loadEvent(event: OntimeEvent, initialData?: Partial<TimerState & RestorePoint>): boolean {
+  private loadEvent(event: OntimeEvent): boolean {
     if (!isPlayableEvent(event)) {
       logger.warning(LogOrigin.Playback, 'Event load skipped', { reason: 'marked-skip', ...eventFields(event) });
       return false;
@@ -271,14 +252,11 @@ class RuntimeService {
     // we can ignore events which are not playable
     const rundown = getCurrentRundown();
     const metadata = getRundownMetadata();
-    const success = runtimeState.load(event, rundown, metadata, initialData);
+    const success = runtimeState.load(event, rundown, metadata);
 
     if (success) {
       logger.info(LogOrigin.Playback, 'Event loaded', eventFields(event));
-      process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onLoad);
-      });
+      emitLifecycle({ cycle: TimerLifeCycle.onLoad, state: runtimeState.getState(), unloaded: previousState });
     }
     return success;
   }
@@ -452,30 +430,21 @@ class RuntimeService {
    *
    * we need to isolate handleLoadNext so we have control over the side effects
    * startSelected being a private function does not trigger emits
-   * and pass on runtime offset in case of roll mode
    */
-  private handleLoadNext(fromId?: EntryId): boolean {
+  private handleLoadNext(): boolean {
     const state = runtimeState.getState();
-    const { playableEventOrder } = getRundownMetadata();
+    const metadata = getRundownMetadata();
 
-    const nextId = findNextPlayableId(playableEventOrder, fromId ?? state.eventNow?.id);
+    // a manual load next during roll passes over the events roll cannot play
+    const nextId =
+      state.timer.playback === Playback.Roll
+        ? findNextRollEvent(getCurrentRundown(), metadata, state.eventNow?.id)?.id
+        : findNextPlayableId(metadata.playableEventOrder, state.eventNow?.id);
 
     if (nextId) {
       const nextEvent = getEntryWithId(nextId);
       if (!nextEvent || !isOntimeEvent(nextEvent)) {
         return false;
-      }
-
-      if (state.timer.playback === Playback.Roll) {
-        if (nextEvent.duration === 0) {
-          /**
-           * when loading next in roll mode,
-           * we need to prevent loading events of 0 duration since
-           * this would make the playback be stuck
-           */
-          return this.handleLoadNext(nextId);
-        }
-        return this.loadEvent(nextEvent, { firstStart: state.rundown.actualStart });
       }
       return this.loadEvent(nextEvent);
     }
@@ -510,10 +479,7 @@ class RuntimeService {
     logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
 
     if (didStart) {
-      process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onStart, newState);
-        triggerAutomations(TimerLifeCycle.onStart);
-      });
+      emitLifecycle({ cycle: TimerLifeCycle.onStart, state: newState });
     }
     return didStart;
   }
@@ -564,9 +530,7 @@ class RuntimeService {
     runtimeState.pause();
     const newState = runtimeState.getState();
     logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
-    process.nextTick(() => {
-      triggerAutomations(TimerLifeCycle.onPause);
-    });
+    emitLifecycle({ cycle: TimerLifeCycle.onPause, state: newState });
   }
 
   /**
@@ -583,10 +547,7 @@ class RuntimeService {
     if (didStop) {
       const newState = runtimeState.getState();
       logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
-      process.nextTick(() => {
-        triggerReportEntry(TimerLifeCycle.onStop, previousState);
-        triggerAutomations(TimerLifeCycle.onStop);
-      });
+      emitLifecycle({ cycle: TimerLifeCycle.onStop, state: newState, unloaded: previousState });
 
       return true;
     }
@@ -603,27 +564,6 @@ class RuntimeService {
       return this.loadEvent(state.eventNow);
     }
     return false;
-  }
-
-  /**
-   * Handles special case to call roll on a loaded event which we do not want to discard
-   */
-  private rollLoaded(offset: Offset) {
-    const rundown = getCurrentRundown();
-    const metadata = getRundownMetadata();
-
-    try {
-      const result = runtimeState.roll(rundown, metadata, offset);
-      if (result.didStart) {
-        const newState = runtimeState.getState();
-        process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onStart, newState);
-          triggerAutomations(TimerLifeCycle.onStart);
-        });
-      }
-    } catch (error) {
-      logger.error(LogOrigin.Playback, 'Roll failed', { error: getErrorMessage(error) });
-    }
   }
 
   /**
@@ -649,35 +589,43 @@ class RuntimeService {
       }
     }
 
-    try {
-      const rundown = getCurrentRundown();
-      const metadata = getRundownMetadata();
-      const result = runtimeState.roll(rundown, metadata);
-
-      const newState = runtimeState.getState();
-      if (result.eventId !== previousState.eventNow?.id) {
-        logger.info(LogOrigin.Playback, 'Event loaded', eventFields(newState.eventNow));
-        process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onStop, previousState);
-          triggerAutomations(TimerLifeCycle.onLoad);
-        });
-      }
-
-      if (result.didStart) {
-        process.nextTick(() => {
-          triggerReportEntry(TimerLifeCycle.onStart, newState);
-          triggerAutomations(TimerLifeCycle.onStart);
-        });
-      }
-    } catch (error) {
-      logger.error(LogOrigin.Playback, 'Roll failed', { error: getErrorMessage(error) });
+    const didRoll = this.handleRollTransition(previousState, () =>
+      runtimeState.roll(getCurrentRundown(), getRundownMetadata()),
+    );
+    if (!didRoll) {
       return;
     }
 
     const newState = runtimeState.getState();
-
     if (previousState.timer.playback !== newState.timer.playback) {
       logger.info(LogOrigin.Playback, 'Playback changed', { state: newState.timer.playback });
+    }
+  }
+
+  /**
+   * Runs a roll transition and reports what it did, the runtime decides the transition
+   * @param stateBefore - the runtime before the transition, reported as unloaded if the transition loads an event
+   * @returns whether the transition ran
+   */
+  private handleRollTransition(
+    stateBefore: Readonly<RuntimeState>,
+    transition: () => runtimeState.RollResult,
+  ): boolean {
+    try {
+      const { didLoad, didStart } = transition();
+      const newState = runtimeState.getState();
+
+      if (didLoad) {
+        logger.info(LogOrigin.Playback, 'Event loaded', eventFields(newState.eventNow));
+        emitLifecycle({ cycle: TimerLifeCycle.onLoad, state: newState, unloaded: stateBefore });
+      }
+      if (didStart) {
+        emitLifecycle({ cycle: TimerLifeCycle.onStart, state: newState });
+      }
+      return true;
+    } catch (error) {
+      logger.error(LogOrigin.Playback, 'Roll failed', { error: getErrorMessage(error) });
+      return false;
     }
   }
 
@@ -686,7 +634,7 @@ class RuntimeService {
    * @param restorePoint
    */
   @broadcastResult
-  public resume(restorePoint: RestorePoint) {
+  public resume(restorePoint: RuntimeRestore) {
     if (restorePoint.rundownId !== getCurrentRundownId()) {
       logger.warning(LogOrigin.Server, 'Restore skipped', { reason: 'other-rundown', rundown: restorePoint.rundownId });
       return;
@@ -735,6 +683,40 @@ class RuntimeService {
 
 export const runtimeService = new RuntimeService();
 
+/**
+ * Something that happened to playback, with the runtime as it was when it happened
+ */
+type LifecycleEvent = {
+  cycle: TimerLifeCycle;
+  /** the runtime the cycle concerns, eg: a finish carries the event which finished */
+  state: Readonly<RuntimeState>;
+  /** the runtime before the cycle, its event's report entry ends */
+  unloaded?: Readonly<RuntimeState>;
+};
+
+/**
+ * Reports a playback cycle to reports and automations
+ * Delivery waits for the current call to finish, so the runtime has committed and broadcast its state,
+ * events are delivered once, in the order they were emitted
+ * Automations still read the store when the event is delivered, rather than the state it carries
+ */
+function emitLifecycle({ cycle, state, unloaded }: LifecycleEvent) {
+  process.nextTick(() => {
+    // a failing consumer must not break playback
+    try {
+      if (unloaded) {
+        triggerReportEntry(TimerLifeCycle.onStop, unloaded);
+      }
+      if (cycle === TimerLifeCycle.onStart) {
+        triggerReportEntry(TimerLifeCycle.onStart, state);
+      }
+      triggerAutomations(cycle);
+    } catch (error) {
+      logger.error(LogOrigin.Playback, 'Lifecycle delivery failed', { cycle, error: getErrorMessage(error) });
+    }
+  });
+}
+
 /** identifies an event as users know it, by cue and title, with the id only when both are empty */
 function eventFields(event: OntimeEvent | null) {
   if (!event) return {};
@@ -759,6 +741,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // we do the comparison by explicitly for each property
     // to apply custom logic for different datasets
+
+    const loadedIdChanged = RuntimeService.previousState.eventNow?.id !== state.eventNow?.id;
 
     // Update the entry if they have changed
     const eventNowChanged = updateMaybeEntryIfChanged('eventNow');
@@ -800,6 +784,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (updateClock) {
       batch.add('clock', state.clock);
       RuntimeService.previousState.clock = state.clock;
+
+      // a playing teleprompter reads on with the clock, so the event it reaches arrives in the same frame
+      onClockTick(batch);
     }
 
     /**
@@ -863,6 +850,10 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     }
 
     batch.send();
+
+    if (loadedIdChanged) {
+      followLoadedEvent(state.eventNow?.id ?? null);
+    }
 
     // any mutation may have moved the boundary, so we anticipate it here
     this.timer.scheduleBoundary(runtimeState.getTimeToNextBoundary());
