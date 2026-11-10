@@ -92,6 +92,13 @@ Alternatively, you can run Ontime locally for free by downloading the latest rel
 
 Once installed and running, any device that shares the same network as Ontime will have access to Ontime.
 
+You can also self-host Ontime on [Easypanel](https://easypanel.io), a self-hosted Docker deployment platform, which has a one-click deployment template for Ontime:
+
+[![Deploy on Easypanel][easypanel-btn]][easypanel-deploy]
+
+[easypanel-btn]: https://easypanel.io/img/deploy-on-easypanel-40.svg
+[easypanel-deploy]: https://easypanel.io/templates/ontime
+
 More information is available [in our docs](https://docs.getontime.no)
 
 ## Continued development
