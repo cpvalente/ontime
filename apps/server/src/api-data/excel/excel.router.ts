@@ -7,7 +7,7 @@ import type {
 } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
-import { getProcessedRundown, getProjectCustomFields } from '../rundown/rundown.dao.js';
+import { getProcessedRundown, getProjectCustomFieldsWithOrder } from '../rundown/rundown.dao.js';
 import { EXCEL_MIME } from './excel.constants.js';
 import { uploadExcel } from './excel.middleware.js';
 import {
@@ -56,7 +56,8 @@ router.post(
 
 router.get('/export', (_req: Request, res: Response) => {
   const rundowns = Object.keys(getDataProvider().getProjectRundowns()).map(getProcessedRundown);
-  const buffer = generateExcelWorkbook(rundowns, getProjectCustomFields());
+  const { fields, order } = getProjectCustomFieldsWithOrder();
+  const buffer = generateExcelWorkbook(rundowns, fields, order);
   res.setHeader('Content-Disposition', 'attachment;');
   res.setHeader('Content-Type', EXCEL_MIME);
   res.setHeader('Content-Length', buffer.length.toString());
@@ -65,8 +66,8 @@ router.get('/export', (_req: Request, res: Response) => {
 
 router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Response) => {
   const rundown = getProcessedRundown(req.params.rundownId);
-  const customFields = getProjectCustomFields();
-  const buffer = generateExcelFile(rundown, customFields);
+  const { fields, order } = getProjectCustomFieldsWithOrder();
+  const buffer = generateExcelFile(rundown, fields, order);
 
   res.setHeader('Content-Disposition', 'attachment;');
   res.setHeader('Content-Type', EXCEL_MIME);

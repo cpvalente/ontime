@@ -20,21 +20,35 @@ export function parseCustomFields(data: { customFields?: unknown }, emitError?: 
   return customFields;
 }
 
-/** Parses the collection, including project files saved with a bare field record. */
+/**
+ * Parses the collection, including v4 project files saved with a bare field record
+ * TODO(v5): move the bare record conversion into a v5 migration step so the parser only reads { fields, order }
+ */
 export function parseProjectCustomFields(
-  data: { customFields?: unknown; customFieldOrder?: unknown },
+  data: { customFields?: unknown },
   emitError?: ErrorEmitter,
 ): ProjectCustomFields {
   const source = data.customFields;
-  // Legacy records may contain a field named "fields". Preserve any valid definitions at that level.
-  const nested =
+  if (isProjectCustomFields(source)) {
+    const fields = parseCustomFields({ customFields: source.fields }, emitError);
+    return {
+      fields,
+      order: parseCustomFieldOrder(is.objectWithKeys(source, ['order']) ? source.order : undefined, fields),
+    };
+  }
+  // v4 files store a bare record, its key order is the field order
+  const fields = parseCustomFields({ customFields: source }, emitError);
+  return { fields, order: parseCustomFieldOrder(undefined, fields) };
+}
+
+/** A v4 record could hold a field labelled "fields", which is a valid field rather than the collection */
+function isProjectCustomFields(source: unknown): source is { fields: object; order?: unknown } {
+  return (
     is.object(source) &&
     is.objectWithKeys(source, ['fields']) &&
     is.object(source.fields) &&
-    !Object.entries(source).some(([key, field]) => isValidField(field, key));
-  const fields = parseCustomFields({ customFields: nested ? source.fields : source }, emitError);
-  const order = nested && is.objectWithKeys(source, ['order']) ? source.order : data.customFieldOrder;
-  return { fields, order: parseCustomFieldOrder(order, fields) };
+    !Object.entries(source).some(([key, field]) => isValidField(field, key))
+  );
 }
 
 /**

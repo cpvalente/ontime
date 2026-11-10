@@ -95,7 +95,7 @@ describe('project persistence', { timeout: 15_000 }, () => {
   test('custom fields and their order are imported, saved and restored as one collection', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
-    const initial: ProjectCustomFields = await (await firstRun.get('/data/custom-fields/ordered')).json();
+    const initial: ProjectCustomFields = await (await firstRun.get('/data/custom-fields')).json();
     const imported: ProjectCustomFields = {
       fields: {
         Stage: { label: 'Stage', type: 'text', colour: '' },
@@ -105,7 +105,7 @@ describe('project persistence', { timeout: 15_000 }, () => {
     };
     const patch = await firstRun.send('PATCH', '/data/db', { customFields: imported });
     expect(patch.status).toBe(200);
-    const merged: ProjectCustomFields = await (await firstRun.get('/data/custom-fields/ordered')).json();
+    const merged: ProjectCustomFields = await (await firstRun.get('/data/custom-fields')).json();
     expect(merged).toEqual({
       fields: { ...initial.fields, ...imported.fields },
       order: [...initial.order, ...imported.order],
@@ -129,6 +129,6 @@ describe('project persistence', { timeout: 15_000 }, () => {
 
     const secondRun = await startTestServer();
     onTestFinished(() => secondRun.stop());
-    expect(await (await secondRun.get('/data/custom-fields/ordered')).json()).toEqual(expected);
+    expect(await (await secondRun.get('/data/custom-fields')).json()).toEqual(expected);
   });
 });

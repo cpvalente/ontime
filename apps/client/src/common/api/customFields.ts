@@ -10,7 +10,7 @@ const customFieldsPath = `${apiEntryUrl}/custom-fields`;
  * Requests list of known custom fields with their order
  */
 export async function getCustomFields(options?: RequestOptions): Promise<ProjectCustomFields> {
-  const res = await axios.get(`${customFieldsPath}/ordered`, { signal: options?.signal });
+  const res = await axios.get(customFieldsPath, { signal: options?.signal });
   return res.data;
 }
 

@@ -64,14 +64,14 @@ export default function TemplateInput({
   variant = 'subtle',
   ...rest
 }: TemplateInputProps) {
-  const { data } = useCustomFields();
+  const { orderedFields } = useCustomFields();
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [inputValue, setInputValue] = useState(value || '');
   const [isExpanded, setIsExpanded] = useState(false);
 
   const autocompleteList = useMemo(() => {
-    return makeAutoCompleteList(data);
-  }, [data]);
+    return makeAutoCompleteList(orderedFields);
+  }, [orderedFields]);
 
   const updateInputValue = useCallback(
     (nextValue: string) => {

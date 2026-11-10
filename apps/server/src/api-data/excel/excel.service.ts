@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
 import { extname } from 'path';
 
-import { CustomFields, Rundown, RundownSummary } from 'ontime-types';
+import { CustomFieldKey, CustomFields, Rundown, RundownSummary } from 'ontime-types';
 import type { SpreadsheetWorksheetMetadata } from 'ontime-types';
 import { type ImportMap } from 'ontime-utils';
 import xlsx from 'xlsx';
@@ -148,16 +148,24 @@ export function getWorksheetMetadata(worksheet: string) {
  * Creates an xlsx file from a given rundown and custom fields
  * @throws if the rundown is empty
  */
-export function generateExcelFile(rundown: Rundown, customFields: CustomFields): Buffer {
+export function generateExcelFile(
+  rundown: Rundown,
+  customFields: CustomFields,
+  customFieldOrder: CustomFieldKey[] = Object.keys(customFields),
+): Buffer {
   if (rundown.order.length === 0) {
     throw new InvalidSpreadsheetDataError('Cannot generate an Excel file from an empty rundown');
   }
 
-  return generateExcelWorkbook([rundown], customFields);
+  return generateExcelWorkbook([rundown], customFields, customFieldOrder);
 }
 
 /** Exports every rundown, including empty ones, with unique Excel-safe worksheet names. */
-export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomFields): Buffer {
+export function generateExcelWorkbook(
+  rundowns: Rundown[],
+  customFields: CustomFields,
+  customFieldOrder: CustomFieldKey[] = Object.keys(customFields),
+): Buffer {
   const workbook = xlsx.utils.book_new();
   const names = new Set<string>();
   for (const rundown of rundowns) {
@@ -169,7 +177,7 @@ export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomF
       name = `${truncateWorksheetName(baseName, maxWorksheetNameLength - ending.length)}${ending}`;
     }
     names.add(name.toLowerCase());
-    const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields));
+    const worksheet = xlsx.utils.aoa_to_sheet(rundownToTabular(rundown, customFields, customFieldOrder));
     xlsx.utils.book_append_sheet(workbook, worksheet, name);
   }
 

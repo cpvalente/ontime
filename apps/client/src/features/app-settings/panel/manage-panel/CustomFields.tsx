@@ -98,8 +98,8 @@ export default function CustomFieldSettings() {
           <Info>
             <span>Custom fields allow for additional information to be added to an event.</span>
             <span>
-              Drag the fields to set their order in the entry editor, which is also the default column order in the
-              cuesheet.
+              Drag the handle to reorder fields. This sets their order in the entry editor and the default cuesheet
+              column order.
             </span>
             <span>
               To use custom fields as a data source in an{' '}

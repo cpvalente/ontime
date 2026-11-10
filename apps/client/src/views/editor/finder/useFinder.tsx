@@ -206,17 +206,17 @@ export function searchByText(
  */
 export default function useFinder(searchValue: string, activeFilter: MaybeString) {
   const { data } = useFlatRundown();
-  const { data: customFields } = useCustomFields();
+  const { data: customFields, orderedFields } = useCustomFields();
 
   const selectAndRevealEntry = useSelectAndRevealEntry();
 
   /** The filters offered to the user: the fixed fields plus whatever the project defines */
   const filters = useMemo<FinderFilter[]>(() => {
-    const customFilters = Object.entries(customFields)
+    const customFilters = orderedFields
       .filter(([_key, field]) => field.type === 'text')
       .map(([key, field]) => ({ key, label: field.label || key }));
     return [...staticFilters, ...customFilters];
-  }, [customFields]);
+  }, [orderedFields]);
 
   const { results, error, total, appliedFilter } = useMemo(() => {
     if (data.length === 0) {

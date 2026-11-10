@@ -166,7 +166,7 @@ describe('custom field order', () => {
   });
 
   test('renaming a field to the label of another field is rejected', async () => {
-    await expect(editCustomField('First', { label: 'Third' })).rejects.toThrow('Label already exists');
+    await expect(editCustomField('First', { label: 'Third' })).rejects.toThrow('Label Third already exists');
 
     expect(getDataProvider().getCustomFields().fields.Third.label).toBe('Third');
     expect(getDataProvider().getCustomFields().fields.First.label).toBe('First');

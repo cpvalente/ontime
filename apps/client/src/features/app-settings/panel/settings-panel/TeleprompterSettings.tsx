@@ -28,7 +28,7 @@ const headingOptions: { value: TeleprompterHeading; label: string }[] = [
 /** What the shared teleprompter playback reads, kept with the project */
 export default function TeleprompterSettings() {
   const { data, status, mutateAsync } = useTeleprompterSettings();
-  const { data: customFields } = useCustomFields();
+  const { orderedFields } = useCustomFields();
 
   const {
     handleSubmit,
@@ -58,7 +58,7 @@ export default function TeleprompterSettings() {
 
   const onReset = () => reset(data);
 
-  const scriptOptions = makeScriptSourceOptions(customFields);
+  const scriptOptions = makeScriptSourceOptions(orderedFields);
 
   return (
     <Panel.Section

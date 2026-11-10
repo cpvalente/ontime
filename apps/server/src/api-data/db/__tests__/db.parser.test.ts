@@ -149,7 +149,6 @@ describe('project custom field collection', () => {
 
   it.each([
     { source: { customFields: fields }, order: ['2', 'Notes'] },
-    { source: { customFields: fields, customFieldOrder: ['Notes', '2'] }, order: ['Notes', '2'] },
     { source: { customFields: { fields, order: ['Notes', '2'] } }, order: ['Notes', '2'] },
   ])('loads legacy and nested custom fields without mutating the source', ({ source, order }) => {
     const project = { ...structuredClone(demoDb), ...source };
@@ -161,7 +160,15 @@ describe('project custom field collection', () => {
       fields,
       order,
     });
-    expect(data).not.toHaveProperty('customFieldOrder');
     expect(project).toEqual(original);
+  });
+
+  it('keeps a v4 field labelled "fields"', () => {
+    const legacy = { fields: { label: 'fields', type: 'text', colour: '' } };
+    const project = { ...structuredClone(demoDb), customFields: legacy };
+    // @ts-expect-error -- exercises the v4 project file shape
+    const { data } = parseDatabaseModel(project);
+
+    expect(data.customFields).toEqual({ fields: legacy, order: ['fields'] });
   });
 });

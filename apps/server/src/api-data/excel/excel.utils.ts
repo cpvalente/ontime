@@ -175,11 +175,16 @@ const emptyCellValue = '';
  * Converts a given rundown to 2D array tabular format
  * All fields are converted to their string representation as specified by excel
  */
-export function rundownToTabular(rundown: Rundown, customFields: CustomFields): string[][] {
+export function rundownToTabular(
+  rundown: Rundown,
+  customFields: CustomFields,
+  customFieldOrder: CustomFieldKey[] = Object.keys(customFields),
+): string[][] {
   const flatRundown: string[][] = [];
   // we reuse the keys from the import map so import <> export works by default
   const keys = Object.keys(matchedWithDefaultImportMap) as (keyof typeof matchedWithDefaultImportMap)[];
-  const customFieldKeys = Object.keys(customFields) as CustomFieldKey[];
+  // object key order is unreliable for numeric keys, so the columns follow the project order
+  const customFieldKeys = customFieldOrder.filter((key) => Object.hasOwn(customFields, key));
 
   // create header row
   const headerRow: string[] = [];

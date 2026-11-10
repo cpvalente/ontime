@@ -2,7 +2,7 @@ import express from 'express';
 import type { Request, Response, Router } from 'express';
 import { CustomField, CustomFields, ProjectCustomFields } from 'ontime-types';
 
-import { getProjectCustomFields, getProjectCustomFieldsWithOrder } from '../rundown/rundown.dao.js';
+import { getProjectCustomFieldsWithOrder } from '../rundown/rundown.dao.js';
 import {
   createCustomField,
   deleteCustomField,
@@ -19,17 +19,9 @@ import {
 export const router: Router = express.Router();
 
 /**
- * Gets all the custom fields for the project
- */
-router.get('/', (_req: Request, res: Response<CustomFields>) => {
-  const customFields = getProjectCustomFields();
-  res.status(200).json(customFields);
-});
-
-/**
  * Gets all the custom fields for the project with their order
  */
-router.get('/ordered', (_req: Request, res: Response<ProjectCustomFields>) => {
+router.get('/', (_req: Request, res: Response<ProjectCustomFields>) => {
   res.status(200).json(getProjectCustomFieldsWithOrder());
 });
 

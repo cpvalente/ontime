@@ -1,6 +1,15 @@
-import { Automation, AutomationDTO, AutomationFilter, CustomFields, TimerLifeCycle, Trigger } from 'ontime-types';
+import {
+  Automation,
+  AutomationDTO,
+  AutomationFilter,
+  CustomFields,
+  OrderedCustomFields,
+  TimerLifeCycle,
+  Trigger,
+} from 'ontime-types';
 
 import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
+import { customFieldEntries } from '../../../../common/utils/customFieldEntries';
 
 type CycleLabel = {
   label: string;
@@ -59,15 +68,16 @@ type SelectableField = {
   label: string;
 };
 
-export function makeFieldList(customFields: CustomFields): SelectableField[] {
+export function makeFieldList(customFields: CustomFields | OrderedCustomFields): SelectableField[] {
+  const entries = customFieldEntries(customFields);
   return [
     ...staticSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({
+    ...entries.map(([key, { label }]) => ({
       value: `eventNow.custom.${key}`,
       label: `Custom: ${label}`,
     })),
     ...staticNextSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({
+    ...entries.map(([key, { label }]) => ({
       value: `eventNext.custom.${key}`,
       label: `Next custom: ${label}`,
     })),

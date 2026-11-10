@@ -170,4 +170,15 @@ describe('rundownToTabular()', () => {
     const result = rundownToTabular(testRundown, testCustomFields);
     expect(result).toMatchSnapshot();
   });
+
+  it('writes the custom field columns in the project order, numeric keys included', () => {
+    const testRundown = demoDb.rundowns['default'];
+    const customFields: CustomFields = {
+      Notes: { label: 'Notes', type: 'text', colour: '' },
+      '2': { label: '2', type: 'text', colour: '' },
+    };
+
+    const [header] = rundownToTabular(testRundown, customFields, ['Notes', '2']);
+    expect(header.slice(-2)).toEqual(['Notes', '2']);
+  });
 });

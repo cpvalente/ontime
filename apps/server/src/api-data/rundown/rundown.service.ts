@@ -571,7 +571,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
   if (newField.label) {
     const newKey = customFieldLabelToKey(newField.label);
     if (newKey !== key && Object.hasOwn(customFields, newKey)) {
-      throw new Error('Label already exists');
+      throw new CustomFieldExistsError(newField.label);
     }
   }
 
