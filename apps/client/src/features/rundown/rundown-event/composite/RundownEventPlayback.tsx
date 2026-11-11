@@ -4,6 +4,7 @@ import { IoPause, IoPlay, IoReload, IoRemoveCircle, IoRemoveCircleOutline } from
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
+import { useRundownScope } from '../../../../common/context/RundownScopeContext';
 import { setEventPlayback } from '../../../../common/hooks/useSocket';
 
 import style from '../RundownEvent.module.scss';
@@ -27,6 +28,9 @@ function RundownEventPlayback({
   disablePlayback,
 }: RundownEventPlaybackProps) {
   const { updateEntry } = useEntryActionsContext();
+  const { isLoaded: isRundownLoaded } = useRundownScope();
+  // playback commands act on the loaded rundown, so they cannot start an entry of another rundown
+  const playbackTooltip = isRundownLoaded ? undefined : 'Load the rundown to play its events';
 
   const toggleSkip = (event: MouseEvent) => {
     event.stopPropagation();
@@ -35,6 +39,9 @@ function RundownEventPlayback({
 
   const actionHandler = (event: MouseEvent) => {
     event.stopPropagation();
+    if (!isRundownLoaded) {
+      return;
+    }
     // is playing -> pause
     // is paused -> continue
     // otherwise -> start
@@ -49,6 +56,9 @@ function RundownEventPlayback({
 
   const load = (event: MouseEvent) => {
     event.stopPropagation();
+    if (!isRundownLoaded) {
+      return;
+    }
     setEventPlayback.loadEvent(eventId);
   };
 
@@ -87,22 +97,24 @@ function RundownEventPlayback({
       </Tooltip>
 
       <Tooltip
-        text='Load event'
+        text={playbackTooltip ?? 'Load event'}
         render={<IconButton variant='subtle-white' />}
         onClick={load}
         tabIndex={-1}
         disabled={disablePlayback}
+        aria-disabled={!isRundownLoaded}
         aria-label='Load event'
       >
         <IoReload className={style.flip} />
       </Tooltip>
 
       <Tooltip
-        text={playButtonStyles.tooltip}
+        text={playbackTooltip ?? playButtonStyles.tooltip}
         render={<IconButton variant='subtle-white' />}
         onClick={actionHandler}
         tabIndex={-1}
         disabled={disablePlayback}
+        aria-disabled={!isRundownLoaded}
         style={{
           backgroundColor: playButtonStyles.backgroundColor,
         }}

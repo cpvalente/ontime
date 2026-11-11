@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { IoCheckmarkCircle } from 'react-icons/io5';
 
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
+import { useRundownScope } from '../../../../common/context/RundownScopeContext';
 import useReport from '../../../../common/hooks-query/useReport';
 import { usePlayback } from '../../../../common/hooks/useSocket';
 import { getEventVariance } from '../../../../common/utils/report';
@@ -24,7 +25,18 @@ interface RundownEventChipProps {
   isLinkedToLoaded: boolean;
 }
 
-export default function RundownEventChip({
+export default function RundownEventChip(props: RundownEventChipProps) {
+  const { isLoaded: isRundownLoaded } = useRundownScope();
+
+  // countdowns and reports describe the show that is playing, a rundown which is not loaded has neither
+  if (!isRundownLoaded) {
+    return null;
+  }
+
+  return <LoadedRundownChip {...props} />;
+}
+
+function LoadedRundownChip({
   timeStart,
   delay,
   dayOffset,

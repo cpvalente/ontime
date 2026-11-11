@@ -3,8 +3,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import ScrollArea from '../../../common/components/scroll-area/ScrollArea';
-import useRundown from '../../../common/hooks-query/useRundown';
-import { useSelectedEventId } from '../../../common/hooks/useSocket';
+import useRundown, { useScopedSelectedEventId } from '../../../common/hooks-query/useRundown';
 import { ExtendedEntry, getFlatRundownMetadata } from '../../../common/utils/rundownMetadata';
 import { useEventSelection } from '../../../features/rundown/useEventSelection';
 import { useSelectAndRevealEntry } from '../../../features/rundown/useSelectAndRevealEntry';
@@ -21,7 +20,7 @@ interface TitleListProps {
 
 export default function TitleList({ mode }: TitleListProps) {
   const { data: rundown } = useRundown();
-  const selectedEventId = useSelectedEventId();
+  const selectedEventId = useScopedSelectedEventId();
   const cursor = useEventSelection((state) => state.cursor);
 
   // In Run mode, follow the currently playing event
