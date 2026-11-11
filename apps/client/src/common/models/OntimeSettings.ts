@@ -1,7 +1,9 @@
 import { Settings } from 'ontime-types';
 
+import { appVersion } from '../../externals';
+
 export const ontimePlaceholderSettings: Settings = {
-  version: '4.0.0',
+  version: appVersion,
   editorKey: null,
   operatorKey: null,
   timeFormat: '24',
