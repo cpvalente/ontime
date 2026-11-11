@@ -11,7 +11,6 @@
     "compression": "1.8.1",
     "cookie": "1.0.2",
     "cookie-parser": "1.4.7",
-    "cors": "2.8.6",
     "dotenv": "^17.0.0",
     "express": "5.3.0",
     "express-static-gzip": "3.0.1",
@@ -29,7 +28,6 @@
   "devDependencies": {
     "@types/compression": "1.8.1",
     "@types/cookie-parser": "1.4.10",
-    "@types/cors": "2.8.19",
     "@types/express": "5.0.6",
     "@types/multer": "2.1.0",
     "@types/node": "catalog:",

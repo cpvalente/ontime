@@ -1,7 +1,6 @@
 import http, { type Server } from 'http';
 
 import cookieParser from 'cookie-parser';
-import cors from 'cors';
 import express from 'express';
 import {
   LogOrigin,
@@ -25,10 +24,11 @@ import { integrationRouter } from './api-integration/integration.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
-import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
+import { makeAuthenticateMiddleware, makeLoginRouter, refuseCrossSite } from './middleware/authenticate.js';
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
 import { compressData } from './middleware/compression.middleware.js';
+import { refuseUnknownHost } from './middleware/crossSite.js';
 import { compressedStatic } from './middleware/staticGZip.js';
 import { clearUploadfolder } from './middleware/upload.js';
 import { ONTIME_VERSION } from './ONTIME_VERSION.js';
@@ -84,8 +84,11 @@ app.disable('x-powered-by');
 app.enable('etag');
 
 // Implement middleware
-app.use(cors()); // setup cors for all routes
-app.options('*splat', cors()); // enable pre-flight cors
+// do not leak the URL, and any ?token= in it, in the Referer of links to other sites
+app.use((_req, res, next) => {
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  next();
+});
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -106,11 +109,14 @@ app.get(`${prefix}/ready`, (_req, res) => {
   res.status(200).send('READY');
 });
 
+// refuse browsers reaching a host we don't know, which is how DNS rebinding looks
+app.use(refuseUnknownHost);
+
 // Implement route endpoints
 app.use(`${prefix}/login`, loginRouter); // router for login flow
-app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
-app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, async (req, res, next) => {
+app.use(`${prefix}/data`, refuseCrossSite, authenticate, compressData, appRouter); // router for application data
+app.use(`${prefix}/api`, refuseCrossSite, authenticate, integrationRouter); // router for integrations
+app.use(`${prefix}/mcp`, refuseCrossSite, authenticate, async (req, res, next) => {
   const { mcpRouter } = await import('./api-mcp/mcp.router.js');
   mcpRouter(req, res, next);
 });

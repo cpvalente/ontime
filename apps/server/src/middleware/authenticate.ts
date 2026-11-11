@@ -7,6 +7,7 @@ import type { WebSocket } from 'ws';
 import { hasPassword, hashedPassword } from '../api-data/session/session.service.js';
 import { srcFiles } from '../setup/index.js';
 import { hashPassword } from '../utils/hash.js';
+import { isCrossSite, isRequestHostAllowed } from './crossSite.js';
 import { noopMiddleware } from './noop.js';
 
 /**
@@ -145,9 +146,51 @@ export function makeAuthenticateMiddleware(prefix: string) {
 }
 
 /**
- * Middleware to authenticate a WebSocket connection with a token in the cookie
+ * Express middleware refusing requests made by pages on other sites
+ * A page that holds the token in its own URL or header (eg: a sandboxed custom view) may still call in
+ * Typing a URL in the address bar is not cross-site, so GET commands on /api keep working
+ */
+export function refuseCrossSite(req: Request, res: Response, next: NextFunction) {
+  if (!isCrossSite(req.headers) || hasExplicitToken(req.headers.authorization, req.query)) {
+    return next();
+  }
+  res.status(403).send('Cross-site requests are not allowed');
+}
+
+/**
+ * Whether the request carries the token itself, rather than relying on the cookie the browser attaches
+ * Requires a password: without one, hashedPassword is undefined and any request would match
+ */
+function hasExplicitToken(
+  authorization: string | undefined,
+  params: string | Record<string, unknown> | undefined,
+  host?: string,
+) {
+  if (!hasPassword) {
+    return false;
+  }
+  return (
+    getTokenFromAuthHeader(authorization) === hashedPassword || getTokenFromParams(params, host) === hashedPassword
+  );
+}
+
+/**
+ * Middleware to authenticate a WebSocket connection with a token in the cookie, header or URL
+ * Connections from other sites or to unknown hosts are refused
  */
 export function authenticateSocket(_ws: WebSocket, req: IncomingMessage, next: (error?: Error) => void) {
+  if (!isRequestHostAllowed(req.headers)) {
+    return next(new Error('Forbidden host'));
+  }
+
+  // a page on another site, including a sandboxed custom view, connects only with a token in its own URL
+  if (isCrossSite(req.headers)) {
+    if (hasExplicitToken(req.headers.authorization, req.url, req.headers.host)) {
+      return next();
+    }
+    return next(new Error('Unauthorized'));
+  }
+
   if (!hasPassword) {
     return next();
   }

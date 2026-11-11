@@ -10,6 +10,8 @@ import { srcFiles } from './setup/index.js';
 // =================================================
 export const password = process.env.SESSION_PASSWORD;
 export const routerPrefix = process.env.ROUTER_PREFIX;
+/** extra host names a browser may reach Ontime by when there is no password, comma separated, * allows any */
+export const allowedHosts = process.env.ONTIME_ALLOWED_HOSTS;
 
 /**
  * Updates the router prefix in the index.html file

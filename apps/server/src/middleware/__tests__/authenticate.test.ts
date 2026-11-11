@@ -19,6 +19,7 @@ import {
   isPublicAssetRequest,
   makeAuthenticateMiddleware,
   makeLoginRouter,
+  refuseCrossSite,
 } from '../authenticate.js';
 
 function makeResponse() {
@@ -289,4 +290,87 @@ it('keeps the query string of the requested view through the login redirect', ()
   // the login page reads the value with URLSearchParams and posts it back for the login handler
   const redirect = new URL(loginUrl, 'http://localhost').searchParams.get('redirect');
   expect(getSafeRedirect(redirect, '/stage-hash')).toBe(originalUrl);
+});
+
+describe('authenticateSocket() from another site', () => {
+  const next = vi.fn();
+
+  beforeEach(() => {
+    next.mockClear();
+  });
+
+  it('refuses a cross-site connection that relies on the cookie', () => {
+    const req = {
+      headers: {
+        host: '192.168.1.10:4001',
+        origin: 'https://evil.example',
+        cookie: 'token=' + encodeURIComponent(JSON.stringify({ token: 'valid-token' })),
+      },
+      url: '/ws',
+    } as unknown as IncomingMessage;
+
+    authenticateSocket({} as never, req, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+  });
+
+  it('accepts a cross-site connection, such as a sandboxed view, with a token in its URL', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001', origin: 'null' },
+      url: '/ws?token=valid-token',
+    } as unknown as IncomingMessage;
+
+    authenticateSocket({} as never, req, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+
+  it('refuses a cross-site connection with a wrong token', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001', origin: 'null' },
+      url: '/ws?token=nope',
+    } as unknown as IncomingMessage;
+
+    authenticateSocket({} as never, req, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
+  });
+
+  it('accepts same-origin connections with a token, and clients without an Origin like Companion', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001' },
+      url: '/ws?token=valid-token',
+    } as unknown as IncomingMessage;
+
+    authenticateSocket({} as never, req, next);
+
+    expect(next).toHaveBeenCalledWith();
+  });
+});
+
+describe('refuseCrossSite()', () => {
+  function run(headers: Record<string, string>, query: Record<string, string> = {}) {
+    const req = { headers, query } as unknown as Request;
+    const res = makeResponse();
+    const next = vi.fn();
+    refuseCrossSite(req, res, next);
+    return { res, next };
+  }
+
+  it('passes same-origin requests and typed URLs', () => {
+    expect(run({ 'sec-fetch-site': 'same-origin' }).next).toHaveBeenCalled();
+    expect(run({ 'sec-fetch-site': 'none' }).next).toHaveBeenCalled();
+  });
+
+  it('refuses a request from another site, such as an image pointing at /api/stop', () => {
+    const { res, next } = run({ 'sec-fetch-site': 'cross-site' });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
+
+  it('passes a cross-site request that carries the token itself', () => {
+    expect(run({ 'sec-fetch-site': 'cross-site' }, { token: 'valid-token' }).next).toHaveBeenCalled();
+    expect(run({ 'sec-fetch-site': 'cross-site', authorization: 'Bearer valid-token' }).next).toHaveBeenCalled();
+    expect(run({ 'sec-fetch-site': 'cross-site' }, { token: 'nope' }).next).not.toHaveBeenCalled();
+  });
 });
