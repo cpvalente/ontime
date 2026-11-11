@@ -63,8 +63,13 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
 
       // make patch object
       const { data } = await getDb(fileName);
-      if (!data.settings.version.startsWith('4.')) {
-        setError('The project you are attempting to merge is from an older version and it need to be migrated first');
+      // the file is read as it is on disk: v4 files still merge as-is until a v5 migration changes the data
+      // files from other majors need to be opened in a matching Ontime first
+      const major = data.settings.version.split('.')[0];
+      if (major !== '4' && major !== '5') {
+        setError(
+          `This project was made with an unsupported version of Ontime (v${data.settings.version}). Open it in a matching version of Ontime, then merge.`,
+        );
         return;
       }
       const patch = await makeProjectPatch(data, values);
