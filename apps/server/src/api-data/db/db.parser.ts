@@ -11,8 +11,10 @@ import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
 import { parseTeleprompter } from '../teleprompter/teleprompter.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
+import { UnsupportedProjectError } from './db.errors.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
+import * as v5 from './migration/db.migration.v5.js';
 
 type ParsingError = {
   context: string;
@@ -32,6 +34,12 @@ export function parseDatabaseModel(
   errors: ParsingError[];
   migrated: boolean;
 } {
+  if (v5.isFromNewerMajor(jsonData)) {
+    throw new UnsupportedProjectError(
+      'Unsupported project version: this project was made with a newer version of Ontime',
+    );
+  }
+
   let migrated = false;
   let migratedData = jsonData;
   const errors: ParsingError[] = [];
@@ -58,8 +66,13 @@ export function parseDatabaseModel(
       const message = getErrorMessage(error);
       logger.error(LogOrigin.Server, 'Settings migration failed', { key: 'serverPort', error: message });
       errors.push({ context: 'v4 migration', message });
-      migratedData = jsonData;
+      // keep the result of the v3 migration, the port is only a setting
     }
+  }
+
+  // older majors cannot open a file once v5 writes it, so we keep the original as a backup
+  if (v5.isFromOlderMajor(migratedData)) {
+    migrated = true;
   }
 
   // we need to parse settings first to make sure the data is ours

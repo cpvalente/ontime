@@ -84,3 +84,5 @@ Runtime state owns roll transitions: it decides what loads and starts, the runti
 - Preserve fields the import/migration does not own.
 - Validate/parse into the current model before runtime logic.
 - Avoid source mutation; test round trips and non-mutation when preservation matters.
+- `settings.version` is the only version in a project file. Its major decides whether a file is backed up (older major) or refused (newer major); a refused file stays where it is.
+- Breaking changes to the project file add a migration that checks the shape of the data, not the version, so files from earlier prereleases of the same major are migrated too.

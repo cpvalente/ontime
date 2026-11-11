@@ -4,6 +4,7 @@ import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, Refe
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
 
 import { parseCustomFields } from '../../api-data/custom-fields/customFields.parser.js';
+import { UnsupportedProjectError } from '../../api-data/db/db.errors.js';
 import { parseDatabaseModel } from '../../api-data/db/db.parser.js';
 import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
@@ -160,10 +161,9 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
  */
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to migrated folder, keeping a file of the same name backed up earlier
+  // without a backup we must not write over the original, so a failed copy stops the load
   const copyPath = getBackupPath(publicDir.migrateDir, fileName);
-  await copyFile(filePath, copyPath).catch((_) => {
-    /* while we have to catch the error, we dont need to handle it */
-  });
+  await copyFile(filePath, copyPath);
 
   // and make a new file with the migrated data
   const newPath = appendToName(filePath, '(migrated)');
@@ -199,11 +199,14 @@ export async function initialiseProject(): Promise<ProjectStartup> {
       project: lastLoaded.projectName,
       error: getErrorMessage(error),
     });
-    try {
-      const pathToFile = getPathToProject(lastLoaded.projectName);
-      await moveCorruptFile(pathToFile, lastLoaded.projectName);
-    } catch (_) {
-      /* while we have to catch the error, we dont need to handle it */
+    // a file we cannot load but which is not corrupt stays in place, so a matching version can still open it
+    if (!(error instanceof UnsupportedProjectError)) {
+      try {
+        const pathToFile = getPathToProject(lastLoaded.projectName);
+        await moveCorruptFile(pathToFile, lastLoaded.projectName);
+      } catch (_) {
+        /* while we have to catch the error, we dont need to handle it */
+      }
     }
   }
 
