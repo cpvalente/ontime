@@ -33,6 +33,20 @@ function getDownloadSlug() {
 }
 
 /**
+ * Whether the latest release is an update for the running version
+ * The latest release excludes prereleases, so a newer major prerelease (eg: 5.0.0-alpha.0) would see an older major as different
+ * we never offer an older major as an update
+ * @param {string} latestTag
+ * @param {string} runningVersion
+ * @returns {boolean}
+ */
+function isUpdate(latestTag, runningVersion) {
+  const latest = latestTag.replace(/^v/, '');
+  if (latest === runningVersion) return false;
+  return Number(latest.split('.')[0]) >= Number(runningVersion.split('.')[0]);
+}
+
+/**
  * Checks the latest GitHub release against the running version
  * An update is only offered once the installer for this platform has been uploaded
  * @returns {Promise<{ version: string, url: string } | null>} - null if there is no update to offer
@@ -44,7 +58,7 @@ async function getAvailableUpdate() {
   }
 
   const release = await response.json();
-  if (release.tag_name.replace(/^v/, '') === version) {
+  if (!isUpdate(release.tag_name, version)) {
     return null;
   }
 
@@ -59,4 +73,4 @@ async function getAvailableUpdate() {
   return { version: release.tag_name, url };
 }
 
-module.exports = { getAvailableUpdate };
+module.exports = { getAvailableUpdate, isUpdate };

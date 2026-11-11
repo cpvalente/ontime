@@ -1,8 +1,10 @@
 import { GetInfo } from 'ontime-types';
 
+import { appVersion } from '../../externals';
+
 export const ontimePlaceholderInfo: GetInfo = {
   networkInterfaces: [],
-  version: '4.0.0',
+  version: appVersion,
   serverPort: 4001,
   publicDir: '',
 };

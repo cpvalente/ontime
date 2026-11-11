@@ -26,9 +26,20 @@ export default function useAppVersion() {
     enabled: isLocalhost,
   });
 
-  const hasUpdates = fetchData?.version && fetchData.version.replace(/^v/, '') !== version;
+  const hasUpdates = fetchData?.version ? isUpdate(fetchData.version, version) : false;
 
   const data = fetchData ? { ...fetchData, hasUpdates } : placeholder;
 
   return { data, placeholder, status, isFetching, isError, refetch };
+}
+
+/**
+ * Whether the latest release is an update for the running version
+ * The latest release excludes prereleases, so a newer major prerelease (eg: 5.0.0-alpha.0) would see an older major as different
+ * we never offer an older major as an update
+ */
+export function isUpdate(latestTag: string, runningVersion: string): boolean {
+  const latest = latestTag.replace(/^v/, '');
+  if (latest === runningVersion) return false;
+  return Number(latest.split('.')[0]) >= Number(runningVersion.split('.')[0]);
 }
