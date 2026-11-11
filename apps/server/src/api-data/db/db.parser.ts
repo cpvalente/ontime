@@ -13,6 +13,7 @@ import { parseTeleprompter } from '../teleprompter/teleprompter.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
+import * as v5 from './migration/db.migration.v5.js';
 
 type ParsingError = {
   context: string;
@@ -60,6 +61,12 @@ export function parseDatabaseModel(
       errors.push({ context: 'v4 migration', message });
       // keep the result of the v3 migration, the port is only a setting
     }
+  }
+
+  // v4 files are backed up before v5 writes over them, since v4 cannot open the result
+  if (v5.shouldMigrateToV5(migratedData)) {
+    migrated = true;
+    migratedData = v5.migrateToV5(migratedData);
   }
 
   // we need to parse settings first to make sure the data is ours

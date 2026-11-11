@@ -49,8 +49,8 @@ export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
   const urlPresets = migrateURLPresets(jsonData);
   const project = migrateProjectData(jsonData);
   const migratedCustom = migrateCustomFields(jsonData);
-  const fields = migratedCustom?.customFields;
-  const customFields = fields ? { fields, order: Object.keys(fields) } : undefined;
+  // v3 files come out in the v4 shape, the v5 steps take them from there
+  const customFields = migratedCustom?.customFields as unknown as DatabaseModel['customFields'] | undefined;
   const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
   const automation = migrateAutomations(jsonData);
 

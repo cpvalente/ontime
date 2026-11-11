@@ -161,26 +161,15 @@ describe('parseProjectCustomFields()', () => {
     });
   });
 
-  it.each([{ label: 'fields', type: 'text' }, { type: 'text' }])(
-    'preserves valid legacy siblings when a field named fields is invalid: %j',
-    (fields) => {
-      const Notes = { label: 'Notes', type: 'text', colour: '' };
-      const emitError = vi.fn();
-
-      expect(parseProjectCustomFields({ customFields: { fields, Notes } }, emitError)).toEqual({
-        fields: { Notes },
-        order: ['Notes'],
-      });
-      expect(emitError).toHaveBeenCalledWith('Skipped invalid custom fields');
-    },
-  );
-
-  it('preserves legacy fields named fields and order', () => {
+  it('accepts fields named fields and order', () => {
     const fields: CustomFields = {
       fields: { label: 'fields', type: 'text', colour: '' },
       order: { label: 'order', type: 'text', colour: '' },
     };
-    expect(parseProjectCustomFields({ customFields: fields })).toEqual({ fields, order: ['fields', 'order'] });
+    expect(parseProjectCustomFields({ customFields: { fields, order: ['order', 'fields'] } })).toEqual({
+      fields,
+      order: ['order', 'fields'],
+    });
   });
 
   it('reconciles the order after discarding invalid definitions', () => {
@@ -195,7 +184,12 @@ describe('parseProjectCustomFields()', () => {
     ).toEqual({ fields: { Notes }, order: ['Notes'] });
   });
 
-  it.each([undefined, null, []])('handles missing or invalid custom fields', (customFields) => {
-    expect(parseProjectCustomFields({ customFields })).toEqual({ fields: {}, order: [] });
-  });
+  it.each([undefined, null, [], { Notes: { label: 'Notes', type: 'text', colour: '' } }])(
+    'handles missing or invalid custom fields: %j',
+    (customFields) => {
+      const emitError = vi.fn();
+      expect(parseProjectCustomFields({ customFields }, emitError)).toEqual({ fields: {}, order: [] });
+      expect(emitError).toHaveBeenCalledWith('No data found to import');
+    },
+  );
 });

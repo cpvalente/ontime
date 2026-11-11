@@ -21,34 +21,23 @@ export function parseCustomFields(data: { customFields?: unknown }, emitError?: 
 }
 
 /**
- * Parses the collection, including v4 project files saved with a bare field record
- * TODO(v5): move the bare record conversion into a v5 migration step so the parser only reads { fields, order }
+ * Parses the custom fields collection, { fields, order }
+ * v4 files store a bare record, the v5 migration converts them before they reach here
  */
 export function parseProjectCustomFields(
   data: { customFields?: unknown },
   emitError?: ErrorEmitter,
 ): ProjectCustomFields {
   const source = data.customFields;
-  if (isProjectCustomFields(source)) {
-    const fields = parseCustomFields({ customFields: source.fields }, emitError);
-    return {
-      fields,
-      order: parseCustomFieldOrder(is.objectWithKeys(source, ['order']) ? source.order : undefined, fields),
-    };
+  if (!is.object(source) || !is.objectWithKeys(source, ['fields'])) {
+    emitError?.('No data found to import');
+    return { fields: {}, order: [] };
   }
-  // v4 files store a bare record, its key order is the field order
-  const fields = parseCustomFields({ customFields: source }, emitError);
-  return { fields, order: parseCustomFieldOrder(undefined, fields) };
-}
-
-/** A v4 record could hold a field labelled "fields", which is a valid field rather than the collection */
-function isProjectCustomFields(source: unknown): source is { fields: object; order?: unknown } {
-  return (
-    is.object(source) &&
-    is.objectWithKeys(source, ['fields']) &&
-    is.object(source.fields) &&
-    !Object.entries(source).some(([key, field]) => isValidField(field, key))
-  );
+  const fields = parseCustomFields({ customFields: source.fields }, emitError);
+  return {
+    fields,
+    order: parseCustomFieldOrder(is.objectWithKeys(source, ['order']) ? source.order : undefined, fields),
+  };
 }
 
 /**
