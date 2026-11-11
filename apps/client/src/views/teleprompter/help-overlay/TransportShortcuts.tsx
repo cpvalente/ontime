@@ -8,7 +8,7 @@ export default function TransportShortcuts() {
         <Shortcut label='Play / pause'>
           <Combo keys={['Space']} />
         </Shortcut>
-        <Shortcut label='Slower / faster'>
+        <Shortcut label='Speed down / up'>
           <Combo keys={['←']} />
           <Separator />
           <Combo keys={['→']} />

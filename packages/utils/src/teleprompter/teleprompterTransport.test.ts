@@ -52,8 +52,24 @@ describe('commands on the transport', () => {
     [{ type: 'speed', value: 0 }, 1],
     [{ type: 'speedBy', value: -5 }, 25],
     [{ type: 'speedBy', value: 200 }, 100],
+    [{ type: 'speed', value: -20 }, -20],
+    [{ type: 'speed', value: -200 }, -100],
   ] as const)('%j sets speed %d', (command, speed) => {
     expect(apply(makeState(), command).speed).toBe(speed);
+  });
+
+  test.each([
+    ['a step past 0 stops at the slowest speed', 3, -5, 1],
+    ['a step past 0 reading back stops at the slowest speed', -3, 5, -1],
+    ['from the slowest speed, a step turns playback around', 1, -1, -1],
+    ['from the slowest speed, a large step turns playback around at the slowest speed', 1, -5, -1],
+    ['reading back at the slowest speed, a step turns playback around', -1, 1, 1],
+  ] as const)('%s', (_, from, step, speed) => {
+    expect(apply(makeState({ speed: from }), { type: 'speedBy', value: step }).speed).toBe(speed);
+  });
+
+  test('speed 0 is the slowest speed in the current direction', () => {
+    expect(apply(makeState({ speed: -30 }), { type: 'speed', value: 0 }).speed).toBe(-1);
   });
 
   test('a repeated command is still a change of state', () => {
@@ -111,6 +127,46 @@ describe('playback reaching an end', () => {
   test('playing from the end of the script stops straight away', () => {
     const atEnd = settle(freeRun(makeState({ playback: 'play' })), layout, 60_000);
     expect(apply(atEnd, { type: 'play' }, 61_000)).toMatchObject({ playback: 'pause', ended: 'script' });
+  });
+});
+
+describe('playback reading back', () => {
+  const readingBack = (patch: Partial<TeleprompterTransport>) => makeState({ playback: 'play', speed: -30, ...patch });
+
+  test('event by event, it stops at the start of the event being read, which stays the event read', () => {
+    const inB = readingBack({ anchor: { eventId: 'b', charOffset: 20, lines: 0 } });
+    expect(settle(inB, layout, 3000)).toMatchObject({ playback: 'play' });
+
+    const stopped = settle(inB, layout, 4000);
+    expect(stopped).toMatchObject({ playback: 'pause', ended: 'event' });
+    expect(positionAt(stopped, layout, 4000)).toBe(5);
+    expect(describeTransport(stopped, layout, 4000).event?.id).toBe('b');
+  });
+
+  test('event by event, playing again reads back to the start of the event before', () => {
+    const stopped = settle(readingBack({ anchor: startOfEvent('c') }), layout, 60_000);
+    expect(positionAt(stopped, layout, 60_000)).toBe(5);
+
+    const playing = apply(stopped, { type: 'play' }, 60_000);
+    expect(settle(playing, layout, 120_000)).toMatchObject({ playback: 'pause', ended: 'script' });
+    expect(positionAt(playing, layout, 120_000)).toBe(1);
+  });
+
+  test('whole script, it stops at the start of the first event', () => {
+    const fromC = freeRun(readingBack({ anchor: startOfEvent('c') }));
+    expect(positionAt(fromC, layout, 4000)).toBe(8);
+    const stopped = settle(fromC, layout, 60_000);
+    expect(stopped).toMatchObject({ playback: 'pause', ended: 'script' });
+    expect(positionAt(stopped, layout, 60_000)).toBe(1);
+  });
+
+  test('screens following the transport read back with it', () => {
+    const playing = readingBack({ anchor: startOfEvent('c'), at: 1000 });
+    const sync = describeSync(playing, layout, 1);
+    expect(sync).toMatchObject({ speed: -30, row: 10, until: 5 });
+    for (const now of [3000, 60_000]) {
+      expect(syncPositionAt(sync, now)).toBe(positionAt(playing, layout, now));
+    }
   });
 });
 
@@ -214,10 +270,22 @@ test('the mode toggles between event by event and the whole script', () => {
   expect(apply(toggled, { type: 'mode', mode: 'toggle' }).mode).toBe('event');
 });
 
-test('any command clears where playback ended', () => {
+test('only playing or moving the reader clears where playback ended', () => {
   const stopped = settle(makeState({ playback: 'play' }), layout, 4000);
   expect(stopped.ended).toBe('event');
-  expect(apply(stopped, { type: 'speed', value: 20 }, 5000).ended).toBeNull();
+
+  for (const command of [{ type: 'pause' }, { type: 'speed', value: 20 }, { type: 'mode', mode: 'toggle' }] as const) {
+    expect(apply(stopped, command, 5000).ended).toBe('event');
+  }
+
+  for (const command of [
+    { type: 'play' },
+    { type: 'toggle' },
+    { type: 'scroll', lines: -1 },
+    { type: 'goto', eventId: 'a' },
+  ] as const) {
+    expect(apply(stopped, command, 5000).ended).toBeNull();
+  }
 });
 
 test('a command while paused keeps the reader on their exact anchor', () => {

@@ -11,6 +11,7 @@ const invalidCommand = 'Invalid teleprompter command';
  *   with an index counting the events of the script from 1, and /teleprompter/goto/loaded
  * - start and pause: /teleprompter/{play | pause | toggle}
  * - speed: /teleprompter/speed/{lines per minute}, /teleprompter/speedBy/{lines per minute}
+ *   a negative speed reads back up the script, and a step across 0 turns it around only from the slowest speed
  * - nudge: /teleprompter/scroll/{lines}
  *
  * The mode is an operator setting, which controller views switch:
