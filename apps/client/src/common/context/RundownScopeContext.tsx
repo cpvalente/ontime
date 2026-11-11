@@ -1,14 +1,27 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { MaybeString, Rundown } from 'ontime-types';
-import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  PropsWithChildren,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import { getRundownCacheKey } from '../api/constants';
 import { useProjectRundowns } from '../hooks-query/useProjectRundowns';
 import { useEntryActions } from '../hooks/useEntryAction';
+import { selectKeyboardScopeId, useActiveRundownScopeStore } from '../stores/activeRundownScopeStore';
 import { createEventSelectionStore, type EventSelectionStoreApi } from '../stores/eventSelectionStore';
 import { EntryActionsProvider } from './EntryActionsContext';
 
 export type RundownScopeValue = {
+  /** identifies this scope, two scopes may target the same rundown */
+  scopeId: string;
   /** the rundown this subtree operates on */
   rundownId: string;
   /** whether this scope targets the rundown the runtime is playing */
@@ -33,6 +46,7 @@ interface RundownScopeProviderProps extends PropsWithChildren {
  */
 export function RundownScopeProvider({ children, rundownId }: RundownScopeProviderProps) {
   const queryClient = useQueryClient();
+  const scopeId = useId();
   const {
     data: { loaded },
   } = useProjectRundowns();
@@ -52,14 +66,22 @@ export function RundownScopeProvider({ children, rundownId }: RundownScopeProvid
     selectionStore.getState().clearSelectedEvents();
   }, [selectionStore, targetId]);
 
+  // the scope is on screen, it may own the keyboard
+  useEffect(() => {
+    const { register, unregister } = useActiveRundownScopeStore.getState();
+    register(scopeId);
+    return () => unregister(scopeId);
+  }, [scopeId]);
+
   const value = useMemo(
     (): RundownScopeValue => ({
+      scopeId,
       rundownId: targetId,
       // an unresolved target is not the loaded rundown, it is not yet any rundown
       isLoaded: Boolean(loaded) && targetId === loaded,
       selectionStore,
     }),
-    [targetId, loaded, selectionStore],
+    [scopeId, targetId, loaded, selectionStore],
   );
 
   const actions = useEntryActions(targetId);
@@ -79,4 +101,17 @@ export function useRundownScope(): RundownScopeValue {
   }
 
   return context;
+}
+
+/** Whether this scope owns the keyboard: the scope the user last worked in, otherwise the first on screen */
+export function useIsActiveRundownScope(): boolean {
+  const { scopeId } = useRundownScope();
+  return useActiveRundownScopeStore((state) => selectKeyboardScopeId(state) === scopeId);
+}
+
+/** Makes this scope the one the keyboard acts on */
+export function useActivateRundownScope(): () => void {
+  const { scopeId } = useRundownScope();
+  const activate = useActiveRundownScopeStore((state) => state.activate);
+  return useCallback(() => activate(scopeId), [activate, scopeId]);
 }

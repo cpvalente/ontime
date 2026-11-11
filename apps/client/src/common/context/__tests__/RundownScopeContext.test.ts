@@ -1,12 +1,19 @@
 // @vitest-environment happy-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MaybeString, Rundown, SupportedEntry } from 'ontime-types';
-import { act, createElement } from 'react';
+import { StrictMode, act, createElement } from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { PROJECT_RUNDOWNS, getRundownQueryKey } from '../../api/constants';
-import { RundownScopeProvider, RundownScopeValue, useRundownScope } from '../RundownScopeContext';
+import { useActiveRundownScopeStore } from '../../stores/activeRundownScopeStore';
+import {
+  RundownScopeProvider,
+  RundownScopeValue,
+  useActivateRundownScope,
+  useIsActiveRundownScope,
+  useRundownScope,
+} from '../RundownScopeContext';
 
 // the project rundown list is seeded, a fetch must never settle and overwrite it
 vi.mock('../../api/rundown', () => ({
@@ -93,5 +100,96 @@ describe('RundownScopeProvider', () => {
 
     act(() => selectionStore.getState().setSelectedEvents({ id: 'b3', index: 2, selectMode: 'shift' }));
     expect(selectionStore.getState().selectedEvents).toEqual(new Set(['b1', 'b2']));
+  });
+});
+
+describe('active rundown scope', () => {
+  let root: Root | undefined;
+  let queryClient: QueryClient;
+  const active: Record<string, boolean> = {};
+  const activate: Record<string, () => void> = {};
+
+  function PanelReader({ name }: { name: string }) {
+    active[name] = useIsActiveRundownScope();
+    activate[name] = useActivateRundownScope();
+    return null;
+  }
+
+  function panel(name: string, rundownId: MaybeString) {
+    return createElement(RundownScopeProvider, { rundownId, key: name }, createElement(PanelReader, { name }));
+  }
+
+  function render(panels: ReturnType<typeof panel>[]) {
+    return act(async () => {
+      root?.render(createElement(QueryClientProvider, { client: queryClient }, ...panels));
+    });
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+    useActiveRundownScopeStore.setState({ activeScopeId: null, scopeIds: [] });
+    queryClient = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
+    queryClient.setQueryData(PROJECT_RUNDOWNS, { loaded: 'loaded', rundowns: [] });
+    queryClient.setQueryData(getRundownQueryKey('loaded'), makeRundown('loaded', ['l1']));
+    queryClient.setQueryData(getRundownQueryKey('background'), makeRundown('background', ['b1']));
+    root = createRoot(document.createElement('div'));
+  });
+
+  afterEach(async () => {
+    await act(async () => root?.unmount());
+    root = undefined;
+    vi.unstubAllGlobals();
+  });
+
+  it('gives the keyboard to the only scope on screen', async () => {
+    await render([panel('left', null)]);
+    expect(active.left).toBe(true);
+  });
+
+  it('gives the keyboard to one scope at a time, the one the user works in', async () => {
+    await render([panel('left', null), panel('right', 'background')]);
+    expect(active).toMatchObject({ left: true, right: false });
+
+    await act(async () => activate.right());
+    expect(active).toMatchObject({ left: false, right: true });
+  });
+
+  it('tells apart two scopes of the same rundown', async () => {
+    await render([panel('left', null), panel('right', 'loaded')]);
+    expect(active).toMatchObject({ left: true, right: false });
+  });
+
+  it('hands the keyboard back when the active scope unmounts', async () => {
+    await render([panel('left', null), panel('right', 'background')]);
+    await act(async () => activate.right());
+
+    await render([panel('left', null)]);
+    expect(active.left).toBe(true);
+  });
+
+  it('hands the keyboard to one remaining scope, never to all of them', async () => {
+    await render([panel('left', null), panel('middle', 'background'), panel('right', 'loaded')]);
+    await act(async () => activate.middle());
+
+    await render([panel('left', null), panel('right', 'loaded')]);
+    expect(active).toMatchObject({ left: true, right: false });
+  });
+
+  it('keeps the first scope active in strict mode', async () => {
+    await act(async () => {
+      root?.render(
+        createElement(
+          StrictMode,
+          null,
+          createElement(
+            QueryClientProvider,
+            { client: queryClient },
+            panel('left', null),
+            panel('right', 'background'),
+          ),
+        ),
+      );
+    });
+    expect(active).toMatchObject({ left: true, right: false });
   });
 });

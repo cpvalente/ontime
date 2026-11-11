@@ -106,7 +106,9 @@ export default function RundownEvent({
 }: RundownEventProps) {
   'use memo';
 
-  const selectedEventId = useEventIdSwapping((state) => state.selectedEventId);
+  const { selectionStore, scopeId, rundownId } = useRundownScope();
+  // an event marked for swap in another rundown is not a swap target here
+  const selectedEventId = useEventIdSwapping((state) => (state.rundownId === rundownId ? state.selectedEventId : null));
   const setSelectedEventId = useEventIdSwapping((state) => state.setSelectedEventId);
   const clearSelectedEventId = useEventIdSwapping((state) => state.clearSelectedEventId);
   const openRenumberDialog = useRenumberCuesDialogStore((state) => state.onOpen);
@@ -119,7 +121,6 @@ export default function RundownEvent({
   const clearSelectedEvents = useEventSelection((state) => state.clearSelectedEvents);
   const selectEntry = useEventSelection((state) => state.setSelectedEvents);
 
-  const { selectionStore } = useRundownScope();
   const isCopyTarget = useIsEntryCopyTarget(eventId);
 
   const handleRef = useRef<null | HTMLDivElement>(null);
@@ -161,7 +162,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Renumber cues',
             icon: TbListNumbers,
-            onClick: openRenumberDialog,
+            onClick: () => openRenumberDialog(scopeId),
           },
           { type: 'divider' },
           {
@@ -199,7 +200,7 @@ export default function RundownEvent({
             type: 'item',
             label: 'Add to swap',
             icon: IoAdd,
-            onClick: () => setSelectedEventId(eventId),
+            onClick: () => setSelectedEventId(eventId, rundownId),
           },
           {
             type: 'item',

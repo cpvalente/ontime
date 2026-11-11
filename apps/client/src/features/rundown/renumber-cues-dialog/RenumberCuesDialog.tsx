@@ -7,6 +7,7 @@ import Button from '../../../common/components/buttons/Button';
 import Dialog from '../../../common/components/dialog/Dialog';
 import Input from '../../../common/components/input/input/Input';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
+import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { orderEntries } from '../rundown.utils';
 import { useEventSelection } from '../useEventSelection';
@@ -19,7 +20,9 @@ export default function RenumberCuesDialog() {
   'use memo';
   const { data } = useRundown();
   const { flatOrder } = data;
-  const { onClose, isOpen } = useRenumberCuesDialogStore();
+  const { scopeId } = useRundownScope();
+  const onClose = useRenumberCuesDialogStore((state) => state.onClose);
+  const isOpen = useRenumberCuesDialogStore((state) => state.openScopeId === scopeId);
   const { renumberCues } = useEntryActionsContext();
   const selectedEvents = useEventSelection((state) => state.selectedEvents);
 
@@ -115,17 +118,18 @@ export default function RenumberCuesDialog() {
 }
 
 interface RenumberCuesDialogState {
-  isOpen: boolean;
+  /** the scope which opened the dialog, each rundown on screen mounts its own */
+  openScopeId: string | null;
   onClose: () => void;
-  onOpen: () => void;
+  onOpen: (scopeId: string) => void;
 }
 
 export const useRenumberCuesDialogStore = create<RenumberCuesDialogState>()((set) => ({
-  isOpen: false,
+  openScopeId: null,
   onClose: () => {
-    set({ isOpen: false });
+    set({ openScopeId: null });
   },
-  onOpen: () => {
-    set({ isOpen: true });
+  onOpen: (scopeId) => {
+    set({ openScopeId: scopeId });
   },
 }));

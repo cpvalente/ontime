@@ -32,7 +32,10 @@ vi.mock('react-virtuoso', () => ({
     return <div ref={scrollerRef} data-testid='scroller' data-entries={data.join(',')}></div>;
   },
 }));
-vi.mock('../../../common/context/RundownScopeContext', () => ({ useRundownScope: () => scope }));
+vi.mock('../../../common/context/RundownScopeContext', () => ({
+  useRundownScope: () => scope,
+  useIsActiveRundownScope: () => true,
+}));
 vi.mock('../../../common/context/EntryActionsContext', () => ({ useEntryActionsContext: () => ({ move }) }));
 vi.mock('../../../common/hooks-query/useAutomationSettings', () => ({
   default: () => ({ data: { enabledAutomations: false }, status: 'success' }),
@@ -73,7 +76,12 @@ beforeEach(() => {
   sessionStorage.clear();
   vi.clearAllMocks();
   mode = AppMode.Run;
-  scope = { rundownId: 'test', isLoaded: true, selectionStore: createEventSelectionStore(() => undefined) };
+  scope = {
+    scopeId: 'scope',
+    rundownId: 'test',
+    isLoaded: true,
+    selectionStore: createEventSelectionStore(() => undefined),
+  };
   props = {
     id: 'test',
     entries: { first: createEvent({ id: 'first' })!, second: createEvent({ id: 'second' })! },

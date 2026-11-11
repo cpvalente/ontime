@@ -15,7 +15,7 @@ import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
 import EmptyRundown from '../../common/components/state/EmptyRundown';
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
-import { useRundownScope } from '../../common/context/RundownScopeContext';
+import { useIsActiveRundownScope, useRundownScope } from '../../common/context/RundownScopeContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
 import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
@@ -73,6 +73,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   const entryActions = useEntryActionsContext();
   const { selectionStore } = useRundownScope();
+  const isActiveScope = useIsActiveRundownScope();
   const setEntryCopyId = useSetEntryCopy();
 
   // cursor
@@ -166,6 +167,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   // Keyboard shortcuts
   useRundownKeyboard({
+    enabled: isActiveScope,
     cursor,
     commands,
     clearSelectedEvents,

@@ -5,6 +5,8 @@ import { useEntryCopy } from '../../../common/stores/entryCopyStore';
 import { useEventSelection } from '../useEventSelection';
 
 interface UseRundownKeyboardOptions {
+  /** with two rundowns on screen, only the one the user works in handles the keyboard */
+  enabled: boolean;
   cursor: EntryId | null;
   commands: {
     selectEntry: (cursor: EntryId | null, direction: 'up' | 'down') => EntryId | null;
@@ -38,6 +40,7 @@ function isEditableElement(target: EventTarget | null): boolean {
 }
 
 export function useRundownKeyboard({
+  enabled,
   cursor,
   commands,
   clearSelectedEvents,
@@ -51,7 +54,7 @@ export function useRundownKeyboard({
     followMove(cursor, commands.moveEntry(cursor, direction));
   };
 
-  useHotkeys([
+  const hotkeys: Parameters<typeof useHotkeys>[0] = [
     [
       'alt + ArrowDown',
       () => {
@@ -253,5 +256,7 @@ export function useRundownKeyboard({
       },
       { usePhysicalKeys: true },
     ],
-  ]);
+  ];
+
+  useHotkeys(enabled ? hotkeys : []);
 }
