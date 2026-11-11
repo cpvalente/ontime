@@ -37,8 +37,11 @@ export default function useCustomFields() {
 /**
  * Reorders the custom fields, showing the new order before the server confirms it
  */
+const reorderMutationKey = [...CUSTOM_FIELDS, 'order'];
+
 export function useReorderCustomFields() {
   const { mutate } = useMutation({
+    mutationKey: reorderMutationKey,
     mutationFn: reorderCustomFields,
     onMutate: async (order: CustomFieldKey[]) => {
       await ontimeQueryClient.cancelQueries({ queryKey: CUSTOM_FIELDS });
@@ -49,16 +52,25 @@ export function useReorderCustomFields() {
       return { previous };
     },
     onError: (_error, _order, context) => {
-      if (context?.previous) {
+      // a later reorder is already showing, the refetch below settles on what the server kept
+      if (context?.previous && !hasOtherReorderPending()) {
         ontimeQueryClient.setQueryData(CUSTOM_FIELDS, context.previous);
       }
       // the fields may have changed elsewhere, which is a common reason for the server to reject the order
       void ontimeQueryClient.invalidateQueries({ queryKey: CUSTOM_FIELDS });
     },
     onSuccess: (projectCustomFields) => {
-      ontimeQueryClient.setQueryData(CUSTOM_FIELDS, projectCustomFields);
+      // writing this response would briefly undo the order of a later drag which is still in flight
+      if (!hasOtherReorderPending()) {
+        ontimeQueryClient.setQueryData(CUSTOM_FIELDS, projectCustomFields);
+      }
     },
   });
 
   return mutate;
+}
+
+/** Whether reorders other than the one settling are still waiting for the server */
+function hasOtherReorderPending(): boolean {
+  return ontimeQueryClient.isMutating({ mutationKey: reorderMutationKey }) > 1;
 }

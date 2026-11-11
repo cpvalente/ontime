@@ -47,6 +47,15 @@ export function useColumnOrder(columns: CuesheetColumnDef[], tableRoot: TableRoo
     defaultValue: null,
   });
 
+  // drop the layout stored under the old key, which is no longer read
+  useEffect(() => {
+    try {
+      localStorage.removeItem(makeStageKey(`${tableRoot}-table-order`));
+    } catch {
+      /* storage may be unavailable, there is nothing to clean up then */
+    }
+  }, [tableRoot]);
+
   const columnOrder = useMemo(() => {
     const defaultOrder = columns.map((col) => col.id as string);
     if (!savedOrder) return defaultOrder;
