@@ -24,6 +24,7 @@ import {
   generateId,
   getErrorMessage,
   getInsertAfterId,
+  isReservedCustomFieldKey,
   renameScriptSource,
   resolveInsertParent,
   validateRundownTitle,
@@ -501,7 +502,7 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
 export async function createCustomField(customField: CustomField): Promise<CustomFields> {
   const key = customFieldLabelToKey(customField.label);
 
-  if (!key) {
+  if (!key || isReservedCustomFieldKey(key)) {
     throw new InvalidCustomFieldLabelError();
   }
 
@@ -571,6 +572,9 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
 
   if (newField.label) {
     const newKey = customFieldLabelToKey(newField.label);
+    if (isReservedCustomFieldKey(newKey)) {
+      throw new InvalidCustomFieldLabelError();
+    }
     if (newKey !== key && Object.hasOwn(customFields, newKey)) {
       throw new CustomFieldExistsError(newField.label);
     }

@@ -193,3 +193,16 @@ describe('parseProjectCustomFields()', () => {
     },
   );
 });
+
+describe('reserved custom field keys', () => {
+  it('drops fields whose key collides with Object prototype properties', () => {
+    const customFields = {
+      toString: { label: 'toString', type: 'text', colour: 'red' },
+      constructor: { label: 'constructor', type: 'text', colour: 'red' },
+      normalField: { label: 'normalField', type: 'text', colour: 'green' },
+    };
+    expect(sanitiseCustomFields(customFields)).toStrictEqual({
+      normalField: { label: 'normalField', type: 'text', colour: 'green' },
+    });
+  });
+});

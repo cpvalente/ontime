@@ -48,4 +48,13 @@ describe('custom fields written by an import', () => {
     expect(getDataProvider().getCustomFields()).toEqual(before);
     expect(getProjectCustomFields()).toEqual(before.fields);
   });
+
+  test.each(['toString', 'constructor', 'hasOwnProperty'])(
+    'rejects the label %s, which collides with an Object prototype key',
+    async (label) => {
+      const before = structuredClone(getDataProvider().getCustomFields());
+      await expect(createCustomField(makeCustomField({ label }))).rejects.toThrow(InvalidCustomFieldLabelError);
+      expect(getDataProvider().getCustomFields()).toEqual(before);
+    },
+  );
 });

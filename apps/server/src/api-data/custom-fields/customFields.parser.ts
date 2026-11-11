@@ -1,5 +1,5 @@
 import { CustomField, CustomFieldKey, CustomFields, ProjectCustomFields } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey, isReservedCustomFieldKey } from 'ontime-utils';
 
 import { is } from '../../utils/is.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
@@ -93,6 +93,7 @@ function isValidField(data: unknown, key: string): data is CustomField {
     (data.type === 'text' || data.type === 'image') &&
     key !== '__proto__' &&
     checkRegex.isAlphanumericWithSpace(data.label) &&
+    !isReservedCustomFieldKey(key) &&
     key === customFieldLabelToKey(data.label)
   );
 }

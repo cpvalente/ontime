@@ -1,13 +1,10 @@
 import { body, param } from 'express-validator';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { checkRegex, customFieldLabelToKey, isReservedCustomFieldKey } from 'ontime-utils';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 
-/** Keys like __proto__ would change the prototype of the fields record instead of adding a field */
-const reservedKeys = new Set(['__proto__', 'constructor', 'prototype']);
-
 function isValidLabel(value: string): boolean {
-  return checkRegex.isAlphanumericWithSpace(value) && !reservedKeys.has(customFieldLabelToKey(value));
+  return checkRegex.isAlphanumericWithSpace(value) && !isReservedCustomFieldKey(customFieldLabelToKey(value));
 }
 
 export const validateCustomField = [

@@ -60,7 +60,11 @@ export { checkRegex, regex } from './src/regex-utils/checkRegex.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
-export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldUtils.js';
+export {
+  customFieldLabelToKey,
+  customKeyFromLabel,
+  isReservedCustomFieldKey,
+} from './src/customField-utils/customFieldUtils.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
