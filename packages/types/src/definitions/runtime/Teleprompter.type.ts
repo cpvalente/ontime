@@ -2,7 +2,7 @@ import type { EntryId } from '../core/OntimeEntry.js';
 import type { TeleprompterAnchor } from '../core/Teleprompter.type.js';
 
 /** Whether the teleprompter reads on, in the words of Ontime's playback */
-export type TeleprompterPlayback = 'play' | 'pause';
+export type TeleprompterPlayback = 'pause' | 'play';
 
 /**
  * How playback reads the script

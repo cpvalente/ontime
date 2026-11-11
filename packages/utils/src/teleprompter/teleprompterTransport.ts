@@ -18,14 +18,22 @@ import {
   type TeleprompterLayout,
 } from './teleprompterPosition.js';
 
-/** Teleprompter speed bounds, in lines per minute: playback only reads forwards and always moves */
+/** Teleprompter speed bounds, in lines per minute: playback always moves */
 export const teleprompterSpeed = {
-  min: 1,
+  min: -100,
   max: 100,
 } as const;
 
-function clampTeleprompterSpeed(speed: number): number {
-  return Math.min(Math.max(speed, teleprompterSpeed.min), teleprompterSpeed.max);
+const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
+
+function clampTeleprompterSpeed(newSpeed: number, currentSpeed: number): number {
+  const sign = Math.sign(newSpeed);
+  const abs = Math.round(Math.abs(newSpeed));
+  if (abs === 0) {
+    return currentSpeed > 0 ? -1 : 1;
+  }
+  const clampedSpeed = clamp(abs, teleprompterSpeed.min, teleprompterSpeed.max);
+  return clampedSpeed * sign;
 }
 
 /** A change to the transport, with the event it goes to already resolved */
@@ -81,28 +89,47 @@ const previousRestartLines = 1;
  * @returns null while the anchor is not in the script, as between an edit and the refetch of the script
  */
 export function positionAt(transport: TeleprompterTransport, layout: TeleprompterLayout, now: number): number | null {
-  if (!transport.anchor) return 0;
-  const from = rowOfAnchor(layout, transport.anchor);
+  const { anchor, playback, speed, at, mode } = transport;
+  if (!anchor) return 0;
+  const from = rowOfAnchor(layout, anchor);
   if (from === null) return null;
-  if (transport.playback !== 'play') return from;
+  if (playback === 'pause') return from;
 
-  const travelled = (transport.speed * elapsedSince(transport.at, now)) / 60_000;
-  return Math.min(from + travelled, playbackBound(layout, from, transport.mode).row);
+  const targetRow = getPlaybackBound(layout, from, mode, speed).row;
+  return getPositionNow({ speed, at, now, from, targetRow });
+}
+
+function getPositionNow(data: { speed: number; at: number; now: number; from: number; targetRow: number }) {
+  const { speed, at, now, from, targetRow: bound } = data;
+  const pos = from + (speed * elapsedSince(at, now)) / 60_000;
+  return speed > 0 ? Math.min(pos, bound) : Math.max(pos, bound);
+}
+
+function getTimeUntilTargetRow(row: number, from: number, speed: number) {
+  return (Math.abs(row - from) / Math.abs(speed)) * 60_000;
 }
 
 /** Where playback from a row runs to: the end of the event being read event by event, otherwise the end of the script */
-function playbackBound(
+function getPlaybackBound(
   layout: TeleprompterLayout,
   from: number,
   mode: TeleprompterMode,
-): { row: number; stop: TeleprompterStop } {
+  speed: number,
+): { stop: TeleprompterStop; row: number } {
   const { events } = layout;
-  if (events.length === 0) return { row: from, stop: 'script' };
-
+  if (events.length === 0) return { stop: 'script', row: from };
   const last = events[events.length - 1];
-  const next = mode === 'event' ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
-  if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
-  return { row: next.endRow, stop: 'event' };
+  const first = events[0];
+  const forward = speed > 0;
+
+  if (mode === 'script') return { stop: 'script', row: forward ? last.endRow : 0 };
+
+  const activeEvent = events.find((event) => event.endRow > from + boundaryEpsilon);
+
+  if (!activeEvent) return { stop: 'script', row: forward ? last.endRow : 0 };
+  if (activeEvent === last && forward) return { stop: 'script', row: activeEvent.endRow };
+  if (activeEvent === first && !forward) return { stop: 'script', row: activeEvent.firstRow };
+  return { stop: 'event', row: forward ? activeEvent.endRow : activeEvent.firstRow };
 }
 
 /**
@@ -114,17 +141,24 @@ export function settle(
   layout: TeleprompterLayout,
   now: number,
 ): TeleprompterTransport {
-  if (transport.playback !== 'play') return transport;
-  if (!transport.anchor) return { ...transport, playback: 'pause', at: now };
+  const { playback, anchor, mode, speed, at } = transport;
+  if (playback === 'pause') return transport;
+  if (!anchor) return { ...transport, playback: 'pause', at: now };
 
-  const from = rowOfAnchor(layout, transport.anchor);
+  const from = rowOfAnchor(layout, anchor);
   if (from === null) return transport;
 
-  const bound = playbackBound(layout, from, transport.mode);
-  const msToBound = ((bound.row - from) / transport.speed) * 60_000;
-  if (elapsedSince(transport.at, now) < msToBound) return transport;
+  const { row: targetRow, stop } = getPlaybackBound(layout, from, mode, speed);
+  const msToBound = getTimeUntilTargetRow(targetRow, from, speed);
+  if (elapsedSince(at, now) < msToBound) return transport;
 
-  return { ...transport, playback: 'pause', anchor: anchorAtRow(layout, bound.row), at: now, ended: bound.stop };
+  return {
+    ...transport,
+    playback: 'pause',
+    anchor: anchorAtRow(layout, targetRow),
+    at: now,
+    ended: stop,
+  };
 }
 
 /**
@@ -139,7 +173,7 @@ export function applyTransportCommand(
   now: number,
 ): TeleprompterTransport {
   const current = settle(transport, layout, now);
-  const isPlaying = current.playback === 'play';
+  const isPlaying = current.playback !== 'pause';
   const position = positionAt(current, layout, now) ?? 0;
   // every command sets the time, so a repeated command is still a change of state
   // only playback moves the reader off their anchor, which a row would round to the start of its line
@@ -170,10 +204,10 @@ export function applyTransportCommand(
       next = { ...rebased, playback: isPlaying ? 'pause' : 'play' };
       break;
     case 'speed':
-      next = { ...rebased, speed: clampTeleprompterSpeed(command.value) };
+      next = { ...rebased, speed: clampTeleprompterSpeed(command.value, current.speed) };
       break;
     case 'speedBy':
-      next = { ...rebased, speed: clampTeleprompterSpeed(current.speed + command.value) };
+      next = { ...rebased, speed: clampTeleprompterSpeed(current.speed + command.value, current.speed) };
       break;
     case 'scroll':
       next = moveTo(position + command.lines);
@@ -218,7 +252,7 @@ export function reanchorTransport(
 ): TeleprompterTransport {
   // where the reader got to in the previous script
   const current = settle(transport, previous.layout, now);
-  const isPlaying = current.playback === 'play';
+  const isPlaying = current.playback !== 'pause';
   // only playback moves the reader off their anchor, which a row would round to the start of its line
   const position = isPlaying ? positionAt(current, previous.layout, now) : null;
   const place = position === null ? current.anchor : anchorAtRow(previous.layout, position);
@@ -264,12 +298,13 @@ export function describeSync(
 ): TeleprompterSync {
   const { playback, speed, at } = transport;
   const row = transport.anchor ? (rowOfAnchor(layout, transport.anchor) ?? 0) : 0;
-  const until = playback === 'play' ? playbackBound(layout, row, transport.mode).row : row;
+  const until = playback !== 'pause' ? getPlaybackBound(layout, row, transport.mode, speed).row : row;
   return { revision, playback, speed, row, until, at };
 }
 
 /** The row at the reading position at a moment, from what the host published */
 export function syncPositionAt(sync: TeleprompterSync, now: number): number {
-  if (sync.playback !== 'play') return sync.row;
-  return Math.min(sync.row + (sync.speed * elapsedSince(sync.at, now)) / 60_000, sync.until);
+  const { speed, playback, row, until, at } = sync;
+  if (playback === 'pause') return row;
+  return getPositionNow({ speed, at, from: row, now, targetRow: until });
 }

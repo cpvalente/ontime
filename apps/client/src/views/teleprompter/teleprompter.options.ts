@@ -44,7 +44,7 @@ export type TeleprompterOptions = {
   speed: number;
 };
 
-export const defaults: TeleprompterOptions = {
+const defaults: TeleprompterOptions = {
   role: 'local',
   source: projectSource,
   onlyLoaded: false,

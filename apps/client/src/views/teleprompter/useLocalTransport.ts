@@ -126,7 +126,7 @@ export function useLocalTransport({ events, initialMode, initialSpeed, loadedEve
     apply({ type: 'speed', value: initialSpeed });
   }, [initialSpeed, apply]);
 
-  const isPlaying = transport.playback === 'play';
+  const isPlaying = transport.playback !== 'pause';
   // while playing, settles playback at its end and follows the reader into other events, once a second
   useEffect(() => {
     if (!isPlaying) return;

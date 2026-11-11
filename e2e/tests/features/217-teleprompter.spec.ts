@@ -317,9 +317,10 @@ test('the end of an event shows on the reading line', async ({ page, request }) 
     .evaluateAll((rows) => rows.findIndex((row, index) => index > 0 && row.matches('.teleprompter__row--heading')));
   expect((await request.get(`api/teleprompter/scroll/${firstEventRows - 4}`)).ok()).toBe(true);
 
+  await expect(page.getByTestId('teleprompter-end')).not.toBeVisible();
   await request.get('api/teleprompter/speed/40');
   await request.get('api/teleprompter/play');
-  await expect(page.getByTestId('teleprompter-end')).toHaveText('End of event', { timeout: 10_000 });
+  await expect(page.getByTestId('teleprompter-end')).toBeVisible();
 
   await request.get('api/teleprompter/play');
   await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
