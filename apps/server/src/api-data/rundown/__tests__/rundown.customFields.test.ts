@@ -7,7 +7,7 @@ import { makeNewProject, makeNewRundown } from '../../../models/dataModel.js';
 import { makeCustomField } from '../__mocks__/rundown.mocks.js';
 import { getProjectCustomFields, rundownCache } from '../rundown.dao.js';
 import { InvalidCustomFieldLabelError } from '../rundown.errors.js';
-import { applyImportToRundown, createCustomField } from '../rundown.service.js';
+import { applyImportToRundown, createCustomField, editCustomField } from '../rundown.service.js';
 
 describe('custom fields written by an import', () => {
   let directory: string;
@@ -57,4 +57,11 @@ describe('custom fields written by an import', () => {
       expect(getDataProvider().getCustomFields()).toEqual(before);
     },
   );
+
+  test.each(['Cam.1', 'toString', '   '])('refuses renaming a field to the label %j', async (label) => {
+    await createCustomField(makeCustomField({ label: 'Camera' }));
+    const before = structuredClone(getDataProvider().getCustomFields());
+    await expect(editCustomField('Camera', { label })).rejects.toThrow(InvalidCustomFieldLabelError);
+    expect(getDataProvider().getCustomFields()).toEqual(before);
+  });
 });

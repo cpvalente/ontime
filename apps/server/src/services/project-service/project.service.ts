@@ -296,13 +296,18 @@ export async function readProjectFile(filename: string): Promise<DatabaseModel> 
   }
 
   const fileData = await parseJsonFile(filePath);
-  const fileMajor = Number(fileData.settings?.version?.split('.')[0]);
-  if (fileMajor > Number(ONTIME_VERSION.split('.')[0])) {
+  const version: unknown = fileData.settings?.version;
+  if (typeof version === 'string' && Number(version.split('.')[0]) > Number(ONTIME_VERSION.split('.')[0])) {
     throw new Error(
-      `This project was made with a newer version of Ontime (v${fileData.settings?.version}). Open it in a matching version of Ontime, then merge.`,
+      `This project was made with a newer version of Ontime (v${version}). Open it in a matching version of Ontime, then merge.`,
     );
   }
-  return parseDatabaseModel(fileData).data;
+
+  const { data, errors } = parseDatabaseModel(fileData);
+  if (errors.length > 0) {
+    logger.warning(LogOrigin.Server, 'Project read with errors', { project: filename, errors: errors.length });
+  }
+  return data;
 }
 
 /**

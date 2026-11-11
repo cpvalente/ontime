@@ -20,6 +20,7 @@ import {
   isOntimeGroup,
 } from 'ontime-types';
 import {
+  checkRegex,
   customFieldLabelToKey,
   generateId,
   getErrorMessage,
@@ -502,7 +503,7 @@ export async function ungroupEntries(rundownId: string, groupId: EntryId): Promi
 export async function createCustomField(customField: CustomField): Promise<CustomFields> {
   const key = customFieldLabelToKey(customField.label);
 
-  if (!key || isReservedCustomFieldKey(key)) {
+  if (!isValidCustomFieldLabel(customField.label)) {
     throw new InvalidCustomFieldLabelError();
   }
 
@@ -524,6 +525,15 @@ export async function createCustomField(customField: CustomField): Promise<Custo
   notifyChange(RefetchKey.CustomFields);
 
   return resultCustomFields;
+}
+
+/**
+ * Labels become keys of the fields record, so every entry point shares the parser's constraints
+ * the HTTP routes check this as well, other callers like MCP and imports rely on this check
+ */
+function isValidCustomFieldLabel(label: string): boolean {
+  const key = customFieldLabelToKey(label);
+  return key !== '' && checkRegex.isAlphanumericWithSpace(label.trim()) && !isReservedCustomFieldKey(key);
 }
 
 /**
@@ -571,10 +581,10 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
   }
 
   if (newField.label) {
-    const newKey = customFieldLabelToKey(newField.label);
-    if (isReservedCustomFieldKey(newKey)) {
+    if (!isValidCustomFieldLabel(newField.label)) {
       throw new InvalidCustomFieldLabelError();
     }
+    const newKey = customFieldLabelToKey(newField.label);
     if (newKey !== key && Object.hasOwn(customFields, newKey)) {
       throw new CustomFieldExistsError(newField.label);
     }

@@ -131,4 +131,35 @@ describe('project persistence', { timeout: 15_000 }, () => {
     onTestFinished(() => secondRun.stop());
     expect(await (await secondRun.get('/data/custom-fields')).json()).toEqual(expected);
   });
+
+  test('a v4 project is read through the migrations without changing its file', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+    const fixturePath = join(import.meta.dirname, '../api-data/db/migration/__tests__/fixtures/v4.15.json');
+    const raw = await readFile(fixturePath, 'utf-8');
+    const fixture = JSON.parse(raw);
+    await writeFile(join(projectsDir(), 'from v4.json'), raw);
+
+    const response = await server.send('POST', '/data/db/read', { filename: 'from v4.json' });
+    expect(response.status).toBe(200);
+    const data: DatabaseModel = await response.json();
+    expect(data.customFields).toStrictEqual({
+      fields: fixture.customFields,
+      order: Object.keys(fixture.customFields),
+    });
+    expect(await readFile(join(projectsDir(), 'from v4.json'), 'utf-8')).toBe(raw);
+  });
+
+  test('a project from a newer major is refused when read', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+    const project = await loadedProject(server);
+    const current = JSON.parse(await readFile(join(projectsDir(), `${project}.json`), 'utf-8'));
+    current.settings.version = '99.0.0';
+    await writeFile(join(projectsDir(), 'from the future.json'), JSON.stringify(current));
+
+    const response = await server.send('POST', '/data/db/read', { filename: 'from the future.json' });
+    expect(response.status).toBe(400);
+    expect((await response.json()).message).toContain('newer version of Ontime');
+  });
 });
