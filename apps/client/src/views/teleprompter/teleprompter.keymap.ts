@@ -21,7 +21,7 @@ export type TeleprompterKeyEvent = {
 };
 
 export const speedStep = 1;
-export const coarseSpeedStep = 5;
+const coarseSpeedStep = 5;
 
 export function resolveTeleprompterKey(event: TeleprompterKeyEvent): TeleprompterKeyAction | null {
   if (event.ctrlKey || event.metaKey || event.altKey) {

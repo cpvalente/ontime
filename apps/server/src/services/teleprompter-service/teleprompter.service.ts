@@ -153,7 +153,7 @@ function rebuildScript() {
   const settings = getSharedSettings();
   const events = buildScriptEvents(getCurrentRundown(), getProjectCustomFields(), settings);
   // shared playback never carries into another project
-  const shouldPause = projectId !== scriptProjectId && transport.playback === 'play';
+  const shouldPause = projectId !== scriptProjectId && transport.playback !== 'pause';
   const pause = (next: TeleprompterTransport, nextLayout: TeleprompterLayout) =>
     shouldPause ? applyTransportCommand(next, { type: 'pause' }, nextLayout, now()) : next;
 
@@ -209,7 +209,7 @@ type Batch = ReturnType<typeof eventStore.createBatch>;
 export function onClockTick(batch: Batch) {
   if (!hasBuilt) return;
   ensureScript();
-  if (transport.playback !== 'play') return;
+  if (transport.playback === 'pause') return;
   addToBatch(batch, settle(transport, layout, now()));
 }
 

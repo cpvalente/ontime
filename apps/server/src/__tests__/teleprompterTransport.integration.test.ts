@@ -102,7 +102,11 @@ describe('teleprompter transport', () => {
 
     const store = await poll();
     expect(store.teleprompter).toMatchObject({ playback: 'play', event: { id: second.id } });
-    expect(store.teleprompterSync).toMatchObject({ playback: 'play', speed: 20, row: await startRowOf(second.id) });
+    expect(store.teleprompterSync).toMatchObject({
+      playback: 'play',
+      speed: 20,
+      row: await startRowOf(second.id),
+    });
     expect(await teleprompter('pause')).toMatchObject({ playback: 'pause' });
   });
 
@@ -134,7 +138,10 @@ describe('teleprompter transport', () => {
     await teleprompter('play');
 
     expect((await server.get('/api/load/index/2')).ok).toBe(true);
-    expect((await poll()).teleprompterSync).toMatchObject({ playback: 'play', row: await startRowOf(second.id) });
+    expect((await poll()).teleprompterSync).toMatchObject({
+      playback: 'play',
+      row: await startRowOf(second.id),
+    });
     await teleprompter('top');
     expect(await teleprompter('goto/loaded')).toMatchObject({ event: { id: second.id } });
 
@@ -199,7 +206,10 @@ describe('teleprompter transport', () => {
     );
     const updates = messages.filter(isUpdate);
     expect(updates).toHaveLength(1);
-    expect(updates[0]).toMatchObject({ teleprompter: { playback: 'play' }, teleprompterSync: { playback: 'play' } });
+    expect(updates[0]).toMatchObject({
+      teleprompter: { playback: 'play' },
+      teleprompterSync: { playback: 'play' },
+    });
 
     await teleprompter('pause');
     messages.length = 0;

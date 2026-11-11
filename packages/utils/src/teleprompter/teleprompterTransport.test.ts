@@ -13,6 +13,8 @@ import {
   type TeleprompterTransportCommand,
 } from './teleprompterTransport.js';
 
+//TODO: add tests for revers
+
 /** An event with a heading, some lines of text 10 characters apart, and a blank line */
 function makeEvent(id: string, textLines: number): TeleprompterScriptEvent {
   const lines: TeleprompterLine[] = [{ kind: 'heading', text: id }];
@@ -49,8 +51,9 @@ function apply(state: TeleprompterTransport, command: TeleprompterTransportComma
 describe('commands on the transport', () => {
   test.each([
     [{ type: 'speed', value: 20 }, 20],
-    [{ type: 'speed', value: 0 }, 1],
+    [{ type: 'speed', value: 0 }, -1],
     [{ type: 'speedBy', value: -5 }, 25],
+    [{ type: 'speedBy', value: -35 }, -5],
     [{ type: 'speedBy', value: 200 }, 100],
   ] as const)('%j sets speed %d', (command, speed) => {
     expect(apply(makeState(), command).speed).toBe(speed);
@@ -101,7 +104,9 @@ describe('playback reaching an end', () => {
   });
 
   test('whole script, it reads across events and stops at the end of the script', () => {
-    expect(settle(freeRun(makeState({ playback: 'play' })), layout, 6000)).toMatchObject({ playback: 'play' });
+    expect(settle(freeRun(makeState({ playback: 'play' })), layout, 6000)).toMatchObject({
+      playback: 'play',
+    });
     expect(settle(freeRun(makeState({ playback: 'play' })), layout, 60_000)).toMatchObject({
       playback: 'pause',
       ended: 'script',
@@ -110,7 +115,10 @@ describe('playback reaching an end', () => {
 
   test('playing from the end of the script stops straight away', () => {
     const atEnd = settle(freeRun(makeState({ playback: 'play' })), layout, 60_000);
-    expect(apply(atEnd, { type: 'play' }, 61_000)).toMatchObject({ playback: 'pause', ended: 'script' });
+    expect(apply(atEnd, { type: 'play' }, 61_000)).toMatchObject({
+      playback: 'pause',
+      ended: 'script',
+    });
   });
 });
 
@@ -266,8 +274,14 @@ describe('describeTransport()', () => {
   test('reading the whole script, the reader reaches the next event with the clock', () => {
     // from the first line of a at half a line per second, b's heading at row 4 is 6 seconds away
     const playing = freeRun(makeState({ playback: 'play', at: 0 }));
-    expect(describeTransport(playing, layout, 5000)).toMatchObject({ playback: 'play', event: { id: 'a' } });
-    expect(describeTransport(playing, layout, 7000)).toMatchObject({ playback: 'play', event: { id: 'b' } });
+    expect(describeTransport(playing, layout, 5000)).toMatchObject({
+      playback: 'play',
+      event: { id: 'a' },
+    });
+    expect(describeTransport(playing, layout, 7000)).toMatchObject({
+      playback: 'play',
+      event: { id: 'b' },
+    });
   });
 
   test('a reader in the heading reads the event', () => {
@@ -292,12 +306,19 @@ describe('the position screens following a transport read', () => {
   test('is the row the host resolved, and where playback stops, so screens only add speed × time', () => {
     const playing = makeState({ playback: 'play', anchor: startOfEvent('b'), at: 1000 });
     const sync = describeSync(playing, layout, 7);
-    expect(sync).toEqual({ revision: 7, playback: 'play', speed: 30, row: 5, until: 8, at: 1000 });
+    expect(sync).toEqual({
+      revision: 7,
+      playback: 'play',
+      speed: 30,
+      row: 5,
+      until: 8,
+      at: 1000,
+    });
 
     // every screen calculates the same row from it, whenever it connected
-    for (const now of [1000, 3000, 60_000]) {
-      expect(syncPositionAt(sync, now)).toBe(positionAt(playing, layout, now));
-    }
+    expect(syncPositionAt(sync, 1000)).toBe(positionAt(playing, layout, 1000));
+    expect(syncPositionAt(sync, 3000)).toBe(positionAt(playing, layout, 3000));
+    expect(syncPositionAt(sync, 60_000)).toBe(positionAt(playing, layout, 60_000));
   });
 
   test('reading the whole script, playback stops at its end; paused, the row stays', () => {
