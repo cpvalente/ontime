@@ -58,7 +58,7 @@ export function parseDatabaseModel(
       const message = getErrorMessage(error);
       logger.error(LogOrigin.Server, 'Settings migration failed', { key: 'serverPort', error: message });
       errors.push({ context: 'v4 migration', message });
-      migratedData = jsonData;
+      // keep the result of the v3 migration, the port is only a setting
     }
   }
 
