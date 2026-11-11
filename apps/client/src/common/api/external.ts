@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { apiRepoLatest } from '../../externals';
+import { apiRepoLatest, downloadPageUrl } from '../../externals';
 import type { RequestOptions } from './requestOptions';
 
 export type HasUpdate = {
@@ -9,12 +9,13 @@ export type HasUpdate = {
 };
 
 /**
- * HTTP request to get the latest version and url from github
+ * HTTP request to get the latest version from github
+ * Updates are always offered through the download page, which picks the right build
  */
 export async function getLatestVersion(options?: RequestOptions): Promise<HasUpdate> {
   const res = await axios.get(apiRepoLatest, { signal: options?.signal });
   return {
-    url: res.data.html_url as string,
+    url: downloadPageUrl,
     version: res.data.tag_name as string,
   };
 }
