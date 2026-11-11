@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
-import { getDb, patchData } from '../../../../common/api/db';
+import { patchData, readProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
@@ -62,21 +62,8 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
       setError(null);
 
       // make patch object
-      const { data } = await getDb(fileName);
-      // the file is read as it is on disk, so we only merge files which are already in the current format
-      // files from other majors need to be opened in a matching Ontime first
-      const major = data.settings.version.split('.')[0];
-      if (major !== '4' && major !== '5') {
-        setError(
-          `This project was made with an unsupported version of Ontime (v${data.settings.version}). Open it in a matching version of Ontime, then merge.`,
-        );
-        return;
-      }
-      // older files have sections in a shape we no longer read, loading the project once updates it
-      if (major === '4') {
-        setError('This project was saved by an older version of Ontime. Load it once to update it, then merge.');
-        return;
-      }
+      // the server migrates files saved by older versions and refuses files from newer ones
+      const { data } = await readProject(fileName);
       const patch = await makeProjectPatch(data, values);
 
       // request patch

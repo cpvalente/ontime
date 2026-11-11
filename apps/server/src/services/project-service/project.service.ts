@@ -13,6 +13,7 @@ import { getDataProvider, getFileToRead, initPersistence } from '../../classes/d
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { makeNewProject, makeProjectId } from '../../models/dataModel.js';
 import { demoDb } from '../../models/demoProject.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 import { config } from '../../setup/config.js';
 import { publicDir } from '../../setup/index.js';
 import { populateOntimeLogo } from '../../setup/loadOntimeLogo.js';
@@ -282,6 +283,26 @@ export async function getProjectFileToRead(filename: string): Promise<string | n
     return getFileToRead();
   }
   return doesProjectExist(filename);
+}
+
+/**
+ * Reads a project file through the migrations, without loading it or writing to it
+ * Used to merge parts of another project, which may have been saved by an older version
+ */
+export async function readProjectFile(filename: string): Promise<DatabaseModel> {
+  const filePath = await getProjectFileToRead(filename);
+  if (filePath === null) {
+    throw new Error('Project file not found');
+  }
+
+  const fileData = await parseJsonFile(filePath);
+  const fileMajor = Number(fileData.settings?.version?.split('.')[0]);
+  if (fileMajor > Number(ONTIME_VERSION.split('.')[0])) {
+    throw new Error(
+      `This project was made with a newer version of Ontime (v${fileData.settings?.version}). Open it in a matching version of Ontime, then merge.`,
+    );
+  }
+  return parseDatabaseModel(fileData).data;
 }
 
 /**

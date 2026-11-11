@@ -147,13 +147,15 @@ describe('project custom field collection', () => {
     '2': { label: '2', type: 'text', colour: '' },
   };
 
+  const v4Settings = { ...demoDb.settings, version: '4.15.0' };
+
   it.each([
-    { source: { customFields: fields }, order: ['2', 'Notes'] },
+    { source: { settings: v4Settings, customFields: fields }, order: ['2', 'Notes'] },
     { source: { customFields: { fields, order: ['Notes', '2'] } }, order: ['Notes', '2'] },
-  ])('loads legacy and nested custom fields without mutating the source', ({ source, order }) => {
+  ])('loads v4 and v5 custom fields without mutating the source', ({ source, order }) => {
     const project = { ...structuredClone(demoDb), ...source };
     const original = structuredClone(project);
-    // @ts-expect-error -- also exercises legacy project file shapes
+    // @ts-expect-error -- also exercises the v4 project file shape
     const { data } = parseDatabaseModel(project);
 
     expect(data.customFields).toEqual({
@@ -165,7 +167,7 @@ describe('project custom field collection', () => {
 
   it('keeps a v4 field labelled "fields"', () => {
     const legacy = { fields: { label: 'fields', type: 'text', colour: '' } };
-    const project = { ...structuredClone(demoDb), customFields: legacy };
+    const project = { ...structuredClone(demoDb), settings: v4Settings, customFields: legacy };
     // @ts-expect-error -- exercises the v4 project file shape
     const { data } = parseDatabaseModel(project);
 

@@ -12,6 +12,7 @@ import {
   postProjectFile,
   projectDownload,
   quickProjectFile,
+  readProjectFile,
   renameProjectFile,
 } from './db.controller.js';
 import { uploadProjectFile } from './db.middleware.js';
@@ -28,6 +29,7 @@ export const router: Router = express.Router();
 
 router.get('/', currentProjectDownload);
 router.post('/download', validateFilenameBody, projectDownload);
+router.post('/read', validateFilenameBody, readProjectFile);
 router.post('/upload', uploadProjectFile, postProjectFile);
 
 router.patch('/', validatePatchProject, patchPartialProjectFile);
