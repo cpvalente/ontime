@@ -1,26 +1,8 @@
 import { URLPreset } from 'ontime-types';
 
+import { getRundownPolicy } from '../../features/rundown/rundown.policy';
 import { AppMode } from '../../ontimeConfig';
 import type { CuesheetPermissions } from './useTablePermissions';
-
-function getPermissionKeys(permission: string | undefined): Set<string> {
-  return permission ? new Set(permission.split(',')) : new Set<string>();
-}
-
-function getCuesheetPermissions(readPermission: string | undefined, writePermission: string | undefined) {
-  const readKeys = getPermissionKeys(readPermission);
-  const writeKeys = getPermissionKeys(writePermission);
-  const fullRead = readPermission == null || readPermission === 'full';
-  const fullWrite = writePermission == null || writePermission === 'full';
-
-  return {
-    writePermission,
-    readKeys,
-    writeKeys,
-    fullRead,
-    fullWrite,
-  };
-}
 
 export function getCuesheetPermissionsPolicy(
   preset: URLPreset | undefined,
@@ -36,29 +18,33 @@ export function getCuesheetPermissionsPolicy(
     };
   }
 
-  const { writePermission, writeKeys, fullWrite } = getCuesheetPermissions(
-    preset?.options?.read,
-    preset?.options?.write,
-  );
+  // what the preset allows, regardless of the mode the user picked
+  const policy = getRundownPolicy({
+    read: preset?.options?.read,
+    write: preset?.options?.write,
+    locked: false,
+    isLoaded: true,
+    isPlaying: false,
+  });
 
   return {
-    canChangeMode: writePermission !== '-',
-    canCreateEntries: fullWrite,
-    canEditEntries: fullWrite,
-    canFlag: fullWrite || writeKeys.has('flag'),
+    canChangeMode: policy.canToggleLock,
+    canCreateEntries: policy.canCreateEntries,
+    canEditEntries: policy.canEditEntries,
+    canFlag: policy.canFlag,
     canShare: false, // TODO: should be sessionScope === 'rw' when we have granular scopes
   };
 }
 
 export function getCuesheetColumnAccessPolicy(preset: URLPreset | undefined, cuesheetMode: AppMode) {
-  const { readKeys, writeKeys, fullRead, fullWrite } = getCuesheetPermissions(
-    preset?.options?.read,
-    preset?.options?.write,
-  );
-  const modeAllowsWrite = cuesheetMode === AppMode.Edit;
+  const { canRead, canWrite } = getRundownPolicy({
+    read: preset?.options?.read,
+    write: preset?.options?.write,
+    // Run mode is the cuesheet's lock; the cuesheet already forces Edit for a rundown that is not loaded
+    locked: cuesheetMode === AppMode.Run,
+    isLoaded: true,
+    isPlaying: false,
+  });
 
-  return {
-    canRead: (key: string) => fullRead || readKeys.has(key),
-    canWrite: (key: string) => modeAllowsWrite && (fullWrite || writeKeys.has(key)),
-  };
+  return { canRead, canWrite };
 }
