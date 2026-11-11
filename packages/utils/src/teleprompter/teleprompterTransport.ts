@@ -18,14 +18,23 @@ import {
   type TeleprompterLayout,
 } from './teleprompterPosition.js';
 
-/** Teleprompter speed bounds, in lines per minute: playback only reads forwards and always moves */
-export const teleprompterSpeed = {
-  min: 1,
-  max: 100,
-} as const;
+/**
+ * Keeps a speed between 1 and 100 lines per minute in either direction: a negative speed reads back up the script
+ * Playback always moves, so 0 is the slowest speed in the current direction
+ */
+function clampTeleprompterSpeed(speed: number, current: number): number {
+  const direction = Math.sign(speed) || Math.sign(current) || 1;
+  return direction * Math.min(Math.max(Math.abs(speed), 1), 100);
+}
 
-function clampTeleprompterSpeed(speed: number): number {
-  return Math.min(Math.max(speed, teleprompterSpeed.min), teleprompterSpeed.max);
+/**
+ * Changes the speed by a step, turning playback around only from the slowest speed
+ * A step across 0 from any faster stops at the slowest speed, so a coarse step never flips straight into reading back
+ */
+function stepTeleprompterSpeed(current: number, step: number): number {
+  const speed = current + step;
+  if (Math.sign(speed) === Math.sign(current)) return clampTeleprompterSpeed(speed, current);
+  return Math.abs(current) === 1 ? -current : Math.sign(current);
 }
 
 /** A change to the transport, with the event it goes to already resolved */
@@ -86,23 +95,39 @@ export function positionAt(transport: TeleprompterTransport, layout: Teleprompte
   if (from === null) return null;
   if (transport.playback !== 'play') return from;
 
-  const travelled = (transport.speed * elapsedSince(transport.at, now)) / 60_000;
-  return Math.min(from + travelled, playbackBound(layout, from, transport.mode).row);
+  const bound = playbackBound(layout, from, transport.mode, transport.speed);
+  return travel(from, transport.speed, elapsedSince(transport.at, now), bound.row);
 }
 
-/** Where playback from a row runs to: the end of the event being read event by event, otherwise the end of the script */
+function travel(from: number, speed: number, elapsed: number, bound: number): number {
+  const row = from + (speed * elapsed) / 60_000;
+  return speed > 0 ? Math.min(row, bound) : Math.max(row, bound);
+}
+
+/**
+ * Event by event, the edge of the event being read: its end reading on, its start reading back
+ * Otherwise, the edge of the script
+ */
 function playbackBound(
   layout: TeleprompterLayout,
   from: number,
   mode: TeleprompterMode,
+  speed: number,
 ): { row: number; stop: TeleprompterStop } {
   const { events } = layout;
   if (events.length === 0) return { row: from, stop: 'script' };
 
-  const last = events[events.length - 1];
-  const next = mode === 'event' ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
-  if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
-  return { row: next.endRow, stop: 'event' };
+  if (speed > 0) {
+    const last = events[events.length - 1];
+    const next = mode === 'event' ? events.find((event) => event.endRow > from + boundaryEpsilon) : undefined;
+    if (!next || next === last) return { row: Math.max(from, last.endRow), stop: 'script' };
+    return { row: next.endRow, stop: 'event' };
+  }
+
+  const first = events[0];
+  const reading = mode === 'event' ? events.findLast((event) => event.startRow < from - boundaryEpsilon) : undefined;
+  if (!reading || reading === first) return { row: Math.min(from, first.startRow), stop: 'script' };
+  return { row: reading.startRow, stop: 'event' };
 }
 
 /**
@@ -120,7 +145,7 @@ export function settle(
   const from = rowOfAnchor(layout, transport.anchor);
   if (from === null) return transport;
 
-  const bound = playbackBound(layout, from, transport.mode);
+  const bound = playbackBound(layout, from, transport.mode, transport.speed);
   const msToBound = ((bound.row - from) / transport.speed) * 60_000;
   if (elapsedSince(transport.at, now) < msToBound) return transport;
 
@@ -129,7 +154,7 @@ export function settle(
 
 /**
  * Applies a command at a moment
- * Moving the reader keeps the play state, and any command clears where playback ended
+ * Moving the reader keeps the play state, and only playing or moving the reader clears where playback ended
  * @throws if the command names an event which is not in the script
  */
 export function applyTransportCommand(
@@ -144,16 +169,16 @@ export function applyTransportCommand(
   // every command sets the time, so a repeated command is still a change of state
   // only playback moves the reader off their anchor, which a row would round to the start of its line
   const anchor = isPlaying ? anchorAtRow(layout, position) : current.anchor;
-  const rebased: TeleprompterTransport = { ...current, anchor, at: now, ended: null };
+  const rebased: TeleprompterTransport = { ...current, anchor, at: now };
 
   const moveTo = (row: number) => {
     const lastRow = layout.events.at(-1)?.endRow ?? 0;
     const target = Math.min(Math.max(row, 0), lastRow);
-    return { ...rebased, anchor: anchorAtRow(layout, target) };
+    return { ...rebased, anchor: anchorAtRow(layout, target), ended: null };
   };
   const moveToEvent = (eventId: EntryId | undefined) => {
     if (!eventId) return rebased;
-    return { ...rebased, anchor: startOfEvent(eventId) };
+    return { ...rebased, anchor: startOfEvent(eventId), ended: null };
   };
   const reader = eventAtRow(layout, position);
   const readerIndex = reader ? layout.events.indexOf(reader) : -1;
@@ -161,19 +186,19 @@ export function applyTransportCommand(
   let next: TeleprompterTransport;
   switch (command.type) {
     case 'play':
-      next = { ...rebased, playback: 'play' };
+      next = { ...rebased, playback: 'play', ended: null };
       break;
     case 'pause':
       next = { ...rebased, playback: 'pause' };
       break;
     case 'toggle':
-      next = { ...rebased, playback: isPlaying ? 'pause' : 'play' };
+      next = isPlaying ? { ...rebased, playback: 'pause' } : { ...rebased, playback: 'play', ended: null };
       break;
     case 'speed':
-      next = { ...rebased, speed: clampTeleprompterSpeed(command.value) };
+      next = { ...rebased, speed: clampTeleprompterSpeed(command.value, current.speed) };
       break;
     case 'speedBy':
-      next = { ...rebased, speed: clampTeleprompterSpeed(current.speed + command.value) };
+      next = { ...rebased, speed: stepTeleprompterSpeed(current.speed, command.value) };
       break;
     case 'scroll':
       next = moveTo(position + command.lines);
@@ -264,12 +289,12 @@ export function describeSync(
 ): TeleprompterSync {
   const { playback, speed, at } = transport;
   const row = transport.anchor ? (rowOfAnchor(layout, transport.anchor) ?? 0) : 0;
-  const until = playback === 'play' ? playbackBound(layout, row, transport.mode).row : row;
+  const until = playback === 'play' ? playbackBound(layout, row, transport.mode, speed).row : row;
   return { revision, playback, speed, row, until, at };
 }
 
 /** The row at the reading position at a moment, from what the host published */
 export function syncPositionAt(sync: TeleprompterSync, now: number): number {
   if (sync.playback !== 'play') return sync.row;
-  return Math.min(sync.row + (sync.speed * elapsedSince(sync.at, now)) / 60_000, sync.until);
+  return travel(sync.row, sync.speed, elapsedSince(sync.at, now), sync.until);
 }

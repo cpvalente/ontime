@@ -4,7 +4,6 @@ import {
   type TeleprompterMode,
   type TeleprompterSettings,
 } from 'ontime-types';
-import { teleprompterSpeed } from 'ontime-utils';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -63,7 +62,7 @@ const bounds = {
   lineHeight: [1, 4],
   textWidth: [20, 100],
   readingLinePos: [0, 90],
-  speed: [teleprompterSpeed.min, teleprompterSpeed.max],
+  speed: [1, 100],
 } as const;
 
 const roles = ['local', 'controller', 'remote'] as const;

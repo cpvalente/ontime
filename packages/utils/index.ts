@@ -125,7 +125,6 @@ export {
   reanchorTransport,
   settle,
   syncPositionAt,
-  teleprompterSpeed,
   type TeleprompterCommand,
   type TeleprompterTransportCommand,
 } from './src/teleprompter/teleprompterTransport.js';
