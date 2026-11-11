@@ -193,9 +193,21 @@ describe('custom field order', () => {
     expect(getDataProvider().getData().customFields.order).toEqual(['First', 'Third']);
   });
 
-  test('reordering keeps every field once, dropping unknown keys and appending missing fields', async () => {
-    await reorderCustomFields(['Third', 'Unknown', 'Third', '2']);
+  test('reordering appends fields missing from the order', async () => {
+    await reorderCustomFields(['Third', '2']);
 
     expect(getDataProvider().getData().customFields.order).toEqual(['Third', '2', 'First']);
+  });
+
+  test.each([[['Third', 'Unknown']], [['Third', 'Third', '2']]])('reordering refuses %j', async (order) => {
+    await expect(reorderCustomFields(order)).rejects.toThrow('at most once');
+
+    expect(getDataProvider().getData().customFields.order).toEqual(['First', '2', 'Third']);
+  });
+
+  test('a key of the object prototype is not a field', async () => {
+    await expect(editCustomField('constructor', { colour: 'red' })).rejects.toThrow('Could not find');
+    await deleteCustomField('toString');
+    expect(getDataProvider().getData().customFields.order).toEqual(['First', '2', 'Third']);
   });
 });

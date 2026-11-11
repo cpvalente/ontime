@@ -41,7 +41,7 @@ export default function CountdownLoader() {
   return <Countdown {...data} />;
 }
 
-function Countdown({ customFields, rundownData, projectData, isMirrored, settings }: CountdownData) {
+function Countdown({ orderedFields, rundownData, projectData, isMirrored, settings }: CountdownData) {
   const { getLocalizedString } = useTranslation();
   const { subscriptions } = useCountdownOptions();
 
@@ -55,8 +55,8 @@ function Countdown({ customFields, rundownData, projectData, isMirrored, setting
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const countdownOptions = useMemo(
-    () => getCountdownOptions(defaultFormat, customFields, subscriptions),
-    [defaultFormat, customFields, subscriptions],
+    () => getCountdownOptions(defaultFormat, orderedFields, subscriptions),
+    [defaultFormat, orderedFields, subscriptions],
   );
 
   return (

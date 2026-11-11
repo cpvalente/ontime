@@ -50,7 +50,7 @@ export default function Teleprompter() {
   const options = useTeleprompterOptions();
   const isMirrored = useViewOptionsStore((state) => state.mirror);
   const { data: settings } = useTeleprompterSettings();
-  const { data: customFields } = useCustomFields();
+  const { data: customFields, orderedFields } = useCustomFields();
   const [showHelp, setShowHelp] = useState(false);
 
   const toggleHelp = () => setShowHelp((current) => !current);
@@ -72,7 +72,10 @@ export default function Teleprompter() {
       className={cx(['teleprompter', flip.flipH && 'teleprompter--flip-h', flip.flipV && 'teleprompter--flip-v'])}
       data-testid='teleprompter-view'
     >
-      <ViewParamsEditor target={OntimeView.Teleprompter} viewOptions={getTeleprompterOptions(customFields, settings)} />
+      <ViewParamsEditor
+        target={OntimeView.Teleprompter}
+        viewOptions={getTeleprompterOptions(orderedFields, settings)}
+      />
       {role === 'local' ? (
         <LocalTeleprompter options={options} source={ownSource} emptyText={emptyText} onToggleHelp={toggleHelp} />
       ) : (

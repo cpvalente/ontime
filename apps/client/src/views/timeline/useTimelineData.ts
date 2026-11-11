@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
+import { OrderedCustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useLoadedFlatRundownWithMetadata } from '../../common/hooks-query/useLoadedRundown';
@@ -9,7 +9,7 @@ import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface TimelineData {
   events: ExtendedEntry<OntimeEntry>[];
-  customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   projectData: ProjectData;
   settings: Settings;
 }
@@ -19,12 +19,12 @@ export function useTimelineData(): ViewData<TimelineData> {
   const { data: rundownData, status: rundownStatus } = useLoadedFlatRundownWithMetadata();
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { orderedFields, status: customFieldsStatus } = useCustomFields();
 
   return {
     data: {
       events: rundownData,
-      customFields,
+      orderedFields,
       projectData,
       settings,
     },

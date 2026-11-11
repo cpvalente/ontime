@@ -42,7 +42,7 @@ export default function BackstageLoader() {
   return <Backstage {...data} />;
 }
 
-function Backstage({ events, customFields, projectData, isMirrored, settings }: BackstageData) {
+function Backstage({ events, orderedFields, projectData, isMirrored, settings }: BackstageData) {
   const { getLocalizedString } = useTranslation();
   const { mainSource, secondarySource, extraInfo, timeformat } = useBackstageOptions();
   const { eventNext, eventNow, rundown, selectedEventId, time } = useBackstageSocket();
@@ -100,8 +100,8 @@ function Backstage({ events, customFields, projectData, isMirrored, settings }: 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const backstageOptions = useMemo(
-    () => getBackstageOptions(defaultFormat, customFields, projectData),
-    [defaultFormat, customFields, projectData],
+    () => getBackstageOptions(defaultFormat, orderedFields, projectData),
+    [defaultFormat, orderedFields, projectData],
   );
 
   return (

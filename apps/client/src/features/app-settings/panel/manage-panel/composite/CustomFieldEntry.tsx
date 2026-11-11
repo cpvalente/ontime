@@ -56,10 +56,10 @@ export default function CustomFieldEntry(props: CustomFieldEntryProps) {
         </CopyTag>
       </td>
       <Panel.InlineElements relation='inner' as='td'>
-        <IconButton variant='ghosted-white' aria-label='Edit entry' onClick={onEdit}>
+        <IconButton variant='ghosted-white' aria-label={`Edit ${label}`} onClick={onEdit}>
           <IoPencil />
         </IconButton>
-        <IconButton variant='ghosted-destructive' aria-label='Delete entry' onClick={() => onDelete(fieldKey)}>
+        <IconButton variant='ghosted-destructive' aria-label={`Delete ${label}`} onClick={() => onDelete(fieldKey)}>
           <IoTrash />
         </IconButton>
       </Panel.InlineElements>

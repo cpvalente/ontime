@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
+import { OrderedCustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useLoadedFlatRundown } from '../../common/hooks-query/useLoadedRundown';
@@ -9,7 +9,7 @@ import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface BackstageData {
   events: OntimeEntry[];
-  customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   projectData: ProjectData;
   isMirrored: boolean;
   settings: Settings;
@@ -23,12 +23,12 @@ export function useBackstageData(): ViewData<BackstageData> {
   const { data: rundownData, status: rundownStatus } = useLoadedFlatRundown();
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { orderedFields, status: customFieldsStatus } = useCustomFields();
 
   return {
     data: {
       events: rundownData,
-      customFields,
+      orderedFields,
       projectData,
       isMirrored,
       settings,

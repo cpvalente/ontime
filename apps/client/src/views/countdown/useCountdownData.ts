@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
+import { OrderedCustomFields, OntimeEntry, ProjectData, Settings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useLoadedFlatRundownWithMetadata } from '../../common/hooks-query/useLoadedRundown';
@@ -9,7 +9,7 @@ import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface CountdownData {
-  customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   rundownData: ExtendedEntry<OntimeEntry>[];
   projectData: ProjectData;
   isMirrored: boolean;
@@ -24,11 +24,11 @@ export function useCountdownData(): ViewData<CountdownData> {
   const { data: rundownData, status: rundownStatus } = useLoadedFlatRundownWithMetadata();
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { orderedFields, status: customFieldsStatus } = useCustomFields();
 
   return {
     data: {
-      customFields,
+      orderedFields,
       rundownData,
       projectData,
       isMirrored,

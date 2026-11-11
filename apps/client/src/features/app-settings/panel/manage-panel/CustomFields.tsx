@@ -13,6 +13,7 @@ import { useState } from 'react';
 import { IoAdd } from 'react-icons/io5';
 
 import { deleteCustomField, editCustomField, postCustomField } from '../../../../common/api/customFields';
+import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import AppLink from '../../../../common/components/link/app-link/AppLink';
@@ -34,6 +35,7 @@ export default function CustomFieldSettings() {
   const { orderedFields, refetch } = useCustomFields();
   const reorder = useReorderCustomFields();
   const [formState, setFormState] = useState<FormState>({ isOpen: false, field: undefined });
+  const [error, setError] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -57,10 +59,11 @@ export default function CustomFieldSettings() {
 
   const handleDelete = async (key: CustomFieldKey) => {
     try {
+      setError(null);
       await deleteCustomField(key);
       refetch();
-    } catch (_error) {
-      /** we do not handle errors here */
+    } catch (deleteError) {
+      setError(`Could not delete the custom field: ${maybeAxiosError(deleteError)}`);
     }
   };
 
@@ -71,7 +74,10 @@ export default function CustomFieldSettings() {
     const fromIndex = order.indexOf(String(active.id));
     const toIndex = order.indexOf(String(over.id));
     if (fromIndex === -1 || toIndex === -1) return;
-    reorder(arrayMove(order, fromIndex, toIndex));
+    setError(null);
+    reorder(arrayMove(order, fromIndex, toIndex), {
+      onError: () => setError('Could not save the new order, so the previous order was restored.'),
+    });
   };
 
   return (
@@ -98,8 +104,8 @@ export default function CustomFieldSettings() {
           <Info>
             <span>Custom fields allow for additional information to be added to an event.</span>
             <span>
-              Drag the handle to reorder fields. This sets their order in the entry editor and the default cuesheet
-              column order.
+              Drag the handle to reorder fields, or focus it and use Space and the arrow keys. This sets their order in
+              the entry editor and the default cuesheet column order.
             </span>
             <span>
               To use custom fields as a data source in an{' '}
@@ -109,6 +115,7 @@ export default function CustomFieldSettings() {
           </Info>
         </Panel.Section>
         <Panel.Section>
+          {error && <Panel.Error>{error}</Panel.Error>}
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <Panel.Table>
               <thead>

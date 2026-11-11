@@ -1,4 +1,4 @@
-import { CustomFields, ProjectData, Settings, ViewSettings } from 'ontime-types';
+import { OrderedCustomFields, ProjectData, Settings, ViewSettings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import useProjectData from '../../common/hooks-query/useProjectData';
@@ -8,7 +8,7 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface StudioData {
-  customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   projectData: ProjectData;
   isMirrored: boolean;
   settings: Settings;
@@ -23,11 +23,11 @@ export function useStudioData(): ViewData<StudioData> {
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
   const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { orderedFields, status: customFieldsStatus } = useCustomFields();
 
   return {
     data: {
-      customFields,
+      orderedFields,
       projectData,
       isMirrored,
       settings,

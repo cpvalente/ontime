@@ -91,6 +91,7 @@ function isValidField(data: unknown, key: string): data is CustomField {
     typeof data.colour === 'string' &&
     'type' in data &&
     (data.type === 'text' || data.type === 'image') &&
+    key !== '__proto__' &&
     checkRegex.isAlphanumericWithSpace(data.label) &&
     key === customFieldLabelToKey(data.label)
   );

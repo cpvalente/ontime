@@ -1,4 +1,4 @@
-import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
+import { EntryId, OntimeEvent, OrderedCustomFields } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -12,7 +12,7 @@ import {
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../../views/common/viewUtils';
 
-export const getOperatorOptions = (customFields: CustomFields, timeFormat: string): ViewOption[] => {
+export const getOperatorOptions = (customFields: OrderedCustomFields, timeFormat: string): ViewOption[] => {
   const fieldOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },

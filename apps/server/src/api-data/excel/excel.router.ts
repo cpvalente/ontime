@@ -56,8 +56,7 @@ router.post(
 
 router.get('/export', (_req: Request, res: Response) => {
   const rundowns = Object.keys(getDataProvider().getProjectRundowns()).map(getProcessedRundown);
-  const { fields, order } = getProjectCustomFieldsWithOrder();
-  const buffer = generateExcelWorkbook(rundowns, fields, order);
+  const buffer = generateExcelWorkbook(rundowns, getProjectCustomFieldsWithOrder());
   res.setHeader('Content-Disposition', 'attachment;');
   res.setHeader('Content-Type', EXCEL_MIME);
   res.setHeader('Content-Length', buffer.length.toString());
@@ -66,8 +65,7 @@ router.get('/export', (_req: Request, res: Response) => {
 
 router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Response) => {
   const rundown = getProcessedRundown(req.params.rundownId);
-  const { fields, order } = getProjectCustomFieldsWithOrder();
-  const buffer = generateExcelFile(rundown, fields, order);
+  const buffer = generateExcelFile(rundown, getProjectCustomFieldsWithOrder());
 
   res.setHeader('Content-Disposition', 'attachment;');
   res.setHeader('Content-Type', EXCEL_MIME);

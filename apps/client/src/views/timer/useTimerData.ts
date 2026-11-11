@@ -1,4 +1,4 @@
-import { CustomFields, ProjectData, RundownEntries, Settings, ViewSettings } from 'ontime-types';
+import { OrderedCustomFields, ProjectData, RundownEntries, Settings, ViewSettings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useLoadedRundown } from '../../common/hooks-query/useLoadedRundown';
@@ -9,7 +9,7 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { ViewData, aggregateQueryStatus } from '../utils/viewLoader.utils';
 
 export interface TimerData {
-  customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   projectData: ProjectData;
   isMirrored: boolean;
   settings: Settings;
@@ -25,13 +25,13 @@ export function useTimerData(): ViewData<TimerData> {
   const { data: projectData, status: projectDataStatus } = useProjectData();
   const { data: viewSettings, status: viewSettingsStatus } = useViewSettings();
   const { data: settings, status: settingsStatus } = useSettings();
-  const { data: customFields, status: customFieldsStatus } = useCustomFields();
+  const { orderedFields, status: customFieldsStatus } = useCustomFields();
   const { data: rundown, status: rundownStatus } = useLoadedRundown();
   const { entries } = rundown;
 
   return {
     data: {
-      customFields,
+      orderedFields,
       projectData,
       isMirrored,
       settings,

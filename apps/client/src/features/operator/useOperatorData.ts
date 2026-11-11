@@ -1,4 +1,4 @@
-import { CustomFields, Rundown, Settings } from 'ontime-types';
+import { CustomFields, OrderedCustomFields, Rundown, Settings } from 'ontime-types';
 
 import useCustomFields from '../../common/hooks-query/useCustomFields';
 import { useLoadedRundownWithMetadata } from '../../common/hooks-query/useLoadedRundown';
@@ -10,12 +10,13 @@ export interface OperatorData {
   rundown: Rundown;
   rundownMetadata: RundownMetadataObject;
   customFields: CustomFields;
+  orderedFields: OrderedCustomFields;
   settings: Settings;
 }
 
 export function useOperatorData(): ViewData<OperatorData> {
   const { data: rundown, rundownMetadata, status: rundownStatus } = useLoadedRundownWithMetadata();
-  const { data: customFields, status: customFieldStatus } = useCustomFields();
+  const { data: customFields, orderedFields, status: customFieldStatus } = useCustomFields();
   const { data: settings, status: settingsStatus } = useSettings();
 
   return {
@@ -23,6 +24,7 @@ export function useOperatorData(): ViewData<OperatorData> {
       rundown,
       rundownMetadata,
       customFields,
+      orderedFields,
       settings,
     },
     status: aggregateQueryStatus([rundownStatus, customFieldStatus, settingsStatus]),

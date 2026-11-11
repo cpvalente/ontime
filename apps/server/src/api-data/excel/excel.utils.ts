@@ -1,4 +1,4 @@
-import { CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, Rundown } from 'ontime-types';
+import { CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, ProjectCustomFields, Rundown } from 'ontime-types';
 import { ImportMap, checkRegex, customFieldLabelToKey, millisToString } from 'ontime-utils';
 
 /**
@@ -177,14 +177,12 @@ const emptyCellValue = '';
  */
 export function rundownToTabular(
   rundown: Rundown,
-  customFields: CustomFields,
-  customFieldOrder: CustomFieldKey[] = Object.keys(customFields),
+  { fields: customFields, order: customFieldKeys }: ProjectCustomFields,
 ): string[][] {
   const flatRundown: string[][] = [];
   // we reuse the keys from the import map so import <> export works by default
   const keys = Object.keys(matchedWithDefaultImportMap) as (keyof typeof matchedWithDefaultImportMap)[];
   // object key order is unreliable for numeric keys, so the columns follow the project order
-  const customFieldKeys = customFieldOrder.filter((key) => Object.hasOwn(customFields, key));
 
   // create header row
   const headerRow: string[] = [];

@@ -125,7 +125,7 @@ export default function CustomFieldForm({
           )}
           <div className={style.twoCols}>
             <label>
-              <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
+              <Panel.Description>Label (letters, numbers and spaces only)</Panel.Description>
               {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
               <Input
                 {...register('label', {
@@ -134,7 +134,7 @@ export default function CustomFieldForm({
                   validate: (value) => {
                     if (value.trim().length === 0) return 'Required field';
                     if (!checkRegex.isAlphanumericWithSpace(value))
-                      return 'Only alphanumeric characters and space are allowed';
+                      return 'Only letters, numbers and spaces are allowed';
                     const newKey = customFieldLabelToKey(value);
                     if (newKey !== initialKey && Object.hasOwn(data, newKey)) {
                       return 'Custom fields must be unique';

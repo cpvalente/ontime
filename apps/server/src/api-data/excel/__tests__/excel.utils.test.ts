@@ -165,9 +165,7 @@ describe('getCustomFieldData()', () => {
 describe('rundownToTabular()', () => {
   it('returns an array of arrays describing a rundown', () => {
     const testRundown = demoDb.rundowns['default'];
-    const testCustomFields = demoDb.customFields.fields;
-
-    const result = rundownToTabular(testRundown, testCustomFields);
+    const result = rundownToTabular(testRundown, demoDb.customFields);
     expect(result).toMatchSnapshot();
   });
 
@@ -178,7 +176,7 @@ describe('rundownToTabular()', () => {
       '2': { label: '2', type: 'text', colour: '' },
     };
 
-    const [header] = rundownToTabular(testRundown, customFields, ['Notes', '2']);
+    const [header] = rundownToTabular(testRundown, { fields: customFields, order: ['Notes', '2'] });
     expect(header.slice(-2)).toEqual(['Notes', '2']);
   });
 });

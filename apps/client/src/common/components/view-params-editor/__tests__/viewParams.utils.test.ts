@@ -12,7 +12,7 @@ describe('makeOptionsFromCustomFields()', () => {
   };
 
   it('creates an array of options to use in a select', () => {
-    const result = makeOptionsFromCustomFields(testCustomFields);
+    const result = makeOptionsFromCustomFields(Object.entries(testCustomFields));
     expect(result).toStrictEqual([
       { value: 'custom-field1', label: 'Custom: Field 1' },
       { value: 'custom-field2', label: 'Custom: Field 2' },
@@ -24,7 +24,7 @@ describe('makeOptionsFromCustomFields()', () => {
       { value: 'test1', label: 'Test 1' },
       { value: 'test2', label: 'Test 2' },
     ];
-    const result = makeOptionsFromCustomFields(testCustomFields, additionalData);
+    const result = makeOptionsFromCustomFields(Object.entries(testCustomFields), additionalData);
     expect(result).toStrictEqual([
       { value: 'test1', label: 'Test 1' },
       { value: 'test2', label: 'Test 2' },
@@ -39,7 +39,7 @@ describe('makeOptionsFromCustomFields()', () => {
       field3: { label: 'Field 3', colour: 'green', type: 'image' },
     };
 
-    const result = makeOptionsFromCustomFields(customFieldsWIthImage);
+    const result = makeOptionsFromCustomFields(Object.entries(customFieldsWIthImage));
     expect(result).toStrictEqual([
       { value: 'custom-field1', label: 'Custom: Field 1' },
       { value: 'custom-field2', label: 'Custom: Field 2' },

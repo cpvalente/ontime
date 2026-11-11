@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CustomField, CustomFieldKey, CustomFields, ProjectCustomFields } from 'ontime-types';
+import { CustomField, CustomFieldKey, ProjectCustomFields } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -17,7 +17,7 @@ export async function getCustomFields(options?: RequestOptions): Promise<Project
 /**
  * Sets list of known custom fields
  */
-export async function postCustomField(newField: CustomField): Promise<CustomFields> {
+export async function postCustomField(newField: CustomField): Promise<ProjectCustomFields> {
   const res = await axios.post(customFieldsPath, { ...newField });
   return res.data;
 }
@@ -25,7 +25,7 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
 /**
  * Edits single custom field
  */
-export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<CustomFields> {
+export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<ProjectCustomFields> {
   const res = await axios.put(`${customFieldsPath}/${key}`, { ...newField });
   return res.data;
 }
@@ -41,7 +41,7 @@ export async function reorderCustomFields(order: CustomFieldKey[]): Promise<Proj
 /**
  * Deletes single custom field
  */
-export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFields> {
+export async function deleteCustomField(key: CustomFieldKey): Promise<ProjectCustomFields> {
   const res = await axios.delete(`${customFieldsPath}/${key}`);
   return res.data;
 }

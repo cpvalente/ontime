@@ -52,7 +52,7 @@ export default function TimerLoader() {
   return <Timer {...data} />;
 }
 
-function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
+function Timer({ orderedFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
   const { eventNext, eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const clock = useAutoTickingClock();
   const {
@@ -152,7 +152,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const timerOptions = useMemo(() => getTimerOptions(defaultFormat, customFields), [customFields, defaultFormat]);
+  const timerOptions = useMemo(() => getTimerOptions(defaultFormat, orderedFields), [orderedFields, defaultFormat]);
 
   return (
     <div

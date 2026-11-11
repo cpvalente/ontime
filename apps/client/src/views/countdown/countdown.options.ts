@@ -1,4 +1,4 @@
-import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
+import { OrderedCustomFields, EntryId, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -15,7 +15,7 @@ import { isStringBoolean } from '../common/viewUtils';
 
 export const getCountdownOptions = (
   timeFormat: string,
-  customFields: CustomFields,
+  customFields: OrderedCustomFields,
   persistedSubscriptions: EntryId[],
 ): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);

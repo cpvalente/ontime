@@ -1,6 +1,6 @@
 import {
-  type CustomFields,
   defaultTeleprompterSpeed,
+  type OrderedCustomFields,
   type TeleprompterMode,
   type TeleprompterSettings,
 } from 'ontime-types';
@@ -81,8 +81,8 @@ const resetOnReload = 'Changes while playing reset on reload.';
  * The view options, which only change how a view shows the script
  * The playback role comes first, as it decides which of the options that follow apply
  */
-export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
-  const projectField = getScriptSourceLabel(shared.script, customFields);
+export function getTeleprompterOptions(customFields: OrderedCustomFields, shared: TeleprompterSettings): ViewOption[] {
+  const projectField = getScriptSourceLabel(shared.script, Object.fromEntries(customFields));
 
   return [
     {

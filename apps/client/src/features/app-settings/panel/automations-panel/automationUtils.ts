@@ -2,14 +2,12 @@ import {
   Automation,
   AutomationDTO,
   AutomationFilter,
-  CustomFields,
   OrderedCustomFields,
   TimerLifeCycle,
   Trigger,
 } from 'ontime-types';
 
 import { lifecycleLabels } from '../../../../common/constants/timerLifecycle';
-import { customFieldEntries } from '../../../../common/utils/customFieldEntries';
 
 type CycleLabel = {
   label: string;
@@ -68,8 +66,8 @@ type SelectableField = {
   label: string;
 };
 
-export function makeFieldList(customFields: CustomFields | OrderedCustomFields): SelectableField[] {
-  const entries = customFieldEntries(customFields);
+export function makeFieldList(customFields: OrderedCustomFields): SelectableField[] {
+  const entries = customFields;
   return [
     ...staticSelectProperties,
     ...entries.map(([key, { label }]) => ({

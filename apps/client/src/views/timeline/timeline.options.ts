@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent } from 'ontime-types';
+import { OrderedCustomFields, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -13,7 +13,7 @@ import { makeOptionsFromCustomFields } from '../../common/components/view-params
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
-export const getTimelineOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
+export const getTimelineOptions = (timeFormat: string, customFields: OrderedCustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [{ value: 'title', label: 'Title' }]);
 
   const secondaryOptions = makeOptionsFromCustomFields(customFields, [

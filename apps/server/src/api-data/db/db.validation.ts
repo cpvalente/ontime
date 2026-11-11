@@ -45,6 +45,12 @@ export const validatePatchProject = [
   body('viewSettings').isObject().optional({ nullable: false }),
   body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isObject().optional({ nullable: false }),
+  // the v4 bare record would be read as no fields and drop the custom values of the patched rundowns
+  body('customFields.fields')
+    .if(body('customFields').exists())
+    .isObject()
+    .withMessage('Custom fields must be { fields, order }'),
+  body('customFields.order').optional().isArray(),
   body('teleprompter').isObject().optional({ nullable: false }),
   body('osc').isObject().optional({ nullable: false }),
   body('http').isObject().optional({ nullable: false }),

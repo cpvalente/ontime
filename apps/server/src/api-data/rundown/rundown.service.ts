@@ -52,6 +52,7 @@ import {
   EntryExistsError,
   EntryNotFoundError,
   InvalidCustomFieldLabelError,
+  InvalidCustomFieldOrderError,
   InvalidEntryOperationError,
   InvalidRundownTitleError,
   RundownDeleteConflictError,
@@ -558,7 +559,7 @@ export async function editCustomField(key: CustomFieldKey, newField: Partial<Cus
     mutableCustomFields: true,
   });
 
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     throw new CustomFieldNotFoundError(key);
   }
 
@@ -633,7 +634,7 @@ export async function deleteCustomField(key: CustomFieldKey): Promise<CustomFiel
     mutableRundown: true,
     mutableCustomFields: true,
   });
-  if (!(key in customFields)) {
+  if (!Object.hasOwn(customFields, key)) {
     return customFields;
   }
 
@@ -670,6 +671,10 @@ export async function reorderCustomFields(newOrder: CustomFieldKey[]): Promise<C
     mutableCustomFields: true,
   });
 
+  // fields missing from the order are appended on commit, so a field made by another client meanwhile is kept
+  if (new Set(newOrder).size !== newOrder.length || newOrder.some((key) => !Object.hasOwn(customFields.fields, key))) {
+    throw new InvalidCustomFieldOrderError();
+  }
   customFields.order = [...newOrder];
 
   // the order has no implications on the rundown

@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, TimerType } from 'ontime-types';
+import { OrderedCustomFields, OntimeEvent, TimerType } from 'ontime-types';
 import { validateTimerType } from 'ontime-utils';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
@@ -26,7 +26,7 @@ const timerDisplayOptions: SelectOption[] = [
   { value: TimerType.Clock, label: 'Clock' },
 ];
 
-export const getTimerOptions = (timeFormat: string, customFields: CustomFields): ViewOption[] => {
+export const getTimerOptions = (timeFormat: string, customFields: OrderedCustomFields): ViewOption[] => {
   const mainOptions = makeOptionsFromCustomFields(customFields, [
     { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },

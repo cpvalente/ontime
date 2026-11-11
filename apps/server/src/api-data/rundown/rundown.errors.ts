@@ -61,3 +61,9 @@ export class InvalidCustomFieldLabelError extends InvalidInputError {
     super('Unable to convert label to a valid key');
   }
 }
+
+export class InvalidCustomFieldOrderError extends InvalidInputError {
+  constructor() {
+    super('The order must list each existing custom field at most once');
+  }
+}

@@ -38,7 +38,7 @@ export default function TimelinePageLoader() {
   return <TimelinePage {...data} />;
 }
 
-function TimelinePage({ events, customFields, projectData, settings }: TimelineData) {
+function TimelinePage({ events, orderedFields, projectData, settings }: TimelineData) {
   const selectedEventId = useSelectedEventId();
   const { mainSource, secondarySource, timeformat } = useTimelineOptions();
   const { getLocalizedString } = useTranslation();
@@ -53,7 +53,10 @@ function TimelinePage({ events, customFields, projectData, settings }: TimelineD
 
   // populate options
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const progressOptions = useMemo(() => getTimelineOptions(defaultFormat, customFields), [defaultFormat, customFields]);
+  const progressOptions = useMemo(
+    () => getTimelineOptions(defaultFormat, orderedFields),
+    [defaultFormat, orderedFields],
+  );
 
   const hasContent = totalDuration > 0;
 

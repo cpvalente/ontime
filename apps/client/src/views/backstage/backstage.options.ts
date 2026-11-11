@@ -1,4 +1,4 @@
-import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
+import { OrderedCustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
@@ -18,7 +18,7 @@ import { getScheduleOptions } from '../common/schedule/schedule.options';
 
 export const getBackstageOptions = (
   timeFormat: string,
-  customFields: CustomFields,
+  customFields: OrderedCustomFields,
   projectData: ProjectData,
 ): ViewOption[] => {
   const customFieldOptions = makeOptionsFromCustomFields(customFields, [{ value: 'none', label: 'None' }]);

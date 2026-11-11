@@ -47,7 +47,7 @@ export default function OperatorLoader() {
   return <Operator {...data} />;
 }
 
-function Operator({ rundown, rundownMetadata, customFields, settings }: OperatorData) {
+function Operator({ rundown, rundownMetadata, customFields, orderedFields, settings }: OperatorData) {
   const selectedEventId = useSelectedEventId();
   const { getLocalizedString } = useTranslation();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
@@ -127,7 +127,10 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
 
   // gather option data
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
-  const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
+  const operatorOptions = useMemo(
+    () => getOperatorOptions(orderedFields, defaultFormat),
+    [orderedFields, defaultFormat],
+  );
 
   const canEdit = shouldEdit && subscribe.length;
   const hasEvents = rundown.order.length > 0;

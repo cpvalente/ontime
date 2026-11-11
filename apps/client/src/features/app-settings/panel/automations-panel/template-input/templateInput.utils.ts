@@ -1,6 +1,4 @@
-import { CustomFields, OrderedCustomFields } from 'ontime-types';
-
-import { customFieldEntries } from '../../../../../common/utils/customFieldEntries';
+import { OrderedCustomFields } from 'ontime-types';
 
 const humanConstants = [
   '{{human.clock}}',
@@ -79,8 +77,8 @@ const staticAuxProperties = (index: 1 | 2 | 3) => [
  * Appends the human readable variants to it
  * It is manually kept in sync with the automation parseTemplate functions
  */
-export function makeAutoCompleteList(customFields: CustomFields | OrderedCustomFields): string[] {
-  const keys = customFieldEntries(customFields).map(([key]) => key);
+export function makeAutoCompleteList(customFields: OrderedCustomFields): string[] {
+  const keys = customFields.map(([key]) => key);
   return [
     ...humanConstants,
     ...staticAutocompleteOptions,

@@ -1,6 +1,5 @@
-import type { CustomFields, OrderedCustomFields, ProjectData } from 'ontime-types';
+import type { OrderedCustomFields, ProjectData } from 'ontime-types';
 
-import { customFieldEntries } from '../../utils/customFieldEntries';
 import type { SelectOption } from '../select/Select';
 import type { MultiselectOption, ViewOption } from './viewParams.types';
 
@@ -9,14 +8,14 @@ import type { MultiselectOption, ViewOption } from './viewParams.types';
  * Filters out image type custom fields
  */
 export function makeOptionsFromCustomFields(
-  customFields: CustomFields | OrderedCustomFields,
+  customFields: OrderedCustomFields,
   additionalOptions: SelectOption[] = [],
   filterImageType = true,
 ): SelectOption[] {
   const options: SelectOption[] = [...additionalOptions];
 
   // Add custom fields first
-  for (const [key, value] of customFieldEntries(customFields)) {
+  for (const [key, value] of customFields) {
     if (filterImageType && value.type === 'image') {
       continue;
     }
@@ -35,13 +34,13 @@ export function makeOptionsFromCustomFields(
  * Filters out image type custom fields
  */
 export function makeCustomFieldSelectOptions(
-  customFields: CustomFields | OrderedCustomFields,
+  customFields: OrderedCustomFields,
   filterImageType = true,
 ): MultiselectOption[] {
   const options: MultiselectOption[] = [];
 
   // Add custom fields first
-  for (const [key, value] of customFieldEntries(customFields)) {
+  for (const [key, value] of customFields) {
     if (filterImageType && value.type === 'image') {
       continue;
     }
