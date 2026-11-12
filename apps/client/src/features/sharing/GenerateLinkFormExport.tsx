@@ -14,7 +14,7 @@ interface GenerateLinkFormExportProps {
 
 export default function GenerateLinkFormExport({ lockedPath }: GenerateLinkFormExportProps) {
   const { data: infoData } = useInfo();
-  const { data: urlPresetData } = useUrlPresets({ skip: lockedPath === undefined });
+  const { data: urlPresetData } = useUrlPresets({ skip: lockedPath !== undefined });
 
   // Keep the working server address available alongside explicitly selectable network interfaces.
   const hostOptions = useMemo(() => {
