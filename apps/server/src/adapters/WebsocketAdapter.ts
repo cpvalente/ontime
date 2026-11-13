@@ -32,6 +32,7 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { now } from '../lib/time-core/timeCore.js';
+import { Access } from '../middleware/access.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
@@ -68,16 +69,9 @@ class SocketServer implements IAdapter {
       // Rejected sockets can emit an error while their close handshake is in progress.
       ws.on('error', console.error);
 
-      let isAuthenticated = false;
-      authenticateSocket(ws, req, (error) => {
-        if (error) {
-          ws.close(1008, 'Unauthorized');
-          return;
-        }
-        isAuthenticated = true;
-      });
-
-      if (!isAuthenticated) {
+      const connectionScope = authenticateSocket(req);
+      if (!connectionScope) {
+        ws.close(1008, 'Unauthorized');
         return;
       }
 
@@ -150,6 +144,14 @@ class SocketServer implements IAdapter {
             default: {
               tag satisfies never;
               // Protocol specific stuff handled above
+              // commands change things, so read sockets may not send them
+              if (connectionScope !== Access.write) {
+                logger.warning(LogOrigin.Client, 'Command not allowed', {
+                  tag,
+                  client: this.clients.get(clientId)?.name,
+                });
+                break;
+              }
               try {
                 const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
                 if (reply) {
