@@ -1,15 +1,18 @@
 import type { MessageTag, WsPacketToClient } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 /**
  * Client clock synchronisation
- * - Ping/Pong samples map the client's monotonic clock to the server's time of day (the offset)
+ * - Ping/Pong samples map the client's monotonic clock to the server's epoch (the measured offset)
+ * - once measured, the clock is shown in the browser's timezone
  * - the least delayed of the latest samples is the estimate, a clock jump starts a new set
  * - the shown clock never moves backwards, so a correction never makes it visibly jump
  */
 
 export const clockSampleCount = 5;
 const clockJumpToleranceMs = 1000;
+// timezone offsets are whole multiples of 15 minutes
+const timezoneStepMs = 15 * MILLIS_PER_MINUTE;
 
 export type ClockSample = { offset: number; roundTrip: number };
 
@@ -23,29 +26,29 @@ export function measurePong(
   if (sentAt === null || pong.payload !== sentAt) {
     return null;
   }
-  // The reply comes off the network: without a valid server clock it is not a sample.
-  if (!Number.isFinite(pong.clock)) {
+  // The reply comes off the network: without a valid server time it is not a sample.
+  if (!Number.isFinite(pong.epoch)) {
     return null;
   }
 
   // A zero-delay reply still means online: non-positive ping values are status sentinels.
   const ping = Math.max(1, (receivedAt - sentAt) / 2);
-  return { ping, ...sampleClockOffset(samples, pong.clock, sentAt, receivedAt) };
+  return { ping, ...sampleClockOffset(samples, pong.epoch, sentAt, receivedAt) };
 }
 
 /** Maps the client's monotonic clock to server time, assuming symmetric network delay. */
-function getClockOffset(serverClock: number, sentAt: number, receivedAt: number): number {
-  return serverClock - (sentAt + receivedAt) / 2;
+function getClockOffset(serverTime: number, sentAt: number, receivedAt: number): number {
+  return serverTime - (sentAt + receivedAt) / 2;
 }
 
 /** Prefer the least delayed of the latest samples, so congestion does not steer the clock. */
 export function sampleClockOffset(
   previous: readonly ClockSample[],
-  serverClock: number,
+  serverTime: number,
   sentAt: number,
   receivedAt: number,
 ) {
-  const sample = { offset: getClockOffset(serverClock, sentAt, receivedAt), roundTrip: receivedAt - sentAt };
+  const sample = { offset: getClockOffset(serverTime, sentAt, receivedAt), roundTrip: receivedAt - sentAt };
   const previousBest = previous.length ? leastDelayedSample(previous) : sample;
   // Either measurement may be wrong by up to half its round trip when delay is asymmetric.
   const uncertainty = (sample.roundTrip + previousBest.roundTrip) / 2;
@@ -53,6 +56,22 @@ export function sampleClockOffset(
     ? [sample]
     : [...previous.slice(-(clockSampleCount - 1)), sample];
   return { samples, offset: leastDelayedSample(samples).offset };
+}
+
+/** The browser's offset from UTC at an instant, positive east of UTC, including daylight saving. */
+export function getLocalUtcOffset(instant: number): number {
+  return -new Date(instant).getTimezoneOffset() * MILLIS_PER_MINUTE;
+}
+
+/**
+ * Whether a published time of day disagrees with the shown one, eg: the server clock jumped.
+ * The server publishes in its own timezone, so a difference of whole timezones is not a disagreement.
+ * A jump of whole quarter hours is missed here, the next Ping/Pong sample still catches it.
+ */
+export function hasPublishedClockJumped(publishedOffset: number, shownOffset: number, uncertainty: number): boolean {
+  const difference = getClockDifference(publishedOffset, shownOffset);
+  const timezoneDifference = Math.round(difference / timezoneStepMs) * timezoneStepMs;
+  return Math.abs(difference - timezoneDifference) > clockJumpToleranceMs + uncertainty;
 }
 
 /**

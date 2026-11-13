@@ -1,12 +1,12 @@
 import { MessageTag } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, MILLIS_PER_HOUR } from 'ontime-utils';
 import { describe, expect, it } from 'vitest';
 
-import { getDisplayedClock, measurePong, sampleClockOffset } from '../clockSync';
+import { getDisplayedClock, hasPublishedClockJumped, measurePong, sampleClockOffset } from '../clockSync';
 
 describe('measurePong()', () => {
   const sentAt = 100;
-  const pong = { tag: MessageTag.Pong, payload: sentAt, clock: 10000 } as const;
+  const pong = { tag: MessageTag.Pong, payload: sentAt, epoch: 10000 } as const;
 
   it('anchors the server clock to the midpoint of the round trip', () => {
     expect(measurePong(pong, sentAt, [], 300)).toEqual({
@@ -20,8 +20,8 @@ describe('measurePong()', () => {
     expect(measurePong({ ...pong, payload: 50 }, sentAt, [], 300)).toBeNull();
   });
 
-  it('ignores a reply without a valid server clock', () => {
-    expect(measurePong({ ...pong, clock: Number.NaN }, sentAt, [], 300)).toBeNull();
+  it('ignores a reply without a valid server time', () => {
+    expect(measurePong({ ...pong, epoch: Number.NaN }, sentAt, [], 300)).toBeNull();
   });
 
   it('keeps zero-delay replies positive, since a non-positive ping means offline', () => {
@@ -47,7 +47,7 @@ describe('sampleClockOffset()', () => {
     expect(sampleClockOffset(previous, 12100, 1000, 1200).samples).toHaveLength(2);
   });
 
-  it('starts a new set of samples after a clock jump, eg: a daylight saving change', () => {
+  it('starts a new set of samples after a clock jump, eg: the server clock was set', () => {
     expect(sampleClockOffset(previous, 10900 + 3600000, 1000, 1200).samples).toEqual([
       { offset: 9800 + 3600000, roundTrip: 200 },
     ]);
@@ -55,6 +55,22 @@ describe('sampleClockOffset()', () => {
 
   it('does not treat midnight as a clock jump', () => {
     expect(sampleClockOffset(previous, 10900 - dayInMs, 1000, 1200).samples).toHaveLength(2);
+  });
+});
+
+describe('hasPublishedClockJumped()', () => {
+  it('ignores a difference of whole timezones, eg: the server publishes in another timezone', () => {
+    expect(hasPublishedClockJumped(9800 + MILLIS_PER_HOUR - 400, 9800, 0)).toBe(false);
+    expect(hasPublishedClockJumped(9800 - 5.75 * MILLIS_PER_HOUR, 9800, 0)).toBe(false);
+  });
+
+  it('reports a difference which is not whole timezones, eg: the server clock jumped', () => {
+    expect(hasPublishedClockJumped(9800 + 5000, 9800, 1000)).toBe(true);
+    expect(hasPublishedClockJumped(9800 + 10 * 60_000, 9800, 1000)).toBe(true);
+  });
+
+  it('allows for the delay of a published clock', () => {
+    expect(hasPublishedClockJumped(9800 - 1500, 9800, 1000)).toBe(false);
   });
 });
 
