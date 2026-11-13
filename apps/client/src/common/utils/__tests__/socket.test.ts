@@ -51,8 +51,8 @@ class MockWebSocket {
     this.onopen?.();
   }
 
-  receive(tag: MessageTag, payload: unknown, clock?: number) {
-    this.onmessage?.({ data: JSON.stringify({ tag, payload, clock }) });
+  receive(tag: MessageTag, payload: unknown, epoch?: number) {
+    this.onmessage?.({ data: JSON.stringify({ tag, payload, epoch }) });
   }
 }
 
@@ -71,6 +71,8 @@ describe('socket connection watchdog', () => {
     MockWebSocket.instances = [];
     vi.mocked(addLog).mockClear();
     vi.stubGlobal('WebSocket', MockWebSocket);
+    // the browser is on UTC
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(0);
     // the module keeps connection state in module scope, we need a clean one for each test
     vi.resetModules();
     const socketModule = await import('../socket');
@@ -81,6 +83,7 @@ describe('socket connection watchdog', () => {
   afterEach(() => {
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   /** Opens a connection and returns its socket. */
@@ -132,7 +135,7 @@ describe('socket connection watchdog', () => {
     socket.receive(MessageTag.RuntimeData, { clock: performance.now() + 10500 });
     expect(pings()).toHaveLength(1);
 
-    socket.receive(MessageTag.RuntimeData, { clock: performance.now() + 10000 + 3600000 });
+    socket.receive(MessageTag.RuntimeData, { clock: performance.now() + 10000 + 5000 });
     expect(pings()).toHaveLength(2);
   });
 
