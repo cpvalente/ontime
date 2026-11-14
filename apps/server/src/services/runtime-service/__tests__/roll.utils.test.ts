@@ -95,7 +95,7 @@ describe('loadRoll()', () => {
         },
         order: ['1', '2', '3', '4', '5', '6', '7', '8'],
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -207,7 +207,7 @@ describe('loadRoll()', () => {
       },
       order: ['1', '2'],
     });
-    const metadata = processRundown(rundown, {});
+    const metadata = processRundown(rundown, []);
     const now = 70;
 
     const state = loadRoll(rundown, metadata, now);
@@ -263,7 +263,7 @@ describe('loadRoll() handle edge cases with midnight', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -315,7 +315,7 @@ describe('loadRoll() handle edge cases with midnight', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -370,7 +370,7 @@ describe('loadRoll() handle rundowns with several days', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -429,7 +429,7 @@ describe('loadRoll() handle rundowns with several days', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -462,7 +462,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -494,7 +494,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -526,7 +526,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -558,7 +558,7 @@ describe('loadRoll() handle edge cases with before and after start', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -606,7 +606,7 @@ describe('loadRoll() test that roll behaviour with overlapping times', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -691,7 +691,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -729,7 +729,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -760,7 +760,7 @@ describe('loadRoll() test that roll behaviour multi day event edge cases', () =>
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -803,7 +803,7 @@ describe('loadRoll() should not roll skipped events', () => {
           },
         },
       }),
-      {},
+      [],
     );
     vi.runAllTimers();
     vi.useRealTimers();
@@ -833,7 +833,7 @@ describe('findNextRollEvent()', () => {
       ),
       order: ids,
     });
-    return { rundown, metadata: processRundown(rundown, {}) };
+    return { rundown, metadata: processRundown(rundown, []) };
   };
 
   test.each([

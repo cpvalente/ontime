@@ -21,7 +21,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
       storedRundowns[id] = structuredClone(rundown);
     }),
     getProjectRundowns: () => storedRundowns,
-    getCustomFields: () => ({}),
+    getCustomFields: () => [],
     setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
     mergeIntoData: vi.fn<() => Promise<void>>(),
   }),
@@ -58,7 +58,7 @@ describe('rundown.service', () => {
     });
     seedRundown(loaded);
     seedRundown(makeRundown({ id: 'background', title: 'Background', revision: 7 }));
-    rundownCache.init(loaded, {});
+    rundownCache.init(loaded, []);
 
     vi.clearAllMocks();
   });
@@ -120,7 +120,7 @@ describe('rundown.service', () => {
         flatOrder: ['b'],
       });
 
-      await applyImportToRundown('override', 'background', incoming, {}, { event: [], custom: [] });
+      await applyImportToRundown('override', 'background', incoming, [], { event: [], custom: [] });
       await flushSideEffects();
 
       expect(storedRundowns.background).toMatchObject({ id: 'background', title: 'Background', revision: 8 });
@@ -135,7 +135,7 @@ describe('rundown.service', () => {
         flatOrder: ['a', 'b'],
       });
 
-      await applyImportToRundown('override', 'loaded', incoming, {}, { event: [], custom: [] });
+      await applyImportToRundown('override', 'loaded', incoming, [], { event: [], custom: [] });
       await flushSideEffects();
 
       expect(getCurrentRundown().revision).toBe(4);

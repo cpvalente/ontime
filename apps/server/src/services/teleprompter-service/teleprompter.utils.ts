@@ -8,7 +8,7 @@ import {
   type TeleprompterScriptEvent,
   type TeleprompterSettings,
 } from 'ontime-types';
-import { customFieldOfScriptSource, teleprompterCharsPerLine } from 'ontime-utils';
+import { customFieldOfScriptSource, findCustomField, teleprompterCharsPerLine } from 'ontime-utils';
 
 import { wrapText } from './teleprompter.wrap.js';
 
@@ -59,7 +59,7 @@ function getTextReader(script: string, customFields: Readonly<CustomFields>): ((
   if (script === 'title') return (event: OntimeEvent) => event.title;
 
   const key = customFieldOfScriptSource(script);
-  if (key && Object.hasOwn(customFields, key) && customFields[key].type === 'text') {
+  if (key && findCustomField(customFields, key)?.type === 'text') {
     return (event: OntimeEvent) => (event.custom && Object.hasOwn(event.custom, key) ? event.custom[key] : '');
   }
   return null;

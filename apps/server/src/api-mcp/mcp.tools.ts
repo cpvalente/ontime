@@ -1,14 +1,17 @@
 import type { CallToolResult } from '@modelcontextprotocol/server';
-import { EntryId, ProjectData } from 'ontime-types';
+import { CustomFieldType, EntryId, ProjectData } from 'ontime-types';
 
 import { editCurrentProjectData, getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getProjectCustomFields, getRundownMetadata } from '../api-data/rundown/rundown.dao.js';
 import {
   createNewRundown,
+  deleteCustomField,
   deleteRundown,
   duplicateExistingRundown,
+  editCustomField,
   loadRundown,
   renameRundown,
+  reorderCustomFields,
 } from '../api-data/rundown/rundown.service.js';
 import { getDataProvider } from '../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../models/dataModel.js';
@@ -27,7 +30,6 @@ import {
   batchUpdateEntriesForMcp,
   createCustomFieldForMcp,
   createEntryForMcp,
-  deleteCustomFieldForMcp,
   deleteEntriesForMcp,
   findEntry,
   getRundownById,
@@ -36,7 +38,6 @@ import {
   setCssOverrideForMcp,
   toRundownList,
   ungroupEntryForMcp,
-  updateCustomFieldForMcp,
   updateEntryForMcp,
   type BatchCreateEntryArgs,
   type CreateEntryArgs,
@@ -406,14 +407,14 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_get_custom_fields',
     description:
-      'Get the project custom field definitions. Returns { [key]: { label, type: "text"|"image", colour } }. Keys are referenced in entry.custom[key].',
+      'Get the project custom field definitions, in display order. Returns [{ key, label, type: "text"|"image", colour }]. Keys are referenced in entry.custom[key].',
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },
   {
     name: 'ontime_create_custom_field',
     description:
-      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). Creation is non-destructive — check ontime_get_custom_fields for an existing field covering the concept, and if none exists create directly without asking the user. After creation, use the returned key in entry.custom.',
+      'Create a new project-level custom field definition. Custom fields add typed columns to every entry in all rundowns. The key is auto-derived from the label (spaces → underscores, e.g. "Camera Angle" → "Camera_Angle"). Creation is non-destructive — check ontime_get_custom_fields for an existing field covering the concept, and if none exists create directly without asking the user. Returns the updated field list, the new field is last; use its key in entry.custom.',
     inputSchema: {
       type: 'object',
       required: ['label', 'type', 'colour'],
@@ -441,7 +442,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_update_custom_field',
     description:
-      'Update a custom field label or colour. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. Field type cannot be changed.',
+      'Update a custom field label or colour. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. Field type cannot be changed. Returns the updated field list.',
     inputSchema: {
       type: 'object',
       required: ['key'],
@@ -468,6 +469,23 @@ export const TOOL_DEFINITIONS = [
       },
     },
     annotations: WRITE_DESTRUCTIVE,
+  },
+  {
+    name: 'ontime_reorder_custom_fields',
+    description:
+      'Set the display order of the project custom fields (cuesheet, editors, views). Pass the keys in the new order; each key must exist and appear at most once; fields left out follow, in their current order. Non-destructive. Returns the updated field list.',
+    inputSchema: {
+      type: 'object',
+      required: ['order'],
+      properties: {
+        order: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Field keys in the new order (from ontime_get_custom_fields)',
+        },
+      },
+    },
+    annotations: WRITE_IDEM,
   },
   // --- Project file management ---
   {
@@ -681,15 +699,20 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   ontime_get_custom_fields: async () => ok(getProjectCustomFields()),
 
   ontime_create_custom_field: async (args) => {
-    return ok(await createCustomFieldForMcp(args as { label: string; type: 'text' | 'image'; colour: string }));
+    return ok(await createCustomFieldForMcp(args as { label: string; type: CustomFieldType; colour: string }));
   },
 
   ontime_update_custom_field: async (args) => {
-    return ok(await updateCustomFieldForMcp(args as { key: string; label?: string; colour?: string }));
+    const { key, label, colour } = args as { key: string; label?: string; colour?: string };
+    return ok(await editCustomField(key, { label, colour }));
   },
 
   ontime_delete_custom_field: async (args) => {
-    return ok(await deleteCustomFieldForMcp(args as { key: string }));
+    return ok(await deleteCustomField((args as { key: string }).key));
+  },
+
+  ontime_reorder_custom_fields: async (args) => {
+    return ok(await reorderCustomFields((args as { order: string[] }).order));
   },
 
   ontime_list_projects: async () => ok(await getProjectList()),

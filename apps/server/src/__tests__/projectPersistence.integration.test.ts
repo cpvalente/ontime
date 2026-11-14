@@ -91,4 +91,37 @@ describe('project persistence', { timeout: 15_000 }, () => {
     expect(response.status).toBe(400);
     expect(await readdir(projectsDir())).not.toContain('broken import.json');
   });
+
+  test('a v4 project is read through the migrations without changing its file', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+    const fixturePath = join(import.meta.dirname, '../api-data/db/migration/__tests__/fixtures/v4.15.json');
+    const raw = await readFile(fixturePath, 'utf-8');
+    const fixture = JSON.parse(raw);
+    await writeFile(join(projectsDir(), 'from v4.json'), raw);
+
+    const response = await server.send('POST', '/data/db/read', { filename: 'from v4.json' });
+    expect(response.status).toBe(200);
+    const data: DatabaseModel = await response.json();
+    expect(data.customFields).toStrictEqual(
+      Object.entries(fixture.customFields).map(([key, field]) => ({ ...(field as object), key })),
+    );
+    expect(await readFile(join(projectsDir(), 'from v4.json'), 'utf-8')).toBe(raw);
+  });
+
+  test('a v4 project loads again while a file migrated from it earlier is still there', async () => {
+    const server = await startTestServer();
+    onTestFinished(() => server.stop());
+    const fixturePath = join(import.meta.dirname, '../api-data/db/migration/__tests__/fixtures/v4.15.json');
+    const raw = await readFile(fixturePath, 'utf-8');
+    await writeFile(join(projectsDir(), 'show.json'), raw);
+    await writeFile(join(projectsDir(), 'show (migrated).json'), '{ migrated earlier');
+
+    const response = await server.send('POST', '/data/db/load', { filename: 'show.json' });
+    expect(response.status).toBe(201);
+    const loaded = await loadedProject(server);
+    expect(loaded).not.toBe('show (migrated)');
+    expect(loaded.startsWith('show (migrated)')).toBe(true);
+    expect(await readFile(join(projectsDir(), 'show (migrated).json'), 'utf-8')).toBe('{ migrated earlier');
+  });
 });

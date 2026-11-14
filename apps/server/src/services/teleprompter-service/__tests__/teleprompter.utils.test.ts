@@ -26,10 +26,10 @@ function rundownOf(entries: OntimeEntry[], order = entries.map((entry) => entry.
   return makeRundown({ order, entries: Object.fromEntries(entries.map((entry) => [entry.id, entry])) });
 }
 
-const customFields: CustomFields = {
-  script: makeCustomField({ type: 'text', label: 'Script' }),
-  poster: makeCustomField({ type: 'image', label: 'Poster' }),
-};
+const customFields: CustomFields = [
+  makeCustomField({ key: 'script', type: 'text', label: 'Script' }),
+  makeCustomField({ key: 'poster', type: 'image', label: 'Poster' }),
+];
 
 function build(entries: OntimeEntry[], settings: Partial<TeleprompterSettings> = {}, order?: string[]) {
   return buildScriptEvents(rundownOf(entries, order), customFields, { ...defaultTeleprompterSettings, ...settings });
