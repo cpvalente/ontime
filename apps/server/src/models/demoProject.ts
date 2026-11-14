@@ -62,33 +62,13 @@ export const demoDb: Omit<DatabaseModel, 'projectId'> = {
       displayInNav: false,
     },
   ],
-  customFields: {
-    Video_Notes: {
-      type: 'text',
-      colour: '#FFAB33',
-      label: 'Video Notes',
-    },
-    Audio_Notes: {
-      type: 'text',
-      colour: '#339E4E',
-      label: 'Audio Notes',
-    },
-    PowerPoint_Name: {
-      type: 'text',
-      colour: '#3E75E8',
-      label: 'PowerPoint Name',
-    },
-    PowerPoint_Slide: {
-      type: 'image',
-      colour: '#ED3333',
-      label: 'PowerPoint Slide',
-    },
-    Script: {
-      type: 'text',
-      colour: '#A790F5',
-      label: 'Script',
-    },
-  },
+  customFields: [
+    { key: 'Video_Notes', type: 'text', colour: '#FFAB33', label: 'Video Notes' },
+    { key: 'Audio_Notes', type: 'text', colour: '#339E4E', label: 'Audio Notes' },
+    { key: 'PowerPoint_Name', type: 'text', colour: '#3E75E8', label: 'PowerPoint Name' },
+    { key: 'PowerPoint_Slide', type: 'image', colour: '#ED3333', label: 'PowerPoint Slide' },
+    { key: 'Script', type: 'text', colour: '#A790F5', label: 'Script' },
+  ],
   automation: {
     enabledAutomations: false,
     enabledOscIn: false,

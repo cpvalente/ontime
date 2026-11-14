@@ -39,7 +39,7 @@ export const rundownImportValidator = [
   body('rundown.entries').isObject(),
   body('rundown.order').isArray(),
   body('rundown.flatOrder').isArray(),
-  body('customFields').isObject(),
+  body('customFields').isArray(),
   body('providedFields').optional().isObject(),
   body('providedFields.event').optional().isArray(),
   body('providedFields.event.*').isString(),

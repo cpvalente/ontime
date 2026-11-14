@@ -2,6 +2,7 @@ import { access, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import type { CustomFields } from 'ontime-types';
 import xlsx from 'xlsx';
 
 import { demoDb } from '../../../models/demoProject.js';
@@ -114,7 +115,8 @@ it.each([
   ['A'.repeat(29) + "' tail", 'A'.repeat(29)],
 ])('strips mixed boundary apostrophes and whitespace from %j', (title, expected) => {
   const rundown = { ...demoDb.rundowns.default, title };
-  for (const buffer of [generateExcelFile(rundown, {}), generateExcelWorkbook([rundown], {})]) {
+  const noFields: CustomFields = [];
+  for (const buffer of [generateExcelFile(rundown, noFields), generateExcelWorkbook([rundown], noFields)]) {
     expect(xlsx.read(buffer, { type: 'buffer' }).SheetNames).toEqual([expected]);
   }
 });

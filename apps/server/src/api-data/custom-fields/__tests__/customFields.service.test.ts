@@ -6,10 +6,17 @@ import { OntimeEvent } from 'ontime-types';
 
 import { flushPendingWrites, getDataProvider, initPersistence } from '../../../classes/data-provider/DataProvider.js';
 import { makeNewProject } from '../../../models/dataModel.js';
+import { parseDatabaseModel } from '../../db/db.parser.js';
 import { makeCustomField, makeOntimeEvent, makeRundown } from '../../rundown/__mocks__/rundown.mocks.js';
 import { getCurrentRundown, processRundown, rundownCache } from '../../rundown/rundown.dao.js';
-import { CustomFieldTypeChangeError } from '../../rundown/rundown.errors.js';
-import { batchEditEntries, deleteCustomField, editCustomField, editEntry } from '../../rundown/rundown.service.js';
+import { InvalidCustomFieldLabelError } from '../../rundown/rundown.errors.js';
+import {
+  batchEditEntries,
+  deleteCustomField,
+  editCustomField,
+  editEntry,
+  reorderCustomFields,
+} from '../../rundown/rundown.service.js';
 
 describe('custom field changes across project rundowns', () => {
   let directory: string;
@@ -18,7 +25,7 @@ describe('custom field changes across project rundowns', () => {
     directory = await mkdtemp(join(tmpdir(), 'ontime-custom-fields-'));
 
     const project = makeNewProject();
-    project.customFields = { Old: makeCustomField({ label: 'Old' }) };
+    project.customFields = [makeCustomField({ label: 'Old' })];
     project.rundowns = {
       loaded: makeRundown({
         id: 'loaded',
@@ -43,17 +50,51 @@ describe('custom field changes across project rundowns', () => {
   test('renaming a field moves its values in the loaded and background rundowns', async () => {
     const customFields = await editCustomField('Old', { label: 'New' });
 
-    expect(Object.keys(customFields)).toEqual(['New']);
+    expect(customFields).toEqual([expect.objectContaining({ key: 'New', label: 'New' })]);
     expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ New: 'loaded value' });
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
       New: 'background value',
     });
   });
 
+  test('a rename is applied to the fields and every rundown before anything is saved', () => {
+    // the project is written as a whole, so a save in between must not see the new key without the renamed values
+    void editCustomField('Old', { label: 'New' });
+
+    expect(getDataProvider().getCustomFields()).toEqual([expect.objectContaining({ key: 'New', label: 'New' })]);
+    expect((getDataProvider().getRundown('loaded').entries.a as OntimeEvent).custom).toEqual({ New: 'loaded value' });
+    expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
+      New: 'background value',
+    });
+  });
+
+  test('an edit without a label keeps the label, and the field survives a reload', async () => {
+    await editCustomField('Old', { label: undefined, colour: '#ff0000' });
+
+    const project = structuredClone(getDataProvider().getData());
+    expect(project.customFields).toMatchObject([{ key: 'Old', label: 'Old', colour: '#ff0000' }]);
+
+    const { data } = parseDatabaseModel(project);
+    expect(data.customFields).toMatchObject([{ key: 'Old', label: 'Old', colour: '#ff0000' }]);
+    expect((data.rundowns.background.entries.b as OntimeEvent).custom).toEqual({ Old: 'background value' });
+  });
+
+  test('an empty label is refused without changing the field', async () => {
+    const before = structuredClone(getDataProvider().getCustomFields());
+    await expect(editCustomField('Old', { label: '' })).rejects.toThrow();
+    expect(getDataProvider().getCustomFields()).toEqual(before);
+  });
+
+  test('renaming a field moves empty values too', async () => {
+    await editEntry('loaded', { id: 'a', custom: { Old: '' } });
+    await editCustomField('Old', { label: 'New' });
+    expect((getDataProvider().getRundown('loaded').entries.a as OntimeEvent).custom).not.toHaveProperty('Old');
+  });
+
   test('deleting a field removes its values in the loaded and background rundowns', async () => {
     const customFields = await deleteCustomField('Old');
 
-    expect(customFields).toEqual({});
+    expect(customFields).toEqual([]);
     expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({});
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({});
   });
@@ -78,9 +119,7 @@ describe('custom field changes across project rundowns', () => {
   });
 
   test('a rejected edit leaves the background rundowns untouched', async () => {
-    await expect(editCustomField('Old', { label: 'New', type: 'image' })).rejects.toBeInstanceOf(
-      CustomFieldTypeChangeError,
-    );
+    await expect(editCustomField('Old', { label: 'Old/New' })).rejects.toBeInstanceOf(InvalidCustomFieldLabelError);
 
     expect((getDataProvider().getRundown('background').entries.b as OntimeEvent).custom).toEqual({
       Old: 'background value',
@@ -102,5 +141,59 @@ describe('custom field changes across project rundowns', () => {
     await batchEditEntries('loaded', ['a'], { custom: { Unknown: 'dropped' } });
 
     expect((getCurrentRundown().entries.a as OntimeEvent).custom).toEqual({ Old: 'loaded value' });
+  });
+});
+
+describe('custom field order', () => {
+  let directory: string;
+  const storedKeys = () =>
+    getDataProvider()
+      .getData()
+      .customFields.map((field) => field.key);
+
+  beforeEach(async () => {
+    directory = await mkdtemp(join(tmpdir(), 'ontime-custom-field-order-'));
+
+    const project = makeNewProject();
+    project.customFields = [
+      makeCustomField({ label: 'First' }),
+      makeCustomField({ label: '2' }),
+      makeCustomField({ label: 'Third' }),
+    ];
+    await initPersistence(join(directory, 'db.json'), project);
+    rundownCache.init(makeRundown({}), project.customFields);
+  });
+
+  afterEach(async () => {
+    await flushPendingWrites();
+    await rm(directory, { recursive: true, force: true });
+  });
+
+  test('renaming a field keeps its position', async () => {
+    await editCustomField('First', { label: 'Renamed' });
+
+    expect(storedKeys()).toEqual(['Renamed', '2', 'Third']);
+  });
+
+  test('renaming a field to the label of another field is rejected', async () => {
+    await expect(editCustomField('First', { label: 'Third' })).rejects.toThrow('Label Third already exists');
+
+    expect(
+      getDataProvider()
+        .getCustomFields()
+        .map((field) => field.label),
+    ).toEqual(['First', '2', 'Third']);
+  });
+
+  test('reordering persists the new order', async () => {
+    await reorderCustomFields(['Third', 'First', '2']);
+
+    expect(storedKeys()).toEqual(['Third', 'First', '2']);
+  });
+
+  test.each([[['Third', 'Unknown']], [['Third', 'Third', '2']]])('reordering refuses %j', async (order) => {
+    await expect(reorderCustomFields(order)).rejects.toThrow('at most once');
+
+    expect(storedKeys()).toEqual(['First', '2', 'Third']);
   });
 });

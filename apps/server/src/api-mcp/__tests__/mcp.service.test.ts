@@ -8,6 +8,7 @@ const ungroupEntriesMock = vi.hoisted(() => vi.fn());
 const getCurrentRundownMock = vi.hoisted(() => vi.fn());
 const getProjectCustomFieldsMock = vi.hoisted(() => vi.fn());
 const createCustomFieldMock = vi.hoisted(() => vi.fn());
+const projectCustomFields = vi.hoisted(() => []);
 
 vi.mock('../../api-data/rundown/rundown.dao.js', () => ({
   getCurrentRundown: getCurrentRundownMock,
@@ -48,7 +49,7 @@ describe('mcp.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getCurrentRundownMock.mockReturnValue(makeRundown({}));
-    getProjectCustomFieldsMock.mockReturnValue({});
+    getProjectCustomFieldsMock.mockReturnValue([]);
 
     let id = 0;
     addEntryMock.mockImplementation(async (_rundownId: string, payload: EventPostPayload) => {
@@ -294,26 +295,17 @@ describe('mcp.service', () => {
   });
 
   describe('createCustomFieldForMcp', () => {
-    it('creates a field and returns the derived key', async () => {
-      createCustomFieldMock.mockResolvedValue({
-        Camera_Angle: { label: 'Camera Angle', type: 'text', colour: '#3E75E8' },
-      });
+    it('creates a field and returns the field list, as the HTTP routes answer', async () => {
+      createCustomFieldMock.mockResolvedValue(projectCustomFields);
 
       const result = await createCustomFieldForMcp({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
 
       expect(createCustomFieldMock).toHaveBeenCalledWith({ label: 'Camera Angle', type: 'text', colour: '#3E75E8' });
-      expect(result.key).toBe('Camera_Angle');
-    });
-
-    it('rejects labels the editor UI would not accept', async () => {
-      await expect(createCustomFieldForMcp({ label: 'Camera/GFX', type: 'text', colour: '#000000' })).rejects.toThrow(
-        'Invalid label',
-      );
-      expect(createCustomFieldMock).not.toHaveBeenCalled();
+      expect(result).toBe(projectCustomFields);
     });
 
     it('rejects case-insensitive duplicates and points at the existing key', async () => {
-      getProjectCustomFieldsMock.mockReturnValue({ Camera: { label: 'Camera', type: 'text', colour: '' } });
+      getProjectCustomFieldsMock.mockReturnValue([{ key: 'Camera', label: 'Camera', type: 'text', colour: '' }]);
 
       await expect(createCustomFieldForMcp({ label: 'camera', type: 'text', colour: '#000000' })).rejects.toThrow(
         'A custom field with key "Camera" (label "Camera") already exists.',
@@ -323,7 +315,7 @@ describe('mcp.service', () => {
   });
 
   it('suggests the correctly cased key when custom values use the wrong casing', async () => {
-    getProjectCustomFieldsMock.mockReturnValue({ Camera: { label: 'Camera', type: 'text', colour: '' } });
+    getProjectCustomFieldsMock.mockReturnValue([{ key: 'Camera', label: 'Camera', type: 'text', colour: '' }]);
 
     await expect(createEntryForMcp({ title: 'Talk', custom: { camera: 'CAM 2' } })).rejects.toThrow(
       'Keys are case-sensitive — did you mean: "camera" → "Camera"?',

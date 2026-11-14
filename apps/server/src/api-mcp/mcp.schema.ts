@@ -180,10 +180,13 @@ Custom fields are project-scoped definitions. Get definitions at \`ontime://proj
 Events, milestones and groups store values at \`entry.custom[fieldKey]\`.
 
 Managing field definitions:
-- Read: \`ontime_get_custom_fields\` — returns \`{ [key]: { label, type, colour } }\`
-- Create: \`ontime_create_custom_field { label, type, colour }\` — key is auto-derived from label (spaces → underscores). Returns \`{ key, customFields }\`.
+- Read: \`ontime_get_custom_fields\` — returns \`[{ key, label, type, colour }]\` in display order
+- Create: \`ontime_create_custom_field { label, type, colour }\` — key is auto-derived from label (spaces → underscores)
 - Rename/recolour: \`ontime_update_custom_field { key, label?, colour? }\` — renaming the label changes the derived key and cascades to all entry references across all rundowns. Type cannot be changed.
 - Delete: \`ontime_delete_custom_field { key }\` — removes the field definition and its values from every entry in all rundowns. Destructive, confirm first.
+- Reorder: \`ontime_reorder_custom_fields { order }\` — keys in the new display order
+
+Mutations return the updated field list.
 
 Keys are case-sensitive. When setting \`custom\` values, reuse an existing field when it covers the concept; otherwise create the missing field — creation is non-destructive and needs no confirmation. Rename and delete are the destructive operations: confirm those with the user.
 

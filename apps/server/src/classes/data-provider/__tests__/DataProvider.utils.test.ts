@@ -129,52 +129,49 @@ describe('safeMerge', () => {
     expect(imported.alias).toBe('STAGE');
   });
 
-  it('merges customFields into existing object', () => {
+  it('merges customFields into existing list, appending new fields', () => {
     const existing = {
       ...baseDb,
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' },
-        sound: { type: 'text', colour: 'red', label: 'sound' },
-      },
+      customFields: [
+        { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+        { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      ] satisfies CustomField[],
     };
 
     const newData = {
-      customFields: {
-        switcher: { type: 'text', label: 'switcher' },
-        vfx: { type: 'text', label: 'vfx' },
-      },
+      customFields: [
+        { key: 'switcher', type: 'text', colour: '', label: 'switcher' },
+        { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+      ] satisfies CustomField[],
     };
 
-    const expected = {
-      lighting: { type: 'text', colour: 'red', label: 'lighting' },
-      sound: { type: 'text', colour: 'red', label: 'sound' },
-      switcher: { type: 'text', label: 'switcher' },
-      vfx: { type: 'text', label: 'vfx' },
-    };
-
-    //@ts-expect-error -- testing partial merge
     const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual(expected);
+    expect(result.customFields).toEqual([...existing.customFields, ...newData.customFields]);
   });
 
-  it('overwrites matching customFields keys when merging', () => {
+  it('overwrites fields with matching keys in their position', () => {
     const existing = {
       ...baseDb,
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' } satisfies CustomField,
-      },
+      customFields: [
+        { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+        { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      ] satisfies CustomField[],
     };
 
     const newData = {
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'updated lighting' } satisfies CustomField,
-      },
+      customFields: [
+        { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+        { key: 'lighting', type: 'text', colour: 'blue', label: 'lighting' },
+      ] satisfies CustomField[],
     };
 
     const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual({
-      lighting: { type: 'text', colour: 'red', label: 'updated lighting' },
-    });
+    expect(result.customFields).toEqual([
+      { key: 'lighting', type: 'text', colour: 'blue', label: 'lighting' },
+      { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+    ]);
+    expect(existing.customFields[0].colour).toBe('red');
   });
 
   it('replaces automation settings when provided', () => {

@@ -1,51 +1,66 @@
-import { CustomField, CustomFields, DatabaseModel } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { CustomField, CustomFields } from 'ontime-types';
+import { customFieldLabelToKey, validateCustomFieldLabel } from 'ontime-utils';
 
+import { is } from '../../utils/is.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
 
 /**
- * Parse customFields entry
+ * Parses the project custom fields, a list in the user defined order
+ * v4 files store a record, the v5 migration converts them before they reach here
  */
-export function parseCustomFields(data: Partial<DatabaseModel>, emitError?: ErrorEmitter): CustomFields {
-  if (typeof data.customFields !== 'object') {
+export function parseCustomFields(data: { customFields?: unknown }, emitError?: ErrorEmitter): CustomFields {
+  if (!is.array(data.customFields)) {
     emitError?.('No data found to import');
-    return {};
+    return [];
   }
   const customFields = sanitiseCustomFields(data.customFields);
 
-  if (Object.keys(customFields).length !== Object.keys(data.customFields).length) {
+  if (customFields.length !== data.customFields.length) {
     emitError?.('Skipped invalid custom fields');
   }
   return customFields;
 }
 
-export function sanitiseCustomFields(data: object): CustomFields {
-  const newCustomFields: CustomFields = {};
-  for (const [key, field] of Object.entries(data)) {
-    if (isValidField(field, key)) {
-      newCustomFields[key] = {
-        type: field.type,
-        colour: field.colour,
-        label: field.label,
-      };
+/**
+ * Keeps the valid fields, dropping repeated keys
+ */
+export function sanitiseCustomFields(data: unknown[]): CustomFields {
+  const newCustomFields: CustomFields = [];
+  const seen = new Set<string>();
+  for (const field of data) {
+    const parsed = parseCustomField(field);
+    if (parsed && !seen.has(parsed.key)) {
+      newCustomFields.push(parsed);
+      seen.add(parsed.key);
     }
   }
+  return newCustomFields;
+}
 
-  function isValidField(data: unknown, key: string): data is CustomField {
-    return (
-      typeof data === 'object' &&
-      data !== null &&
-      'label' in data &&
-      typeof data.label === 'string' &&
-      data.label !== '' &&
-      'colour' in data &&
-      typeof data.colour === 'string' &&
-      'type' in data &&
-      (data.type === 'text' || data.type === 'image') &&
-      checkRegex.isAlphanumericWithSpace(data.label) &&
-      key === customFieldLabelToKey(data.label)
-    );
+/**
+ * Parses a single field, copying only the properties of its type
+ */
+function parseCustomField(data: unknown): CustomField | null {
+  if (!is.object(data) || !is.objectWithKeys(data, ['key', 'label', 'colour', 'type'])) {
+    return null;
+  }
+  const { key, label, colour, type } = data;
+  if (
+    !is.string(key) ||
+    !is.string(label) ||
+    !is.string(colour) ||
+    validateCustomFieldLabel(label) !== null ||
+    key !== customFieldLabelToKey(label)
+  ) {
+    return null;
   }
 
-  return newCustomFields;
+  // a type with its own settings parses them here, eg: case 'option' would also read the options list
+  switch (type) {
+    case 'text':
+    case 'image':
+      return { key, label, colour, type };
+    default:
+      return null;
+  }
 }

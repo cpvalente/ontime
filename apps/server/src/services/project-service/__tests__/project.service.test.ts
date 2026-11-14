@@ -119,7 +119,7 @@ describe('loadProjectFile', () => {
     (parseDatabaseModel as Mock).mockReturnValue({
       data: {
         rundowns: { default: rundown },
-        customFields: {},
+        customFields: [],
         settings: { auxTimerNames: ['Speaker', 'Break', 'Q&A'] },
       },
       migrated: false,
@@ -137,7 +137,11 @@ describe('loadProjectFile', () => {
     (doesProjectExist as Mock).mockReturnValue('/projects/show.json');
     (parseJsonFile as Mock).mockResolvedValue({});
     (parseDatabaseModel as Mock).mockReturnValue({
-      data: { rundowns: { default: rundown }, customFields: {}, settings: { auxTimerNames: ['', '', ''] } },
+      data: {
+        rundowns: { default: rundown },
+        customFields: [],
+        settings: { auxTimerNames: ['', '', ''] },
+      },
       migrated: false,
       errors: [],
     });
@@ -154,7 +158,7 @@ describe('patchCurrentProject', () => {
   const dataProvider = {
     mergeIntoData: vi.fn(),
     setRundown: vi.fn(),
-    getCustomFields: vi.fn(() => ({})),
+    getCustomFields: vi.fn(() => []),
     getSettings: vi.fn(() => makeNewProject().settings),
     getData: vi.fn(),
   };
@@ -173,7 +177,7 @@ describe('patchCurrentProject', () => {
 
   beforeEach(() => {
     (getDataProvider as Mock).mockReturnValue(dataProvider);
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), []);
     // setup calls are not part of the patch
     vi.clearAllMocks();
   });
@@ -215,7 +219,7 @@ describe('patchCurrentProject', () => {
 
     expect(initRundown).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({ id: 'loaded', title: 'patched' }),
-      {},
+      [],
       true,
     );
   });

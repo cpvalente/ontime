@@ -9,6 +9,7 @@ import {
   SupportedEntry,
   isOntimeGroup,
 } from 'ontime-types';
+import { customFieldLabelToKey } from 'ontime-utils';
 
 import { makeNewRundown } from '../../../models/dataModel.js';
 
@@ -82,12 +83,14 @@ export function makeRundown(patch: Partial<Rundown>): Rundown {
 }
 
 export function makeCustomField(patch: Partial<CustomField>): CustomField {
+  const label = patch.label ?? 'Custom Field';
   return {
+    key: customFieldLabelToKey(label),
     type: 'text',
     colour: '#000000',
-    label: 'Custom Field',
+    label,
     ...patch,
-  };
+  } as CustomField;
 }
 
 /**
