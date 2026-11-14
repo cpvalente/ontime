@@ -22,3 +22,48 @@
   // marker consumed by the shared Panel.Table active-row treatment
   background-color: inherit;
 }
+
+.dragHandle {
+  display: flex;
+  padding: 0.25rem;
+  border: none;
+  border-radius: 2px;
+  background: none;
+  color: inherit;
+  font-size: 1.25rem;
+  opacity: 0.5;
+  cursor: grab;
+  touch-action: none;
+
+  // the table squeezes narrow columns, keep the icon at its size
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover,
+  &:focus-visible {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+}
+
+.dragging {
+  opacity: 0.5;
+
+  .dragHandle {
+    cursor: grabbing;
+  }
+}
+
+// Inset lines preserve table geometry while pointing to the insertion edge.
+tr[data-drop-placement='before'] > td {
+  box-shadow: inset 0 2px $action-blue;
+}
+
+tr[data-drop-placement='after'] > td {
+  box-shadow: inset 0 -2px $action-blue;
+}

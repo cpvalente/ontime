@@ -62,12 +62,12 @@ type SelectableField = {
 export function makeFieldList(customFields: CustomFields): SelectableField[] {
   return [
     ...staticSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({
+    ...customFields.map(({ key, label }) => ({
       value: `eventNow.custom.${key}`,
       label: `Custom: ${label}`,
     })),
     ...staticNextSelectProperties,
-    ...Object.entries(customFields).map(([key, { label }]) => ({
+    ...customFields.map(({ key, label }) => ({
       value: `eventNext.custom.${key}`,
       label: `Next custom: ${label}`,
     })),

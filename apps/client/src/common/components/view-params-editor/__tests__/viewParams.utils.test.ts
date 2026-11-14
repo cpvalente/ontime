@@ -6,10 +6,10 @@ import type { ViewOption } from '../viewParams.types';
 import { getURLSearchParamsFromObj, makeOptionsFromCustomFields } from '../viewParams.utils';
 
 describe('makeOptionsFromCustomFields()', () => {
-  const testCustomFields: CustomFields = {
-    field1: { label: 'Field 1', colour: 'red', type: 'text' },
-    field2: { label: 'Field 2', colour: 'blue', type: 'text' },
-  };
+  const testCustomFields: CustomFields = [
+    { key: 'field1', label: 'Field 1', colour: 'red', type: 'text' },
+    { key: 'field2', label: 'Field 2', colour: 'blue', type: 'text' },
+  ];
 
   it('creates an array of options to use in a select', () => {
     const result = makeOptionsFromCustomFields(testCustomFields);
@@ -34,10 +34,10 @@ describe('makeOptionsFromCustomFields()', () => {
   });
 
   it('filtersImageTypes', () => {
-    const customFieldsWIthImage: CustomFields = {
+    const customFieldsWIthImage: CustomFields = [
       ...testCustomFields,
-      field3: { label: 'Field 3', colour: 'green', type: 'image' },
-    };
+      { key: 'field3', label: 'Field 3', colour: 'green', type: 'image' },
+    ];
 
     const result = makeOptionsFromCustomFields(customFieldsWIthImage);
     expect(result).toStrictEqual([

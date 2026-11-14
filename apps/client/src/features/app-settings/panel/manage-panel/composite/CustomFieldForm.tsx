@@ -1,5 +1,5 @@
-import { CustomField } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { CustomFieldType, NewCustomField } from 'ontime-types';
+import { customFieldLabelToKey, validateCustomFieldLabel } from 'ontime-utils';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
@@ -18,15 +18,15 @@ import style from '../ManagePanel.module.scss';
 const formId = 'custom-field-form';
 
 interface CustomFieldsFormProps {
-  onSubmit: (field: CustomField) => Promise<void>;
+  onSubmit: (field: NewCustomField) => Promise<void>;
   onCancel: () => void;
   initialColour?: string;
   initialLabel?: string;
   initialKey?: string;
-  initialType?: CustomField['type'];
+  initialType?: CustomFieldType;
 }
 
-type CustomFieldFormData = CustomField & { key: string };
+type CustomFieldFormData = { type: CustomFieldType; label: string; colour: string; key: string };
 
 export default function CustomFieldForm({
   onSubmit,
@@ -36,7 +36,7 @@ export default function CustomFieldForm({
   initialKey,
   initialType,
 }: CustomFieldsFormProps) {
-  const { data } = useCustomFields();
+  const { fieldsByKey } = useCustomFields();
 
   // we use this to force an update
   const [_, setColour] = useState(initialColour || '');
@@ -51,7 +51,13 @@ export default function CustomFieldForm({
     watch,
     formState: { errors, isSubmitting, isValid, isDirty },
   } = useForm<CustomFieldFormData>({
-    defaultValues: { type: initialType ?? 'text', label: initialLabel || '', colour: initialColour || '' },
+    // validate while typing, otherwise a disabled save button gives no reason
+    mode: 'onChange',
+    defaultValues: {
+      type: initialType ?? 'text',
+      label: initialLabel || '',
+      colour: initialColour || '',
+    },
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -59,7 +65,7 @@ export default function CustomFieldForm({
 
   const setupSubmit = async (values: CustomFieldFormData) => {
     const { type, label, colour } = values;
-    const newField: CustomField = {
+    const newField: NewCustomField = {
       type,
       colour,
       label,
@@ -85,6 +91,7 @@ export default function CustomFieldForm({
   const canSubmit = isDirty && isValid;
   // if initial values are given, we can assume we are in edit mode
   const isEditMode = initialKey !== undefined;
+  const type = watch('type');
 
   return (
     <Modal
@@ -96,37 +103,39 @@ export default function CustomFieldForm({
       title={isEditMode ? 'Edit custom field' : 'Create custom field'}
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(setupSubmit)} className={style.formColumn}>
-          <Info>
-            Please note that images can quickly deteriorate your app&apos;s performance.
-            <br />
-            Prefer using small, and compressed images.
-          </Info>
           <div>
             <Panel.Description>Type</Panel.Description>
             <RadioGroup
               orientation='horizontal'
               disabled={isEditMode}
               onValueChange={(value) => setValue('type', value, { shouldDirty: true })}
-              value={watch('type')}
+              value={type}
               items={[
                 { value: 'text', label: 'Text' },
                 { value: 'image', label: 'Image' },
               ]}
             />
           </div>
+          {type === 'image' && (
+            <Info>
+              Images can impact your app&apos;s performance.
+              <br />
+              Prefer using small, and compressed images.
+            </Info>
+          )}
           <div className={style.twoCols}>
             <label>
-              <Panel.Description>Label (only alphanumeric characters are allowed)</Panel.Description>
+              <Panel.Description>Label (letters, numbers and spaces only)</Panel.Description>
               {errors.label && <Panel.Error>{errors.label.message}</Panel.Error>}
               <Input
                 {...register('label', {
                   required: { value: true, message: 'Required field' },
                   onChange: () => setValue('key', customFieldLabelToKey(getValues('label')) ?? 'N/A'),
                   validate: (value) => {
-                    if (value.trim().length === 0) return 'Required field';
-                    if (!checkRegex.isAlphanumericWithSpace(value))
-                      return 'Only alphanumeric characters and space are allowed';
-                    if (!isEditMode && Object.hasOwn(data, customFieldLabelToKey(value) ?? '')) {
+                    const labelError = validateCustomFieldLabel(value);
+                    if (labelError) return labelError;
+                    const newKey = customFieldLabelToKey(value);
+                    if (newKey !== initialKey && fieldsByKey.has(newKey)) {
                       return 'Custom fields must be unique';
                     }
                     return true;

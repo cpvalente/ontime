@@ -36,9 +36,9 @@ interface AutomationFormProps {
 
 export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
-  const { data } = useCustomFields();
+  const { data: customFields } = useCustomFields();
   const { refetch } = useAutomationSettings();
-  const fieldList = useMemo(() => makeFieldList(data), [data]);
+  const fieldList = useMemo(() => makeFieldList(customFields), [customFields]);
   const [testResults, setTestResults] = useState<Record<string, { state: TestState; input: string }>>({});
   const [submitError, setSubmitError] = useState<string>();
 
