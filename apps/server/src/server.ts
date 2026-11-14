@@ -25,6 +25,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
+import { Access, scopedAccess } from './middleware/access.js';
 import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';
@@ -86,6 +87,11 @@ app.enable('etag');
 // Implement middleware
 app.use(cors()); // setup cors for all routes
 app.options('*splat', cors()); // enable pre-flight cors
+// do not leak the URL, and any ?token= in it, in the Referer of links to other sites
+app.use((_req, res, next) => {
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  next();
+});
 
 app.use(bodyParser);
 app.use(cookieParser());
@@ -108,9 +114,9 @@ app.get(`${prefix}/ready`, (_req, res) => {
 
 // Implement route endpoints
 app.use(`${prefix}/login`, loginRouter); // router for login flow
-app.use(`${prefix}/data`, authenticate, compressData, appRouter); // router for application data
-app.use(`${prefix}/api`, authenticate, integrationRouter); // router for integrations
-app.use(`${prefix}/mcp`, authenticate, async (req, res, next) => {
+app.use(`${prefix}/data`, authenticate, scopedAccess(Access.read), compressData, appRouter); // router for application data
+app.use(`${prefix}/api`, authenticate, scopedAccess(Access.write), integrationRouter); // router for integrations
+app.use(`${prefix}/mcp`, authenticate, scopedAccess(Access.write), async (req, res, next) => {
   const { mcpRouter } = await import('./api-mcp/mcp.router.js');
   mcpRouter(req, res, next);
 });

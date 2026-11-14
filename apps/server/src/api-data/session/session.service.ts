@@ -4,7 +4,7 @@ import { socket } from '../../adapters/WebsocketAdapter.js';
 import { getLastRequest } from '../../api-integration/integration.controller.js';
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { portManager } from '../../classes/port-manager/PortManager.js';
-import { password, routerPrefix } from '../../externals.js';
+import { password, readPassword, routerPrefix } from '../../externals.js';
 import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 import { getNodeId } from '../../services/app-state-service/appState.service.js';
 import { getCurrentProject } from '../../services/project-service/project.service.js';
@@ -58,6 +58,8 @@ export function getInfo(): GetInfo {
 
 export const hasPassword = Boolean(password);
 export const hashedPassword = hasPassword ? hashPassword(password as string) : undefined;
+/** without a password everyone may write, so a read password only matters with one */
+export const hashedReadPassword = hasPassword && readPassword ? hashPassword(readPassword) : undefined;
 
 /**
  * Generates a pre-authenticated URL by injecting a token in the URL params
