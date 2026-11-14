@@ -78,6 +78,8 @@ describe('teleprompter project lifecycle', { timeout: 15_000 }, () => {
     expect(await teleprompter()).toMatchObject({ playback: 'play' });
 
     expect((await server.send('POST', '/data/db/demo')).ok).toBe(true);
-    await vi.waitFor(async () => expect(await teleprompter()).toMatchObject({ playback: 'pause' }), { timeout: 3000 });
+    await vi.waitFor(async () => expect(await teleprompter()).toMatchObject({ playback: 'pause' }), {
+      timeout: 3000,
+    });
   });
 });
