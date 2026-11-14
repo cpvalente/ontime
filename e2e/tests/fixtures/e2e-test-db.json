@@ -488,18 +488,20 @@
     "overrideStyles": false,
     "warningColor": "#ffa528"
   },
-  "customFields": {
-    "Song": {
+  "customFields": [
+    {
+      "key": "Song",
       "label": "Song",
       "type": "text",
       "colour": "#339E4E"
     },
-    "Artist": {
+    {
+      "key": "Artist",
       "label": "Artist",
       "type": "text",
       "colour": "#3E75E8"
     }
-  },
+  ],
   "urlPresets": [
     {
       "enabled": true,

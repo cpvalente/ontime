@@ -78,15 +78,16 @@ const staticAuxProperties = (index: 1 | 2 | 3) => [
  * It is manually kept in sync with the automation parseTemplate functions
  */
 export function makeAutoCompleteList(customFields: CustomFields): string[] {
+  const keys = customFields.map((field) => field.key);
   return [
     ...humanConstants,
     ...staticAutocompleteOptions,
     ...eventStaticPropertiesNow,
-    ...Object.entries(customFields).map(([key]) => `{{eventNow.custom.${key}}}`),
+    ...keys.map((key) => `{{eventNow.custom.${key}}}`),
     ...eventStaticPropertiesNext,
-    ...Object.entries(customFields).map(([key]) => `{{eventNext.custom.${key}}}`),
+    ...keys.map((key) => `{{eventNext.custom.${key}}}`),
     ...groupStaticPropertiesNow,
-    ...Object.entries(customFields).map(([key]) => `{{groupNow.custom.${key}}}`),
+    ...keys.map((key) => `{{groupNow.custom.${key}}}`),
     ...staticAuxProperties(1),
     ...staticAuxProperties(2),
     ...staticAuxProperties(3),

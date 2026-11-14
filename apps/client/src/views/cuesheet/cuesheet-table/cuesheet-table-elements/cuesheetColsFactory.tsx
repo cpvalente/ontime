@@ -1,4 +1,12 @@
-import { CustomFields, OntimeEntry, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
+import {
+  CustomFieldType,
+  CustomFields,
+  OntimeEntry,
+  TimeStrategy,
+  URLPreset,
+  isOntimeDelay,
+  isOntimeEvent,
+} from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
@@ -240,6 +248,15 @@ function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   );
 }
 
+function getCustomFieldCell(type: CustomFieldType) {
+  switch (type) {
+    case 'text':
+      return MakeCustomField;
+    case 'image':
+      return LazyImage;
+  }
+}
+
 /**
  * we cant use the createColumnHelper() because we have custom logic for rendering the cells
  * This means that the display columns: index and action are added inline by the row components
@@ -336,22 +353,19 @@ export function makeCuesheetColumns(
     });
   }
 
-  // custom fields at the end
-  const customFieldKeys = Object.keys(customFields);
-
-  for (let i = 0; i < customFieldKeys.length; i++) {
-    const key = customFieldKeys[i];
-    const permissionKey = `custom-${key}`;
+  // custom fields at the end, in the project order
+  for (const field of customFields) {
+    const permissionKey = `custom-${field.key}`;
     if (!canRead(permissionKey)) continue;
     columnsDef.push({
-      accessorKey: key,
-      id: key,
-      header: customFields[key].label,
-      cell: customFields[key].type === 'text' ? MakeCustomField : LazyImage,
+      accessorKey: field.key,
+      id: field.key,
+      header: field.label,
+      cell: getCustomFieldCell(field.type),
       size: 250,
       minSize: 75,
       meta: {
-        colour: customFields[key].colour,
+        colour: field.colour,
         canWrite: canWrite(permissionKey),
       },
     });

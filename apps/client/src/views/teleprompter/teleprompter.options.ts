@@ -1,6 +1,6 @@
 import {
-  type CustomFields,
   defaultTeleprompterSpeed,
+  type CustomFields,
   type TeleprompterMode,
   type TeleprompterSettings,
 } from 'ontime-types';
