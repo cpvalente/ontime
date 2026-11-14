@@ -17,6 +17,8 @@ describe('PipTimer', () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance'] });
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
+    // the browser is on UTC
+    vi.spyOn(Date.prototype, 'getTimezoneOffset').mockReturnValue(0);
     container = document.createElement('div');
     root = createRoot(container);
   });
@@ -26,6 +28,7 @@ describe('PipTimer', () => {
     vi.clearAllTimers();
     vi.useRealTimers();
     vi.unstubAllGlobals();
+    vi.restoreAllMocks();
   });
 
   it('shows the synchronised clock in clock mode, not the delayed published one', () => {

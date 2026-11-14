@@ -9,6 +9,7 @@ import { srcFiles } from './setup/index.js';
 
 // =================================================
 export const password = process.env.SESSION_PASSWORD;
+export const readPassword = process.env.SESSION_READ_PASSWORD;
 export const routerPrefix = process.env.ROUTER_PREFIX;
 
 /**

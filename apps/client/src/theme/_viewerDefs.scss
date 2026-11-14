@@ -10,11 +10,11 @@ $viewer-transition-time: 0.5s;
 $viewer-font-family: 'Open Sans', 'Segoe UI', sans-serif; // --font-family-override
 $viewer-opacity-disabled: 0.6;
 
-$timer-label-size: clamp(12px, 1.25vw, 20px);
-$base-font-size: clamp(15px, 1.5vw, 28px);
-$title-font-size: clamp(18px, 2.25vw, 42px);
-$timer-value-size: clamp(24px, 2.5vw, 48px);
-$header-font-size: clamp(24px, 2.5vw, 48px);
+$timer-label-size: var(--viewer-label-size, clamp(12px, 1.25vw, 20px));
+$base-font-size: var(--viewer-body-size, clamp(15px, 1.5vw, 28px));
+$title-font-size: var(--viewer-title-size, clamp(18px, 2.25vw, 42px));
+$timer-value-size: var(--viewer-timer-size, clamp(24px, 2.5vw, 48px));
+$header-font-size: var(--viewer-header-size, clamp(24px, 2.5vw, 48px));
 
 // General styling
 $accent-color: $red-500; // --accent-color-override

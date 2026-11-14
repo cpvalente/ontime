@@ -53,6 +53,18 @@ $thumb-color-hover: $white-60;
   --pwa-safe-area-left: 0px;
 }
 
+// Preserve the viewer type hierarchy as the display grows beyond a 1080p canvas.
+@media screen and (min-width: 1920px) {
+  :root {
+    --viewer-font-unit: min(calc(100vw / 1920), calc(100vh / 1080));
+    --viewer-label-size: clamp(20px, calc(20 * var(--viewer-font-unit)), 40px);
+    --viewer-body-size: clamp(28px, calc(28 * var(--viewer-font-unit)), 56px);
+    --viewer-title-size: clamp(42px, calc(42 * var(--viewer-font-unit)), 84px);
+    --viewer-timer-size: clamp(48px, calc(48 * var(--viewer-font-unit)), 96px);
+    --viewer-header-size: clamp(48px, calc(48 * var(--viewer-font-unit)), 96px);
+  }
+}
+
 @supports (padding-top: env(safe-area-inset-top)) {
   @media (display-mode: standalone) {
     :root {

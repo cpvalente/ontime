@@ -1,8 +1,5 @@
 @use '@/theme/viewerDefs' as *;
 
-$dot-size: 0.5rem;
-$dot-spacing: 1.5rem;
-
 .loader {
   display: grid;
   place-items: center;
@@ -10,64 +7,45 @@ $dot-spacing: 1.5rem;
   height: 100dvh;
 }
 
-.ellipsis {
-  display: inline-block;
-  position: relative;
-  width: 5rem;
+.dots {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 16px;
 
-  div {
-    position: absolute;
-    width: $dot-size;
-    height: $dot-size;
+  span {
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
     background-color: var(--accent-color-override, $ontime-color);
-    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:nth-child(1) {
-      left: $dot-size;
-      animation: lds-ellipsis1 1s infinite;
-    }
+    animation: dot-hop 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 
     &:nth-child(2) {
-      left: $dot-size;
-      animation: lds-ellipsis2 1s infinite;
+      animation-delay: 0.14s;
     }
 
     &:nth-child(3) {
-      left: calc($dot-size + $dot-spacing);
-      animation: lds-ellipsis2 1s infinite;
-    }
-
-    &:nth-child(4) {
-      left: calc($dot-size + 2 * $dot-spacing);
-      animation: lds-ellipsis3 1s infinite;
+      animation-delay: 0.28s;
     }
   }
 }
 
-@keyframes lds-ellipsis1 {
-  0% {
-    transform: scale(0);
-  }
+@keyframes dot-hop {
+  0%,
+  60%,
   100% {
-    transform: scale(1);
+    transform: translateY(0);
+    opacity: 0.45;
+  }
+  30% {
+    transform: translateY(-7px);
+    opacity: 1;
   }
 }
 
-@keyframes lds-ellipsis2 {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate($dot-spacing, 0);
-  }
-}
-
-@keyframes lds-ellipsis3 {
-  0% {
-    transform: scale(1);
-  }
-  100% {
-    transform: scale(0);
+@media (prefers-reduced-motion: reduce) {
+  .dots span {
+    animation: none;
+    opacity: 0.8;
   }
 }

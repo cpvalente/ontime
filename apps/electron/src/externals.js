@@ -12,6 +12,7 @@ const linkToDocs = 'https://docs.getontime.no/';
 const linkToGitHub = 'https://github.com/cpvalente/ontime';
 const linkToDiscord = 'https://discord.com/invite/eje3CSUEXm';
 const apiRepoLatest = 'https://api.github.com/repos/cpvalente/ontime/releases/latest';
+const linkToDownloads = 'https://getontime.no/download';
 
 // environment and platform constants
 const env = process.env.NODE_ENV || 'production';
@@ -74,13 +75,14 @@ const externalPath = path.join(getAppDataPath(), 'external');
 /** path to tray icon */
 const trayIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'background.png');
 /** path to app icon directory */
-const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'logo.png');
+const appIcon = path.join(__dirname, electronConfig.assets.pathToAssets, 'icon.png');
 
 module.exports = {
   linkToDocs,
   linkToGitHub,
   linkToDiscord,
   apiRepoLatest,
+  linkToDownloads,
   env,
   isProduction,
   isMac,
