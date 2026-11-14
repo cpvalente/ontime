@@ -18,6 +18,7 @@ import { router as viewSettingsRouter } from './view-settings/viewSettings.route
 
 export const appRouter: Router = express.Router();
 
+// read tokens may GET from every router, anything that changes data needs write (see scopedAccess in server.ts)
 appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);
 appRouter.use('/custom-views', customViewsRouter);
