@@ -7,7 +7,7 @@ import { dataFromExcelTemplate } from './mockData.js';
 
 describe('parseExcel()', () => {
   it('parses the simple template file', () => {
-    const result = parseExcel(simpleTemplate, {});
+    const result = parseExcel(simpleTemplate, []);
 
     expect(result.rundown.flatOrder.length).toBe(14);
     expect(result.rundown.order.length).toBe(4);
@@ -44,35 +44,19 @@ describe('parseExcel()', () => {
       },
     };
 
-    const existingCustomFields: CustomFields = {
-      user0: { type: 'text', colour: 'red', label: 'user0' },
-      user1: { type: 'text', colour: 'green', label: 'user1' },
-      user2: { type: 'text', colour: 'blue', label: 'user2' },
-    };
+    const existingCustomFields: CustomFields = [
+      { key: 'user0', type: 'text', colour: 'red', label: 'user0' },
+      { key: 'user1', type: 'text', colour: 'green', label: 'user1' },
+      { key: 'user2', type: 'text', colour: 'blue', label: 'user2' },
+    ];
 
     const parsedData = parseExcel(dataFromExcelTemplate, existingCustomFields, 'testSheet', importMap);
-    expect(parsedData.customFields).toStrictEqual({
-      user0: {
-        type: 'text',
-        colour: 'red',
-        label: 'user0',
-      },
-      user1: {
-        type: 'text',
-        colour: 'green',
-        label: 'user1',
-      },
-      user2: {
-        type: 'text',
-        colour: 'blue',
-        label: 'user2',
-      },
-      user3: {
-        type: 'text',
-        colour: '',
-        label: 'user3',
-      },
-    });
+    expect(parsedData.customFields).toStrictEqual([
+      { key: 'user0', type: 'text', colour: 'red', label: 'user0' },
+      { key: 'user1', type: 'text', colour: 'green', label: 'user1' },
+      { key: 'user2', type: 'text', colour: 'blue', label: 'user2' },
+      { key: 'user3', type: 'text', colour: '', label: 'user3' },
+    ]);
     expect(parsedData.rundown.order.length).toBe(2);
     // TODO: why dont we parse the date in UTC?
     expect(parsedData.rundown.entries).toMatchObject({
@@ -121,19 +105,11 @@ describe('parseExcel()', () => {
       },
     };
 
-    const parsedData = parseExcel(dataFromExcelTemplate, {}, 'testSheet', importMap);
-    expect(parsedData.customFields).toStrictEqual({
-      niu1: {
-        type: 'text',
-        colour: '',
-        label: 'niu1',
-      },
-      niu2: {
-        type: 'text',
-        colour: '',
-        label: 'niu2',
-      },
-    });
+    const parsedData = parseExcel(dataFromExcelTemplate, [], 'testSheet', importMap);
+    expect(parsedData.customFields).toStrictEqual([
+      { key: 'niu1', type: 'text', colour: '', label: 'niu1' },
+      { key: 'niu2', type: 'text', colour: '', label: 'niu2' },
+    ]);
     expect(parsedData.rundown.order).toMatchObject(['event-a', 'event-b']);
     expect(parsedData.rundown.entries['event-a']).toMatchObject({
       //timeStart: 28800000,
@@ -176,7 +152,7 @@ describe('parseExcel()', () => {
       title: 'title',
       timerType: 'timer type',
     };
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(1);
@@ -196,7 +172,7 @@ describe('parseExcel()', () => {
       duration: 'duration',
     } as ImportMap;
 
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstGroup = result.rundown.entries[result.rundown.order[0]];
 
     expect(result.rundown.order.length).toBe(1);
@@ -221,7 +197,7 @@ describe('parseExcel()', () => {
       title: 'title',
       timerType: 'timer type',
     };
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstGroup = result.rundown.entries[result.rundown.order[0]] as OntimeGroup;
     const secondGroup = result.rundown.entries[result.rundown.order[1]] as OntimeGroup;
 
@@ -242,7 +218,7 @@ describe('parseExcel()', () => {
       title: 'title',
     };
 
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
     const secondEvent = result.rundown.entries[result.rundown.order[1]];
 
@@ -270,7 +246,7 @@ describe('parseExcel()', () => {
       title: 'title',
       timerType: 'timer type',
     };
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
     const secondEvent = result.rundown.entries[result.rundown.order[1]];
     const thirdEvent = result.rundown.entries[result.rundown.order[2]];
@@ -298,7 +274,7 @@ describe('parseExcel()', () => {
       timeEnd: 'time end',
       id: 'id',
     };
-    const result = parseExcel(testData, {}, 'testSheet', importMap);
+    const result = parseExcel(testData, [], 'testSheet', importMap);
     expect(result.rundown.order.length).toBe(8);
     expect(result.rundown.entries['event-1']).toMatchObject({
       timeStart: 16200000,
@@ -346,7 +322,7 @@ describe('parseExcel()', () => {
       colour: 'colour       ', // <--- trailing white space
     };
 
-    const result = parseExcel(testData, {}, 'testSheet', importMap);
+    const result = parseExcel(testData, [], 'testSheet', importMap);
     expect(result.rundown.order.length).toBe(1);
     expect(result.rundown.entries['event-a']).toMatchObject({
       colour: '#F00',
@@ -374,7 +350,7 @@ describe('parseExcel()', () => {
       timerType: 'timer type',
     };
 
-    const result = parseExcel(testData, {}, 'testSheet', importMap);
+    const result = parseExcel(testData, [], 'testSheet', importMap);
     expect(result.rundown.order.length).toBe(5);
     expect(result.rundown.order).toMatchObject(['A', 'B', 'C', 'D', 'GROUP']);
     expect(result.rundown.flatOrder.length).toBe(6);
@@ -443,7 +419,7 @@ describe('parseExcel()', () => {
       ['MEET4', '', '', 30, true, 'count-up', 'none', 11, '00:05:00'],
     ];
 
-    const parsedData = parseExcel(testData, {}, 'bug-report');
+    const parsedData = parseExcel(testData, [], 'bug-report');
 
     // '15' as a string is parsed by smart time entry as minutes
     expect(parsedData.rundown.entries['SETUP']).toMatchObject({
@@ -495,7 +471,7 @@ describe('parseExcel()', () => {
       note: 'notes',
     } as ImportMap;
 
-    const result = parseExcel(testdata, {}, 'testSheet', importMap);
+    const result = parseExcel(testdata, [], 'testSheet', importMap);
     const firstEvent = result.rundown.entries[result.rundown.order[0]];
     const secondEvent = result.rundown.entries[result.rundown.order[1]];
     const milestone = result.rundown.entries[result.rundown.order[2]];

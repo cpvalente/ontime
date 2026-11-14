@@ -590,7 +590,7 @@ describe('mergeRundownPreservingFields()', () => {
     });
 
     const merged = mergeRundownPreservingFields(incoming, current, { event: ['title'], custom: [] });
-    const parsed = parseRundown(merged, {});
+    const parsed = parseRundown(merged, []);
     const keynote = parsed.entries.keynote as OntimeEvent;
 
     expect(keynote.triggers).toEqual([automation]);

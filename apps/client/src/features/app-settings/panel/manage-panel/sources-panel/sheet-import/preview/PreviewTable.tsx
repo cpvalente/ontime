@@ -97,7 +97,7 @@ export default function PreviewTable({
 }: PreviewTableProps) {
   const customFieldKeyByLabel = useMemo(() => {
     if (!preview) return new Map<CustomField['label'], CustomFieldKey>();
-    return new Map(Object.entries(preview.customFields).map(([fieldId, field]) => [field.label, fieldId]));
+    return new Map(preview.customFields.map((field) => [field.label, field.key]));
   }, [preview]);
 
   const displayColumns = useMemo(() => getDisplayColumns(columnLabels), [columnLabels]);

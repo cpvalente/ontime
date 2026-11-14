@@ -13,7 +13,7 @@ vi.mock('../../api-data/rundown/rundown.dao.js', () => ({
     entries: {},
     revision: 0,
   })),
-  getProjectCustomFields: vi.fn(() => ({})),
+  getProjectCustomFields: vi.fn(() => []),
 }));
 
 vi.mock('../../api-data/assets/assets.service.js', () => ({

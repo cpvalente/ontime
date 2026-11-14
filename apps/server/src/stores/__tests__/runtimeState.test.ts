@@ -42,7 +42,7 @@ import {
  * outside of tests, the runtime service does this when it is told of the change
  */
 async function initTestRundown(rundown: Rundown) {
-  await initRundown(rundown, {});
+  await initRundown(rundown, []);
   vi.runAllTimers();
   updateRundownData(rundownCache.get().metadata);
 }
@@ -1380,7 +1380,7 @@ describe('loadGroupFlagAndEnd()', () => {
         },
         order: ['skipped', 'group', 'last'],
       }),
-      {},
+      [],
     );
     const { metadata, rundown } = rundownCache.get();
 

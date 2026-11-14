@@ -70,7 +70,6 @@ export function getDataProvider() {
     setCustomFields,
     getCustomFields,
     setRundown,
-    mergeRundown,
     getSettings,
     setSettings,
     getUrlPresets,
@@ -107,23 +106,9 @@ function getProjectId(): string {
 }
 
 async function setCustomFields(newData: CustomFields): ReadonlyPromise<CustomFields> {
-  db.data.customFields = { ...newData };
+  db.data.customFields = [...newData];
   await persist();
   return db.data.customFields;
-}
-
-async function mergeRundown(
-  newCustomFields: CustomFields,
-  newRundowns: ProjectRundowns,
-): ReadonlyPromise<{ rundowns: ProjectRundowns; customFields: CustomFields }> {
-  db.data.customFields = { ...db.data.customFields, ...newCustomFields };
-
-  Object.entries(newRundowns).forEach(([id, rundown]) => {
-    // Note that entries with the same key will be overridden
-    db.data.rundowns[id] = rundown;
-  });
-  await persist();
-  return { rundowns: db.data.rundowns, customFields: db.data.customFields };
 }
 
 function getCustomFields(): Readonly<CustomFields> {

@@ -9,7 +9,7 @@ describe('isValidChangeProperty()', () => {
       duration: 111,
     } as OntimeEvent;
 
-    expect(isValidChangeProperty(testEvent, 'duration', 123, {})).toBeTruthy();
+    expect(isValidChangeProperty(testEvent, 'duration', 123, [])).toBeTruthy();
   });
 
   test('forbids changing a valid event property with undefined value', () => {
@@ -18,7 +18,7 @@ describe('isValidChangeProperty()', () => {
       duration: 111,
     } as OntimeEvent;
 
-    expect(isValidChangeProperty(testEvent, 'duration', undefined, {})).toBeFalsy();
+    expect(isValidChangeProperty(testEvent, 'duration', undefined, [])).toBeFalsy();
   });
 
   test('forbids changing a non-existing property', () => {
@@ -27,7 +27,7 @@ describe('isValidChangeProperty()', () => {
       duration: 111,
     } as OntimeEvent;
 
-    expect(isValidChangeProperty(testEvent, 'missing', 123, {})).toBeFalsy();
+    expect(isValidChangeProperty(testEvent, 'missing', 123, [])).toBeFalsy();
   });
 
   test('forbids changing customValues in event without custom fields', () => {
@@ -36,13 +36,9 @@ describe('isValidChangeProperty()', () => {
       duration: 111,
     } as OntimeDelay;
 
-    const testCustomFields = {
-      test: {
-        type: 'text',
-        colour: '#ffffff',
-        label: 'Test Field',
-      },
-    } satisfies CustomFields;
+    const testCustomFields = [
+      { key: 'test', type: 'text', colour: '#ffffff', label: 'Test Field' },
+    ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testDelay, 'custom:test', 123, testCustomFields)).toBeFalsy();
   });
@@ -56,7 +52,7 @@ describe('isValidChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    expect(isValidChangeProperty(testEvent, 'custom:test', 123, {})).toBeFalsy();
+    expect(isValidChangeProperty(testEvent, 'custom:test', 123, [])).toBeFalsy();
   });
 
   test('allows changing an existing custom value', () => {
@@ -68,13 +64,9 @@ describe('isValidChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    const testCustomFields = {
-      test: {
-        type: 'text',
-        colour: '#ffffff',
-        label: 'Test Field',
-      },
-    } satisfies CustomFields;
+    const testCustomFields = [
+      { key: 'test', type: 'text', colour: '#ffffff', label: 'Test Field' },
+    ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testEvent, 'custom:test', 123, testCustomFields)).toBeTruthy();
   });
@@ -88,13 +80,9 @@ describe('isValidChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    const testCustomFields = {
-      test: {
-        type: 'text',
-        colour: '#ffffff',
-        label: 'Test Field',
-      },
-    } satisfies CustomFields;
+    const testCustomFields = [
+      { key: 'test', type: 'text', colour: '#ffffff', label: 'Test Field' },
+    ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testEvent, 'custom:', 123, testCustomFields)).toBeFalsy();
   });
@@ -108,13 +96,9 @@ describe('isValidChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    const testCustomFields = {
-      test: {
-        type: 'text',
-        colour: '#ffffff',
-        label: 'Test Field',
-      },
-    } satisfies CustomFields;
+    const testCustomFields = [
+      { key: 'test', type: 'text', colour: '#ffffff', label: 'Test Field' },
+    ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testEvent, 'custom:toString', 123, testCustomFields)).toBeFalsy();
   });
@@ -128,13 +112,9 @@ describe('isValidChangeProperty()', () => {
       } as EntryCustomFields,
     } as OntimeEvent;
 
-    const testCustomFields = {
-      test: {
-        type: 'text',
-        colour: '#ffffff',
-        label: 'Test Field',
-      },
-    } satisfies CustomFields;
+    const testCustomFields = [
+      { key: 'test', type: 'text', colour: '#ffffff', label: 'Test Field' },
+    ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testEvent, 'toString', 123, testCustomFields)).toBeFalsy();
   });

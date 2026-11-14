@@ -40,8 +40,8 @@ function modeFromPermission(permission: string | undefined): AccessMode {
 }
 
 export default function CuesheetLinkOptions({ initialRead, initialWrite, onChange }: CuesheetLinkOptionsProps) {
-  const { data } = useCustomFields();
-  const customFieldColumns = useMemo(() => makeCuesheetCustomColumns(data), [data]);
+  const { data: customFields } = useCustomFields();
+  const customFieldColumns = useMemo(() => makeCuesheetCustomColumns(customFields), [customFields]);
   const allColumns = useMemo(() => [...cuesheetDefaultColumns, ...customFieldColumns], [customFieldColumns]);
 
   // Parsed seed values - stable for the lifetime of a given preset

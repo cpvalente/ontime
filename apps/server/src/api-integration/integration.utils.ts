@@ -1,5 +1,5 @@
 import { CustomFields, EndAction, OntimeEntry, TimeStrategy, TimerType, isKeyOfType } from 'ontime-types';
-import { maxDuration } from 'ontime-utils';
+import { findCustomField, maxDuration } from 'ontime-utils';
 
 import { coerceBoolean, coerceColour, coerceEnum, coerceNumber, coerceString } from '../utils/coerceType.js';
 
@@ -68,14 +68,14 @@ export function isValidChangeProperty(
   target: OntimeEntry,
   property: string,
   value: unknown,
-  customFields: CustomFields,
+  customFields: Readonly<CustomFields>,
 ): boolean {
   if (typeof property !== 'string') return false;
   if (value === undefined) return false;
   if (property.startsWith('custom:') && Object.hasOwn(target, 'custom')) {
     const customProperty = property.slice('custom:'.length);
     if (!customProperty) return false;
-    return Object.hasOwn(customFields, customProperty);
+    return findCustomField(customFields, customProperty) !== undefined;
   }
   return Object.hasOwn(target, property);
 }

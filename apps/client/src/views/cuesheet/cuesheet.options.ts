@@ -51,9 +51,9 @@ export const cuesheetDefaultColumns = [
 ];
 
 export function makeCuesheetCustomColumns(customFields: CustomFields) {
-  return Object.entries(customFields).map(([key, field]) => {
+  return customFields.map((field) => {
     return {
-      value: `custom-${key}`,
+      value: `custom-${field.key}`,
       label: field.label,
     };
   });
