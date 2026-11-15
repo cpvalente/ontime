@@ -1,7 +1,8 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 
 import Button from '../../../../common/components/buttons/Button';
 import Input from '../../../../common/components/input/input/Input';
+import { isImageUrl } from '../../../../common/utils/imageUrl';
 
 import style from './EditableImage.module.scss';
 
@@ -14,6 +15,9 @@ interface EditableImageProps {
 export default memo(EditableImage);
 
 function EditableImage({ initialValue, readOnly, updateValue }: EditableImageProps) {
+  // readers cannot fix a broken link, so its image is hidden from them
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
   const handleUpdate = (newValue: string) => {
     if (newValue === initialValue) {
       return;
@@ -25,12 +29,13 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
   };
 
   const openInNewTab = () => {
-    if (initialValue) {
+    // stored values are not validated, only open web links
+    if (isImageUrl(initialValue)) {
       window.open(initialValue, '_blank', 'noopener,noreferrer');
     }
   };
 
-  if (!initialValue && readOnly) {
+  if (readOnly && (!initialValue || failedSrc === initialValue)) {
     return null;
   }
 
@@ -62,7 +67,9 @@ function EditableImage({ initialValue, readOnly, updateValue }: EditableImagePro
           </Button>
         </div>
       )}
-      {Boolean(initialValue) && <img loading='lazy' src={initialValue} className={style.image} />}
+      {Boolean(initialValue) && (
+        <img loading='lazy' src={initialValue} className={style.image} onError={() => setFailedSrc(initialValue)} />
+      )}
     </div>
   );
 }
