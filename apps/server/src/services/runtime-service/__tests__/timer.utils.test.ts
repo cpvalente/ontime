@@ -190,7 +190,8 @@ describe('getExpectedFinish()', () => {
 describe('getCurrent()', () => {
   const makeInput = (patch: Partial<CurrentInput>): CurrentInput => ({
     clock: tod(0),
-    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(0) },
+    event: { countToEnd: false, timeStart: tod(0), dayOffset: 0 as Day },
+    currentDay: 0 as Day,
     startedAt: null,
     duration: dur(0),
     addedTime: dur(0),
@@ -241,7 +242,7 @@ describe('getCurrent()', () => {
     it('current time is the time to end even if it hasnt started, this is weird, but by design', () => {
       const current = getCurrent(
         makeInput({
-          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          event: { countToEnd: true, timeStart: tod(0), dayOffset: 0 as Day },
           clock: tod(30),
           duration: dur(100),
         }),
@@ -252,7 +253,7 @@ describe('getCurrent()', () => {
     it('current time is the time to end', () => {
       const current = getCurrent(
         makeInput({
-          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          event: { countToEnd: true, timeStart: tod(0), dayOffset: 0 as Day },
           clock: tod(30),
           duration: dur(100),
           startedAt: tod(10),
@@ -264,7 +265,7 @@ describe('getCurrent()', () => {
     it('current time is the time to end + added time', () => {
       const current = getCurrent(
         makeInput({
-          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          event: { countToEnd: true, timeStart: tod(0), dayOffset: 0 as Day },
           clock: tod(30),
           addedTime: dur(7),
           duration: dur(100),
@@ -274,27 +275,24 @@ describe('getCurrent()', () => {
       expect(current).toBe(77);
     });
 
-    it('keeps counting to the end while paused', () => {
+    it('holds while paused, the pause gives the event time', () => {
       const current = getCurrent(
         makeInput({
-          event: { countToEnd: true, timeStart: tod(0), timeEnd: tod(100) },
+          event: { countToEnd: true, timeStart: tod(0), dayOffset: 0 as Day },
           clock: tod(30),
           duration: dur(100),
           startedAt: tod(10),
           pausedAt: tod(20),
         }),
       );
-      expect(current).toBe(70);
+      expect(current).toBe(80);
     });
 
     it('handles events that finish the day after', () => {
       const current = getCurrent(
         makeInput({
-          event: {
-            countToEnd: true,
-            timeStart: tod(79200000), // 22:00:00
-            timeEnd: tod(600000), // 00:10:00
-          },
+          event: { countToEnd: true, timeStart: tod(79200000), dayOffset: 0 as Day }, // 22:00:00
+          duration: dur(2 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE), // to 00:10:00
           clock: tod(79500000), // 22:05:00
           startedAt: tod(79200000), // 22:00:00
         }),
@@ -302,15 +300,66 @@ describe('getCurrent()', () => {
       expect(current).toBe(dayInMs - 79500000 + 600000);
     });
 
+    it('handles events that finish the day after, once past midnight', () => {
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(79200000), dayOffset: 0 as Day }, // 22:00:00
+          duration: dur(2 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE), // to 00:10:00
+          currentDay: 1 as Day,
+          clock: tod(5 * MILLIS_PER_MINUTE), // 00:05:00
+          startedAt: tod(79200000), // 22:00:00
+        }),
+      );
+      expect(current).toBe(5 * MILLIS_PER_MINUTE);
+    });
+
+    it('is in overtime once past an end after midnight', () => {
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(79200000), dayOffset: 0 as Day }, // 22:00:00
+          duration: dur(2 * MILLIS_PER_HOUR + 10 * MILLIS_PER_MINUTE), // to 00:10:00
+          currentDay: 1 as Day,
+          clock: tod(20 * MILLIS_PER_MINUTE), // 00:20:00
+          startedAt: tod(79200000), // 22:00:00
+        }),
+      );
+      expect(current).toBe(-10 * MILLIS_PER_MINUTE);
+    });
+
+    it('holds while paused across midnight', () => {
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(23 * MILLIS_PER_HOUR), dayOffset: 0 as Day },
+          duration: dur(2 * MILLIS_PER_HOUR), // to 01:00
+          currentDay: 1 as Day,
+          clock: tod(2 * MILLIS_PER_MINUTE), // 00:02
+          startedAt: tod(23 * MILLIS_PER_HOUR),
+          pausedAt: tod(dayInMs - 3 * MILLIS_PER_MINUTE), // 23:57
+        }),
+      );
+      // paused at 23:57 with 63 minutes to go
+      expect(current).toBe(63 * MILLIS_PER_MINUTE);
+    });
+
+    it('counts to the end on its own day', () => {
+      const current = getCurrent(
+        makeInput({
+          event: { countToEnd: true, timeStart: tod(10 * MILLIS_PER_HOUR), dayOffset: 1 as Day },
+          duration: dur(MILLIS_PER_HOUR),
+          currentDay: 1 as Day,
+          clock: tod(10 * MILLIS_PER_HOUR + 15 * MILLIS_PER_MINUTE),
+          startedAt: tod(10 * MILLIS_PER_HOUR),
+        }),
+      );
+      expect(current).toBe(45 * MILLIS_PER_MINUTE);
+    });
+
     it('handles events that were started late', () => {
       const current = getCurrent(
         makeInput({
           clock: tod(82000000), // 22:46:40 <--- starting 16 min after the scheduled end
-          event: {
-            countToEnd: true,
-            timeStart: tod(77400000), // 21:30:00
-            timeEnd: tod(81000000), // 22:30:00
-          },
+          event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+          duration: dur(MILLIS_PER_HOUR), // to 22:30:00
           startedAt: tod(79200000), // 22:00:00
         }),
       );
@@ -320,9 +369,10 @@ describe('getCurrent()', () => {
 });
 
 describe('getExpectedFinish() and getCurrentTime() combined', () => {
-  const makeInput = (clock: number, addedTime: number): CurrentInput => ({
+  const makeInput = (clock: number, addedTime: number): CurrentInput & ExpectedFinishInput => ({
     clock: tod(clock),
-    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(10) },
+    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(10), dayOffset: 0 as Day },
+    currentDay: 0 as Day,
     startedAt: tod(0),
     duration: dur(10),
     addedTime: dur(addedTime),
@@ -760,7 +810,7 @@ describe('getRuntimeOffset()', () => {
     expect(absolute).toBe(400000 - 200000); // <--- offset is always the overtime + added time
   });
 
-  it('with time-to-end, paused time is not offset', () => {
+  it('with time-to-end, paused time is offset, as added time is', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(80000000), // 22:13:20
@@ -773,7 +823,7 @@ describe('getRuntimeOffset()', () => {
         actualStart: tod(78000000),
       }),
     );
-    expect(absolute).toBe(0);
+    expect(absolute).toBe(1000000); // paused since 79000000
   });
 
   it('handles time-to-end started after the end time', () => {
@@ -789,6 +839,7 @@ describe('getRuntimeOffset()', () => {
     const current = getCurrent({
       clock,
       event,
+      currentDay: 0 as Day,
       startedAt,
       duration: dur(3600000),
       addedTime: dur(0),
@@ -958,7 +1009,7 @@ describe('getExpectedTimes()', () => {
     delay: 0,
     countToEnd: false,
   });
-  const linked = { event, accumulatedGap: 0, isLinkedToLoaded: true };
+  const linked = { event, accumulatedGap: 0, isLinkedToLoaded: true, isLoaded: false };
   const absoluteOffset = (offset: number) => ({ absolute: dur(offset), relative: dur(0) });
 
   const makeInput = (patch: Partial<ExpectedTimesInput>): ExpectedTimesInput => ({
@@ -991,7 +1042,7 @@ describe('getExpectedTimes()', () => {
   });
 
   it('lets gaps absorb the offset of unlinked events', () => {
-    const unlinked = { event, accumulatedGap: 10 * MILLIS_PER_MINUTE, isLinkedToLoaded: false };
+    const unlinked = { event, accumulatedGap: 10 * MILLIS_PER_MINUTE, isLinkedToLoaded: false, isLoaded: false };
     const { expectedRundownEnd } = getExpectedTimes(
       makeInput({ offset: absoluteOffset(5 * MILLIS_PER_MINUTE), end: unlinked }),
     );
@@ -1016,7 +1067,7 @@ describe('getExpectedTimes()', () => {
 
   it('places events after midnight relative to the current day', () => {
     const afterMidnight = makeOntimeEvent({ ...event, timeStart: 30 * MILLIS_PER_MINUTE, dayOffset: 1 as Day });
-    const end = { event: afterMidnight, accumulatedGap: 0, isLinkedToLoaded: true };
+    const end = { event: afterMidnight, accumulatedGap: 0, isLinkedToLoaded: true, isLoaded: false };
 
     expect(getExpectedTimes(makeInput({ end })).expectedRundownEnd).toBe(dayInMs + 90 * MILLIS_PER_MINUTE);
     expect(getExpectedTimes(makeInput({ currentDay: 1 as Day, end })).expectedRundownEnd).toBe(90 * MILLIS_PER_MINUTE);

@@ -50,13 +50,21 @@ export function getExpectedStart(
 }
 
 export function getExpectedEnd(
-  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd'>,
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd' | 'delay'>,
   expectedStart: number,
   currentRuntimeDay: number,
+  isLoaded: boolean,
 ): number {
   /**
-   * Count to end events are a special case
-   * - the end time is always the wall clock
+   * Count to end events end on their planned time, a delay does not move them
+   * the loaded one follows the runtime offset, which holds the time given to it
+   */
+  if (event.countToEnd && isLoaded) {
+    return expectedStart - event.delay + event.duration;
+  }
+
+  /**
+   * Count to end events after the loaded one also absorb the offset
    */
   if (event.countToEnd) {
     // account for day offset
