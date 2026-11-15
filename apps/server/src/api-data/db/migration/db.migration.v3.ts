@@ -1,6 +1,6 @@
 import {
   AutomationSettings,
-  CustomFields,
+  CustomField,
   DatabaseModel,
   EndAction,
   EntryCustomFields,
@@ -49,7 +49,8 @@ export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
   const urlPresets = migrateURLPresets(jsonData);
   const project = migrateProjectData(jsonData);
   const migratedCustom = migrateCustomFields(jsonData);
-  const customFields = migratedCustom?.customFields;
+  // v3 files come out in the v4 shape, the v5 steps take them from there
+  const customFields = migratedCustom?.customFields as unknown as DatabaseModel['customFields'] | undefined;
   const rundowns = migrateRundown(jsonData, migratedCustom?.translationTable);
   const automation = migrateAutomations(jsonData);
 
@@ -169,6 +170,9 @@ export function migrateProjectData(jsonData: object): ProjectData | undefined {
 
 // old key -> new key
 type CustomFieldsTranslationTable = Map<string, string>;
+/** v3 files come out with the v4 custom fields record, the v5 migration makes it a list */
+type V4CustomFields = Record<string, Omit<CustomField, 'key'>>;
+
 type old_CustomFields = Record<
   string,
   {
@@ -187,13 +191,13 @@ type old_CustomFields = Record<
  */
 export function migrateCustomFields(
   jsonData: object,
-): { customFields: CustomFields; translationTable: CustomFieldsTranslationTable } | undefined {
+): { customFields: V4CustomFields; translationTable: CustomFieldsTranslationTable } | undefined {
   const translationTable: CustomFieldsTranslationTable = new Map();
 
   if (is.objectWithKeys(jsonData, ['customFields']) && is.object(jsonData.customFields)) {
     // intentionally cast as any so we can extract the values
     const oldCustomFields = structuredClone(jsonData.customFields) as old_CustomFields;
-    const customFields: CustomFields = {};
+    const customFields: V4CustomFields = {};
 
     for (const [originalKey, field] of Object.entries(oldCustomFields)) {
       if (!checkRegex.isAlphanumericWithSpace(field.label)) {

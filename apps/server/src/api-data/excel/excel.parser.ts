@@ -40,7 +40,7 @@ type MergedOntimeEntry = Prettify<
  */
 export const parseExcel = (
   excelData: unknown[][],
-  existingCustomFields: CustomFields,
+  existingCustomFields: Readonly<CustomFields>,
   sheetName: string = 'Rundown from excel',
   options?: Partial<ImportMap>,
 ): {

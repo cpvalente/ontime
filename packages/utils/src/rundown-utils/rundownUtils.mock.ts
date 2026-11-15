@@ -367,28 +367,13 @@ export const demoDb: DatabaseModel = {
         'hideclock=true&hidecards=true&hideprogress=true&hidemessage=true&hidesecondary=true&hidelogo=true&font=arial+black&keycolour=00ff00&timerColour=ffffff',
     },
   ],
-  customFields: {
-    Video_Notes: {
-      type: 'text',
-      colour: '#FFAB33',
-      label: 'Video Notes',
-    },
-    Audio_Notes: {
-      type: 'text',
-      colour: '#339E4E',
-      label: 'Audio Notes',
-    },
-    PowerPoint_Name: {
-      type: 'text',
-      colour: '#3E75E8',
-      label: 'PowerPoint Name',
-    },
-    PowerPoint_Slide: {
-      type: 'image',
-      colour: '#ED3333',
-      label: 'PowerPoint Slide',
-    },
-  },
+  customFields: [
+    { key: 'Video_Notes', type: 'text', colour: '#FFAB33', label: 'Video Notes' },
+    { key: 'Audio_Notes', type: 'text', colour: '#339E4E', label: 'Audio Notes' },
+    { key: 'PowerPoint_Name', type: 'text', colour: '#3E75E8', label: 'PowerPoint Name' },
+    { key: 'PowerPoint_Slide', type: 'image', colour: '#ED3333', label: 'PowerPoint Slide' },
+  ],
+
   automation: {
     enabledAutomations: false,
     enabledOscIn: false,

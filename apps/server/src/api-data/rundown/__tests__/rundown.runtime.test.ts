@@ -55,7 +55,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
       stored.rundowns[id] = rundown;
     }),
     getProjectRundowns: () => stored.rundowns,
-    getCustomFields: () => ({}),
+    getCustomFields: () => [],
     getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
     setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
   }),
@@ -76,7 +76,7 @@ vi.mock('../../../services/restore-service/restore.service.js', () => ({
 vi.mock('../../automation/automation.service.js', () => ({ triggerAutomations: vi.fn<() => void>() }));
 vi.mock('../../report/report.service.js', () => ({ triggerReportEntry: vi.fn<() => void>() }));
 
-async function playRundown(rundown: Rundown, customFields: CustomFields = {}) {
+async function playRundown(rundown: Rundown, customFields: CustomFields = []) {
   await initRundown(rundown, customFields);
   runtimeService.startById('a');
   expect(getState().timer.playback).toBe(Playback.Play);
@@ -190,7 +190,7 @@ describe('rundown changes update the runtime', () => {
         entries: { a: makeOntimeEvent({ ...eventA, custom: { old: 'value' } }), b: makeOntimeEvent(eventB) },
         order: ['a', 'b'],
       }),
-      { old: makeCustomField({ label: 'old' }) },
+      [makeCustomField({ label: 'old' })],
     );
 
     await editCustomField('old', { label: 'renamed' });
