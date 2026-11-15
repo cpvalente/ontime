@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { PROJECT_DATA } from '../../../../common/api/constants';
-import { getDb, patchData } from '../../../../common/api/db';
+import { patchData, readProject } from '../../../../common/api/db';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
@@ -61,17 +61,8 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
     try {
       setError(null);
 
-      // make patch object
-      const { data } = await getDb(fileName);
-      // the file is read as it is on disk: v4 files still merge as-is until a v5 migration changes the data
-      // files from other majors need to be opened in a matching Ontime first
-      const major = data.settings.version.split('.')[0];
-      if (major !== '4' && major !== '5') {
-        setError(
-          `This project was made with an unsupported version of Ontime (v${data.settings.version}). Open it in a matching version of Ontime, then merge.`,
-        );
-        return;
-      }
+      // the server migrates files saved by older versions
+      const { data } = await readProject(fileName);
       const patch = await makeProjectPatch(data, values);
 
       // request patch
@@ -108,6 +99,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
               <Info.Title>Back up before merging</Info.Title>
               <Info.Body>
                 This action can overwrite project data. Create a duplicate project first if you want a recovery point.
+                Projects from older Ontime versions are migrated when read; the original file is not changed.
               </Info.Body>
             </Info>
 

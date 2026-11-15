@@ -1,32 +1,33 @@
-import { CustomFields, MaybeString, OntimeEvent } from 'ontime-types';
+import { CustomField, CustomFieldKey, MaybeString, OntimeEvent } from 'ontime-types';
 
 import { getPropertyValue } from '../../views/common/viewUtils';
 import type { Subscribed } from './operator.types';
+
+/**
+ * Resolves the subscribed keys to their fields once, skipping fields which no longer exist
+ */
+export function getSubscribedFields(
+  subscriptions: string[],
+  fieldsByKey: ReadonlyMap<CustomFieldKey, CustomField>,
+): CustomField[] {
+  return subscriptions.flatMap((key) => fieldsByKey.get(key) ?? []);
+}
 
 export function getEventData(
   event: OntimeEvent,
   main: MaybeString,
   secondary: MaybeString,
-  subscriptions: string[],
-  customFields: CustomFields,
+  subscribedFields: CustomField[],
 ) {
   const mainField = main ? (getPropertyValue(event, main) ?? '') : event.title;
   const secondaryField = getPropertyValue(event, secondary) ?? '';
 
-  // remove subscriptions that are not in customFields
-  const sanitisedSubscriptions = subscriptions.filter((field) => Object.hasOwn(customFields, field));
-  const subscribedData = sanitisedSubscriptions.reduce<Subscribed>((acc, id) => {
-    const field = customFields[id];
-    if (field) {
-      acc.push({
-        id,
-        label: field.label,
-        colour: field.colour,
-        value: event.custom[id],
-      });
-    }
-    return acc;
-  }, []);
+  const subscribedData: Subscribed = subscribedFields.map((field) => ({
+    id: field.key,
+    label: field.label,
+    colour: field.colour,
+    value: event.custom[field.key],
+  }));
 
   return { mainField, secondaryField, subscribedData };
 }
