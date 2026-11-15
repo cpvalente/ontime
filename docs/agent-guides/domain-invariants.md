@@ -42,6 +42,17 @@ Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local 
 
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
 
+### Delays
+
+A delay entry is an announced change to the plan, not an annotation. An event has three times: planned (published), delayed (planned plus the delay entries before it, what the crew was told) and expected (delayed plus the runtime offset, what will happen).
+
+- A delay moves every later event by its value, on top of any lateness already there, until a gap or a count-to-end event absorbs it.
+- The runtime offset is measured from the delayed times, so a delay is never counted twice once playback passes it. Applying a delay changes no expected time and no offset: it only makes the delayed times the planned ones.
+- A delay never moves a count-to-end deadline; only time given to the event (added time, pause) does.
+- Roll follows the delayed times.
+
+Not yet enforced: the offset is still measured from the planned times (`getRuntimeOffset`), a delay carries on past count-to-end events (`rundown.parser.ts`), some views add the delay to a count-to-end end, and roll ignores delays.
+
 When relevant, cover interactions among:
 
 - midnight/day offsets;
