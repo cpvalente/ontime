@@ -5,6 +5,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box; /* reset */
+  position: relative;
   overflow: hidden;
   width: 100%; /* restrict the page width to viewport */
   height: 100vh;
@@ -87,6 +88,14 @@
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, $external-color 10%, transparent);
 
+    // Bound the line box so auto-fit can scale the text with the window.
+    > div {
+      height: 14vw;
+      min-height: 32px;
+      max-height: 96px;
+      line-height: 1.5;
+    }
+
     &--hidden {
       opacity: 0;
       height: 0;
@@ -103,6 +112,23 @@
       opacity: $viewer-opacity-disabled;
       transition: $viewer-transition-time;
     }
+  }
+
+  /* the view would be black out, we only indicate it */
+  &--blackout .timer-container {
+    opacity: 0.3;
+  }
+
+  .blackout-label {
+    position: absolute;
+    top: 0.25em;
+    left: 0.5em;
+    z-index: $zindex-floating;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: $viewer-color;
   }
 
   /* =================== OVERLAY ===================*/

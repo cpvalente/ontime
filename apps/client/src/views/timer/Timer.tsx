@@ -21,6 +21,7 @@ import { getTimerColour } from '../utils/presentation.utils';
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
   getCardData,
+  getCurrentAux,
   getEstimatedFontSize,
   getIsPlaying,
   getSecondaryDisplay,
@@ -86,7 +87,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   const viewTimerType = timerType ?? timerTypeNow;
   const showOverlay = getShowMessage(message.timer);
   const { showEndMessage, showFinished, showWarning, showDanger } = getShowModifiers(
-    timerTypeNow,
+    viewTimerType,
     countToEndNow,
     time.phase,
     freezeOvertime,
@@ -117,18 +118,7 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     clockFormat: timeformat,
   });
 
-  const currentAux = (() => {
-    if (message.timer.secondarySource === 'aux1') {
-      return auxTimer.aux1;
-    }
-    if (message.timer.secondarySource === 'aux2') {
-      return auxTimer.aux2;
-    }
-    if (message.timer.secondarySource === 'aux3') {
-      return auxTimer.aux3;
-    }
-    return null;
-  })();
+  const currentAux = getCurrentAux(message, auxTimer);
 
   const secondaryContent = getSecondaryDisplay(
     message,

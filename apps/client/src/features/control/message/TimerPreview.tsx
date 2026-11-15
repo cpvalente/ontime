@@ -54,6 +54,7 @@ export default function TimerPreview() {
   return (
     <div className={style.preview}>
       <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
+      {blackout && <div className={style.blackoutLabel}>Blackout</div>}
       <div className={contentClasses}>
         <div
           className={style.mainContent}

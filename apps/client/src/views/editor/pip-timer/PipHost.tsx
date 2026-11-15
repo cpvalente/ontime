@@ -1,5 +1,6 @@
 import { ErrorBoundary } from '@sentry/react';
-import { createRoot } from 'react-dom/client';
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 import { CornerPipButton } from '../../../common/components/editor-utils/EditorUtils';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
@@ -7,9 +8,19 @@ import { PipTimer } from './PipTimer';
 
 export default function PipTimerHost() {
   const { data, status } = useViewSettings();
+  const [pipContainer, setPipContainer] = useState<HTMLElement | null>(null);
+
+  // do not leave an orphan window if the editor goes away
+  useEffect(() => {
+    return () => {
+      window.documentPictureInPicture.window?.close();
+    };
+  }, []);
 
   const openPictureInPicture = async () => {
-    if (window.documentPictureInPicture.window) {
+    const existingWindow = window.documentPictureInPicture.window;
+    if (existingWindow) {
+      existingWindow.close();
       return;
     }
 
@@ -43,22 +54,21 @@ export default function PipTimerHost() {
     pipDiv.style.height = '100vh';
     pipWindow.document.body.append(pipDiv);
 
-    const pipRoot = createRoot(pipWindow.document.getElementById('pip-root') as Element, {
-      onCaughtError: (err, _errInfo) => console.error(err),
-      onUncaughtError: (err, _errInfo) => console.error(err),
-      onRecoverableError: (err, _errInfo) => console.error(err),
-    });
-
-    pipWindow.addEventListener('pagehide', () => {
-      pipRoot.unmount();
-    });
-
-    pipRoot.render(
-      <ErrorBoundary>
-        <PipTimer viewSettings={data} />
-      </ErrorBoundary>,
-    );
+    pipWindow.addEventListener('pagehide', () => setPipContainer(null));
+    setPipContainer(pipDiv);
   };
 
-  return <CornerPipButton onClick={status === 'success' ? openPictureInPicture : undefined} />;
+  // rendering through a portal keeps the PiP window in our React tree, so it follows view settings changes
+  return (
+    <>
+      <CornerPipButton onClick={status === 'success' ? openPictureInPicture : undefined} />
+      {pipContainer &&
+        createPortal(
+          <ErrorBoundary>
+            <PipTimer viewSettings={data} />
+          </ErrorBoundary>,
+          pipContainer,
+        )}
+    </>
+  );
 }

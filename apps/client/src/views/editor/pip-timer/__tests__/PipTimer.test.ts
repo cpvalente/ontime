@@ -37,4 +37,19 @@ describe('PipTimer', () => {
     expect(container.textContent).toContain('10:00:00');
     expect(container.textContent).not.toContain('09:00:00');
   });
+
+  it('indicates blackout without hiding the timer', () => {
+    runtimeStore.setState({
+      eventNow: createEvent({ timerType: TimerType.CountDown }),
+      message: {
+        timer: { text: '', visible: false, blink: false, blackout: true, secondarySource: null },
+        secondary: '',
+      },
+    });
+
+    act(() => root.render(createElement(PipTimer, { viewSettings: viewsSettingsPlaceholder })));
+
+    expect(container.querySelector('.blackout-label')).not.toBeNull();
+    expect(container.querySelector('.timer')).not.toBeNull();
+  });
 });
