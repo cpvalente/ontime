@@ -72,6 +72,7 @@ export type {
   CustomFields,
   CustomField,
   CustomFieldKey,
+  CustomFieldOption,
   CustomFieldPatch,
   CustomFieldType,
   EntryCustomFields,

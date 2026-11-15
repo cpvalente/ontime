@@ -27,6 +27,7 @@ export function getEventData(
     label: field.label,
     colour: field.colour,
     value: event.custom[field.key],
+    field,
   }));
 
   return { mainField, secondaryField, subscribedData };

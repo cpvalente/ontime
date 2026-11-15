@@ -61,3 +61,9 @@ export class InvalidCustomFieldOrderError extends InvalidInputError {
     super('The order must list each existing custom field at most once');
   }
 }
+
+export class InvalidCustomFieldOptionsError extends InvalidInputError {
+  constructor(message: string) {
+    super(message);
+  }
+}

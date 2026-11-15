@@ -113,7 +113,8 @@ function findMatch(
 
   // custom fields are named by the project, so these can only be reached generically
   for (const field of customFields) {
-    if (field.type !== 'text') {
+    // image values are links, the other types hold text
+    if (field.type === 'image') {
       continue;
     }
     const custom = check(field.key, field.label || field.key, entry.custom[field.key]);
@@ -214,7 +215,7 @@ export default function useFinder(searchValue: string, activeFilter: MaybeString
   /** The filters offered to the user: the fixed fields plus whatever the project defines */
   const filters = useMemo<FinderFilter[]>(() => {
     const customFilters = customFields
-      .filter((field) => field.type === 'text')
+      .filter((field) => field.type !== 'image')
       .map((field) => ({ key: field.key, label: field.label || field.key }));
     return [...staticFilters, ...customFilters];
   }, [customFields]);
