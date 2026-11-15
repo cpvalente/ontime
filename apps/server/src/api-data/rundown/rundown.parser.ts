@@ -188,7 +188,7 @@ export function parseRundown(
 
 /**
  * Ensures that custom fields have references
- * If a field is exists in the entry but not in the project customFields, it is deleted
+ * A value is deleted if its field does not exist in the project, or if it is empty, as loading a project would
  * Mutates the given event in place
  */
 export function sanitiseCustomFields(
@@ -196,7 +196,7 @@ export function sanitiseCustomFields(
   entry: OntimeEvent | OntimeMilestone | OntimeGroup,
 ) {
   for (const field in entry.custom) {
-    if (knownFields.has(field)) continue;
+    if (knownFields.has(field) && entry.custom[field] !== '') continue;
     delete entry.custom[field];
   }
   return entry;

@@ -67,6 +67,7 @@ export {
   findCustomFieldOption,
   getCustomFieldsByKey,
   isValidCustomFieldValue,
+  maxCustomFieldOptionLength,
   sanitiseCustomFieldOptions,
   sortCustomFields,
   validateCustomFieldLabel,

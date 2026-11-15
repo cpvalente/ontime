@@ -287,6 +287,7 @@ Renaming or recolouring a field:
 - Call ontime_update_custom_field with { key, label?, colour?, options?, renamedOptions? }.
 - Warning: changing the label changes the derived key and cascades to all entry references in all rundowns. Confirm with the user before renaming.
 - options replaces an option field's whole list. List renamed options in renamedOptions ({ old: new }) so entries follow; entries holding a removed option are cleared. Confirm removals with the user.
+- Renaming an option does not update automation filters or external senders using the old label; mention this when renaming.
 - The field type cannot be changed.
 
 Reordering fields:

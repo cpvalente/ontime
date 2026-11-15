@@ -470,7 +470,7 @@ export const TOOL_DEFINITIONS = [
           type: 'object',
           additionalProperties: { type: 'string' },
           description:
-            'Old option label → new option label, for options renamed in this edit, e.g. { "Ready": "Standby" }. Requires options, which must contain each new label.',
+            'Old option label → new option label, for options renamed in this edit, e.g. { "Ready": "Standby" }. Requires options, which must contain each new label. Entry values follow the rename, but automation filters and external senders using the old label are not updated.',
         },
       },
     },

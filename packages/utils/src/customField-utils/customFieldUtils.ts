@@ -53,7 +53,7 @@ export function sortCustomFields(fields: Readonly<CustomFields>, order: CustomFi
 }
 
 const maxOptions = 100;
-const maxOptionLength = 100;
+export const maxCustomFieldOptionLength = 100;
 
 /**
  * Reads an untrusted option list, keeping what can be kept
@@ -68,7 +68,7 @@ export function sanitiseCustomFieldOptions(data: unknown): CustomFieldOption[] {
     if (typeof option !== 'object' || option === null || !('label' in option) || typeof option.label !== 'string') {
       continue;
     }
-    const label = option.label.trim().slice(0, maxOptionLength);
+    const label = option.label.trim().slice(0, maxCustomFieldOptionLength);
     const comparable = label.toLowerCase();
     if (label.length === 0 || seen.has(comparable)) continue;
     seen.add(comparable);
@@ -79,14 +79,18 @@ export function sanitiseCustomFieldOptions(data: unknown): CustomFieldOption[] {
 
 /**
  * Returns an error for an option list a user typed, or null for a valid list
- * Lengths and counts are not checked, the input and the parser limit them
+ * The count is not checked, the parser limits it
  */
-export function validateCustomFieldOptions(options: Readonly<CustomFieldOption[]>): string | null {
+export function validateCustomFieldOptions(options: Readonly<Pick<CustomFieldOption, 'label'>[]>): string | null {
   if (options.length === 0) return 'Add at least one option';
   const seen = new Set<string>();
   for (const { label } of options) {
-    const comparable = label.trim().toLowerCase();
-    if (seen.has(comparable)) return `"${label.trim()}" is repeated`;
+    const trimmed = label.trim();
+    if (trimmed.length > maxCustomFieldOptionLength) {
+      return `Options can be at most ${maxCustomFieldOptionLength} characters`;
+    }
+    const comparable = trimmed.toLowerCase();
+    if (seen.has(comparable)) return `"${trimmed}" is repeated`;
     seen.add(comparable);
   }
   return null;

@@ -15,6 +15,7 @@ import Modal from '../../../../../common/components/modal/Modal';
 import PopoverContents from '../../../../../common/components/popover/Popover';
 import RadioGroup from '../../../../../common/components/radio-group/RadioGroup';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
+import { OptionRow, getFilledRows, getOptionChanges } from '../../../../../common/utils/customFieldOptions';
 import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
@@ -34,8 +35,6 @@ interface CustomFieldsFormProps {
   initialOptions?: CustomFieldOption[];
 }
 
-/** A row of the options editor, original is the label it had when the form opened, so a rename can be told from a new option */
-type OptionRow = { label: string; colour: string; original: string | null };
 const emptyRow: OptionRow = { label: '', colour: '', original: null };
 type CustomFieldFormData = {
   type: CustomFieldType;
@@ -44,11 +43,6 @@ type CustomFieldFormData = {
   key: string;
   options: OptionRow[];
 };
-
-/** Rows left empty are not options */
-function getFilledRows(rows: OptionRow[]): OptionRow[] {
-  return rows.filter((row) => row.label.trim() !== '');
-}
 
 export default function CustomFieldForm({
   onSubmit,
@@ -97,14 +91,9 @@ export default function CustomFieldForm({
       type === 'option'
         ? { type, colour, label, options: rows.map((row) => ({ label: row.label.trim(), colour: row.colour })) }
         : { type, colour, label };
-    const renamedOptions: Record<string, string> = {};
-    for (const row of rows) {
-      if (row.original !== null && row.original !== row.label.trim()) {
-        renamedOptions[row.original] = row.label.trim();
-      }
-    }
+    const { renamed } = getOptionChanges(values.options, initialOptions ?? []);
     try {
-      await onSubmit(newField, renamedOptions);
+      await onSubmit(newField, renamed);
     } catch (error) {
       setError('root', { type: 'custom', message: maybeAxiosError(error) });
     }
@@ -128,12 +117,7 @@ export default function CustomFieldForm({
   const optionRows = getFilledRows(options);
   const optionsError = type === 'option' ? validateCustomFieldOptions(optionRows) : null;
   const canSubmit = isDirty && isValid && !optionsError;
-  // as on the server, entries holding a label which is neither kept nor in the new list are cleared when saving
-  const keptOptions = new Set(optionRows.map((row) => row.original));
-  const newLabels = new Set(optionRows.map((row) => row.label.trim()));
-  const removedOptions = (initialOptions ?? []).filter(
-    (option) => !keptOptions.has(option.label) && !newLabels.has(option.label),
-  );
+  const { renamed: renamedOptions, removed: removedOptions } = getOptionChanges(options, initialOptions ?? []);
 
   return (
     <Modal
@@ -251,6 +235,13 @@ export default function CustomFieldForm({
               <Button variant='ghosted' size='small' onClick={() => append(emptyRow)}>
                 <IoAdd /> Add option
               </Button>
+              {Object.keys(renamedOptions).length > 0 && (
+                <Info type='warning'>
+                  Saving renames the option in every entry which uses it, in all rundowns.
+                  <br />
+                  Automation filters and external senders using the old label are not updated.
+                </Info>
+              )}
               {removedOptions.length > 0 && (
                 <Info type='warning'>
                   Saving clears {removedOptions.map((option) => `"${option.label}"`).join(', ')} from every entry which

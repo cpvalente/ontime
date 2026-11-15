@@ -48,7 +48,15 @@ export default function CustomFieldSettings() {
     const editing = formState.field;
     if (editing) {
       const { label, colour } = customField;
-      const optionsPatch = customField.type === 'option' ? { options: customField.options, renamedOptions } : {};
+      // the labels the form started from, so the server refuses the edit if they changed elsewhere since
+      const optionsPatch =
+        customField.type === 'option' && editing.type === 'option'
+          ? {
+              options: customField.options,
+              renamedOptions,
+              previousOptions: editing.options.map((option) => option.label),
+            }
+          : {};
       await editCustomField(editing.key, { label, colour, ...optionsPatch });
     } else {
       await postCustomField(customField);

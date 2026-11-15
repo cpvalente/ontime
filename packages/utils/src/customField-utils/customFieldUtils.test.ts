@@ -83,6 +83,7 @@ describe('validateCustomFieldOptions()', () => {
       ],
       '"READY" is repeated',
     ],
+    [[{ label: 'x'.repeat(101), colour: '' }], 'Options can be at most 100 characters'],
   ])('refuses %j', (options, error) => {
     expect(validateCustomFieldOptions(options)).toBe(error);
   });

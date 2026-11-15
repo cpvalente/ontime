@@ -17,6 +17,7 @@ import {
   deleteCustomField,
   editCustomField,
   editEntry,
+  mergeCustomFields,
   reorderCustomFields,
 } from '../../rundown/rundown.service.js';
 
@@ -313,6 +314,60 @@ describe('option custom fields', () => {
     expect(getDataProvider().getData()).toEqual(before);
   });
 
+  test('option lists the parser would repair are refused, not repaired', async () => {
+    const before = structuredClone(getDataProvider().getData());
+    await expect(
+      editCustomField('Status', { options: [...options, { label: ' ready ', colour: '' }] }),
+    ).rejects.toThrow('"ready" is repeated');
+    await expect(
+      createCustomField({
+        label: 'Camera',
+        type: 'option',
+        colour: '',
+        options: [{ label: 'x'.repeat(101), colour: '' }],
+      }),
+    ).rejects.toThrow('Options can be at most 100 characters');
+    await expect(editCustomField('Status', { options, renamedOptions: { Ready: 'x'.repeat(101) } })).rejects.toThrow(
+      'Options can be at most 100 characters',
+    );
+    expect(getDataProvider().getData()).toEqual(before);
+  });
+
+  test('an edit started from a list which has since changed is refused', async () => {
+    await editCustomField('Status', { options: [...options, { label: 'New', colour: '' }] });
+
+    // a form opened before New was added would otherwise clear it from every entry
+    await expect(
+      editCustomField('Status', { options, previousOptions: options.map((option) => option.label) }),
+    ).rejects.toThrow('The options were changed elsewhere');
+
+    await editCustomField('Status', {
+      options: [options[0], options[1]],
+      previousOptions: ['Ready', 'Hold', 'Cut', 'New'],
+    });
+    expect(getDataProvider().getCustomFields()[0]).toMatchObject({ options: [options[0], options[1]] });
+  });
+
+  test('a batch edit with an invalid value leaves every entry unchanged', async () => {
+    const before = structuredClone(getDataProvider().getRundown('loaded'));
+    // c already holds the value, so it is edited before a is refused
+    await expect(
+      batchEditEntries('loaded', ['c', 'a'], { title: 'Batch', custom: { Status: 'Imported' } }),
+    ).rejects.toThrow('"Imported" is not an option of Status');
+    expect(getDataProvider().getRundown('loaded')).toEqual(before);
+    expect(getCurrentRundown().entries.c).toEqual(before.entries.c);
+  });
+
+  test('an import replaces the list of an option field and keeps the entry values', async () => {
+    await mergeCustomFields([
+      makeCustomField({ label: 'Status', type: 'option', options: [{ label: 'Live', colour: '' }] }),
+    ]);
+
+    expect(getDataProvider().getCustomFields()[0]).toMatchObject({ options: [{ label: 'Live', colour: '' }] });
+    expect(valueOf('loaded', 'a')).toBe('Ready');
+    expect(valueOf('background', 'd')).toBe('Ready');
+  });
+
   test('a text field takes no options', async () => {
     await createCustomField({ label: 'Note', type: 'text', colour: '' });
     await expect(editCustomField('Note', { options })).rejects.toThrow('Only option fields have options');
@@ -321,8 +376,10 @@ describe('option custom fields', () => {
   test('entry writes take an option label or empty', async () => {
     await editEntry('loaded', { id: 'a', custom: { Status: 'Cut' } });
     expect(valueOf('loaded', 'a')).toBe('Cut');
+    // clearing a value leaves the entry as removing its option would
     await editEntry('loaded', { id: 'a', custom: { Status: '' } });
-    expect(valueOf('loaded', 'a')).toBe('');
+    expect(getCurrentRundown().entries.a).not.toHaveProperty('custom.Status');
+    expect(valueOf('loaded', 'a')).toBeUndefined();
 
     await expect(editEntry('loaded', { id: 'a', custom: { Status: 'cut' } })).rejects.toThrow(
       '"cut" is not an option of Status',

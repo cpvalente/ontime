@@ -19,6 +19,8 @@ export const validateEditCustomField = [
   body('colour').optional().isString().trim(),
   body('options').optional().isArray(),
   body('renamedOptions').optional().isObject(),
+  body('previousOptions').optional().isArray(),
+  body('previousOptions.*').isString(),
 
   requestValidationFunction,
 ];

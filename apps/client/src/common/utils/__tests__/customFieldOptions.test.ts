@@ -1,6 +1,6 @@
 import type { CustomField } from 'ontime-types';
 
-import { makeOptionSelectItems } from '../customFieldOptions';
+import { getOptionChanges, makeOptionSelectItems } from '../customFieldOptions';
 
 describe('makeOptionSelectItems()', () => {
   const field: Extract<CustomField, { type: 'option' }> = {
@@ -28,5 +28,36 @@ describe('makeOptionSelectItems()', () => {
       label: 'Imported (not in list)',
       disabled: true,
     });
+  });
+});
+
+describe('getOptionChanges()', () => {
+  const initialOptions = [
+    { label: 'Ready', colour: '' },
+    { label: 'Hold', colour: '' },
+  ];
+
+  test('swapping two labels renames both options, nothing is removed', () => {
+    const rows = [
+      { label: 'Hold', colour: '', original: 'Ready' },
+      { label: 'Ready', colour: '', original: 'Hold' },
+    ];
+    expect(getOptionChanges(rows, initialOptions)).toEqual({ renamed: { Ready: 'Hold', Hold: 'Ready' }, removed: [] });
+  });
+
+  test('a cleared row removes its option instead of renaming it', () => {
+    const rows = [
+      { label: ' ', colour: '', original: 'Ready' },
+      { label: 'Hold', colour: '', original: 'Hold' },
+    ];
+    expect(getOptionChanges(rows, initialOptions)).toEqual({ renamed: {}, removed: [initialOptions[0]] });
+  });
+
+  test('a new row with the label of a removed option keeps it', () => {
+    const rows = [
+      { label: 'Hold', colour: '', original: 'Hold' },
+      { label: 'Ready ', colour: '', original: null },
+    ];
+    expect(getOptionChanges(rows, initialOptions)).toEqual({ renamed: {}, removed: [] });
   });
 });

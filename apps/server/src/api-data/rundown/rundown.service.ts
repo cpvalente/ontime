@@ -27,6 +27,7 @@ import {
   findCustomFieldOption,
   getCustomFieldsByKey,
   isValidCustomFieldValue,
+  maxCustomFieldOptionLength,
   generateId,
   getErrorMessage,
   getInsertAfterId,
@@ -34,6 +35,7 @@ import {
   resolveInsertParent,
   validateCustomFieldLabel,
   sanitiseCustomFieldOptions,
+  validateCustomFieldOptions,
   validateRundownTitle,
 } from 'ontime-utils';
 
@@ -556,12 +558,18 @@ export async function createCustomField(newField: NewCustomField): Promise<Reado
 }
 
 /**
- * Reads options given by a user, the parser rules apply and the list cannot be empty
+ * Reads options given by a user, refusing a list the parser would have to repair
+ * @throws if the list is empty, or has repeated or overlong labels
  */
 function readOptions(data: unknown): CustomFieldOption[] {
   const options = sanitiseCustomFieldOptions(data);
-  if (options.length === 0) {
-    throw new InvalidCustomFieldOptionsError('Add at least one option');
+  // the parser drops repeated labels and shortens long ones, which would silently change what the user gave
+  const givenLabels = Array.isArray(data)
+    ? data.filter((option) => typeof option?.label === 'string' && option.label.trim() !== '')
+    : [];
+  const error = validateCustomFieldOptions(givenLabels);
+  if (error) {
+    throw new InvalidCustomFieldOptionsError(error);
   }
   return options;
 }
@@ -615,6 +623,9 @@ export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPat
   if (options && field.type !== 'option') {
     throw new InvalidCustomFieldOptionsError('Only option fields have options');
   }
+  if (options && patch.previousOptions !== undefined && !hasOptionLabels(field, patch.previousOptions)) {
+    throw new InvalidCustomFieldOptionsError('The options were changed elsewhere, reopen the field to see them');
+  }
   if (patch.renamedOptions !== undefined && !options) {
     throw new InvalidCustomFieldOptionsError('Renamed options need the new options list');
   }
@@ -664,6 +675,16 @@ export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPat
 }
 
 /**
+ * Whether the field holds exactly these option labels, in this order
+ */
+function hasOptionLabels(field: CustomField, labels: unknown): boolean {
+  if (field.type !== 'option' || !Array.isArray(labels)) return false;
+  return (
+    labels.length === field.options.length && field.options.every((option, index) => option.label === labels[index])
+  );
+}
+
+/**
  * Finds what happens to entry values of options which leave the list
  * a renamed option moves its values to the new label, a removed option clears them
  * values which were never options are kept, they are not this edit's to change
@@ -684,6 +705,9 @@ function getOptionValueChanges(
   for (const [oldLabel, newLabel] of Object.entries(renamed)) {
     if (typeof newLabel !== 'string' || !findCustomFieldOption(field, oldLabel)) {
       throw new InvalidCustomFieldOptionsError(`"${oldLabel}" is not an option to rename`);
+    }
+    if (newLabel.trim().length > maxCustomFieldOptionLength) {
+      throw new InvalidCustomFieldOptionsError(`Options can be at most ${maxCustomFieldOptionLength} characters`);
     }
     renames.set(oldLabel, newLabel.trim());
   }

@@ -31,10 +31,12 @@ export type EntryCustomFields = Record<CustomFieldKey, string>;
 /**
  * Changes to an existing field, its type cannot change
  * options replaces the list of an option field, renamedOptions maps old labels to new ones
+ * previousOptions are the labels the change started from, the edit is refused if the field no longer holds them
  */
 export type CustomFieldPatch = Partial<Pick<CustomFieldBase, 'label' | 'colour'>> & {
   options?: CustomFieldOption[];
   renamedOptions?: Record<string, string>;
+  previousOptions?: string[];
 };
 
 type WithoutKey<T> = T extends unknown ? Omit<T, 'key'> : never;

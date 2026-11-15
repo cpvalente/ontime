@@ -24,6 +24,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 - An option field's value is the option label. New writes take a listed label or empty; loading, importing and resending an entry's current value keep any string, and screens show values off the list rather than hide them.
 - Editing options renames values only through explicit old → new pairs and clears values of options which leave the list, in the loaded and background rundowns, like a field key rename.
+- An empty custom value is no value: clearing it deletes the entry's key, as removing an option and loading a project do.
 
 ## Persistence, realtime, cache
 
