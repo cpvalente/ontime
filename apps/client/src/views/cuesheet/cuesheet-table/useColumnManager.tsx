@@ -39,24 +39,26 @@ export function useColumnSizes(tableRoot: TableRoot = 'cuesheet') {
 }
 
 export function useColumnOrder(columns: CuesheetColumnDef[], tableRoot: TableRoot = 'cuesheet') {
-  const tableOrderKey = useMemo(() => makeStageKey(`${tableRoot}-table-order`), [tableRoot]);
+  // The old key also stored implicit defaults, which cannot be distinguished from personal layouts.
+  const tableOrderKey = useMemo(() => makeStageKey(`${tableRoot}-table-order-override`), [tableRoot]);
 
-  const [columnOrder, saveColumnOrder] = useLocalStorage<string[]>({
+  const [savedOrder, saveColumnOrder] = useLocalStorage<string[] | null>({
     key: tableOrderKey,
-    defaultValue: columns.map((col) => col.id as string),
+    defaultValue: null,
   });
 
-  // update column order if columns change
-  useEffect(() => {
-    const newColumns = columns.map((col) => col.id as string);
-    if (newColumns.some((id) => !columnOrder.includes(id))) {
-      saveColumnOrder(newColumns);
-    }
-  }, [columnOrder, columns, saveColumnOrder]);
+  const columnOrder = useMemo(() => {
+    const defaultOrder = columns.map((col) => col.id as string);
+    if (!savedOrder) return defaultOrder;
+    return [
+      ...savedOrder.filter((id) => defaultOrder.includes(id)),
+      ...defaultOrder.filter((id) => !savedOrder.includes(id)),
+    ];
+  }, [columns, savedOrder]);
 
   const resetColumnOrder = useCallback(() => {
-    saveColumnOrder(columns.map((col) => col.id as string));
-  }, [columns, saveColumnOrder]);
+    saveColumnOrder(null);
+  }, [saveColumnOrder]);
 
   return {
     columnOrder,
