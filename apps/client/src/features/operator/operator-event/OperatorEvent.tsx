@@ -1,5 +1,5 @@
-import { Day } from 'ontime-types';
-import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND } from 'ontime-utils';
+import { CustomField, Day } from 'ontime-types';
+import { MILLIS_PER_MINUTE, MILLIS_PER_SECOND, findCustomFieldOption } from 'ontime-utils';
 import { CSSProperties, RefObject, SyntheticEvent, memo } from 'react';
 
 import DelayIndicator from '../../../common/components/delay-indicator/DelayIndicator';
@@ -132,9 +132,7 @@ function OperatorEvent({
               >
                 {field.label}
               </span>
-              <span className={style.value} style={{ color: field.colour }}>
-                {field.value}
-              </span>
+              <FieldValue field={field.field} value={field.value} />
             </div>
           );
         })}
@@ -197,6 +195,19 @@ function TimeUntil({ timeStart, delay, dayOffset, totalGap, isLinkedToLoaded }: 
   return (
     <span className={cx([style.timeUntil, isDue && style.due])} data-testid='time-until'>
       {timeUntilString}
+    </span>
+  );
+}
+
+/**
+ * Every value keeps the field colour like the other fields, an option adds a marker in its own colour
+ */
+function FieldValue({ field, value }: { field: CustomField; value: string }) {
+  const optionColour = findCustomFieldOption(field, value)?.colour;
+  return (
+    <span className={style.value} style={{ color: field.colour }}>
+      {optionColour && <span className={style.optionMarker} style={{ backgroundColor: optionColour }} />}
+      {value}
     </span>
   );
 }

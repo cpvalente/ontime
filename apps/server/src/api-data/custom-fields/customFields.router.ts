@@ -44,9 +44,9 @@ router.patch('/order', validateReorderCustomFields, async (req: Request, res: Re
  */
 router.put('/:key', validateEditCustomField, async (req: Request, res: Response<Readonly<CustomFields>>) => {
   const currentKey = req.params.key;
-  const { colour, label } = req.body;
+  const { colour, label, options, renamedOptions, previousOptions } = req.body;
 
-  res.status(200).json(await editCustomField(currentKey, { label, colour }));
+  res.status(200).json(await editCustomField(currentKey, { label, colour, options, renamedOptions, previousOptions }));
 });
 
 /**

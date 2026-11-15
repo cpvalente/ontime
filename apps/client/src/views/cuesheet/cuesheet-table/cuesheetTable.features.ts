@@ -7,7 +7,7 @@ import {
   tableFeatures,
 } from '@tanstack/react-table';
 import type { CellContext, Column, ColumnDef, Header, HeaderGroup, Table } from '@tanstack/react-table';
-import type { EntryId, OntimeEntry, TimeField } from 'ontime-types';
+import type { CustomField, EntryId, OntimeEntry, TimeField } from 'ontime-types';
 
 import type { AppMode } from '../../../ontimeConfig';
 
@@ -39,6 +39,8 @@ export interface CuesheetTableMeta {
 export interface CuesheetColumnMeta {
   canWrite: boolean;
   colour?: string;
+  /** the field a custom field column shows */
+  customField?: CustomField;
 }
 
 /**

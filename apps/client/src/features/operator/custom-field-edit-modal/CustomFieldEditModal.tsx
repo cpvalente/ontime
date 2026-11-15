@@ -6,7 +6,10 @@ import { IoClose } from 'react-icons/io5';
 import Button from '../../../common/components/buttons/Button';
 import IconButton from '../../../common/components/buttons/IconButton';
 import Textarea from '../../../common/components/input/textarea/Textarea';
+import Select from '../../../common/components/select/Select';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
+import useCustomFields from '../../../common/hooks-query/useCustomFields';
+import { getOptionTint, makeOptionSelectItems } from '../../../common/utils/customFieldOptions';
 import { EditEvent } from '../operator.types';
 
 import style from './CustomFieldEditModal.module.scss';
@@ -20,8 +23,12 @@ export default function CustomFieldEditModal(props: CustomFieldEditModalProps) {
   const { event, onClose } = props;
 
   const { updateEntry } = useEntryActionsContext();
+  // the field as it is now, its options can change while the modal is open
+  const { fieldsByKey } = useCustomFields();
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement[]>(new Array<HTMLTextAreaElement>());
+  // option fields are picked rather than typed
+  const [pickedOptions, setPickedOptions] = useState<Record<string, string>>({});
 
   const handleSave = async () => {
     if (!inputRef.current) return;
@@ -38,6 +45,10 @@ export default function CustomFieldEditModal(props: CustomFieldEditModalProps) {
         }
       }
     });
+
+    if (Object.keys(pickedOptions).length > 0) {
+      patchObject.custom = { ...patchObject.custom, ...pickedOptions };
+    }
 
     if (patchObject.custom) {
       await updateEntry(patchObject);
@@ -64,6 +75,31 @@ export default function CustomFieldEditModal(props: CustomFieldEditModalProps) {
           </div>
           <div className={style.body}>
             {event.subscriptions.map((field) => {
+              const currentField = fieldsByKey.get(field.id) ?? field.field;
+              if (currentField.type === 'option') {
+                const value = pickedOptions[field.id] ?? field.value ?? '';
+                return (
+                  <Fragment key={field.id}>
+                    <span className={style.label} style={{ '--user-bg': field.colour }}>
+                      {field.label}
+                    </span>
+                    <Select
+                      aria-label={field.label}
+                      options={makeOptionSelectItems(currentField, value)}
+                      value={value || null}
+                      placeholder='Select an option'
+                      triggerStyle={getOptionTint(currentField, value)}
+                      onValueChange={(newValue) => {
+                        if (newValue === null) return;
+                        setPickedOptions((picked) => ({ ...picked, [field.id]: newValue }));
+                      }}
+                      disabled={loading}
+                      size='large'
+                      fluid
+                    />
+                  </Fragment>
+                );
+              }
               return (
                 <Fragment key={field.id}>
                   <label htmlFor={field.id} className={style.label} style={{ '--user-bg': field.colour }}>

@@ -67,3 +67,20 @@ tr[data-drop-placement='before'] > td {
 tr[data-drop-placement='after'] > td {
   box-shadow: inset 0 -2px $action-blue;
 }
+
+.optionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.optionColour {
+  padding: 0;
+  background: none;
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: 2px;
+  }
+}
