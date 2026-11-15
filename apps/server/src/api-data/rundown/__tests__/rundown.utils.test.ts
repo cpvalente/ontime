@@ -20,10 +20,17 @@ import {
 } from 'ontime-utils';
 import { assertType } from 'vitest';
 
-import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone, makeRundown } from '../__mocks__/rundown.mocks.js';
+import {
+  makeCustomField,
+  makeOntimeEvent,
+  makeOntimeGroup,
+  makeOntimeMilestone,
+  makeRundown,
+} from '../__mocks__/rundown.mocks.js';
 import { parseRundown } from '../rundown.parser.js';
 import {
   calculateDayOffset,
+  cleanupCustomFields,
   cloneEntryData,
   deleteById,
   doesInvalidateMetadata,
@@ -800,5 +807,29 @@ describe('getDuplicatedRundownTitle()', () => {
     [`a${'🎉'.repeat(31)}`, `Copy of a${'🎉'.repeat(27)}`],
   ])('prefixes and bounds %s without splitting Unicode symbols', (title, expected) => {
     expect(getDuplicatedRundownTitle(title)).toBe(expected);
+  });
+});
+
+describe('cleanupCustomFields()', () => {
+  it('deletes unused custom fields', () => {
+    const knownFields = new Map([
+      ['lighting', makeCustomField({ label: 'lighting' })],
+      ['sound', makeCustomField({ label: 'sound' })],
+    ]);
+
+    const event = makeOntimeEvent({
+      id: '2',
+      timeStart: 0,
+      linkStart: true,
+      custom: {
+        lighting: 'on',
+        unknown: 'does-not-exist',
+      },
+    });
+
+    cleanupCustomFields(event.custom, knownFields);
+    expect(event.custom).toStrictEqual({
+      lighting: 'on',
+    });
   });
 });

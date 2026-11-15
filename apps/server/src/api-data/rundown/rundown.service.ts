@@ -68,8 +68,9 @@ import {
   InvalidRundownTitleError,
   RundownDeleteConflictError,
 } from './rundown.errors.js';
-import { parseRundown, sanitiseCustomFields } from './rundown.parser.js';
+import { parseRundown } from './rundown.parser.js';
 import {
+  cleanupCustomFields,
   cloneRundown,
   getDuplicatedRundownTitle,
   generateEvent,
@@ -270,7 +271,7 @@ function sanitiseEditedCustomFields(
   patch: Partial<OntimeEntry>,
 ) {
   if ('custom' in patch && 'custom' in entry) {
-    sanitiseCustomFields(getCustomFieldsByKey(customFields), entry);
+    cleanupCustomFields(entry.custom, getCustomFieldsByKey(customFields));
   }
 }
 
@@ -562,8 +563,7 @@ export async function createCustomField(newField: NewCustomField): Promise<Reado
  * @throws if the list is empty, or has repeated or overlong labels
  */
 function readOptions(data: unknown): CustomFieldOption[] {
-  const options = sanitiseCustomFieldOptions(data);
-  // the parser drops repeated labels and shortens long ones, which would silently change what the user gave
+  // check the labels as given, the parser drops repeated labels and shortens long ones, which would silently change them
   const givenLabels = Array.isArray(data)
     ? data.filter((option) => typeof option?.label === 'string' && option.label.trim() !== '')
     : [];
@@ -571,7 +571,7 @@ function readOptions(data: unknown): CustomFieldOption[] {
   if (error) {
     throw new InvalidCustomFieldOptionsError(error);
   }
-  return options;
+  return sanitiseCustomFieldOptions(data);
 }
 
 /**
