@@ -70,10 +70,10 @@ describe('parseQuery()', () => {
 });
 
 describe('searchByText()', () => {
-  const customFields: CustomFields = {
-    Camera_Notes: { type: 'text', label: 'Camera Notes', colour: '#000000' },
-    Slide: { type: 'image', label: 'Slide', colour: '#000000' },
-  };
+  const customFields: CustomFields = [
+    { key: 'Camera_Notes', type: 'text', label: 'Camera Notes', colour: '#000000' },
+    { key: 'Slide', type: 'image', label: 'Slide', colour: '#000000' },
+  ];
 
   it('searches cue, title, note, and text custom fields in rundown order', () => {
     const data = [

@@ -37,7 +37,7 @@ describe('getOptionsFromParams()', () => {
 describe('getTeleprompterOptions()', () => {
   test('every declared default is what parsing an empty query produces', () => {
     const parsed = parse('') as Record<string, unknown>;
-    const fields = getTeleprompterOptions({}, defaultTeleprompterSettings).flatMap((section) => section.options);
+    const fields = getTeleprompterOptions([], defaultTeleprompterSettings).flatMap((section) => section.options);
     for (const field of fields) {
       if (!('defaultValue' in field)) continue;
       expect({ id: field.id, value: parsed[field.id] }).toEqual({ id: field.id, value: field.defaultValue });

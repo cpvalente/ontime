@@ -19,7 +19,7 @@ import OperatorEvent from './operator-event/OperatorEvent';
 import OperatorGroup from './operator-group/OperatorGroup';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';
 import type { EditEvent } from './operator.types';
-import { getEventData } from './operator.utils';
+import { getEventData, getSubscribedFields } from './operator.utils';
 import StatusBar from './status-bar/StatusBar';
 import { OperatorData, useOperatorData } from './useOperatorData';
 
@@ -47,7 +47,7 @@ export default function OperatorLoader() {
   return <Operator {...data} />;
 }
 
-function Operator({ rundown, rundownMetadata, customFields, settings }: OperatorData) {
+function Operator({ rundown, rundownMetadata, customFields, customFieldsByKey, settings }: OperatorData) {
   const selectedEventId = useSelectedEventId();
   const { getLocalizedString } = useTranslation();
   const { subscribe, mainSource, secondarySource, shouldEdit, hidePast, showStart } = useOperatorOptions();
@@ -129,6 +129,11 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
   const defaultFormat = getDefaultFormat(settings?.timeFormat);
   const operatorOptions = useMemo(() => getOperatorOptions(customFields, defaultFormat), [customFields, defaultFormat]);
 
+  const subscribedFields = useMemo(
+    () => getSubscribedFields(subscribe, customFieldsByKey),
+    [subscribe, customFieldsByKey],
+  );
+
   const canEdit = shouldEdit && subscribe.length;
   const hasEvents = rundown.order.length > 0;
 
@@ -162,8 +167,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                 entry,
                 mainSource,
                 secondarySource,
-                subscribe,
-                customFields,
+                subscribedFields,
               );
 
               return (
@@ -225,8 +229,7 @@ function Operator({ rundown, rundownMetadata, customFields, settings }: Operator
                       nestedEntry,
                       mainSource,
                       secondarySource,
-                      subscribe,
-                      customFields,
+                      subscribedFields,
                     );
 
                     return (
