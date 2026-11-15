@@ -1,6 +1,5 @@
 import {
   AutomationSettings,
-  CustomFields,
   type Day,
   DatabaseModel,
   EndAction,
@@ -240,7 +239,8 @@ describe('v3 to v4', () => {
   });
 
   test('migrate custom fields', () => {
-    const expectCustomFields: CustomFields = {
+    // v3 files migrate to the v4 record, the v5 migration makes it a list
+    const expectCustomFields = {
       Song_and_Dance: {
         label: 'Song and Dance',
         type: 'text',
@@ -578,7 +578,7 @@ describe('v4 remove server port', () => {
   });
 
   it('remove server port from project', () => {
-    const { db: result, serverPort } = v4.migrateServerPort(demoDb as DatabaseModel);
+    const { db: result, serverPort } = v4.migrateServerPort(demoDb as unknown as DatabaseModel);
     expect(result).not.toHaveProperty('settings.serverPort');
     expect(serverPort).toBe(4001);
     expect(result.automation).toMatchObject(demoDb.automation);

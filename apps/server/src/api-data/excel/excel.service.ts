@@ -148,7 +148,7 @@ export function getWorksheetMetadata(worksheet: string) {
  * Creates an xlsx file from a given rundown and custom fields
  * @throws if the rundown is empty
  */
-export function generateExcelFile(rundown: Rundown, customFields: CustomFields): Buffer {
+export function generateExcelFile(rundown: Rundown, customFields: Readonly<CustomFields>): Buffer {
   if (rundown.order.length === 0) {
     throw new InvalidSpreadsheetDataError('Cannot generate an Excel file from an empty rundown');
   }
@@ -157,7 +157,7 @@ export function generateExcelFile(rundown: Rundown, customFields: CustomFields):
 }
 
 /** Exports every rundown, including empty ones, with unique Excel-safe worksheet names. */
-export function generateExcelWorkbook(rundowns: Rundown[], customFields: CustomFields): Buffer {
+export function generateExcelWorkbook(rundowns: Rundown[], customFields: Readonly<CustomFields>): Buffer {
   const workbook = xlsx.utils.book_new();
   const names = new Set<string>();
   for (const rundown of rundowns) {

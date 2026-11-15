@@ -8,7 +8,7 @@ describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
     const errorEmitter = vi.fn();
     const defaultRundown = makeNewRundown();
-    const result = parseRundowns({}, {}, errorEmitter);
+    const result = parseRundowns({}, [], errorEmitter);
     const rundownIds = Object.keys(result);
 
     expect(rundownIds).toHaveLength(1);
@@ -36,7 +36,7 @@ describe('parseRundowns()', () => {
           '3': r2,
         },
       },
-      {},
+      [],
       errorEmitter,
     );
     expect(result).toMatchObject({
@@ -64,7 +64,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {}, errorEmitter);
+    const parsedRundown = parseRundown(rundown, [], errorEmitter);
     expect(parsedRundown.id).not.toBe('');
     expect(parsedRundown.id).toBeTypeOf('string');
     expect(parsedRundown.order.length).toEqual(1);
@@ -84,7 +84,7 @@ describe('parseRundown()', () => {
     const errorEmitter = vi.fn();
     const rundown = { ...makeNewRundown(), title } as Rundown;
 
-    expect(parseRundown(rundown, {}, errorEmitter).title).toBe(title);
+    expect(parseRundown(rundown, [], errorEmitter).title).toBe(title);
     expect(errorEmitter).not.toHaveBeenCalled();
   });
 
@@ -103,7 +103,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    expect(parseRundown(rundown, {})).toMatchObject({
+    expect(parseRundown(rundown, [])).toMatchObject({
       entries: {
         '1': {
           cue: '101',
@@ -128,7 +128,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order.length).toEqual(1);
     expect(Object.keys(parsedRundown.entries).length).toEqual(1);
   });
@@ -146,7 +146,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order.length).toEqual(2);
     expect(parsedRundown.entries).toMatchObject({
       '1': {
@@ -176,7 +176,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order.length).toEqual(2);
     expect(Object.keys(parsedRundown.entries).length).toEqual(2);
   });
@@ -195,7 +195,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order.length).toEqual(2);
     expect(Object.keys(parsedRundown.entries).length).toEqual(2);
   });
@@ -213,18 +213,10 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const customFields: CustomFields = {
-      lighting: {
-        type: 'text',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: 'red',
-        label: 'sound',
-      },
-    };
+    const customFields: CustomFields = [
+      { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+      { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+    ];
 
     const parsedRundown = parseRundown(rundown, customFields);
     expect((parsedRundown.entries['1'] as OntimeEvent).custom).toStrictEqual({ lighting: 'on' });
@@ -245,13 +237,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const customFields: CustomFields = {
-      lighting: {
-        type: 'text',
-        colour: 'red',
-        label: 'lighting',
-      },
-    };
+    const customFields: CustomFields = [{ key: 'lighting', type: 'text', colour: 'red', label: 'lighting' }];
 
     const parsedRundown = parseRundown(rundown, customFields);
     expect((parsedRundown.entries['1'] as OntimeEvent).custom).toStrictEqual({ lighting: 'yes' });
@@ -280,7 +266,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order).toStrictEqual(['group']);
     expect(parsedRundown.flatOrder).toStrictEqual(['group', '1', '2']);
     expect(parsedRundown.entries).toMatchObject({
@@ -304,7 +290,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order.length).toEqual(1);
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1', '2'] });
     expect(Object.keys(parsedRundown.entries).length).toEqual(3);
@@ -326,7 +312,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.order).toStrictEqual(['1', 'group', 'other']);
     expect(parsedRundown.flatOrder).toStrictEqual(['1', 'group', '2', '3', 'other']);
     expect(parsedRundown.entries).toMatchObject({
@@ -352,7 +338,7 @@ describe('parseRundown()', () => {
       revision: 1,
     } as Rundown;
 
-    const parsedRundown = parseRundown(rundown, {});
+    const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1'] });
     expect(parsedRundown.entries).not.toHaveProperty('nested');
   });
@@ -360,18 +346,7 @@ describe('parseRundown()', () => {
 
 describe('sanitiseCustomFields()', () => {
   it('deletes unused custom fields', () => {
-    const customFields = {
-      lighting: {
-        type: 'text',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: 'red',
-        label: 'sound',
-      },
-    } as CustomFields;
+    const knownKeys = new Set(['lighting', 'sound']);
 
     const event = makeOntimeEvent({
       type: SupportedEntry.Event,
@@ -384,7 +359,7 @@ describe('sanitiseCustomFields()', () => {
       },
     });
 
-    sanitiseCustomFields(customFields, event);
+    sanitiseCustomFields(knownKeys, event);
     expect(event.custom).toStrictEqual({
       lighting: 'on',
     });

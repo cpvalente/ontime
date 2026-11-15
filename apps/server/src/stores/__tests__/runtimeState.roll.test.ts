@@ -24,7 +24,7 @@ function prepare(entries: OntimeEntry[]) {
     entries: Object.fromEntries(entries.map((entry) => [entry.id, entry])),
     order: entries.map((entry) => entry.id),
   });
-  const metadata = processRundown(input, {});
+  const metadata = processRundown(input, []);
   const rundown = { ...input, entries: metadata.entries };
   updateRundownData(metadata);
   return { rundown, metadata };

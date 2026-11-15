@@ -12,12 +12,6 @@ export class CustomFieldNotFoundError extends NotFoundError {
   }
 }
 
-export class CustomFieldTypeChangeError extends InvalidInputError {
-  constructor() {
-    super('Change of field type is not allowed');
-  }
-}
-
 export class InvalidRundownTitleError extends InvalidInputError {
   constructor(message: string) {
     super(message);
@@ -57,7 +51,13 @@ export class InvalidEntryOperationError extends InvalidInputError {
 }
 
 export class InvalidCustomFieldLabelError extends InvalidInputError {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+export class InvalidCustomFieldOrderError extends InvalidInputError {
   constructor() {
-    super('Unable to convert label to a valid key');
+    super('The order must list each existing custom field at most once');
   }
 }
