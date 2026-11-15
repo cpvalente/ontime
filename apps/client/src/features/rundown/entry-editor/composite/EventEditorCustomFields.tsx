@@ -1,6 +1,9 @@
 import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
 import { CSSProperties, Fragment } from 'react';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
+import Select from '../../../../common/components/select/Select';
+import { makeOptionSelectItems } from '../../../../common/utils/customFieldOptions';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
 import EventEditorImage from './EventEditorImage';
@@ -53,6 +56,28 @@ export default function EntryEditorCustomFields({ customFields, handleSubmit, en
                   style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
                 />
                 <EventEditorImage src={initialValue} />
+              </div>
+            );
+          case 'option':
+            return (
+              <div key={key}>
+                <Editor.Label
+                  htmlFor={fieldName}
+                  className={style.decorated}
+                  style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+                >
+                  {labelText}
+                </Editor.Label>
+                <Select
+                  id={fieldName}
+                  options={makeOptionSelectItems(field, initialValue)}
+                  value={initialValue || null}
+                  placeholder='Select an option'
+                  onValueChange={(value) => {
+                    if (value !== null && value !== initialValue) handleSubmit(fieldName, value);
+                  }}
+                  fluid
+                />
               </div>
             );
         }

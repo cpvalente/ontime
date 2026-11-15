@@ -1,32 +1,54 @@
-import { CustomFieldType, NewCustomField } from 'ontime-types';
-import { customFieldLabelToKey, validateCustomFieldLabel } from 'ontime-utils';
+import { Popover } from '@base-ui/react/popover';
+import { CustomFieldOption, CustomFieldType, NewCustomField } from 'ontime-types';
+import { customFieldLabelToKey, validateCustomFieldLabel, validateCustomFieldOptions } from 'ontime-utils';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { IoAdd, IoBan, IoClose } from 'react-icons/io5';
 
 import { maybeAxiosError } from '../../../../../common/api/utils';
 import Button from '../../../../../common/components/buttons/Button';
+import IconButton from '../../../../../common/components/buttons/IconButton';
 import Info from '../../../../../common/components/info/Info';
 import SwatchSelect from '../../../../../common/components/input/colour-input/SwatchSelect';
 import Input from '../../../../../common/components/input/input/Input';
 import Modal from '../../../../../common/components/modal/Modal';
+import PopoverContents from '../../../../../common/components/popover/Popover';
 import RadioGroup from '../../../../../common/components/radio-group/RadioGroup';
 import useCustomFields from '../../../../../common/hooks-query/useCustomFields';
+import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
+import swatchStyle from '../../../../../common/components/input/colour-input/SwatchSelect.module.scss';
 import style from '../ManagePanel.module.scss';
 
 const formId = 'custom-field-form';
 
 interface CustomFieldsFormProps {
-  onSubmit: (field: NewCustomField) => Promise<void>;
+  /** renamedOptions maps the labels of renamed options to their new label */
+  onSubmit: (field: NewCustomField, renamedOptions: Record<string, string>) => Promise<void>;
   onCancel: () => void;
   initialColour?: string;
   initialLabel?: string;
   initialKey?: string;
   initialType?: CustomFieldType;
+  initialOptions?: CustomFieldOption[];
 }
 
-type CustomFieldFormData = { type: CustomFieldType; label: string; colour: string; key: string };
+/** A row of the options editor, original is the label it had when the form opened, so a rename can be told from a new option */
+type OptionRow = { label: string; colour: string; original: string | null };
+const emptyRow: OptionRow = { label: '', colour: '', original: null };
+type CustomFieldFormData = {
+  type: CustomFieldType;
+  label: string;
+  colour: string;
+  key: string;
+  options: OptionRow[];
+};
+
+/** Rows left empty are not options */
+function getFilledRows(rows: OptionRow[]): OptionRow[] {
+  return rows.filter((row) => row.label.trim() !== '');
+}
 
 export default function CustomFieldForm({
   onSubmit,
@@ -35,6 +57,7 @@ export default function CustomFieldForm({
   initialLabel,
   initialKey,
   initialType,
+  initialOptions,
 }: CustomFieldsFormProps) {
   const { fieldsByKey } = useCustomFields();
 
@@ -49,7 +72,8 @@ export default function CustomFieldForm({
     setValue,
     getValues,
     watch,
-    formState: { errors, isSubmitting, isValid, isDirty },
+    control,
+    formState: { errors, isSubmitting, isValid, isDirty, dirtyFields },
   } = useForm<CustomFieldFormData>({
     // validate while typing, otherwise a disabled save button gives no reason
     mode: 'onChange',
@@ -57,21 +81,30 @@ export default function CustomFieldForm({
       type: initialType ?? 'text',
       label: initialLabel || '',
       colour: initialColour || '',
+      options: initialOptions?.map(({ label, colour }) => ({ label, colour, original: label })) ?? [emptyRow],
     },
     resetOptions: {
       keepDirtyValues: true,
     },
   });
 
+  const { fields: optionFields, insert, append, remove } = useFieldArray({ control, name: 'options' });
+
   const setupSubmit = async (values: CustomFieldFormData) => {
     const { type, label, colour } = values;
-    const newField: NewCustomField = {
-      type,
-      colour,
-      label,
-    };
+    const rows = getFilledRows(values.options);
+    const newField: NewCustomField =
+      type === 'option'
+        ? { type, colour, label, options: rows.map((row) => ({ label: row.label.trim(), colour: row.colour })) }
+        : { type, colour, label };
+    const renamedOptions: Record<string, string> = {};
+    for (const row of rows) {
+      if (row.original !== null && row.original !== row.label.trim()) {
+        renamedOptions[row.original] = row.label.trim();
+      }
+    }
     try {
-      await onSubmit(newField);
+      await onSubmit(newField, renamedOptions);
     } catch (error) {
       setError('root', { type: 'custom', message: maybeAxiosError(error) });
     }
@@ -88,10 +121,19 @@ export default function CustomFieldForm({
   };
 
   const colour = getValues('colour');
-  const canSubmit = isDirty && isValid;
   // if initial values are given, we can assume we are in edit mode
   const isEditMode = initialKey !== undefined;
   const type = watch('type');
+  const options = watch('options');
+  const optionRows = getFilledRows(options);
+  const optionsError = type === 'option' ? validateCustomFieldOptions(optionRows) : null;
+  const canSubmit = isDirty && isValid && !optionsError;
+  // as on the server, entries holding a label which is neither kept nor in the new list are cleared when saving
+  const keptOptions = new Set(optionRows.map((row) => row.original));
+  const newLabels = new Set(optionRows.map((row) => row.label.trim()));
+  const removedOptions = (initialOptions ?? []).filter(
+    (option) => !keptOptions.has(option.label) && !newLabels.has(option.label),
+  );
 
   return (
     <Modal
@@ -113,6 +155,7 @@ export default function CustomFieldForm({
               items={[
                 { value: 'text', label: 'Text' },
                 { value: 'image', label: 'Image' },
+                { value: 'option', label: 'Option' },
               ]}
             />
           </div>
@@ -154,6 +197,68 @@ export default function CustomFieldForm({
             <Panel.Description>Colour</Panel.Description>
             <SwatchSelect name='colour' value={colour} handleChange={(_field, value) => handleSelectColour(value)} />
           </label>
+          {type === 'option' && (
+            <div>
+              <Panel.Description>Options (Enter adds a row)</Panel.Description>
+              {optionsError && (optionRows.length > 0 || isEditMode || dirtyFields.label) && (
+                <Panel.Error>{optionsError}</Panel.Error>
+              )}
+              {optionFields.map((row, index) => {
+                const optionColour = options[index]?.colour;
+                return (
+                  <div key={row.id} className={style.optionRow}>
+                    <Popover.Root>
+                      <Popover.Trigger
+                        className={cx([swatchStyle.swatch, swatchStyle.selectable, style.optionColour])}
+                        style={optionColour ? { backgroundColor: optionColour } : undefined}
+                        aria-label={`Colour of option ${index + 1}`}
+                      >
+                        {!optionColour && <IoBan />}
+                      </Popover.Trigger>
+                      <PopoverContents align='start'>
+                        <SwatchSelect
+                          name='colour'
+                          value={optionColour ?? ''}
+                          handleChange={(_field, value) =>
+                            setValue(`options.${index}.colour`, value, { shouldDirty: true })
+                          }
+                        />
+                      </PopoverContents>
+                    </Popover.Root>
+                    <Input
+                      {...register(`options.${index}.label`)}
+                      aria-label={`Option ${index + 1}`}
+                      placeholder='Option'
+                      maxLength={100}
+                      fluid
+                      onKeyDown={(event) => {
+                        if (event.key !== 'Enter') return;
+                        // Enter would otherwise submit the form
+                        event.preventDefault();
+                        insert(index + 1, emptyRow);
+                      }}
+                    />
+                    <IconButton
+                      variant='ghosted-destructive'
+                      aria-label={`Remove option ${index + 1}`}
+                      onClick={() => remove(index)}
+                    >
+                      <IoClose />
+                    </IconButton>
+                  </div>
+                );
+              })}
+              <Button variant='ghosted' size='small' onClick={() => append(emptyRow)}>
+                <IoAdd /> Add option
+              </Button>
+              {removedOptions.length > 0 && (
+                <Info type='warning'>
+                  Saving clears {removedOptions.map((option) => `"${option.label}"`).join(', ')} from every entry which
+                  uses it, in all rundowns.
+                </Info>
+              )}
+            </div>
+          )}
         </form>
       }
       footerElements={

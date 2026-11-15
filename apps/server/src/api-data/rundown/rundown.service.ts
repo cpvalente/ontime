@@ -1,5 +1,7 @@
 import {
+  CustomField,
   CustomFieldKey,
+  CustomFieldOption,
   CustomFieldPatch,
   CustomFields,
   EntryId,
@@ -22,13 +24,16 @@ import {
 import {
   customFieldLabelToKey,
   findCustomField,
+  findCustomFieldOption,
   getCustomFieldsByKey,
+  isValidCustomFieldValue,
   generateId,
   getErrorMessage,
   getInsertAfterId,
   renameScriptSource,
   resolveInsertParent,
   validateCustomFieldLabel,
+  sanitiseCustomFieldOptions,
   validateRundownTitle,
 } from 'ontime-utils';
 
@@ -55,6 +60,7 @@ import {
   EntryExistsError,
   EntryNotFoundError,
   InvalidCustomFieldLabelError,
+  InvalidCustomFieldOptionsError,
   InvalidCustomFieldOrderError,
   InvalidEntryOperationError,
   InvalidRundownTitleError,
@@ -79,9 +85,10 @@ import { assertInsertAnchorExists, assertInsertAnchorInOrder, assertSingleInsert
  * creates a new entry with given data
  */
 export async function addEntry(rundownId: string, eventData: EventPostPayload): Promise<OntimeEntry> {
-  const { rundown, commit } = createTransaction({ rundownId, mutableRundown: true });
+  const { rundown, customFields, commit } = createTransaction({ rundownId, mutableRundown: true });
 
   assertSingleInsertAnchor(eventData);
+  if ('custom' in eventData) assertValidCustomValues(customFields, eventData.custom);
 
   // we allow the user to provide an ID, but make sure it is unique
   if (eventData?.id && Object.hasOwn(rundown.entries, eventData.id)) {
@@ -156,6 +163,8 @@ export async function editEntry(rundownId: string, patch: PatchWithId): Promise<
     throw new InvalidEntryOperationError('Invalid event type');
   }
 
+  if ('custom' in patch) assertValidCustomValues(customFields, patch.custom, currentEntry);
+
   // if nothing changed, nothing to do
   if (!hasChanges(currentEntry, patch)) {
     return currentEntry;
@@ -208,6 +217,8 @@ export async function batchEditEntries(
       throw new InvalidEntryOperationError('Invalid event type');
     }
 
+    if ('custom' in patch) assertValidCustomValues(customFields, patch.custom, currentEntry);
+
     // if nothing changed, nothing to do
     if (!hasChanges(currentEntry, patch)) {
       continue;
@@ -224,6 +235,27 @@ export async function batchEditEntries(
   notifyChange(RefetchKey.Rundown, revision, rundown.id);
 
   return rundownResult;
+}
+
+/**
+ * Option fields take one of their labels or empty, other values are refused
+ * A value the entry already holds passes, so resending an entry with a value no longer in the list does not fail
+ * Stored and imported data is never checked, it keeps its values
+ * @throws if a value is not an option of its field
+ */
+function assertValidCustomValues(customFields: Readonly<CustomFields>, custom: unknown, currentEntry?: OntimeEntry) {
+  if (typeof custom !== 'object' || custom === null) return;
+  const currentValues = currentEntry && 'custom' in currentEntry ? currentEntry.custom : {};
+  for (const [key, value] of Object.entries(custom)) {
+    const field = findCustomField(customFields, key);
+    if (!field || typeof value !== 'string' || value === currentValues[key]) continue;
+    if (!isValidCustomFieldValue(field, value)) {
+      const options = field.type === 'option' ? field.options.map((option) => option.label).join(', ') : '';
+      throw new InvalidCustomFieldOptionsError(
+        `"${value}" is not an option of ${field.label}, use one of: ${options}, or empty to clear it`,
+      );
+    }
+  }
 }
 
 /**
@@ -507,7 +539,13 @@ export async function createCustomField(newField: NewCustomField): Promise<Reado
     throw new CustomFieldExistsError(newField.label);
   }
 
-  customFieldMutation.add(customFields, { ...newField, key, label: newField.label.trim() });
+  // copy only the properties of the type, the request body could hold others
+  const { label, colour, type } = newField;
+  const field: CustomField =
+    type === 'option'
+      ? { key, label: label.trim(), colour, type, options: readOptions(newField.options) }
+      : { key, label: label.trim(), colour, type };
+  customFieldMutation.add(customFields, field);
 
   // Adding a custom field has no immediate implications on the rundown
   const { customFields: resultCustomFields } = await commit(false);
@@ -515,6 +553,17 @@ export async function createCustomField(newField: NewCustomField): Promise<Reado
   notifyChange(RefetchKey.CustomFields);
 
   return resultCustomFields;
+}
+
+/**
+ * Reads options given by a user, the parser rules apply and the list cannot be empty
+ */
+function readOptions(data: unknown): CustomFieldOption[] {
+  const options = sanitiseCustomFieldOptions(data);
+  if (options.length === 0) {
+    throw new InvalidCustomFieldOptionsError('Add at least one option');
+  }
+  return options;
 }
 
 /**
@@ -557,9 +606,19 @@ export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPat
     mutableCustomFields: true,
   });
 
-  if (!findCustomField(customFields, key)) {
+  const field = findCustomField(customFields, key);
+  if (!field) {
     throw new CustomFieldNotFoundError(key);
   }
+
+  const options = patch.options && readOptions(patch.options);
+  if (options && field.type !== 'option') {
+    throw new InvalidCustomFieldOptionsError('Only option fields have options');
+  }
+  if (patch.renamedOptions !== undefined && !options) {
+    throw new InvalidCustomFieldOptionsError('Renamed options need the new options list');
+  }
+  const optionValueChanges = options ? getOptionValueChanges(field, options, patch.renamedOptions) : new Map();
 
   if (patch.label !== undefined) {
     assertValidCustomFieldLabel(patch.label);
@@ -569,22 +628,27 @@ export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPat
     }
   }
 
-  const { oldKey, newKey } = customFieldMutation.edit(customFields, key, { ...patch, label: patch.label?.trim() });
+  const { oldKey, newKey } = customFieldMutation.edit(customFields, key, {
+    label: patch.label?.trim(),
+    colour: patch.colour,
+    options,
+  });
 
   const didChangeKey = oldKey !== newKey;
-  // if key has changed, reassign references in the active rundown ...
-  if (didChangeKey) {
-    customFieldMutation.renameUsages(rundown, oldKey, newKey);
-  }
+  const didChangeValues = optionValueChanges.size > 0;
+  const updateUsages = (target: Rundown) => {
+    if (didChangeKey) customFieldMutation.renameUsages(target, oldKey, newKey);
+    if (didChangeValues) customFieldMutation.changeOptionUsages(target, newKey, optionValueChanges);
+  };
 
-  // ... and reassign references in the background rundowns
+  // reassign references in the active rundown ...
+  updateUsages(rundown);
+
+  // ... and in the background rundowns
   // they are stored before the commit, so the write with the new key also holds their renamed values
   // otherwise a project saved in between would lose them, as the next load drops values of unknown keys
-  const backgroundWrites = didChangeKey
-    ? updateBackgroundRundowns(rundown.id, (backgroundRundown) =>
-        customFieldMutation.renameUsages(backgroundRundown, oldKey, newKey),
-      )
-    : Promise.resolve();
+  const backgroundWrites =
+    didChangeKey || didChangeValues ? updateBackgroundRundowns(rundown.id, updateUsages) : Promise.resolve();
 
   // there is no processing to be done
   const { revision, customFields: resultCustomFields } = await commit(false);
@@ -597,6 +661,44 @@ export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPat
   notifyChange(RefetchKey.Rundown, revision);
 
   return resultCustomFields;
+}
+
+/**
+ * Finds what happens to entry values of options which leave the list
+ * a renamed option moves its values to the new label, a removed option clears them
+ * values which were never options are kept, they are not this edit's to change
+ * @returns the old labels which change, with their new value, empty to clear
+ */
+function getOptionValueChanges(
+  field: CustomField,
+  options: CustomFieldOption[],
+  renamed: unknown = {},
+): Map<string, string> {
+  const changes = new Map<string, string>();
+  if (field.type !== 'option') return changes;
+  // a rename which matches nothing would read as a removal and clear the values
+  const renames = new Map<string, string>();
+  if (typeof renamed !== 'object' || renamed === null) {
+    throw new InvalidCustomFieldOptionsError('Renamed options must map old labels to new labels');
+  }
+  for (const [oldLabel, newLabel] of Object.entries(renamed)) {
+    if (typeof newLabel !== 'string' || !findCustomFieldOption(field, oldLabel)) {
+      throw new InvalidCustomFieldOptionsError(`"${oldLabel}" is not an option to rename`);
+    }
+    renames.set(oldLabel, newLabel.trim());
+  }
+
+  const labels = new Set(options.map((option) => option.label));
+  for (const { label } of field.options) {
+    const newLabel = renames.get(label) ?? label;
+    if (!labels.has(newLabel)) {
+      if (newLabel !== label) throw new InvalidCustomFieldOptionsError(`Cannot rename "${label}" to "${newLabel}"`);
+      changes.set(label, '');
+    } else if (newLabel !== label) {
+      changes.set(label, newLabel);
+    }
+  }
+  return changes;
 }
 
 /**

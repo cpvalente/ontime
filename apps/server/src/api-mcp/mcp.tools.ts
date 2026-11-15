@@ -1,5 +1,5 @@
 import type { CallToolResult } from '@modelcontextprotocol/server';
-import { CustomFieldType, EntryId, ProjectData } from 'ontime-types';
+import { CustomFieldPatch, EntryId, NewCustomField, ProjectData } from 'ontime-types';
 
 import { editCurrentProjectData, getProjectData } from '../api-data/project-data/projectData.dao.js';
 import { getProjectCustomFields, getRundownMetadata } from '../api-data/rundown/rundown.dao.js';
@@ -50,6 +50,17 @@ import {
 
 // Graceful truncation to keep tool responses within typical MCP context windows
 const CHARACTER_LIMIT = 25_000;
+
+const optionsSchema = {
+  type: 'array',
+  description:
+    'The full list of choices of an "option" field, in display order, e.g. [{ "label": "Ready", "colour": "#339E4E" }, { "label": "Hold", "colour": "" }]. colour is a hex colour or "" for none.',
+  items: {
+    type: 'object',
+    required: ['label'],
+    properties: { label: { type: 'string' }, colour: { type: 'string' } },
+  },
+};
 
 // ---- MCP tool annotation presets ----
 // https://modelcontextprotocol.io/docs/concepts/tools#tool-annotations
@@ -407,7 +418,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_get_custom_fields',
     description:
-      'Get the project custom field definitions, in display order. Returns [{ key, label, type: "text"|"image", colour }]. Keys are referenced in entry.custom[key].',
+      'Get the project custom field definitions, in display order. Returns [{ key, label, type: "text"|"image"|"option", colour, options? }]; option fields list their choices as options: [{ label, colour }]. Keys are referenced in entry.custom[key]; an option field holds one of its option labels, exactly, or nothing.',
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },
@@ -426,15 +437,16 @@ export const TOOL_DEFINITIONS = [
         },
         type: {
           type: 'string',
-          enum: ['text', 'image'],
+          enum: ['text', 'image', 'option'],
           description:
-            'Field type — cannot be changed after creation. Use "text" for short text values; "image" for image URLs.',
+            'Field type — cannot be changed after creation. Use "text" for short text values; "image" for image URLs; "option" for a value picked from a fixed list, such as a status (give the list in options).',
         },
         colour: {
           type: 'string',
           description:
             'Hex colour (#RRGGBB) used to visually identify this column in the cuesheet — for department fields, match the department colour convention (see ontime://style-guide).',
         },
+        options: optionsSchema,
       },
     },
     annotations: WRITE,
@@ -442,7 +454,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_update_custom_field',
     description:
-      'Update a custom field label or colour. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. Field type cannot be changed. Returns the updated field list.',
+      'Update a custom field label, colour or, for option fields, its options. Changing the label renames the derived key (spaces → underscores) and updates all entry references across all rundowns. options replaces the list; entries holding a removed option are cleared in all rundowns, so confirm removals with the user. Field type cannot be changed. Returns the updated field list.',
     inputSchema: {
       type: 'object',
       required: ['key'],
@@ -453,6 +465,13 @@ export const TOOL_DEFINITIONS = [
           description: 'New human-readable label (optional). Changes the derived key and cascades to all entries.',
         },
         colour: { type: 'string', description: 'New hex colour (#RRGGBB) (optional)' },
+        options: optionsSchema,
+        renamedOptions: {
+          type: 'object',
+          additionalProperties: { type: 'string' },
+          description:
+            'Old option label → new option label, for options renamed in this edit, e.g. { "Ready": "Standby" }. Requires options, which must contain each new label.',
+        },
       },
     },
     annotations: WRITE_IDEM,
@@ -699,12 +718,12 @@ const TOOL_HANDLERS: Record<ToolName, (args: Record<string, unknown>) => Promise
   ontime_get_custom_fields: async () => ok(getProjectCustomFields()),
 
   ontime_create_custom_field: async (args) => {
-    return ok(await createCustomFieldForMcp(args as { label: string; type: CustomFieldType; colour: string }));
+    return ok(await createCustomFieldForMcp(args as NewCustomField));
   },
 
   ontime_update_custom_field: async (args) => {
-    const { key, label, colour } = args as { key: string; label?: string; colour?: string };
-    return ok(await editCustomField(key, { label, colour }));
+    const { key, label, colour, options, renamedOptions } = args as { key: string } & CustomFieldPatch;
+    return ok(await editCustomField(key, { label, colour, options, renamedOptions }));
   },
 
   ontime_delete_custom_field: async (args) => {

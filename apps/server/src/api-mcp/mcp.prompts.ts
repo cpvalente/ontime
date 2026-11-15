@@ -277,15 +277,16 @@ Steps:
 2. Carry out the instruction using the tools below. Creating a field is non-destructive — do it directly. Confirm destructive changes (rename, delete) with the user before calling.
 
 Creating a field:
-- Call ontime_create_custom_field with { label, type, colour }.
+- Call ontime_create_custom_field with { label, type, colour, options? }.
 - label: human-readable name (letters, numbers and spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle").
-- type: "text" for short string values, "image" for image URLs. Cannot be changed after creation.
+- type: "text" for short string values, "image" for image URLs, "option" for a value picked from a fixed list (eg: a status), given as options: [{ label, colour }]. Cannot be changed after creation.
 - colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. If unspecified, pick one from the default Ontime palette matching the department.
 - Returns the updated field list — use the new field's key when setting values on entries.
 
 Renaming or recolouring a field:
-- Call ontime_update_custom_field with { key, label?, colour? }.
+- Call ontime_update_custom_field with { key, label?, colour?, options?, renamedOptions? }.
 - Warning: changing the label changes the derived key and cascades to all entry references in all rundowns. Confirm with the user before renaming.
+- options replaces an option field's whole list. List renamed options in renamedOptions ({ old: new }) so entries follow; entries holding a removed option are cleared. Confirm removals with the user.
 - The field type cannot be changed.
 
 Reordering fields:

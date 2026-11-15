@@ -21,6 +21,7 @@ import FlagCell from './FlagCell';
 import GhostedText from './GhostedText';
 import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
+import OptionCell from './OptionCell';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
@@ -248,12 +249,38 @@ function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   );
 }
 
+function MakeOptionField({ row, column, table }: CuesheetCellContext) {
+  const update = useCallback(
+    (newValue: string) => {
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, true);
+    },
+    [column.id, row.original.id, table],
+  );
+
+  const event = row.original;
+  const field = column.columnDef.meta?.customField;
+  if (isOntimeDelay(event) || field?.type !== 'option') {
+    return null;
+  }
+
+  return (
+    <OptionCell
+      field={field}
+      value={event.custom[column.id] ?? ''}
+      readOnly={!column.columnDef.meta?.canWrite}
+      handleUpdate={update}
+    />
+  );
+}
+
 function getCustomFieldCell(type: CustomFieldType) {
   switch (type) {
     case 'text':
       return MakeCustomField;
     case 'image':
       return LazyImage;
+    case 'option':
+      return MakeOptionField;
   }
 }
 
@@ -367,6 +394,7 @@ export function makeCuesheetColumns(
       meta: {
         colour: field.colour,
         canWrite: canWrite(permissionKey),
+        customField: field,
       },
     });
   }

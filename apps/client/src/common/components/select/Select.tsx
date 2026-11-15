@@ -1,4 +1,5 @@
 import { Select as BaseSelect } from '@base-ui/react/select';
+import { CSSProperties } from 'react';
 import { IoCheckmark } from 'react-icons/io5';
 import { LuChevronsUpDown } from 'react-icons/lu';
 
@@ -19,6 +20,11 @@ interface SelectProps<T> extends Omit<BaseSelect.Root.Props<T>, 'items'> {
   'aria-label'?: string;
   /** where focus goes when the menu closes, the trigger by default */
   finalFocus?: BaseSelect.Popup.Props['finalFocus'];
+  /** styles the trigger, eg: to blend in a table cell */
+  triggerClassName?: string;
+  triggerStyle?: CSSProperties;
+  /** shown while no value is selected */
+  placeholder?: string;
 }
 
 export default function Select<T>({
@@ -27,13 +33,20 @@ export default function Select<T>({
   size = 'medium',
   'aria-label': ariaLabel,
   finalFocus,
+  triggerClassName,
+  triggerStyle,
+  placeholder,
   ...selectRootProps
 }: SelectProps<T>) {
   return (
     <BaseSelect.Root items={options} {...selectRootProps}>
-      <BaseSelect.Trigger aria-label={ariaLabel} className={cx([styles.select, styles[size], fluid && styles.fluid])}>
+      <BaseSelect.Trigger
+        aria-label={ariaLabel}
+        className={cx([styles.select, styles[size], fluid && styles.fluid, triggerClassName])}
+        style={triggerStyle}
+      >
         <span className={styles.valueText}>
-          <BaseSelect.Value />
+          <BaseSelect.Value placeholder={placeholder} />
         </span>
         <BaseSelect.Icon className={styles.selectIcon}>
           <LuChevronsUpDown />
