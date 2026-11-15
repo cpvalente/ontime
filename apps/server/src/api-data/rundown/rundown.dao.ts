@@ -669,7 +669,12 @@ function customFieldEdit(
   const field = customFields[index];
   const label = patch.label || field.label;
   const newKey = customFieldLabelToKey(label);
-  customFields[index] = { ...field, key: newKey, label, colour: patch.colour ?? field.colour };
+  const edited = { ...field, key: newKey, label, colour: patch.colour ?? field.colour };
+  // only option fields hold options, the service refuses them for other types
+  if (edited.type === 'option' && patch.options) {
+    edited.options = patch.options;
+  }
+  customFields[index] = edited;
   return { oldKey: key, newKey };
 }
 
@@ -714,6 +719,24 @@ function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKe
 }
 
 /**
+ * Iterates through all entries of a rundown and changes the values of an option field
+ * @param changes old values with their new value, empty removes the value
+ */
+function customFieldChangeOptionUsages(rundown: Rundown, key: CustomFieldKey, changes: ReadonlyMap<string, string>) {
+  Object.keys(rundown.entries).forEach((entryId) => {
+    const entry = rundown.entries[entryId];
+    if (!('custom' in entry) || !Object.hasOwn(entry.custom, key)) return;
+    const newValue = changes.get(entry.custom[key]);
+    if (newValue === undefined) return;
+    if (newValue === '') {
+      delete entry.custom[key];
+    } else {
+      entry.custom[key] = newValue;
+    }
+  });
+}
+
+/**
  * Iterates through all entries of a rundown and removes data associated with a custom field
  */
 function customFieldRemoveUsages(rundown: Rundown, key: CustomFieldKey) {
@@ -732,6 +755,7 @@ export const customFieldMutation = {
   reorder: customFieldReorder,
   merge: customFieldMerge,
   renameUsages: customFieldRenameUsages,
+  changeOptionUsages: customFieldChangeOptionUsages,
   removeUsages: customFieldRemoveUsages,
 };
 

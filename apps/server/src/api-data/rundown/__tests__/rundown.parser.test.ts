@@ -2,7 +2,7 @@ import { CustomFields, OntimeEvent, OntimeGroup, Rundown, SupportedEntry } from 
 
 import { makeNewRundown } from '../../../models/dataModel.js';
 import { makeOntimeEvent, makeOntimeGroup, makeOntimeMilestone } from '../__mocks__/rundown.mocks.js';
-import { parseRundown, parseRundowns, sanitiseCustomFields } from '../rundown.parser.js';
+import { parseRundown, parseRundowns } from '../rundown.parser.js';
 
 describe('parseRundowns()', () => {
   it('returns a default project rundown if nothing is given', () => {
@@ -341,27 +341,5 @@ describe('parseRundown()', () => {
     const parsedRundown = parseRundown(rundown, []);
     expect(parsedRundown.entries.group).toMatchObject({ entries: ['1'] });
     expect(parsedRundown.entries).not.toHaveProperty('nested');
-  });
-});
-
-describe('sanitiseCustomFields()', () => {
-  it('deletes unused custom fields', () => {
-    const knownKeys = new Set(['lighting', 'sound']);
-
-    const event = makeOntimeEvent({
-      type: SupportedEntry.Event,
-      id: '2',
-      timeStart: 0,
-      linkStart: true,
-      custom: {
-        lighting: 'on',
-        unknown: 'does-not-exist',
-      },
-    });
-
-    sanitiseCustomFields(knownKeys, event);
-    expect(event.custom).toStrictEqual({
-      lighting: 'on',
-    });
   });
 });

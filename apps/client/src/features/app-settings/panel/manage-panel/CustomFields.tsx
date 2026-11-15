@@ -44,10 +44,20 @@ export default function CustomFieldSettings() {
   const openEditForm = (field: CustomField) => setFormState({ isOpen: true, field });
   const closeForm = () => setFormState({ isOpen: false, field: undefined });
 
-  const handleSubmit = async (customField: NewCustomField) => {
+  const handleSubmit = async (customField: NewCustomField, renamedOptions: Record<string, string>) => {
     const editing = formState.field;
     if (editing) {
-      await editCustomField(editing.key, { label: customField.label, colour: customField.colour });
+      const { label, colour } = customField;
+      // the labels the form started from, so the server refuses the edit if they changed elsewhere since
+      const optionsPatch =
+        customField.type === 'option' && editing.type === 'option'
+          ? {
+              options: customField.options,
+              renamedOptions,
+              previousOptions: editing.options.map((option) => option.label),
+            }
+          : {};
+      await editCustomField(editing.key, { label, colour, ...optionsPatch });
     } else {
       await postCustomField(customField);
     }
@@ -89,6 +99,7 @@ export default function CustomFieldSettings() {
             initialLabel={formState.field?.label}
             initialKey={formState.field?.key}
             initialType={formState.field?.type}
+            initialOptions={formState.field?.type === 'option' ? formState.field.options : undefined}
           />
         )}
         <Panel.SubHeader>

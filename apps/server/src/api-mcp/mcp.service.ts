@@ -1,5 +1,5 @@
 import {
-  CustomFieldType,
+  NewCustomField,
   EntryId,
   EventPostPayload,
   InsertOptions,
@@ -362,7 +362,7 @@ export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: 
   return { target: getTargetMeta(rundownId), updated: args.ids, order: rundown.order };
 }
 
-export async function createCustomFieldForMcp(args: { label: string; type: CustomFieldType; colour: string }) {
+export async function createCustomFieldForMcp(args: NewCustomField) {
   if (typeof args.label !== 'string') {
     throw new Error('Invalid label: provide the label as a string, e.g. "Camera Angle".');
   }
@@ -377,7 +377,7 @@ export async function createCustomFieldForMcp(args: { label: string; type: Custo
     );
   }
 
-  return createCustomField({ label: args.label, type: args.type, colour: args.colour });
+  return createCustomField(args);
 }
 
 const cssOverrideMaxLength = 64_000;

@@ -121,6 +121,16 @@
 
 .itemLabel {
   grid-column-start: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.itemColour {
+  flex-shrink: 0;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 99px;
 }
 
 .scrollArrow {

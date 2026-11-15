@@ -6,9 +6,6 @@ import {
   Day,
   EntryId,
   OntimeEntry,
-  OntimeEvent,
-  OntimeGroup,
-  OntimeMilestone,
   PlayableEvent,
   ProjectRundowns,
   Rundown,
@@ -186,22 +183,6 @@ export function parseRundown(
   return parsedRundown;
 }
 
-/**
- * Ensures that custom fields have references
- * If a field is exists in the entry but not in the project customFields, it is deleted
- * Mutates the given event in place
- */
-export function sanitiseCustomFields(
-  knownFields: ReadonlyMap<CustomFieldKey, CustomField>,
-  entry: OntimeEvent | OntimeMilestone | OntimeGroup,
-) {
-  for (const field in entry.custom) {
-    if (knownFields.has(field)) continue;
-    delete entry.custom[field];
-  }
-  return entry;
-}
-
 export type ProcessedRundownMetadata = RundownMetadata & {
   entries: RundownEntries;
   order: EntryId[];
@@ -286,7 +267,7 @@ function processEntry<T extends OntimeEntry>(
     }
 
     // 2. handle custom fields - mutates entry
-    sanitiseCustomFields(knownCustomFields, entry);
+    cleanupCustomFields(entry.custom, knownCustomFields);
 
     /*
      * we initialise data so that is not calculated for skipped events

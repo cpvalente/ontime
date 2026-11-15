@@ -1,5 +1,5 @@
 import { CustomField, CustomFields } from 'ontime-types';
-import { customFieldLabelToKey, validateCustomFieldLabel } from 'ontime-utils';
+import { customFieldLabelToKey, sanitiseCustomFieldOptions, validateCustomFieldLabel } from 'ontime-utils';
 
 import { is } from '../../utils/is.js';
 import type { ErrorEmitter } from '../../utils/parserUtils.js';
@@ -55,11 +55,20 @@ function parseCustomField(data: unknown): CustomField | null {
     return null;
   }
 
-  // a type with its own settings parses them here, eg: case 'option' would also read the options list
+  // a type with its own settings parses them here
   switch (type) {
     case 'text':
     case 'image':
       return { key, label, colour, type };
+    case 'option':
+      // a broken list must not drop the field, which would drop its values from every entry
+      return {
+        key,
+        label,
+        colour,
+        type,
+        options: sanitiseCustomFieldOptions('options' in data ? data.options : undefined),
+      };
     default:
       return null;
   }
