@@ -3,6 +3,7 @@ import { createEvent, createGroup } from 'ontime-utils';
 
 import {
   getCardData,
+  getCurrentAux,
   getEstimatedFontSize,
   getSecondaryDisplay,
   getShowMessage,
@@ -138,6 +139,25 @@ describe('getSecondaryDisplay()', () => {
     expect(display(message(null))).toBeUndefined();
     expect(display(message('secondary', ''))).toBeUndefined();
     expect(display(message('aux1'), true)).toBeUndefined();
+  });
+});
+
+describe('getCurrentAux()', () => {
+  const auxTimer = { aux1: 1000, aux2: 2000, aux3: 3000 };
+  const message = (secondarySource: MessageState['timer']['secondarySource']): MessageState => ({
+    timer: { text: '', visible: false, blink: false, blackout: false, secondarySource },
+    secondary: '',
+  });
+
+  it('returns the aux timer selected as secondary source', () => {
+    expect(getCurrentAux(message('aux1'), auxTimer)).toBe(1000);
+    expect(getCurrentAux(message('aux2'), auxTimer)).toBe(2000);
+    expect(getCurrentAux(message('aux3'), auxTimer)).toBe(3000);
+  });
+
+  it('returns null for any other source', () => {
+    expect(getCurrentAux(message('secondary'), auxTimer)).toBeNull();
+    expect(getCurrentAux(message(null), auxTimer)).toBeNull();
   });
 });
 

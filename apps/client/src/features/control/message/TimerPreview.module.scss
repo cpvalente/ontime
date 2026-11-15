@@ -28,7 +28,17 @@
 }
 
 .blackout {
-  display: none;
+  opacity: 0.3;
+}
+
+.blackoutLabel {
+  position: absolute;
+  bottom: 0.25rem;
+  right: 0.25rem;
+  pointer-events: none;
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
 .eventStatus {

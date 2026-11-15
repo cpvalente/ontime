@@ -115,6 +115,25 @@ export function getShowModifiers(
 }
 
 /**
+ * Resolves the aux timer value selected as the secondary source, if any
+ */
+export function getCurrentAux(
+  message: MessageState,
+  auxTimer: { aux1: MaybeNumber; aux2: MaybeNumber; aux3: MaybeNumber },
+): MaybeNumber {
+  switch (message.timer.secondarySource) {
+    case 'aux1':
+      return auxTimer.aux1;
+    case 'aux2':
+      return auxTimer.aux2;
+    case 'aux3':
+      return auxTimer.aux3;
+    default:
+      return null;
+  }
+}
+
+/**
  * What, if anything, should be displayed in the secondary field
  */
 export function getSecondaryDisplay(

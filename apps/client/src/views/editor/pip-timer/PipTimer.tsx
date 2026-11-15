@@ -1,4 +1,4 @@
-import { ViewSettings } from 'ontime-types';
+import { TimerType, ViewSettings } from 'ontime-types';
 
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -7,6 +7,7 @@ import { useAutoTickingClock } from '../../../common/stores/clockStore';
 import { cx } from '../../../common/utils/styleUtils';
 import { getFormattedTimer, getTimerByType } from '../../common/viewUtils';
 import {
+  getCurrentAux,
   getEstimatedFontSize,
   getIsPlaying,
   getSecondaryDisplay,
@@ -38,6 +39,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     false,
   );
   const isPlaying = getIsPlaying(time.playback);
+  const subduePaused = !isPlaying && timerTypeNow !== TimerType.Clock;
   const showProgressBar = getShowProgressBar(timerTypeNow);
 
   // gather timer data
@@ -48,18 +50,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     removeLeadingZero: false,
   });
 
-  const currentAux = (() => {
-    if (message.timer.secondarySource === 'aux1') {
-      return auxTimer.aux1;
-    }
-    if (message.timer.secondarySource === 'aux2') {
-      return auxTimer.aux2;
-    }
-    if (message.timer.secondarySource === 'aux3') {
-      return auxTimer.aux3;
-    }
-    return null;
-  })();
+  const currentAux = getCurrentAux(message, auxTimer);
 
   const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, true, false);
 
@@ -71,18 +62,27 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   };
 
   return (
-    <div className={cx(['pip-timer', showFinished && 'pip-timer--finished'])} style={userStyles}>
+    <div
+      className={cx([
+        'pip-timer',
+        showFinished && 'pip-timer--finished',
+        message.timer.blackout && 'pip-timer--blackout',
+      ])}
+      style={userStyles}
+    >
+      {message.timer.blackout && <div className='blackout-label'>Blackout</div>}
       <div className={cx(['message-overlay', showOverlay && 'message-overlay--active'])}>
         <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
       </div>
 
-      <div className='timer-container'>
+      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
-          className={cx(['timer', !isPlaying && 'timer--paused', showFinished && 'timer--finished'])}
+          className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
           style={{ fontSize: `${timerFontSize}vw` }}
-          data-phase={time.phase}
+          data-type={timerTypeNow}
+          data-phase={showWarning || showDanger ? time.phase : undefined}
         >
           {display}
         </div>
