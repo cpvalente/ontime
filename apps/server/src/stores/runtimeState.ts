@@ -927,8 +927,9 @@ function currentInput(state: RuntimeState): CurrentInput {
     event: {
       countToEnd: eventNow.countToEnd,
       timeStart: eventNow.timeStart as TimeOfDay,
-      timeEnd: eventNow.timeEnd as TimeOfDay,
+      dayOffset: eventNow.dayOffset,
     },
+    currentDay: state.rundown.currentDay as Maybe<Day>,
     startedAt: timer.startedAt as Maybe<TimeOfDay>,
     duration: timer.duration as Duration,
     addedTime: timer.addedTime as Duration,
@@ -1028,6 +1029,7 @@ export function loadGroupFlagAndEnd(
     event,
     accumulatedGap: totalGap,
     isLinkedToLoaded,
+    isLoaded: event.id === loadedId,
   });
 
   const groupEndLink = lastEventInGroup ? links.get(lastEventInGroup.id) : undefined;
