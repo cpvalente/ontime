@@ -64,9 +64,13 @@ export {
   customFieldLabelToKey,
   customFieldTypes,
   findCustomField,
+  findCustomFieldOption,
   getCustomFieldsByKey,
+  maxCustomFieldOptionLength,
+  sanitiseCustomFieldOptions,
   sortCustomFields,
   validateCustomFieldLabel,
+  validateCustomFieldOptions,
 } from './src/customField-utils/customFieldUtils.js';
 
 // helpers from externals

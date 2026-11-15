@@ -1,0 +1,30 @@
+.option {
+  display: flex;
+  align-items: center;
+  min-height: 2rem;
+  padding-inline: 0.5rem;
+  border-radius: $component-border-radius-sm;
+}
+
+// the select blends in the cell, a subtle arrow and a faint hint tell it can be picked
+button.option {
+  background-color: transparent;
+  color: inherit;
+
+  svg {
+    opacity: 0.45;
+  }
+
+  [data-placeholder] {
+    opacity: 0.2;
+  }
+
+  &:hover,
+  &:focus-visible,
+  &[data-popup-open] {
+    svg,
+    [data-placeholder] {
+      opacity: 1;
+    }
+  }
+}

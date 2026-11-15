@@ -64,6 +64,22 @@ describe('HTTP integration API', () => {
     expect((updated.entries[firstEventId] as OntimeEvent).title).toBe('Edited-from-API');
   });
 
+  test('change refuses a value which is not an option of its field', async () => {
+    const field = { label: 'Cue State', type: 'option', colour: '', options: [{ label: 'Ready', colour: '' }] };
+    expect((await server.send('POST', '/data/custom-fields', field)).status).toBe(201);
+
+    expect(await action(`/change/${firstEventId}/custom:Cue_State/Ready`)).toEqual({
+      status: 202,
+      body: { payload: 'success' },
+    });
+    const refused = await action(`/change/${firstEventId}/custom:Cue_State/Nope`);
+    expect(refused.status).toBeGreaterThanOrEqual(400);
+    expect(refused.body.message).toContain('"Nope" is not an option of Cue State');
+
+    const updated: Rundown = await (await server.get('/data/rundowns/current')).json();
+    expect((updated.entries[firstEventId] as OntimeEvent).custom.Cue_State).toBe('Ready');
+  });
+
   test('rejects unknown actions and invalid payloads with a message', async () => {
     expect(await action('/not-an-action')).toEqual({
       status: 500,

@@ -34,6 +34,15 @@ describe('parseCustomFields()', () => {
   );
 });
 
+describe('option fields', () => {
+  it('keeps a field with a broken list, as dropping it would drop its values from every entry', () => {
+    const customFields = [{ key: 'Status', label: 'Status', type: 'option', colour: '', options: 'Ready' }];
+    expect(parseCustomFields({ customFields })).toStrictEqual([
+      { key: 'Status', label: 'Status', type: 'option', colour: '', options: [] },
+    ]);
+  });
+});
+
 describe('sanitiseCustomFields()', () => {
   it('returns an empty list if there are no fields', () => {
     expect(sanitiseCustomFields([])).toEqual([]);
