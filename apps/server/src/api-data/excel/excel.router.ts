@@ -65,8 +65,7 @@ router.get('/export', (_req: Request, res: Response) => {
 
 router.get('/:rundownId/export', validateRundownExport, (req: Request, res: Response) => {
   const rundown = getProcessedRundown(req.params.rundownId);
-  const customFields = getProjectCustomFields();
-  const buffer = generateExcelFile(rundown, customFields);
+  const buffer = generateExcelFile(rundown, getProjectCustomFields());
 
   res.setHeader('Content-Disposition', 'attachment;');
   res.setHeader('Content-Type', EXCEL_MIME);

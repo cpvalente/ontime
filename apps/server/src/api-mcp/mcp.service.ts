@@ -1,4 +1,5 @@
 import {
+  CustomFieldType,
   EntryId,
   EventPostPayload,
   InsertOptions,
@@ -13,7 +14,7 @@ import {
   Rundown,
   SupportedEntry,
 } from 'ontime-types';
-import { checkRegex, customFieldLabelToKey } from 'ontime-utils';
+import { customFieldLabelToKey } from 'ontime-utils';
 
 import { writeCssFile } from '../api-data/assets/assets.service.js';
 import { getCurrentRundown, getCurrentRundownId, getProjectCustomFields } from '../api-data/rundown/rundown.dao.js';
@@ -21,9 +22,7 @@ import {
   addEntry,
   batchEditEntries,
   createCustomField,
-  deleteCustomField,
   deleteEntries,
-  editCustomField,
   editEntry,
   groupEntries,
   reorderEntry,
@@ -103,7 +102,7 @@ export function toRundownList(projectRundowns: Readonly<ProjectRundowns>) {
 
 export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['custom'] | undefined>) {
   const customFields = getProjectCustomFields();
-  const knownKeys = new Set(Object.keys(customFields));
+  const knownKeys = new Set(customFields.map((field) => field.key));
   const unknownKeys = new Set<string>();
 
   for (const custom of customValues) {
@@ -117,7 +116,7 @@ export function assertKnownCustomFields(...customValues: Array<EntryFieldArgs['c
 
   if (unknownKeys.size > 0) {
     const missing = [...unknownKeys].join(', ');
-    const available = Object.keys(customFields);
+    const available = [...knownKeys];
     const hint =
       available.length > 0 ? `Available keys: ${available.join(', ')}.` : 'No custom fields are defined yet.';
 
@@ -363,35 +362,22 @@ export async function batchUpdateEntriesForMcp(args: TargetRundownArgs & { ids: 
   return { target: getTargetMeta(rundownId), updated: args.ids, order: rundown.order };
 }
 
-export async function createCustomFieldForMcp(args: { label: string; type: 'text' | 'image'; colour: string }) {
-  const label = args.label?.trim();
-  // same constraint the HTTP route enforces in customFields.validation.ts
-  if (!label || !checkRegex.isAlphanumericWithSpace(label)) {
-    throw new Error('Invalid label: use letters, numbers and spaces only, e.g. "Camera Angle".');
+export async function createCustomFieldForMcp(args: { label: string; type: CustomFieldType; colour: string }) {
+  if (typeof args.label !== 'string') {
+    throw new Error('Invalid label: provide the label as a string, e.g. "Camera Angle".');
   }
-
-  const key = customFieldLabelToKey(label);
+  const key = customFieldLabelToKey(args.label);
+  // agents tend to recreate fields with different casing, point them at the existing key
   const existingFields = getProjectCustomFields();
-  const clash = Object.keys(existingFields).find((existing) => existing.toLowerCase() === key.toLowerCase());
+  const clash = existingFields.find((existing) => existing.key.toLowerCase() === key.toLowerCase());
   if (clash) {
     throw new Error(
-      `A custom field with key "${clash}" (label "${existingFields[clash].label}") already exists. ` +
-        `Reuse it in entry.custom["${clash}"] instead of creating a duplicate, or pick a clearly different label.`,
+      `A custom field with key "${clash.key}" (label "${clash.label}") already exists. ` +
+        `Reuse it in entry.custom["${clash.key}"] instead of creating a duplicate, or pick a clearly different label.`,
     );
   }
 
-  const updated = await createCustomField({ label, type: args.type, colour: args.colour });
-  return { key, customFields: updated };
-}
-
-export async function updateCustomFieldForMcp(args: { key: string; label?: string; colour?: string }) {
-  const updated = await editCustomField(args.key, { label: args.label, colour: args.colour });
-  return { customFields: updated };
-}
-
-export async function deleteCustomFieldForMcp(args: { key: string }) {
-  const updated = await deleteCustomField(args.key);
-  return { customFields: updated };
+  return createCustomField({ label: args.label, type: args.type, colour: args.colour });
 }
 
 const cssOverrideMaxLength = 64_000;

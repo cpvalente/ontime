@@ -1,5 +1,13 @@
-import { CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, Rundown } from 'ontime-types';
-import { ImportMap, checkRegex, customFieldLabelToKey, millisToString } from 'ontime-utils';
+import { CustomField, CustomFieldKey, CustomFields, MaybeNumber, OntimeEntry, Rundown } from 'ontime-types';
+import {
+  ImportMap,
+  customFieldLabelToKey,
+  findCustomField,
+  millisToString,
+  validateCustomFieldLabel,
+} from 'ontime-utils';
+
+import { mergeCustomFieldList } from '../custom-fields/customFields.utils.js';
 
 /**
  * Receives an import map which contains custom field labels and a custom fields object
@@ -10,12 +18,12 @@ import { ImportMap, checkRegex, customFieldLabelToKey, millisToString } from 'on
  */
 export function getCustomFieldData(
   importMap: ImportMap,
-  existingCustomFields: CustomFields,
+  existingCustomFields: Readonly<CustomFields>,
 ): {
   mergedCustomFields: CustomFields;
-  customFieldImportKeys: Record<keyof CustomFields, string>;
+  customFieldImportKeys: Record<string, CustomFieldKey>;
 } {
-  const mergedCustomFields: CustomFields = {};
+  let mergedCustomFields: CustomFields = [];
   /**
    * A map of import keys to ontime keys
    * Map<excel column name, ontime key>
@@ -24,7 +32,7 @@ export function getCustomFieldData(
 
   for (const ontimeLabel in importMap.custom) {
     // if the label is not valid, we skip the import
-    if (!checkRegex.isAlphanumericWithSpace(ontimeLabel)) {
+    if (validateCustomFieldLabel(ontimeLabel) !== null) {
       continue;
     }
 
@@ -32,15 +40,14 @@ export function getCustomFieldData(
     const keyInCustomFields = customFieldLabelToKey(ontimeLabel);
     // we lower case the excel key to make it easier to match
     const columnNameInExcel = importMap.custom[ontimeLabel].toLowerCase();
-    const maybeExistingColour = existingCustomFields[keyInCustomFields]?.colour ?? '';
-    const maybeExistingType = existingCustomFields[keyInCustomFields]?.type ?? 'text';
+    const existingField = findCustomField(existingCustomFields, keyInCustomFields);
 
-    // 1. add the custom field to the merged custom fields
-    mergedCustomFields[keyInCustomFields] = {
-      type: maybeExistingType,
-      colour: maybeExistingColour,
-      label: ontimeLabel,
-    };
+    // 1. add the custom field to the merged custom fields, an existing field keeps its type and colour
+    // a later label with the same key replaces an earlier one
+    const field: CustomField = existingField
+      ? { ...existingField, label: ontimeLabel }
+      : { key: keyInCustomFields, type: 'text', colour: '', label: ontimeLabel };
+    mergedCustomFields = mergeCustomFieldList(mergedCustomFields, [field]);
 
     // 2. add the column to the import keys
     customFieldImportKeys[columnNameInExcel] = keyInCustomFields;
@@ -175,11 +182,10 @@ const emptyCellValue = '';
  * Converts a given rundown to 2D array tabular format
  * All fields are converted to their string representation as specified by excel
  */
-export function rundownToTabular(rundown: Rundown, customFields: CustomFields): string[][] {
+export function rundownToTabular(rundown: Rundown, customFields: Readonly<CustomFields>): string[][] {
   const flatRundown: string[][] = [];
   // we reuse the keys from the import map so import <> export works by default
   const keys = Object.keys(matchedWithDefaultImportMap) as (keyof typeof matchedWithDefaultImportMap)[];
-  const customFieldKeys = Object.keys(customFields) as CustomFieldKey[];
 
   // create header row
   const headerRow: string[] = [];
@@ -187,9 +193,9 @@ export function rundownToTabular(rundown: Rundown, customFields: CustomFields): 
     const key = keys[i];
     headerRow.push(matchedWithDefaultImportMap[key]);
   }
-  for (let i = 0; i < customFieldKeys.length; i++) {
-    const key = customFieldKeys[i];
-    headerRow.push(customFields[key].label);
+  // custom field columns follow the project order
+  for (const field of customFields) {
+    headerRow.push(field.label);
   }
   flatRundown.push(headerRow);
 
@@ -260,9 +266,8 @@ export function rundownToTabular(rundown: Rundown, customFields: CustomFields): 
 
     // add custom fields
     if ('custom' in entry) {
-      for (let i = 0; i < customFieldKeys.length; i++) {
-        const customFieldKey = customFieldKeys[i] as CustomFieldKey;
-        const value = entry.custom?.[customFieldKey] ?? emptyCellValue;
+      for (const field of customFields) {
+        const value = entry.custom?.[field.key] ?? emptyCellValue;
         entryRow.push(String(value));
       }
     }

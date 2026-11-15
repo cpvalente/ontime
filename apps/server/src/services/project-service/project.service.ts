@@ -1,4 +1,5 @@
 import { copyFile, rm } from 'fs/promises';
+import { dirname } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
@@ -146,7 +147,8 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
   });
 
   // and make a new file with the recovered data
-  const newPath = appendToName(filePath, '(recovered)');
+  // a file of the same name made by an earlier load stays, the new one gets a numbered name
+  const newPath = getBackupPath(dirname(filePath), appendToName(fileName, '(recovered)'));
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
@@ -165,7 +167,8 @@ async function handleMigratedFile(filePath: string, fileName: string): Promise<s
   await copyFile(filePath, copyPath);
 
   // and make a new file with the migrated data
-  const newPath = appendToName(filePath, '(migrated)');
+  // a file of the same name made by an earlier load stays, the new one gets a numbered name
+  const newPath = getBackupPath(dirname(filePath), appendToName(fileName, '(migrated)'));
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
@@ -282,6 +285,23 @@ export async function getProjectFileToRead(filename: string): Promise<string | n
     return getFileToRead();
   }
   return doesProjectExist(filename);
+}
+
+/**
+ * Reads a project file through the migrations, without loading it or writing to it
+ * Used to merge parts of another project, which may have been saved by an older version
+ */
+export async function readProjectFile(filename: string): Promise<DatabaseModel> {
+  const filePath = await getProjectFileToRead(filename);
+  if (filePath === null) {
+    throw new Error('Project file not found');
+  }
+
+  const { data, errors } = parseDatabaseModel(await parseJsonFile(filePath));
+  if (errors.length > 0) {
+    logger.warning(LogOrigin.Server, 'Project read with errors', { project: filename, errors: errors.length });
+  }
+  return data;
 }
 
 /**
@@ -404,8 +424,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // the rundown depends on custom fields
   // so custom fields needs to be checked first
   if (customFields) {
-    const parsedCustomFields = parseCustomFields(data);
-    await mergeCustomFields(parsedCustomFields);
+    await mergeCustomFields(parseCustomFields(data));
   }
 
   // then we can check the rundown

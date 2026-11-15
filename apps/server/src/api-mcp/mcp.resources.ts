@@ -51,7 +51,7 @@ export const RESOURCE_DEFINITIONS: ListResourcesResult['resources'] = [
     name: 'project-custom-fields',
     title: 'Custom field definitions',
     description:
-      'Map of custom field keys to their label, type, and colour. Events reference these keys in their `custom` object.',
+      'Custom field definitions in display order: [{ key, label, type, colour }]. Entries reference these keys in their `custom` object.',
     mimeType: 'application/json',
   },
   {
