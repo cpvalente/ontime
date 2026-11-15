@@ -107,7 +107,9 @@ export function getExpectedFinish(input: ExpectedFinishInput): MaybeNumber {
 
 export type CurrentInput = {
   clock: TimeOfDay;
-  event: { countToEnd: boolean; timeStart: TimeOfDay; timeEnd: TimeOfDay };
+  event: { countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day };
+  /** day of the rundown we are in, null before the rundown starts */
+  currentDay: Maybe<Day>;
   startedAt: Maybe<TimeOfDay>;
   duration: Duration;
   addedTime: Duration;
@@ -119,13 +121,16 @@ export type CurrentInput = {
  * @returns time remaining in the timer, negative when in overtime
  */
 export function getCurrent(input: CurrentInput): Duration {
-  const { clock, event, startedAt, duration, addedTime, pausedAt } = input;
-  const { countToEnd, timeStart, timeEnd } = event;
+  const { clock, event, currentDay, startedAt, duration, addedTime, pausedAt } = input;
+  const { countToEnd, timeStart, dayOffset } = event;
 
   if (countToEnd) {
-    const isEventOverMidnight = timeStart > timeEnd;
-    const correctDay = isEventOverMidnight ? dayInMs : 0;
-    return (correctDay - clock + timeEnd + addedTime) as Duration;
+    // the planned end and the clock, both counted from the first day of the rundown
+    const plannedEnd = dayOffset * dayInMs + timeStart + duration;
+    const clockInRundown = (currentDay ?? dayOffset) * dayInMs + clock;
+    // time paused gives the event time, as added time does
+    const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
+    return (plannedEnd + addedTime + pausedTime - clockInRundown) as Duration;
   }
 
   if (startedAt === null) {
@@ -253,8 +258,10 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
   const pausedTime = pausedAt === null ? 0 : timeCore.elapsedTime(clock, pausedAt);
 
   // absolute offset is difference between schedule and playback time
-  // in case of count to end, the absolute offset is overtime and added time
-  const absolute = countToEnd ? overtime + addedTime : eventStartOffset + overtime + pausedTime + addedTime;
+  // in case of count to end, the absolute offset is overtime and the time given to the event
+  const absolute = countToEnd
+    ? overtime + pausedTime + addedTime
+    : eventStartOffset + overtime + pausedTime + addedTime;
 
   // the relative offset discounts how late or early playback started, compared to the event it started from
   const startShift = (actualStart + startDayOffset * dayInMs - (startEventStart + startEventDay * dayInMs)) as Duration;
@@ -304,6 +311,7 @@ export type ExpectedMetadata = {
   event: OntimeEvent;
   accumulatedGap: number;
   isLinkedToLoaded: boolean;
+  isLoaded: boolean;
 };
 
 export type ExpectedTimesInput = {
@@ -334,9 +342,11 @@ export function getExpectedTimes(
     });
 
   return {
-    expectedGroupEnd: group === null ? null : getExpectedEnd(group.event, getLookaheadStart(group), currentDay),
+    expectedGroupEnd:
+      group === null ? null : getExpectedEnd(group.event, getLookaheadStart(group), currentDay, group.isLoaded),
     expectedFlagStart: flag === null ? null : getLookaheadStart(flag),
-    expectedRundownEnd: end === null ? null : getExpectedEnd(end.event, getLookaheadStart(end), currentDay),
+    expectedRundownEnd:
+      end === null ? null : getExpectedEnd(end.event, getLookaheadStart(end), currentDay, end.isLoaded),
   };
 }
 
