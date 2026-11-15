@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { CustomField, CustomFieldKey, CustomFields } from 'ontime-types';
+import { CustomFieldKey, CustomFieldPatch, CustomFields, NewCustomField } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -7,7 +7,7 @@ import type { RequestOptions } from './requestOptions';
 const customFieldsPath = `${apiEntryUrl}/custom-fields`;
 
 /**
- * Requests list of known custom fields
+ * Requests the custom fields, in the project order
  */
 export async function getCustomFields(options?: RequestOptions): Promise<CustomFields> {
   const res = await axios.get(customFieldsPath, { signal: options?.signal });
@@ -15,9 +15,9 @@ export async function getCustomFields(options?: RequestOptions): Promise<CustomF
 }
 
 /**
- * Sets list of known custom fields
+ * Creates a custom field
  */
-export async function postCustomField(newField: CustomField): Promise<CustomFields> {
+export async function postCustomField(newField: NewCustomField): Promise<CustomFields> {
   const res = await axios.post(customFieldsPath, { ...newField });
   return res.data;
 }
@@ -25,8 +25,16 @@ export async function postCustomField(newField: CustomField): Promise<CustomFiel
 /**
  * Edits single custom field
  */
-export async function editCustomField(key: CustomFieldKey, newField: CustomField): Promise<CustomFields> {
-  const res = await axios.put(`${customFieldsPath}/${key}`, { ...newField });
+export async function editCustomField(key: CustomFieldKey, patch: CustomFieldPatch): Promise<CustomFields> {
+  const res = await axios.put(`${customFieldsPath}/${key}`, patch);
+  return res.data;
+}
+
+/**
+ * Sets the order of the custom fields
+ */
+export async function reorderCustomFields(order: CustomFieldKey[]): Promise<CustomFields> {
+  const res = await axios.patch(`${customFieldsPath}/order`, { order });
   return res.data;
 }
 

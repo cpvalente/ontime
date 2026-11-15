@@ -1,14 +1,14 @@
 import type { CustomFields } from 'ontime-types';
-import { customFieldOfScriptSource, scriptSourceOfCustomField } from 'ontime-utils';
+import { customFieldOfScriptSource, findCustomField, scriptSourceOfCustomField } from 'ontime-utils';
 
 /** The fields a teleprompter script can be read from: the note, the title and the text custom fields */
 export function makeScriptSourceOptions(customFields: CustomFields): { value: string; label: string }[] {
   return [
     { value: 'note', label: 'Note' },
     { value: 'title', label: 'Title' },
-    ...Object.entries(customFields)
-      .filter(([, field]) => field.type === 'text')
-      .map(([key, field]) => ({ value: scriptSourceOfCustomField(key), label: field.label })),
+    ...customFields
+      .filter((field) => field.type === 'text')
+      .map((field) => ({ value: scriptSourceOfCustomField(field.key), label: field.label })),
   ];
 }
 
@@ -17,5 +17,5 @@ export function getScriptSourceLabel(source: string, customFields: CustomFields)
   if (source === 'note') return 'Note';
   if (source === 'title') return 'Title';
   const key = customFieldOfScriptSource(source);
-  return (key !== null && customFields[key]?.label) || source;
+  return (key !== null && findCustomField(customFields, key)?.label) || source;
 }
