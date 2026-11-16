@@ -45,8 +45,8 @@ type FinderMatch = { key: string; label: string; excerpt: string };
 export type FinderResult = {
   id: EntryId;
   /**
-   * 0-based position among events, which is how the selection store anchors ranges
-   * groups and milestones take the position of the next event
+   * 0-based position among events, which is how the selection store anchors ranges.
+   * Groups and milestones take the position of the next event.
    */
   index: number;
   /** 1-based position among events, null for groups and milestones */
@@ -175,7 +175,7 @@ export function searchByText(
 ): SearchOutcome {
   const results: FinderResult[] = [];
   let total = 0;
-  // indexes exposed to the UI are 1-based
+  // the 1-based number shown to the user
   let eventIndex = 0;
 
   for (const entry of data) {

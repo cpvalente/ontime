@@ -1,6 +1,6 @@
 import { Rundown, SupportedEntry } from 'ontime-types';
 
-import { createEventSelectionStore } from '../eventSelectionStore';
+import { createEventSelectionStore, getSelectionIndex } from '../eventSelectionStore';
 
 function makeRundown(id: string, eventIds: string[]): Rundown {
   return {
@@ -12,6 +12,41 @@ function makeRundown(id: string, eventIds: string[]): Rundown {
     revision: 1,
   } as unknown as Rundown;
 }
+
+function makeMixedRundown(): Rundown {
+  const entries = {
+    group: { id: 'group', type: SupportedEntry.Group },
+    e1: { id: 'e1', type: SupportedEntry.Event, parent: 'group' },
+    e2: { id: 'e2', type: SupportedEntry.Event, parent: 'group' },
+    delay: { id: 'delay', type: SupportedEntry.Delay },
+    milestone: { id: 'milestone', type: SupportedEntry.Milestone },
+    e3: { id: 'e3', type: SupportedEntry.Event },
+    e4: { id: 'e4', type: SupportedEntry.Event },
+  };
+  return {
+    id: 'mixed',
+    title: 'mixed',
+    order: ['group', 'delay', 'milestone', 'e3', 'e4'],
+    flatOrder: ['group', 'e1', 'e2', 'delay', 'milestone', 'e3', 'e4'],
+    entries,
+    revision: 1,
+  } as unknown as Rundown;
+}
+
+describe('getSelectionIndex()', () => {
+  const { entries, flatOrder } = makeMixedRundown();
+
+  it.each([
+    { id: 'e1', expected: 0 },
+    { id: 'e3', expected: 2 },
+    // other entries take the position of the next event
+    { id: 'group', expected: 0 },
+    { id: 'delay', expected: 2 },
+    { id: 'milestone', expected: 2 },
+  ])('counts only events before $id', ({ id, expected }) => {
+    expect(getSelectionIndex(entries, flatOrder, id)).toBe(expected);
+  });
+});
 
 describe('createEventSelectionStore', () => {
   it('keeps selections of separate instances independent', () => {
@@ -97,6 +132,20 @@ describe('createEventSelectionStore', () => {
     store.getState().clearMultiSelect();
     expect(store.getState().selectedEvents).toEqual(new Set(['a2']));
     expect(store.getState().cursor).toBe('a2');
+  });
+
+  it('anchors on the next selected event after ctrl + click removes one', () => {
+    const rundown = makeMixedRundown();
+    const store = createEventSelectionStore(() => rundown);
+
+    store.getState().setSelectedEvents({ id: 'e1', index: 0, selectMode: 'click' });
+    store.getState().setSelectedEvents({ id: 'e3', index: 2, selectMode: 'ctrl' });
+    store.getState().setSelectedEvents({ id: 'e1', index: 0, selectMode: 'ctrl' });
+    expect(store.getState().anchoredIndex).toBe(2);
+
+    // with nothing selected after, the anchor falls back to the last event
+    store.getState().setSelectedEvents({ id: 'e3', index: 2, selectMode: 'ctrl' });
+    expect(store.getState().anchoredIndex).toBe(3);
   });
 
   it('does not select when the rundown is unavailable', () => {

@@ -1,4 +1,4 @@
-import { EntryId, MaybeNumber, Rundown, isOntimeEvent } from 'ontime-types';
+import { EntryId, MaybeNumber, Rundown, RundownEntries, isOntimeEvent } from 'ontime-types';
 import { MouseEvent } from 'react';
 import { StoreApi } from 'zustand';
 import { createStore } from 'zustand/vanilla';
@@ -9,6 +9,7 @@ export type SelectionMode = 'shift' | 'click' | 'ctrl';
 
 export interface EventSelectionStore {
   selectedEvents: Set<EntryId>;
+  /** 0-based position among events, see getSelectionIndex() */
   anchoredIndex: MaybeNumber;
   cursor: EntryId | null;
   entryMode: 'event' | 'single' | null;
@@ -75,14 +76,13 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
         const withoutId = new Set(selectedEvents);
         withoutId.delete(id);
 
-        const nextIndex = rundownData.order.findIndex(
-          (eventId, i) => i > index && isOntimeEvent(rundownData.entries[eventId]) && withoutId.has(eventId),
-        );
+        const eventIds = getEventIds(rundownData);
+        const nextIndex = eventIds.findIndex((eventId, i) => i > index && withoutId.has(eventId));
 
         // if we didnt find anything after, set the anchor to the last event
         return set({
           selectedEvents: withoutId,
-          anchoredIndex: nextIndex < 0 ? rundownData.order.length - 1 : nextIndex,
+          anchoredIndex: nextIndex < 0 ? eventIds.length - 1 : nextIndex,
           cursor: keepCursorInSelection(cursor, withoutId),
           entryMode: 'event',
         });
@@ -93,14 +93,7 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
         const rundownData = getRundown();
         if (!rundownData) return;
 
-        // get list of rundown with only ontime events
-        const eventIds: EntryId[] = [];
-        rundownData.flatOrder.forEach((eventId) => {
-          const event = rundownData.entries[eventId];
-          if (isOntimeEvent(event)) {
-            eventIds.push(event.id);
-          }
-        });
+        const eventIds = getEventIds(rundownData);
 
         const start = anchoredIndex === null ? 0 : Math.min(anchoredIndex, index);
         const end = anchoredIndex === null ? index : Math.max(anchoredIndex, index + 1);
@@ -146,6 +139,28 @@ export function createEventSelectionStore(getRundown: () => Rundown | undefined)
       }
     },
   }));
+}
+
+/** The rundown with only ontime events, which is what selection indexes count */
+function getEventIds(rundown: Pick<Rundown, 'entries' | 'flatOrder'>): EntryId[] {
+  return rundown.flatOrder.filter((id) => isOntimeEvent(rundown.entries[id]));
+}
+
+/**
+ * The index the selection expects for an entry: its 0-based position among events
+ * other entries take the position of the next event
+ */
+export function getSelectionIndex(entries: RundownEntries, flatOrder: EntryId[], id: EntryId): number {
+  let index = 0;
+  for (const entryId of flatOrder) {
+    if (entryId === id) {
+      break;
+    }
+    if (isOntimeEvent(entries[entryId])) {
+      index++;
+    }
+  }
+  return index;
 }
 
 /**
