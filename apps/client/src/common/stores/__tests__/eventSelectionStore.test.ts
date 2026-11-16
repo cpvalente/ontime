@@ -17,7 +17,7 @@ function makeMixedRundown(): Rundown {
   const entries = {
     group: { id: 'group', type: SupportedEntry.Group },
     e1: { id: 'e1', type: SupportedEntry.Event, parent: 'group' },
-    e2: { id: 'e2', type: SupportedEntry.Event, parent: 'group' },
+    e2: { id: 'e2', type: SupportedEntry.Event, parent: 'group', skip: true },
     delay: { id: 'delay', type: SupportedEntry.Delay },
     milestone: { id: 'milestone', type: SupportedEntry.Milestone },
     e3: { id: 'e3', type: SupportedEntry.Event },
@@ -38,10 +38,9 @@ describe('getSelectionIndex()', () => {
 
   it.each([
     { id: 'e1', expected: 0 },
+    // e2 is skipped and still counts
     { id: 'e3', expected: 2 },
     // other entries take the position of the next event
-    { id: 'group', expected: 0 },
-    { id: 'delay', expected: 2 },
     { id: 'milestone', expected: 2 },
   ])('counts only events before $id', ({ id, expected }) => {
     expect(getSelectionIndex(entries, flatOrder, id)).toBe(expected);
