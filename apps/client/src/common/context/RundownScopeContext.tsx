@@ -66,7 +66,9 @@ export function RundownScopeProvider({ children, rundownId }: RundownScopeProvid
 
   return (
     <RundownScopeContext.Provider value={value}>
-      <EntryActionsProvider actions={actions}>{children}</EntryActionsProvider>
+      <EntryActionsProvider actions={actions} isLoaded={value.isLoaded}>
+        {children}
+      </EntryActionsProvider>
     </RundownScopeContext.Provider>
   );
 }
