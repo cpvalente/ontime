@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { useRundownScope } from '../../../common/context/RundownScopeContext';
 import type { EntryActions } from '../../../common/hooks/useEntryAction';
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import { getSelectionIndex } from '../../../common/stores/eventSelectionStore';
 import { SelectionMode } from '../useEventSelection';
 
 const PAGE_SIZE = 5;
@@ -30,18 +31,26 @@ export function useRundownCommands({
   const { rundownId } = useRundownScope();
   const { addEntry, clone, deleteEntry, move, reorderEntry } = entryActions;
 
+  // positions found in the flat order count every entry, the selection counts events only
+  const selectById = useCallback(
+    (id: EntryId) => {
+      applySelection({ id, selectMode: 'click', index: getSelectionIndex(entries, flatOrder, id) });
+    },
+    [entries, flatOrder, applySelection],
+  );
+
   const deleteAtCursor = useCallback(
     (cursor: string | null) => {
       if (!cursor) return null;
-      const { entry, index } = getPreviousNormal(entries, flatOrder, cursor);
+      const { entry } = getPreviousNormal(entries, flatOrder, cursor);
       deleteEntry([cursor]);
-      if (entry && index !== null) {
-        applySelection({ id: entry.id, selectMode: 'click', index });
+      if (entry) {
+        selectById(entry.id);
         return entry.id;
       }
       return null;
     },
-    [entries, flatOrder, deleteEntry, applySelection],
+    [entries, flatOrder, deleteEntry, selectById],
   );
 
   const insertCopyAtId = useCallback(
@@ -116,13 +125,13 @@ export function useRundownCommands({
           ? getPreviousGroupNormal(entries, flatOrder, cursor)
           : getNextGroupNormal(entries, flatOrder, cursor);
 
-      if (selected.entry && selected.index !== null) {
-        applySelection({ id: selected.entry.id, selectMode: 'click', index: selected.index });
+      if (selected.entry) {
+        selectById(selected.entry.id);
         return selected.entry.id;
       }
       return null;
     },
-    [flatOrder, entries, applySelection],
+    [flatOrder, entries, selectById],
   );
 
   const selectEntry = useCallback(
@@ -134,13 +143,13 @@ export function useRundownCommands({
       const selected =
         direction === 'up' ? getPreviousNormal(entries, flatOrder, cursor) : getNextNormal(entries, flatOrder, cursor);
 
-      if (selected.entry && selected.index !== null) {
-        applySelection({ id: selected.entry.id, selectMode: 'click', index: selected.index });
+      if (selected.entry) {
+        selectById(selected.entry.id);
         return selected.entry.id;
       }
       return null;
     },
-    [flatOrder, entries, applySelection],
+    [flatOrder, entries, selectById],
   );
 
   const moveEntry = useCallback(
@@ -178,10 +187,10 @@ export function useRundownCommands({
       const selectedId = flatOrder[index];
       if (!selectedId) return null;
 
-      applySelection({ id: selectedId, selectMode: 'click', index });
+      selectById(selectedId);
       return selectedId;
     },
-    [flatOrder, applySelection],
+    [flatOrder, selectById],
   );
 
   const selectPage = useCallback(
@@ -212,10 +221,10 @@ export function useRundownCommands({
       const selectedId = flatOrder[lastValidIndex];
       if (!selectedId) return null;
 
-      applySelection({ id: selectedId, selectMode: 'click', index: lastValidIndex });
+      selectById(selectedId);
       return selectedId;
     },
-    [flatOrder, applySelection],
+    [flatOrder, selectById],
   );
 
   return {
