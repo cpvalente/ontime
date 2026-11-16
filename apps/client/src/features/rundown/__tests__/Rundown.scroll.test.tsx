@@ -102,6 +102,14 @@ function visibleEntries() {
   return scroller().getAttribute('data-entries')!.split(',');
 }
 
+function followButton() {
+  return [...container.querySelectorAll('button')].find((button) => button.textContent === 'Follow')!;
+}
+
+function isFollowShown() {
+  return !followButton().hasAttribute('inert');
+}
+
 function press(code: string, modifiers: KeyboardEventInit = {}) {
   const key = code.replace('Key', '').toLowerCase();
   document.body.dispatchEvent(new KeyboardEvent('keydown', { key, code, bubbles: true, ...modifiers }));
@@ -167,11 +175,43 @@ describe('Run mode follow', () => {
     await render();
     await act(async () => scope.selectionStore.getState().scrollToEntry('second'));
     expect(scrollIntoView).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
+    expect(isFollowShown()).toBe(true);
     scrollToIndex.mockClear();
 
     editEntry('first');
     await render();
     expect(scrollToIndex).not.toHaveBeenCalled();
+  });
+
+  it('offers Follow after the user scrolled away and hides it once following again', async () => {
+    await render();
+    expect(isFollowShown()).toBe(false);
+
+    await act(async () => scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true })));
+    expect(isFollowShown()).toBe(true);
+    scrollToIndex.mockClear();
+
+    await act(async () => followButton().click());
+    expect(scrollToIndex).toHaveBeenCalledWith(expect.objectContaining({ index: 0, align: 'start' }));
+    expect(isFollowShown()).toBe(false);
+  });
+
+  it('hides Follow when the next event goes live', async () => {
+    await render();
+    await act(async () => scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true })));
+    expect(isFollowShown()).toBe(true);
+
+    props = { ...props, featureData: { ...props.featureData, selectedEventId: 'second' } };
+    await render();
+    expect(isFollowShown()).toBe(false);
+  });
+
+  it('does not offer Follow when nothing is running', async () => {
+    props = { ...props, featureData: { ...props.featureData, selectedEventId: null } };
+    await render();
+
+    await act(async () => scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true })));
+    expect(isFollowShown()).toBe(false);
   });
 
   describe('when the live event moves into a collapsed group', () => {
@@ -294,6 +334,14 @@ describe('Edit mode reveals', () => {
     await act(async () => container.querySelector('button')!.click());
     expect(scrollIntoView).toHaveBeenLastCalledWith(expect.objectContaining({ index: 1 }));
     expect(visibleEntries()).toContain('inside');
+  });
+
+  it('does not offer Follow after scrolling or navigating', async () => {
+    await render();
+
+    await act(async () => scroller().dispatchEvent(new WheelEvent('wheel', { deltaY: 100, bubbles: true })));
+    await act(async () => scope.selectionStore.getState().scrollToEntry('second'));
+    expect(isFollowShown()).toBe(false);
   });
 
   it('does not scroll when selecting or editing a row', async () => {

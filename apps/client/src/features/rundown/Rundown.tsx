@@ -13,11 +13,13 @@ import { createPortal } from 'react-dom';
 import { TbFlagFilled } from 'react-icons/tb';
 import { Virtuoso, VirtuosoHandle } from 'react-virtuoso';
 
+import FollowButton from '../../common/components/follow-button/FollowButton';
 import EmptyRundown from '../../common/components/state/EmptyRundown';
 import { useEntryActionsContext } from '../../common/context/EntryActionsContext';
 import { useRundownScope } from '../../common/context/RundownScopeContext';
 import useAutomationSettings from '../../common/hooks-query/useAutomationSettings';
 import { useSetEntryCopy } from '../../common/stores/entryCopyStore';
+import { deviceAlt } from '../../common/utils/deviceUtils';
 import { RundownMetadataObject, lastMetadataKey } from '../../common/utils/rundownMetadata';
 import { AppMode } from '../../ontimeConfig';
 import QuickAddButtons from './entry-editor/quick-add-buttons/QuickAddButtons';
@@ -139,7 +141,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
     [entries, getIsCollapsed, expandGroup],
   );
 
-  const { scrollerRef, reveal, resume, followMove } = useListFollow({
+  const { scrollerRef, userScrolled, reveal, resume, followMove } = useListFollow({
     listRef: virtuosoRef,
     ids: visibleData,
     liveId: featureData.selectedEventId,
@@ -202,6 +204,7 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
 
   // gather presentation options
   const isEditMode = editorMode === AppMode.Edit;
+  const showFollow = isRunMode && Boolean(featureData.selectedEventId) && userScrolled;
 
   const draggedEntry = dnd.activeId ? entries[dnd.activeId] : undefined;
   const dropTarget = dnd.dropTarget;
@@ -382,6 +385,12 @@ export default function Rundown({ order, flatOrder, entries, id, rundownMetadata
           document.body,
         )}
       </DndContext>
+      <FollowButton
+        isVisible={showFollow}
+        onClickHandler={jumpToCurrent}
+        placement='panel'
+        tooltip={`Follow running event (${deviceAlt}+L)`}
+      />
     </div>
   );
 }

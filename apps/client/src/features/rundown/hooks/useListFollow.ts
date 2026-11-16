@@ -29,6 +29,7 @@ interface UseListFollowOptions {
  * - a new live event, entering Run or resume() follows again
  * - explicit navigation (the selection store's scrollToEntry) reveals the entry with the smallest scroll
  * - a keyboard move in Edit is followed by the entry's rendered position until the move settles
+ * - userScrolled renders whether the user took over, resume() hands control back
  * - pass scrollerRef to the virtuoso list
  */
 export function useListFollow({
@@ -41,7 +42,7 @@ export function useListFollow({
   blockedRef,
   prepare,
 }: UseListFollowOptions) {
-  const { userScrolledRef, scrollerRef } = useUserScrolled();
+  const { userScrolledRef, userScrolled, setUserScrolled, scrollerRef } = useUserScrolled();
   const setScrollHandler = useEventSelection((state) => state.setScrollHandler);
   const [target, setTarget] = useState<EntryId | null>(null);
   const movedRef = useRef<{ id: EntryId; index: number; pending: number } | null>(null);
@@ -60,11 +61,11 @@ export function useListFollow({
       if (!id || blockedRef?.current) {
         return;
       }
-      userScrolledRef.current = true;
+      setUserScrolled(true);
       movedRef.current = null;
       setTarget(id);
     },
-    [blockedRef, userScrolledRef],
+    [blockedRef, setUserScrolled],
   );
 
   // explicit navigation (finder, keyboard) reveals through this list
@@ -74,10 +75,10 @@ export function useListFollow({
   }, [reveal, setScrollHandler]);
 
   const resume = useCallback(() => {
-    userScrolledRef.current = false;
+    setUserScrolled(false);
     setTarget(null);
     pin();
-  }, [pin, userScrolledRef]);
+  }, [pin, setUserScrolled]);
 
   const followMove = useCallback(
     (id: EntryId | null, move: Promise<unknown>) => {
@@ -87,7 +88,7 @@ export function useListFollow({
       const moved = movedRef.current?.id === id ? movedRef.current : { id, index: ids.indexOf(id), pending: 0 };
       moved.pending += 1;
       movedRef.current = moved;
-      userScrolledRef.current = false;
+      setUserScrolled(false);
       move.finally(() => {
         moved.pending -= 1;
         if (moved.pending === 0 && movedRef.current === moved) {
@@ -95,15 +96,15 @@ export function useListFollow({
         }
       });
     },
-    [ids, isRunMode, userScrolledRef],
+    [ids, isRunMode, setUserScrolled],
   );
 
   // a new live event or entering Run follows again; content edits never end the user's take over
   useEffect(() => {
     if (isRunMode && liveId && !blockedRef?.current) {
-      userScrolledRef.current = false;
+      setUserScrolled(false);
     }
-  }, [isRunMode, liveId, blockedRef, userScrolledRef]);
+  }, [isRunMode, liveId, blockedRef, setUserScrolled]);
 
   // while following, keep the live event pinned as rows change
   useEffect(() => {
@@ -141,5 +142,5 @@ export function useListFollow({
     setTarget(null);
   }, [target, ids, prepare, behavior, revealLocation, listRef, blockedRef]);
 
-  return { scrollerRef, reveal, resume, followMove };
+  return { scrollerRef, userScrolled, reveal, resume, followMove };
 }
