@@ -10,6 +10,7 @@ import { anchorAtRow, makeTeleprompterLayout, type TeleprompterLayout } from 'on
 import { type CSSProperties, memo, type PropsWithChildren, useMemo, useState } from 'react';
 
 import { cx } from '../../common/utils/styleUtils';
+import { useTranslation } from '../../translation/TranslationProvider';
 import type { TeleprompterViewCommand } from './teleprompter.keymap';
 import type { TeleprompterOptions } from './teleprompter.options';
 import { useFitText } from './useFitText';
@@ -55,6 +56,7 @@ export default function TeleprompterScreen({
   const [screen, setScreen] = useState<HTMLDivElement | null>(null);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const [content, setContent] = useState<HTMLDivElement | null>(null);
+  const { getLocalizedString } = useTranslation();
 
   const layout = useMemo(
     () => (options.onlyLoaded ? makeTeleprompterLayout(events) : scriptLayout),
@@ -126,7 +128,11 @@ export default function TeleprompterScreen({
           {!options.hideReadingLine && <span className='teleprompter__reading-marker' />}
           {ended && (
             // where the talent is looking, so the end is clear without the controls
-            <span className='teleprompter__end' data-testid='teleprompter-end' />
+            <span className='teleprompter__end' data-testid='teleprompter-end'>
+              {ended === 'event'
+                ? getLocalizedString('teleprompter.end_of_event')
+                : getLocalizedString('teleprompter.end_of_script')}
+            </span>
           )}
         </div>
       )}

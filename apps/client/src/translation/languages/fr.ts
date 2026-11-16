@@ -47,4 +47,6 @@ export const langFr: TranslationObject = {
   'project.description': 'Description',
   'project.info': 'Informations du projet',
   'project.url': 'URL du projet',
+  'teleprompter.end_of_event': 'Fin de l’événement',
+  'teleprompter.end_of_script': 'Fin du script',
 };
