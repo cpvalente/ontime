@@ -1,6 +1,7 @@
 import { OntimeView, isOntimeEvent, isOntimeGroup } from 'ontime-types';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import FollowButton from '../../common/components/follow-button/FollowButton';
 import EmptyFill from '../../common/components/state/EmptyFill';
 import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -14,7 +15,6 @@ import { isTouchDevice } from '../../externals';
 import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../../views/common/loader/Loader';
 import CustomFieldEditModal from './custom-field-edit-modal/CustomFieldEditModal';
-import FollowButton from './follow-button/FollowButton';
 import OperatorEvent from './operator-event/OperatorEvent';
 import OperatorGroup from './operator-group/OperatorGroup';
 import { getOperatorOptions, useOperatorOptions } from './operator.options';

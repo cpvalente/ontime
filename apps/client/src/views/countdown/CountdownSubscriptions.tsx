@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
+import FollowButton from '../../common/components/follow-button/FollowButton';
 import useReport from '../../common/hooks-query/useReport';
 import { useFadeOutOnInactivity } from '../../common/hooks/useFadeOutOnInactivity';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
@@ -12,7 +13,6 @@ import { getOffsetState } from '../../common/utils/offset';
 import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { throttle } from '../../common/utils/throttle';
-import FollowButton from '../../features/operator/follow-button/FollowButton';
 import { useTranslation } from '../../translation/TranslationProvider';
 import ClockTime from '../common/clock-time/ClockTime';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
