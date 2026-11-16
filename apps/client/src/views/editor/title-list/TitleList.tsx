@@ -85,7 +85,8 @@ function TitleListContent({ mode, eventData, selectedEventId, resolvedFollowEven
 
   // Auto-scroll to keep current item at sticky position using Virtuoso
   useEffect(() => {
-    if (!virtuosoRef.current) return;
+    // the list mounts after its scroll parent, which re-runs this to follow on mount
+    if (!scrollParent || !virtuosoRef.current) return;
 
     const indexToFollow = followIndex !== -1 ? followIndex : currentEventInfo.index;
     if (indexToFollow === -1) return;
@@ -100,7 +101,7 @@ function TitleListContent({ mode, eventData, selectedEventId, resolvedFollowEven
       behavior: 'smooth',
       offset: -50,
     });
-  }, [currentEventInfo.index, followIndex, mode]);
+  }, [currentEventInfo.index, followIndex, mode, scrollParent]);
 
   // Virtuoso item renderer
   const itemContent = useCallback(
