@@ -44,7 +44,10 @@ type FinderMatch = { key: string; label: string; excerpt: string };
 
 export type FinderResult = {
   id: EntryId;
-  /** position in the flat rundown, which is how the rundown reveals an entry */
+  /**
+   * 0-based position among events, which is how the selection store anchors ranges
+   * groups and milestones take the position of the next event
+   */
   index: number;
   /** 1-based position among events, null for groups and milestones */
   eventIndex: MaybeNumber;
@@ -147,14 +150,13 @@ export function searchByIndex(data: OntimeEntry[], indexString: string): SearchO
   }
 
   let eventIndex = 0;
-  for (let i = 0; i < data.length; i++) {
-    const entry = data[i];
+  for (const entry of data) {
     if (!isOntimeEvent(entry)) {
       continue;
     }
     eventIndex++;
     if (eventIndex === target) {
-      return { results: [toResult(entry, i, eventIndex, null)], error: null, total: 1 };
+      return { results: [toResult(entry, eventIndex - 1, eventIndex, null)], error: null, total: 1 };
     }
   }
 
@@ -176,8 +178,7 @@ export function searchByText(
   // indexes exposed to the UI are 1-based
   let eventIndex = 0;
 
-  for (let i = 0; i < data.length; i++) {
-    const entry = data[i];
+  for (const entry of data) {
     if (isOntimeDelay(entry)) {
       continue;
     }
@@ -193,7 +194,8 @@ export function searchByText(
 
     total++;
     if (results.length < maxResults) {
-      results.push(toResult(entry, i, isEvent ? eventIndex : null, match));
+      const index = isEvent ? eventIndex - 1 : eventIndex;
+      results.push(toResult(entry, index, isEvent ? eventIndex : null, match));
     }
   }
 

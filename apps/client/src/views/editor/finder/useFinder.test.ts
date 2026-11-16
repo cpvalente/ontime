@@ -121,6 +121,26 @@ describe('searchByText()', () => {
     expect(searchByText(data, customFields, null, 'needle')).toStrictEqual({ results: [], error: null, total: 0 });
   });
 
+  it('indexes results by event position, counting skipped and unmatched events', () => {
+    const data = [
+      makeGroup('group', { title: 'needle' }),
+      makeEvent('e1'),
+      makeEvent('e2', { skip: true }),
+      makeDelay('delay'),
+      makeMilestone('milestone', { title: 'needle' }),
+      makeEvent('e3', { title: 'needle' }),
+    ];
+
+    const outcome = searchByText(data, customFields, 'title', 'needle');
+
+    expect(outcome.results.map(({ id, index, eventIndex }) => ({ id, index, eventIndex }))).toStrictEqual([
+      // non-events anchor at the next event
+      { id: 'group', index: 0, eventIndex: null },
+      { id: 'milestone', index: 2, eventIndex: null },
+      { id: 'e3', index: 2, eventIndex: 3 },
+    ]);
+  });
+
   it('reports the full match count while limiting rendered results', () => {
     const data = Array.from({ length: 51 }, (_, index) => makeEvent(String(index), { title: 'needle' }));
 
@@ -132,7 +152,7 @@ describe('searchByText()', () => {
 });
 
 describe('searchByIndex()', () => {
-  it('counts only events while preserving the flat rundown position', () => {
+  it('counts only events, so the index matches the selection store', () => {
     const data = [
       makeGroup('group'),
       makeDelay('delay'),
@@ -144,7 +164,7 @@ describe('searchByIndex()', () => {
     const outcome = searchByIndex(data, '2');
 
     expect(outcome.results).toHaveLength(1);
-    expect(outcome.results[0]).toMatchObject({ id: 'second', index: 4, eventIndex: 2 });
+    expect(outcome.results[0]).toMatchObject({ id: 'second', index: 1, eventIndex: 2 });
     expect(outcome.total).toBe(1);
   });
 
