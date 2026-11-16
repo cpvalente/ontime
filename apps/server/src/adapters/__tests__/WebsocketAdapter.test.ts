@@ -59,30 +59,41 @@ const websocketMocks = vi.hoisted(() => {
   };
 });
 
-const authenticationMocks = vi.hoisted(() => ({ reject: true, scope: 'write' as 'read' | 'write' }));
-const dispatchMock = vi.hoisted(() => vi.fn());
+const authenticationMocks = vi.hoisted(() => ({ reject: true, scope: 'write' as AccessScope }));
 
 vi.mock('ws', () => ({
   WebSocket: websocketMocks.FakeWebSocket,
   WebSocketServer: websocketMocks.FakeWebSocketServer,
 }));
 
+// client commands go to the real dispatcher so renames apply, the spy records what reached it
+const dispatchSpy = vi.hoisted(() => vi.fn());
+vi.mock('../../api-integration/integration.controller.js', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../../api-integration/integration.controller.js')>();
+  return {
+    ...original,
+    dispatchFromAdapter: (...args: Parameters<typeof original.dispatchFromAdapter>) => {
+      dispatchSpy(...args);
+      return args[0] === 'client' ? original.dispatchFromAdapter(...args) : undefined;
+    },
+  };
+});
+
 vi.mock('../../middleware/authenticate.js', () => ({
   authenticateSocket: () => (authenticationMocks.reject ? undefined : authenticationMocks.scope),
 }));
 
-vi.mock('../../api-integration/integration.controller.js', () => ({ dispatchFromAdapter: dispatchMock }));
-
 import { MessageTag } from 'ontime-types';
 
 import { now } from '../../lib/time-core/timeCore.js';
-import { socket } from '../WebsocketAdapter.js';
+import type { AccessScope } from '../../middleware/access.js';
+import { removeToken, socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
   beforeEach(() => {
     authenticationMocks.reject = true;
     authenticationMocks.scope = 'write';
-    dispatchMock.mockReset();
+    dispatchSpy.mockReset();
   });
 
   afterEach(async () => {
@@ -130,19 +141,154 @@ describe('WebsocketAdapter', () => {
     );
   });
 
-  it.each([
-    ['read', 0],
-    ['write', 1],
-  ] as const)('with %s scope, dispatches %i commands', async (scope, calls) => {
+  function connect(scope: AccessScope) {
     authenticationMocks.reject = false;
     authenticationMocks.scope = scope;
-    socket.init({} as Server, null);
     const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(client);
     websocketMocks.getConnectionHandler()?.(client, {});
+    return client;
+  }
+
+  function sentPackets(client: InstanceType<typeof websocketMocks.FakeWebSocket>) {
+    return client.send.mock.calls.map(([data]) => JSON.parse(data as string));
+  }
+
+  function lastClientList(client: InstanceType<typeof websocketMocks.FakeWebSocket>) {
+    return sentPackets(client)
+      .filter((packet) => packet.tag === MessageTag.ClientList)
+      .at(-1)?.payload;
+  }
+
+  function clientId(client: InstanceType<typeof websocketMocks.FakeWebSocket>): string {
+    return sentPackets(client).find((packet) => packet.tag === MessageTag.ClientInit)?.payload.clientId;
+  }
+
+  function flush() {
+    return new Promise((resolve) => setTimeout(resolve, 0));
+  }
+
+  it.each([
+    ['read', false],
+    ['write', true],
+  ] as const)('with %s scope, runs commands: %s', async (scope, runs) => {
+    socket.init({} as Server, null);
+    const client = connect(scope);
 
     client.emit('message', JSON.stringify({ tag: 'start', payload: null }));
-    await Promise.resolve();
+    await flush();
 
-    expect(dispatchMock).toHaveBeenCalledTimes(calls);
+    expect(dispatchSpy.mock.calls.some(([tag]) => tag === 'start')).toBe(runs);
+  });
+
+  it('sends the full client list only to write sockets, others see themselves', () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+    const reader = connect('read');
+
+    expect(Object.keys(lastClientList(writer))).toHaveLength(2);
+    expect(Object.keys(lastClientList(reader))).toEqual([clientId(reader)]);
+  });
+
+  it('keeps tokens out of client paths', () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+
+    writer.emit('message', JSON.stringify({ tag: MessageTag.ClientSet, payload: { path: '/timer?token=secret&n=1' } }));
+
+    const [self] = Object.values(lastClientList(writer)) as { path: string }[];
+    expect(self.path).toBe('/timer?n=1');
+  });
+
+  it('keeps only the fields a client may set about itself, capped in length', () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+    const reader = connect('read');
+
+    reader.emit(
+      'message',
+      JSON.stringify({ tag: MessageTag.ClientSet, payload: { name: 'x'.repeat(500), identify: true, extra: 1 } }),
+    );
+
+    const entry = lastClientList(writer)[clientId(reader)];
+    expect(entry.name).toHaveLength(100);
+    expect(entry.identify).toBe(false);
+    expect(entry).not.toHaveProperty('extra');
+  });
+
+  it('lets a read socket rename itself but not another client', async () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+    const reader = connect('read');
+
+    const writerName = lastClientList(writer)[clientId(writer)].name;
+    reader.emit('message', JSON.stringify({ tag: 'client', payload: { target: clientId(reader), rename: 'me' } }));
+    reader.emit('message', JSON.stringify({ tag: 'client', payload: { target: clientId(writer), rename: 'you' } }));
+    await flush();
+
+    const list = lastClientList(writer);
+    expect(list[clientId(reader)].name).toBe('me');
+    expect(list[clientId(writer)].name).toBe(writerName);
+  });
+
+  it('does not let a read socket redirect itself', async () => {
+    socket.init({} as Server, null);
+    const reader = connect('read');
+
+    reader.emit('message', JSON.stringify({ tag: 'client', payload: { target: clientId(reader), redirect: '/x' } }));
+    await flush();
+
+    expect(sentPackets(reader).some((packet) => packet.tag === MessageTag.ClientRedirect)).toBe(false);
+  });
+
+  it('removes tokens from redirect paths', async () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+    const target = connect('read');
+
+    writer.emit(
+      'message',
+      JSON.stringify({ tag: 'client', payload: { target: clientId(target), redirect: '/timer?token=abc' } }),
+    );
+    await flush();
+
+    const redirect = sentPackets(target).find((packet) => packet.tag === MessageTag.ClientRedirect);
+    expect(redirect?.payload.path).toBe('/timer');
+  });
+
+  it('removes a client from the list when it disconnects', () => {
+    socket.init({} as Server, null);
+    const writer = connect('write');
+    const reader = connect('read');
+
+    reader.emit('close');
+
+    expect(Object.keys(lastClientList(writer))).toEqual([clientId(writer)]);
+  });
+
+  it('sends the welcome dialog to a write socket only', () => {
+    socket.init({} as Server, { loaded: 'demo project' } as never);
+    const reader = connect('read');
+    reader.emit('message', JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/editor' }));
+    const writer = connect('write');
+    writer.emit('message', JSON.stringify({ tag: MessageTag.ClientSetPath, payload: '/editor' }));
+
+    expect(sentPackets(reader).some((packet) => packet.tag === MessageTag.Dialog)).toBe(false);
+    expect(sentPackets(writer).some((packet) => packet.tag === MessageTag.Dialog)).toBe(true);
+  });
+});
+
+describe('removeToken()', () => {
+  it.each([
+    ['/timer', '/timer'],
+    ['/timer?n=1', '/timer?n=1'],
+    ['/timer?token=abc', '/timer'],
+    ['/timer?n=1&token=abc', '/timer?n=1'],
+    ['/timer?tok%65n=abc&n=a+b', '/timer?n=a+b'],
+    ['/timer?token=a&token=b', '/timer'],
+    ['/timer?a=1#token=x', '/timer?a=1'],
+    ['/timer?TOKEN=x', '/timer?TOKEN=x'],
+  ])('%s becomes %s', (path, expected) => {
+    expect(removeToken(path)).toBe(expected);
   });
 });
