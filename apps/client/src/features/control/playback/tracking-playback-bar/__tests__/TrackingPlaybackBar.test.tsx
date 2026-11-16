@@ -16,6 +16,10 @@ vi.mock('../../../../../common/hooks/useSocket', async (importOriginal) => {
   };
 });
 
+vi.mock('../../../../app-settings/useAppSettingsNavigation', () => ({ default: () => ({ isOpen: isSettingsOpen }) }));
+
+let isSettingsOpen = false;
+
 function press(code: string, key: string, repeat = false) {
   act(() => {
     document.body.dispatchEvent(new KeyboardEvent('keydown', { code, key, repeat, bubbles: true }));
@@ -28,6 +32,7 @@ describe('TrackingPlaybackBar shortcuts', () => {
   beforeEach(async () => {
     vi.stubGlobal('IS_REACT_ACT_ENVIRONMENT', true);
     vi.clearAllMocks();
+    isSettingsOpen = false;
     root = createRoot(document.createElement('div'));
     await act(async () => {
       root?.render(<TrackingPlaybackBar />);
@@ -52,5 +57,18 @@ describe('TrackingPlaybackBar shortcuts', () => {
     press('Space', ' ', true);
 
     expect(setPlayback.startNext).toHaveBeenCalledOnce();
+  });
+
+  it('leaves the keys to the settings while they are open', async () => {
+    isSettingsOpen = true;
+    await act(async () => {
+      root?.render(<TrackingPlaybackBar />);
+    });
+
+    press('Escape', 'Escape');
+    press('Space', ' ');
+
+    expect(setPlayback.stop).not.toHaveBeenCalled();
+    expect(setPlayback.startNext).not.toHaveBeenCalled();
   });
 });

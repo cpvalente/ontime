@@ -1,5 +1,5 @@
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { IoApps, IoClose, IoSettingsOutline } from 'react-icons/io5';
 
 import IconButton from '../../common/components/buttons/IconButton';
@@ -19,6 +19,8 @@ import styles from './ProtectedEditor.module.scss';
 export default function ProtectedEditor() {
   const { isOpen: isSettingsOpen, setLocation, close } = useAppSettingsNavigation();
   const [isOpen, handler] = useDisclosure();
+  const settingsToggleRef = useRef<HTMLButtonElement>(null);
+  const wasSettingsOpenRef = useRef(isSettingsOpen);
 
   useWindowTitle('Editor');
 
@@ -43,17 +45,33 @@ export default function ProtectedEditor() {
 
   useHotkeys([['mod + ,', toggleSettings]]);
 
+  // return focus to the settings toggle when the settings close, the focus was inside them
+  useEffect(() => {
+    if (wasSettingsOpenRef.current && !isSettingsOpen) {
+      settingsToggleRef.current?.focus();
+    }
+    wasSettingsOpenRef.current = isSettingsOpen;
+  }, [isSettingsOpen]);
+
   return (
     <ProtectRoute permission='editor'>
       <div className={styles.mainContainer} data-testid='event-editor'>
         <WelcomePlacement />
         <NavigationMenu isOpen={isOpen} onClose={handler.close} />
-        {isSettingsOpen ? <AppSettings /> : <Editor />}
+        {/* the editor stays mounted under the settings, so its state survives them */}
+        <Editor isSettingsOpen={isSettingsOpen} />
+        {isSettingsOpen && <AppSettings />}
         <EditorOverview>
           <IconButton aria-label='Toggle navigation' variant='subtle-white' size='xlarge' onClick={handler.open}>
             <IoApps />
           </IconButton>
-          <IconButton aria-label='Toggle settings' variant='subtle-white' size='xlarge' onClick={toggleSettings}>
+          <IconButton
+            ref={settingsToggleRef}
+            aria-label='Toggle settings'
+            variant='subtle-white'
+            size='xlarge'
+            onClick={toggleSettings}
+          >
             {isSettingsOpen ? <IoClose /> : <IoSettingsOutline />}
           </IconButton>
           <EditorLayoutOptions />

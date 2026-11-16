@@ -11,6 +11,13 @@ $max-playback-width: 30rem;
   min-height: 0;
 }
 
+// hides the editor under the settings without removing it from the layout,
+// so the virtualised rundown keeps its size, measurements and scroll position while hidden
+.hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .panelContainerTracking {
   flex-direction: column;
   min-height: 0;

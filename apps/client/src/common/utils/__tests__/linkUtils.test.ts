@@ -1,4 +1,4 @@
-import { hostToBaseUrl, isLoopbackAddress, linkToOtherHost } from '../linkUtils';
+import { hostToBaseUrl, isLoopbackAddress, linkToOtherHost, mergeSearch, resolveRequestedLocation } from '../linkUtils';
 
 describe('linkToOTherHost', () => {
   it('should handle electron links', () => {
@@ -48,5 +48,34 @@ describe('isLoopbackAddress()', () => {
 
   it.each(['192.168.1.2', '10.0.0.1', '1.127.0.0', '127.0.0', 'example.com'])('does not match %s', (address) => {
     expect(isLoopbackAddress(address)).toBe(false);
+  });
+});
+
+describe('mergeSearch', () => {
+  it('keeps the params the link does not name', () => {
+    expect(mergeSearch('?layout=planning', 'settings=manage__custom')).toBe('layout=planning&settings=manage__custom');
+  });
+
+  it('replaces the params the link names', () => {
+    expect(mergeSearch('?layout=planning&settings=project', 'settings=automation')).toBe(
+      'layout=planning&settings=automation',
+    );
+  });
+});
+
+describe('resolveRequestedLocation', () => {
+  it('keeps the current params on the current page', () => {
+    expect(
+      resolveRequestedLocation('/editor?settings=project', { pathname: '/editor/', search: '?layout=planning' }),
+    ).toEqual({ pathname: '/editor', search: 'layout=planning&settings=project' });
+  });
+
+  it('leaves the params of another page behind', () => {
+    expect(
+      resolveRequestedLocation('/editor?settings=project', { pathname: '/timer', search: '?showLeadingZeros=true' }),
+    ).toEqual({
+      pathname: '/editor',
+      search: 'settings=project',
+    });
   });
 });

@@ -1,7 +1,8 @@
-import { useHotkeys } from '@mantine/hooks';
+import { type HotkeyItem, useHotkeys } from '@mantine/hooks';
 import { EntryId, type OntimeEntry, SupportedEntry } from 'ontime-types';
 
 import { useEntryCopy } from '../../../common/stores/entryCopyStore';
+import useAppSettingsNavigation from '../../app-settings/useAppSettingsNavigation';
 import { useEventSelection } from '../useEventSelection';
 
 interface UseRundownKeyboardOptions {
@@ -46,12 +47,13 @@ export function useRundownKeyboard({
   followMove,
 }: UseRundownKeyboardOptions) {
   const scrollToEntry = useEventSelection((state) => state.scrollToEntry);
+  const { isOpen: isSettingsOpen } = useAppSettingsNavigation();
 
   const moveAndFollow = (direction: 'up' | 'down') => {
     followMove(cursor, commands.moveEntry(cursor, direction));
   };
 
-  useHotkeys([
+  const hotkeys: HotkeyItem[] = [
     [
       'alt + ArrowDown',
       () => {
@@ -253,5 +255,8 @@ export function useRundownKeyboard({
       },
       { usePhysicalKeys: true },
     ],
-  ]);
+  ];
+
+  // the settings open over the editor, the rundown must not react to keys behind them
+  useHotkeys(isSettingsOpen ? [] : hotkeys);
 }

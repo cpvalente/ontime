@@ -1,4 +1,5 @@
 import { ErrorBoundary } from '@sentry/react';
+import { useEffect, useRef } from 'react';
 
 import { useKeyDown } from '../../common/hooks/useKeyDown';
 import PanelContent from './panel-content/PanelContent';
@@ -17,10 +18,16 @@ import style from './AppSettings.module.scss';
 
 export default function AppSettings() {
   const { close, panel, location, setLocation } = useAppSettingsNavigation();
+  const containerRef = useRef<HTMLDivElement>(null);
   useKeyDown(close, 'Escape');
 
+  // move focus into the settings when they open, the editor behind them is inert
+  useEffect(() => {
+    containerRef.current?.focus();
+  }, []);
+
   return (
-    <div className={style.container}>
+    <div ref={containerRef} className={style.container} tabIndex={-1}>
       <ErrorBoundary>
         <PanelList selectedPanel={panel} location={location} />
         <PanelContent onClose={close}>

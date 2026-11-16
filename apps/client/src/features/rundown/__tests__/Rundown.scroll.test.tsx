@@ -38,9 +38,11 @@ vi.mock('../../../common/hooks-query/useAutomationSettings', () => ({
   default: () => ({ data: { enabledAutomations: false }, status: 'success' }),
 }));
 vi.mock('../useEditorFollowMode', () => ({ useEditorFollowMode: () => ({ editorMode: mode }) }));
+vi.mock('../../app-settings/useAppSettingsNavigation', () => ({ default: () => ({ isOpen: isSettingsOpen }) }));
 
 let scope: RundownScopeValue;
 let mode: AppMode;
+let isSettingsOpen: boolean;
 let props: ComponentProps<typeof Rundown>;
 let root: Root;
 let container: HTMLDivElement;
@@ -73,6 +75,7 @@ beforeEach(() => {
   sessionStorage.clear();
   vi.clearAllMocks();
   mode = AppMode.Run;
+  isSettingsOpen = false;
   scope = { rundownId: 'test', isLoaded: true, selectionStore: createEventSelectionStore(() => undefined) };
   props = {
     id: 'test',
@@ -439,5 +442,30 @@ describe('Edit mode keyboard moves', () => {
     await render();
     await settleAll();
     expect(scrollIntoView).not.toHaveBeenCalled();
+  });
+});
+
+describe('while the settings are open over the editor', () => {
+  beforeEach(() => {
+    mode = AppMode.Edit;
+    scope.selectionStore.getState().setSingleEntrySelection({ id: 'first' });
+  });
+
+  it('ignores the rundown shortcuts and keeps the selection', async () => {
+    isSettingsOpen = true;
+    await render();
+
+    await act(async () => {
+      press('ArrowDown', { altKey: true });
+      pressMove('down');
+      press('Escape');
+    });
+    expect(scope.selectionStore.getState().cursor).toBe('first');
+    expect(move).not.toHaveBeenCalled();
+
+    isSettingsOpen = false;
+    await render();
+    await act(async () => press('ArrowDown', { altKey: true }));
+    expect(scope.selectionStore.getState().cursor).toBe('second');
   });
 });

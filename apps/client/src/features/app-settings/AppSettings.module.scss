@@ -8,4 +8,7 @@
 
   overflow: hidden;
   background-color: $ui-black;
+
+  // it takes focus on open to move it out of the editor, it is not a control
+  outline: none;
 }

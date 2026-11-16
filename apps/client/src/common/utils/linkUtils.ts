@@ -57,6 +57,29 @@ export function getAppUrl(
   return destination.toString();
 }
 
+/**
+ * Applies the params of a query string over the current ones, keeping the params it does not name
+ * eg: a link to the settings keeps the editor layout
+ */
+export function mergeSearch(current: string, patch: string): string {
+  const params = new URLSearchParams(current);
+  new URLSearchParams(patch).forEach((value, key) => params.set(key, value));
+  return params.toString();
+}
+
+/**
+ * Resolves a location requested by name, eg: by the Electron menu
+ * on the current page it keeps the current params, eg: the editor layout
+ */
+export function resolveRequestedLocation(requested: string, current: { pathname: string; search: string }) {
+  const [pathname, search = ''] = requested.split('?');
+  const trimSlash = (path: string) => path.replace(/\/+$/, '');
+  if (trimSlash(pathname) !== trimSlash(current.pathname)) {
+    return { pathname, search };
+  }
+  return { pathname, search: mergeSearch(current.search, search) };
+}
+
 export function linkToOtherHost(
   host: string,
   path?: string,

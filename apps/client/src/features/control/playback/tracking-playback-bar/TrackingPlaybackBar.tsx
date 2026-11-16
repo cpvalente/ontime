@@ -14,6 +14,7 @@ import {
 } from '../../../../common/hooks/useSocket';
 import { enDash } from '../../../../common/utils/styleUtils';
 import { formatDuration } from '../../../../common/utils/time';
+import useAppSettingsNavigation from '../../../app-settings/useAppSettingsNavigation';
 import { getPlaybackControlState } from '../playbackControl.utils';
 import TapButton from '../tap-button/TapButton';
 import TimerDisplay from '../timer-display/TimerDisplay';
@@ -29,6 +30,7 @@ export default function TrackingPlaybackBar() {
   const auxTime = useAuxTimerTime(1);
 
   const [addTimeInMs] = useLocalStorage({ key: 'add-time', defaultValue: 300_000 });
+  const { isOpen: isSettingsOpen } = useAppSettingsNavigation();
 
   const { disableGo, disableNext, disableAddTime, isPlaying, goAction, goLabel } = getPlaybackControlState({
     playback,
@@ -71,12 +73,17 @@ export default function TrackingPlaybackBar() {
     setAuxTimer.setDuration(1, newTimeInMs);
   };
 
-  useHotkeys([
-    // a held key auto-repeats, which must not skip cues
-    ['Space', (event) => !event.repeat && !disableGo && goAction(), { preventDefault: true }],
-    ['N', (event) => !event.repeat && !disableNext && setPlayback.next(), { preventDefault: true }],
-    ['Escape', () => playback !== Playback.Stop && setPlayback.stop(), { preventDefault: true }],
-  ]);
+  // keys belong to the settings while they are open over the editor, eg: Escape closes them instead of stopping
+  useHotkeys(
+    isSettingsOpen
+      ? []
+      : [
+          // a held key auto-repeats, which must not skip cues
+          ['Space', (event) => !event.repeat && !disableGo && goAction(), { preventDefault: true }],
+          ['N', (event) => !event.repeat && !disableNext && setPlayback.next(), { preventDefault: true }],
+          ['Escape', () => playback !== Playback.Stop && setPlayback.stop(), { preventDefault: true }],
+        ],
+  );
 
   const isWaiting = timer.phase === TimerPhase.Pending;
   const isOvertime = timer.phase === TimerPhase.Overtime;

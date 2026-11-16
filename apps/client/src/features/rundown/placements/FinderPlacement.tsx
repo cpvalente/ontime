@@ -2,11 +2,13 @@ import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { memo } from 'react';
 
 import Finder from '../../../views/editor/finder/Finder';
+import useAppSettingsNavigation from '../../app-settings/useAppSettingsNavigation';
 
 export default memo(FinderPlacement);
 
 function FinderPlacement() {
   const [isOpen, handler] = useDisclosure();
+  const { isOpen: isSettingsOpen } = useAppSettingsNavigation();
 
   /**
    * The empty tagsToIgnore is significant: by default the hook skips input elements,
@@ -16,8 +18,10 @@ function FinderPlacement() {
    * dialog races against it, and browsers treat a repeated find shortcut as "focus the
    * search again" rather than "close it". The finder selects its input instead, and
    * Escape closes.
+   *
+   * The settings open over the editor, the finder stays closed behind them.
    */
-  useHotkeys([['mod + f', handler.open, { preventDefault: true }]], []);
+  useHotkeys(isSettingsOpen ? [] : [['mod + f', handler.open, { preventDefault: true }]], []);
 
   if (isOpen) {
     return <Finder isOpen={isOpen} onClose={handler.close} />;
