@@ -119,17 +119,18 @@ function getPlaybackBound(
   const { events } = layout;
   if (events.length === 0) return { stop: 'script', row: from };
   const last = events[events.length - 1];
-  const first = events[0];
   const forward = speed > 0;
 
   if (mode === 'script') return { stop: 'script', row: forward ? last.endRow : 0 };
 
-  const activeEvent = events.find((event) => event.endRow > from + boundaryEpsilon);
+  const activeEventIndex = events.findIndex((event) => event.endRow > from + boundaryEpsilon);
+  if (activeEventIndex === -1) return { stop: 'script', row: forward ? last.endRow : 0 };
+  if (activeEventIndex === events.length - 1 && forward) return { stop: 'script', row: last.endRow };
+  if (activeEventIndex === 0 && !forward) return { stop: 'script', row: 0 };
 
-  if (!activeEvent) return { stop: 'script', row: forward ? last.endRow : 0 };
-  if (activeEvent === last && forward) return { stop: 'script', row: activeEvent.endRow };
-  if (activeEvent === first && !forward) return { stop: 'script', row: activeEvent.firstRow };
-  return { stop: 'event', row: forward ? activeEvent.endRow : activeEvent.firstRow };
+  const stopEvent = forward ? events[activeEventIndex] : events[activeEventIndex - 1];
+
+  return { stop: 'event', row: stopEvent.endRow };
 }
 
 /**

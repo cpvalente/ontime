@@ -35,6 +35,8 @@ export function buildScriptEvents(
     if (textLines.length === 0) continue;
 
     const lines: TeleprompterLine[] = [];
+    if (events.length === 0) lines.push({ kind: 'blank' });
+
     const heading = makeHeading(settings.heading, entry.cue, entry.title);
     if (heading) lines.push({ kind: 'heading', text: heading });
 
