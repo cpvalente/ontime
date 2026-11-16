@@ -98,3 +98,56 @@
   padding: 0.5rem 1.25rem 0.25rem;
   color: $gray-700;
 }
+
+// link back to Ontime Cloud, kept out of the scroll area and away from the current-view styling
+.cloudLink {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.75rem 1.25rem;
+
+  background-color: rgba($blue-500, 0.14);
+  border-bottom: 1px solid rgba($blue-500, 0.3);
+  color: $blue-300;
+  font-size: $text-body-size;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+
+  transition-property: color, background-color;
+  transition-duration: $transition-time-action;
+
+  > svg {
+    flex-shrink: 0;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  &:hover {
+    background-color: rgba($blue-500, 0.22);
+    color: $ui-white;
+  }
+
+  &:active {
+    background-color: rgba($blue-500, 0.28);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $blue-500;
+    outline-offset: -2px;
+  }
+}
+
+.cloudLinkLabel {
+  flex: 1;
+  min-width: 0;
+  @include ellipsis-text;
+}
+
+.cloudLinkTag {
+  flex-shrink: 0;
+  font-size: $aux-text-size;
+  font-weight: 400;
+  color: $blue-400;
+}

@@ -1,11 +1,11 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { useDisclosure, useFullscreenDocument } from '@mantine/hooks';
-import { memo, PropsWithChildren } from 'react';
-import { IoClose, IoExpand, IoLockClosedOutline, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
+import { memo, PropsWithChildren, useRef } from 'react';
+import { IoArrowBack, IoClose, IoExpand, IoLockClosedOutline, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
 import { useLocation } from 'react-router';
 
-import { isLocalhost, supportsFullscreen } from '../../../externals';
+import { dashboardUrl, isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
 import { navigatorConstants } from '../../../viewerConfig';
 import useUrlPresets from '../../hooks-query/useUrlPresets';
@@ -39,6 +39,8 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
+  // keyboard focus opens on the close button, so a repeated Enter never follows a link out of the app
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   return (
     <Dialog.Root
@@ -52,16 +54,29 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
       <Dialog.Portal>
         <Dialog.Backdrop className={style.backdrop} />
         <RenameClientModal id={id} name={name} isOpen={isRenameOpen} onClose={handlers.close} />
-        <Dialog.Popup className={style.drawer}>
+        <Dialog.Popup className={style.drawer} initialFocus={closeButtonRef}>
           <div className={style.header}>
             <div className={style.headerText}>
               <Dialog.Title className={style.title}>Ontime</Dialog.Title>
               {name && <span className={style.clientName}>{name}</span>}
             </div>
-            <IconButton variant='subtle-white' size='large' aria-label='Close menu' onClick={onClose}>
+            <IconButton
+              ref={closeButtonRef}
+              variant='subtle-white'
+              size='large'
+              aria-label='Close menu'
+              onClick={onClose}
+            >
               <IoClose />
             </IconButton>
           </div>
+          {dashboardUrl && (
+            <a href={dashboardUrl} className={style.cloudLink}>
+              <IoArrowBack />
+              <span className={style.cloudLinkLabel}>Back to dashboard</span>
+              <span className={style.cloudLinkTag}>Ontime Cloud</span>
+            </a>
+          )}
           <div className={style.body}>
             <MenuGroup label='This screen'>
               {supportsFullscreen && (
