@@ -21,10 +21,8 @@ export type TeleprompterAction = {
     | { goto: { cue: string } | { id: string } | { index: number } | 'loaded' }
     // start and pause
     | 'play'
-    | 'play-revers'
     | 'pause'
     | 'toggle'
-    | 'toggle-revers'
     // speed, in lines per minute
     | { speed: number }
     | { speedBy: number }

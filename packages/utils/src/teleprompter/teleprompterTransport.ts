@@ -18,22 +18,17 @@ import {
   type TeleprompterLayout,
 } from './teleprompterPosition.js';
 
-/** Teleprompter speed bounds, in lines per minute: playback always moves */
+/** Teleprompter speed bounds, in lines per minute: a negative speed reads backwards, and playback always moves */
 export const teleprompterSpeed = {
   min: -100,
   max: 100,
 } as const;
 
-const clamp = (val: number, min: number, max: number) => Math.min(Math.max(val, min), max);
-
+/** Rounds a speed into its bounds, skipping 0: reaching it turns playback around at the slowest speed */
 function clampTeleprompterSpeed(newSpeed: number, currentSpeed: number): number {
-  const sign = Math.sign(newSpeed);
-  const abs = Math.round(Math.abs(newSpeed));
-  if (abs === 0) {
-    return currentSpeed > 0 ? -1 : 1;
-  }
-  const clampedSpeed = clamp(abs, teleprompterSpeed.min, teleprompterSpeed.max);
-  return clampedSpeed * sign;
+  const abs = Math.min(Math.round(Math.abs(newSpeed)), teleprompterSpeed.max);
+  if (abs === 0) return currentSpeed > 0 ? -1 : 1;
+  return abs * Math.sign(newSpeed);
 }
 
 /** A change to the transport, with the event it goes to already resolved */
@@ -119,18 +114,19 @@ function getPlaybackBound(
   const { events } = layout;
   if (events.length === 0) return { stop: 'script', row: from };
   const last = events[events.length - 1];
-  const forward = speed > 0;
+  const isPlayingForwards = speed > 0;
+  const scriptBounds = { stop: 'script', row: isPlayingForwards ? Math.max(from, last.endRow) : 0 } as const;
+  if (mode === 'script') return scriptBounds;
 
-  if (mode === 'script') return { stop: 'script', row: forward ? last.endRow : 0 };
+  if (isPlayingForwards) {
+    const next = events.find((event) => event.endRow > from + boundaryEpsilon);
+    if (!next || next === last) return scriptBounds;
+    return { stop: 'event', row: next.endRow };
+  }
 
-  const activeEventIndex = events.findIndex((event) => event.endRow > from + boundaryEpsilon);
-  if (activeEventIndex === -1) return { stop: 'script', row: forward ? last.endRow : 0 };
-  if (activeEventIndex === events.length - 1 && forward) return { stop: 'script', row: last.endRow };
-  if (activeEventIndex === 0 && !forward) return { stop: 'script', row: 0 };
-
-  const stopEvent = forward ? events[activeEventIndex] : events[activeEventIndex - 1];
-
-  return { stop: 'event', row: stopEvent.endRow };
+  const previous = events.findLast((event) => event.endRow < from - boundaryEpsilon);
+  if (!previous) return scriptBounds;
+  return { stop: 'event', row: previous.endRow };
 }
 
 /**

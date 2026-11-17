@@ -13,8 +13,6 @@ import {
   type TeleprompterTransportCommand,
 } from './teleprompterTransport.js';
 
-//TODO: add tests for revers
-
 /** An event with a heading, some lines of text 10 characters apart, and a blank line */
 function makeEvent(id: string, textLines: number): TeleprompterScriptEvent {
   const lines: TeleprompterLine[] = [{ kind: 'heading', text: id }];
@@ -57,6 +55,17 @@ describe('commands on the transport', () => {
     [{ type: 'speedBy', value: 200 }, 100],
   ] as const)('%j sets speed %d', (command, speed) => {
     expect(apply(makeState(), command).speed).toBe(speed);
+  });
+
+  test.each([
+    ['reaching 0 reading back turns forwards', -30, { type: 'speed', value: 0 }, 1],
+    ['slowing past 0 turns backwards', 1, { type: 'speedBy', value: -1 }, -1],
+    ['slowing far past 0 reads back at the new speed', 1, { type: 'speedBy', value: -5 }, -4],
+    ['speeding up past 0 turns forwards', -1, { type: 'speedBy', value: 1 }, 1],
+    ['reading back fast is bounded', -30, { type: 'speedBy', value: -200 }, -100],
+    ['whole lines per minute', 30, { type: 'speed', value: -20.6 }, -21],
+  ] as const)('%s', (_, from, command, speed) => {
+    expect(apply(makeState({ speed: from }), command).speed).toBe(speed);
   });
 
   test('a repeated command is still a change of state', () => {
@@ -119,6 +128,52 @@ describe('playback reaching an end', () => {
       playback: 'pause',
       ended: 'script',
     });
+  });
+
+  test('playing from past the last line stays there rather than reading back', () => {
+    const pastEnd = freeRun(makeState({ playback: 'play', anchor: { eventId: 'c', charOffset: 0, lines: 1.5 } }));
+    expect(positionAt(pastEnd, layout, 1000)).toBe(11.5);
+    expect(settle(pastEnd, layout, 0)).toMatchObject({ playback: 'pause', ended: 'script' });
+  });
+});
+
+describe('playback reading back', () => {
+  // half a line per second, backwards
+  const readingBack = (patch: Partial<TeleprompterTransport>) => makeState({ playback: 'play', speed: -30, ...patch });
+
+  test('the position moves up the script with the clock', () => {
+    const fromB = freeRun(readingBack({ anchor: startOfEvent('b') }));
+    expect(positionAt(fromB, layout, 2000)).toBe(4);
+    expect(positionAt(fromB, layout, 60_000)).toBe(0);
+  });
+
+  test('whole script, it stops at the top of the script', () => {
+    const fromB = freeRun(readingBack({ anchor: startOfEvent('b') }));
+    expect(settle(fromB, layout, 9000)).toMatchObject({ playback: 'play' });
+    const stopped = settle(fromB, layout, 10_000);
+    expect(stopped).toMatchObject({ playback: 'pause', ended: 'script' });
+    expect(positionAt(stopped, layout, 10_000)).toBe(0);
+  });
+
+  test('event by event, it stops at the end of the previous event', () => {
+    const inB = readingBack({ anchor: { eventId: 'b', charOffset: 20, lines: 0 } });
+    const stopped = settle(inB, layout, 8000);
+    expect(stopped).toMatchObject({ playback: 'pause', ended: 'event' });
+    expect(positionAt(stopped, layout, 8000)).toBe(3);
+  });
+
+  test('event by event, playing back again reads on into the previous event', () => {
+    const stopped = settle(readingBack({ anchor: startOfEvent('b') }), layout, 4000);
+    const playing = apply(stopped, { type: 'play' }, 4000);
+    expect(playing).toMatchObject({ playback: 'play' });
+    expect(positionAt(playing, layout, 6000)).toBe(2);
+  });
+
+  test('event by event, the first event ends at the top of the script', () => {
+    const inA = readingBack({ anchor: { eventId: 'a', charOffset: 10, lines: 0 } });
+    const stopped = settle(inA, layout, 60_000);
+    expect(stopped).toMatchObject({ playback: 'pause', ended: 'script' });
+    expect(positionAt(stopped, layout, 60_000)).toBe(0);
   });
 });
 
@@ -317,6 +372,15 @@ describe('the position screens following a transport read', () => {
 
     // every screen calculates the same row from it, whenever it connected
     expect(syncPositionAt(sync, 1000)).toBe(positionAt(playing, layout, 1000));
+    expect(syncPositionAt(sync, 3000)).toBe(positionAt(playing, layout, 3000));
+    expect(syncPositionAt(sync, 60_000)).toBe(positionAt(playing, layout, 60_000));
+  });
+
+  test('reading back, playback stops at the end of the previous event, and screens follow it back', () => {
+    const playing = makeState({ playback: 'play', speed: -30, anchor: startOfEvent('b'), at: 1000 });
+    const sync = describeSync(playing, layout, 1);
+    expect(sync).toMatchObject({ speed: -30, row: 5, until: 3 });
+
     expect(syncPositionAt(sync, 3000)).toBe(positionAt(playing, layout, 3000));
     expect(syncPositionAt(sync, 60_000)).toBe(positionAt(playing, layout, 60_000));
   });
