@@ -23,7 +23,7 @@ test('show warning when event crosses midnight', async ({ page }) => {
   await expect(page.getByTestId('entry-3').getByTestId('event-warning')).toBeVisible();
 });
 
-test('show warning when event starts next day midnight', async ({ page }) => {
+test('show day badge when event starts next day midnight', async ({ page }) => {
   await page.goto('editor');
 
   await page.getByRole('button', { name: 'Edit' }).click();
@@ -40,5 +40,5 @@ test('show warning when event starts next day midnight', async ({ page }) => {
   await page.getByTestId('entry-2').getByTestId('time-input-timeEnd').press('Enter');
   await page.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
 
-  await expect(page.getByText('(next day)')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Day 2' })).toBeVisible();
 });
