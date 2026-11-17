@@ -315,7 +315,7 @@ export default function RundownEvent({
       data-selected={isSelected}
       {...(isPlaying ? { 'data-running': true } : {})}
     >
-      <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} />
+      <RundownIndicators timeStart={timeStart} delay={delay} gap={gap} isNextDay={isNextDay} dayOffset={dayOffset} />
 
       <div className={style.binder} style={{ ...binderColours }} ref={handleRef} {...dragAttributes} {...dragListeners}>
         <span className={style.drag}>

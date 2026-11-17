@@ -27,3 +27,27 @@ $gap-left: calc(2rem + 0.25rem + 3rem);
 .gap {
   @include indicator($blue-500);
 }
+
+.dayTrigger {
+  @include indicator($blue-500);
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  border: none;
+  font: inherit;
+  cursor: pointer;
+
+  &:hover,
+  &[data-popup-open] {
+    background-color: $blue-700;
+  }
+
+  &:focus-visible {
+    outline: 1px solid $ui-white;
+    outline-offset: 1px;
+  }
+}
+
+.dayCaret {
+  font-size: 1.1em;
+}

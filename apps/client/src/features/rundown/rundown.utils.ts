@@ -1,4 +1,4 @@
-import { EntryId, RundownEntries, SupportedEntry, isOntimeGroup } from 'ontime-types';
+import { EntryId, Rundown, RundownEntries, SupportedEntry, isOntimeEvent, isOntimeGroup } from 'ontime-types';
 import type { CalculateViewLocation } from 'react-virtuoso';
 
 /**
@@ -274,4 +274,30 @@ export function makeRevealLocation(margin: number): CalculateViewLocation {
     }
     return null;
   };
+}
+
+type DayStart = { id: EntryId; index: number };
+
+/**
+ * Finds the first events of the days before and after a day, in a single pass
+ * Relies on dayOffset only increasing along the rundown order
+ * The index counts events only, matching the index the selection store expects
+ */
+export function getAdjacentDayStarts(rundown: Pick<Rundown, 'entries' | 'flatOrder'>, dayOffset: number) {
+  let previous: DayStart | null = null;
+  let eventIndex = 0;
+  for (const id of rundown.flatOrder) {
+    const entry = rundown.entries[id];
+    if (!isOntimeEvent(entry)) {
+      continue;
+    }
+    if (previous === null && entry.dayOffset === dayOffset - 1) {
+      previous = { id, index: eventIndex };
+    }
+    if (entry.dayOffset > dayOffset) {
+      return { previous, next: { id, index: eventIndex } };
+    }
+    eventIndex++;
+  }
+  return { previous, next: null };
 }

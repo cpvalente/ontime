@@ -12,17 +12,13 @@ export function formatDelay(timeStart: number, delay: number): string | undefine
   return `New start ${timeTag}`;
 }
 
-export function formatGap(gap: number, isNextDay: boolean) {
+export function formatGap(gap: number) {
   if (gap === 0) {
-    if (isNextDay) {
-      // We show a next day warning even if there is no gap
-      return '(next day)';
-    }
     return;
   }
 
   const gapString = formatDuration(Math.abs(gap), false);
-  return `${gap < 0 ? 'Overlap' : 'Gap'} ${gapString}${isNextDay ? ' (next day)' : ''}`;
+  return `${gap < 0 ? 'Overlap' : 'Gap'} ${gapString}`;
 }
 
 export type GroupDurationFit = 'increase' | 'decrease' | null;

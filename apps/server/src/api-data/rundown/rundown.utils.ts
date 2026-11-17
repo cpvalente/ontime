@@ -576,7 +576,7 @@ export function calculateDayOffset(
     return 0;
   }
 
-  // if the previous events duration is zero it will push the current event to next day
+  // a previous event with no duration does not push the current event to the next day
   if (previous.duration === 0) {
     return 0;
   }
