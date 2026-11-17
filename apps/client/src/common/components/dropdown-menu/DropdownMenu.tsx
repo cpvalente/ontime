@@ -20,11 +20,12 @@ export type DropdownMenuOption = DropdownMenuItemDivider | DropdownMenuItemHeade
 
 interface DropdownMenuProps extends BaseMenu.Trigger.Props {
   items: DropdownMenuOption[];
+  onOpenChange?: BaseMenu.Root.Props['onOpenChange'];
 }
 
-export function DropdownMenu({ items, children, ...triggerProps }: PropsWithChildren<DropdownMenuProps>) {
+export function DropdownMenu({ items, onOpenChange, children, ...triggerProps }: PropsWithChildren<DropdownMenuProps>) {
   return (
-    <BaseMenu.Root>
+    <BaseMenu.Root onOpenChange={onOpenChange}>
       <BaseMenu.Trigger {...triggerProps}>{children}</BaseMenu.Trigger>
       <BaseMenu.Portal>
         <BaseMenu.Positioner className={style.positioner} align='start' sideOffset={8}>
