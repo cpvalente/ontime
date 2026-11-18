@@ -14,6 +14,7 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
+  getTimerSpots,
   getTotalTime,
 } from '../../timer/timer.utils';
 import { getTimerColour } from '../../utils/presentation.utils';
@@ -55,10 +56,11 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
   const currentAux = getCurrentAux(message, auxTimer);
 
   const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, true, false);
+  const spots = getTimerSpots(display, secondaryContent, message.timer.swap);
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  const timerFontSize = getEstimatedFontSize(spots.main, spots.secondary);
   const userStyles = {
     '--timer-font-size': timerFontSize,
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
@@ -83,15 +85,19 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
-          className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
-          data-type={timerTypeNow}
-          data-phase={showWarning || showDanger ? time.phase : undefined}
+          className={cx([
+            'timer',
+            !spots.isSwapped && subduePaused && 'timer--paused',
+            !spots.isSwapped && showFinished && 'timer--finished',
+          ])}
+          data-type={spots.isSwapped ? undefined : timerTypeNow}
+          data-phase={!spots.isSwapped && (showWarning || showDanger) ? time.phase : undefined}
         >
-          {display}
+          {spots.main}
         </div>
-        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
+        <div className={cx(['secondary', !spots.secondary && 'secondary--hidden'])}>
           <FitText mode='multi' min={12} max={256}>
-            {secondaryContent}
+            {spots.secondary}
           </FitText>
         </div>
       </div>
