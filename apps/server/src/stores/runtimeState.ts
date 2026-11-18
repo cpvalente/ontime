@@ -20,9 +20,7 @@ import {
 } from 'ontime-types';
 import {
   type LinkToLoaded,
-  calculateDuration,
   checkIsNow,
-  dayInMs,
   getLastEventNormal,
   getLinksToLoaded,
   isPlaybackActive,
@@ -254,7 +252,7 @@ export function load(
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
-  runtimeState.timer.duration = calculateDuration(event.timeStart, event.timeEnd);
+  runtimeState.timer.duration = event.duration;
   runtimeState.timer.current = getCurrent(currentInput(runtimeState));
   runtimeState.rundown.numEvents = metadata.timedEventOrder.length;
 
@@ -363,7 +361,7 @@ function updateLoaded(event: PlayableEvent) {
   runtimeState.eventNow = event;
 
   // update data which is duplicate between eventNow and timer objects
-  runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
+  runtimeState.timer.duration = event.duration
   runtimeState.timer.current = getCurrent(currentInput(runtimeState));
   runtimeState.timer.expectedFinish = getExpectedFinish(expectedFinishInput(runtimeState));
 
@@ -373,7 +371,7 @@ function updateLoaded(event: PlayableEvent) {
     const offsetEpoch = getOffsetEpoch();
     const start = timeCore.toNearestInstant(timeStart, offsetEpoch);
     const end = timeCore.addDuration(start, runtimeState.timer.duration as Duration);
-    const isNow = start < offsetEpoch && offsetEpoch < end;
+    const isNow = timeCore.isWithinSpan(start, end, offsetEpoch);
 
     // if the event is now, we queue a start, otherwise we wait for its next start
     runtimeState._timer.secondaryTarget = isNow ? start : timeCore.toNextInstant(timeStart, offsetEpoch);
@@ -665,18 +663,11 @@ export function roll(
     }
     runtimeState.timer.playback = Playback.Roll;
 
-    // account for event that finishes the day after
-    const normalisedEndTime =
-      runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
-        ? runtimeState.eventNow.timeEnd + dayInMs
-        : runtimeState.eventNow.timeEnd;
-    runtimeState.timer.expectedFinish = normalisedEndTime;
-
     // account for offset
     const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
     // state catch up
-    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, normalisedEndTime);
+    runtimeState.timer.duration = runtimeState.eventNow.duration;
     runtimeState.timer.current = runtimeState.timer.duration;
     runtimeState.timer.elapsed = 0;
 
@@ -709,6 +700,7 @@ export function roll(
       runtimeState.timer.secondaryTimer = getRollCountdown();
       runtimeState.timer.phase = TimerPhase.Pending;
     }
+    runtimeState.timer.expectedFinish = getExpectedFinish(expectedFinishInput(runtimeState));
 
     return { eventId: runtimeState.eventNow.id, didLoad: false, didStart: isNow };
   }
@@ -761,7 +753,7 @@ export function roll(
     runtimeState.timer.secondaryTimer = getRollCountdown();
 
     // preload timer properties
-    runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd);
+    runtimeState.timer.duration = runtimeState.eventNow.duration;
     runtimeState.timer.current = runtimeState.timer.duration;
 
     // reset rundown state - the rundown will start fresh when the event begins
@@ -779,25 +771,18 @@ export function roll(
 
   /**
    * At this point we know that there is something to run and the event is loaded
-   * - ensure the event will finish ontime
-   * - account for events that finish the day after
-   *
    * when we start in roll mode
    * we need to backtrace all times to the supposed start time of the event
    */
   const plannedStart = runtimeState.eventNow.timeStart;
-  const endTime =
-    runtimeState.eventNow.timeEnd < runtimeState.eventNow.timeStart
-      ? runtimeState.eventNow.timeEnd + dayInMs
-      : runtimeState.eventNow.timeEnd;
   const startedAt = timeCore.toNearestInstant(plannedStart as TimeOfDay, epoch);
   runtimeState.timer.startedAt = plannedStart;
   runtimeState._timer.startedAt = startedAt;
-  runtimeState.timer.expectedFinish = endTime;
 
   // state catch up
-  runtimeState.timer.duration = calculateDuration(runtimeState.eventNow.timeStart, endTime);
+  runtimeState.timer.duration = runtimeState.eventNow.duration;
   runtimeState.timer.current = getCurrent(currentInput(runtimeState));
+  runtimeState.timer.expectedFinish = getExpectedFinish(expectedFinishInput(runtimeState));
   runtimeState.timer.elapsed = 0;
 
   // update runtime

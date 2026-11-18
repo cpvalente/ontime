@@ -45,9 +45,8 @@ function getMiddayReference(reference: Instant): Instant {
 export function toNearestInstant(clock: TimeOfDay, reference: Instant): Instant {
   const sameDay = toInstant(clock, reference);
   const distance = sameDay - reference;
-  if (Math.abs(distance) <= 12 * MILLIS_PER_HOUR) {
-    return sameDay;
-  }
+  if (Math.abs(distance) <= 12 * MILLIS_PER_HOUR) return sameDay;
+
   const noon = getMiddayReference(reference);
   const dayShift = distance > 0 ? -dayInMs : dayInMs;
   return toInstant(clock, addDuration(noon, dayShift as Duration));
@@ -111,4 +110,8 @@ export function daysSinceStart(startEpoch: Instant, currentEpoch: Instant): Day 
   const currentDaySerial = Math.floor((currentEpoch - currentOffset) / dayInMs);
 
   return (currentDaySerial - startDaySerial) as Day;
+}
+
+export function isWithinSpan(start: Instant, end: Instant, reference: Instant): boolean {
+  return start <= reference && reference <= end;
 }
