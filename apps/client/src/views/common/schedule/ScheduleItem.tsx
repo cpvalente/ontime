@@ -1,4 +1,5 @@
 import { OntimeEvent } from 'ontime-types';
+import { getDelayedEnd } from 'ontime-utils';
 
 import { useExpectedScheduleData } from '../../../common/hooks/useSocket';
 import { getOffsetState } from '../../../common/utils/offset';
@@ -65,7 +66,13 @@ export default function ScheduleItem({
             colour={colour}
           />
         ) : delay > 0 ? (
-          <DelayedScheduleItem timeStart={timeStart} delay={delay} colour={colour} timeEnd={timeEnd} />
+          <DelayedScheduleItem
+            timeStart={timeStart}
+            delay={delay}
+            colour={colour}
+            timeEnd={timeEnd}
+            countToEnd={countToEnd}
+          />
         ) : (
           <PlannedScheduleItem timeStart={timeStart} timeEnd={timeEnd} colour={colour} />
         )}
@@ -98,11 +105,12 @@ function DelayedScheduleItem({
   timeEnd,
   colour,
   delay,
-}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay'>) {
+  countToEnd,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay' | 'countToEnd'>) {
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
-  const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+  const delayedEnd = formatTime(getDelayedEnd({ timeEnd, delay, countToEnd }), formatOptions);
 
   return (
     <>

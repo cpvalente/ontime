@@ -1,7 +1,7 @@
 import { Day, Duration, OffsetMode } from 'ontime-types';
 
 import { MILLIS_PER_HOUR, dayInMs } from './conversionUtils';
-import { getExpectedEnd, getExpectedStart } from './getExpected';
+import { getDelayedEnd, getDelayedStart, getExpectedEnd, getExpectedStart } from './getExpected';
 
 describe('getExpectedStart()', () => {
   describe('Absolute offset mode', () => {
@@ -485,5 +485,20 @@ describe('getExpectedEnd()', () => {
       const expectedStart = getExpectedStart(testEvent, relativeState);
       expect(getExpectedEnd(testEvent, expectedStart, relativeState.currentDay, true)).toBe(157);
     });
+  });
+});
+
+describe('delayed times', () => {
+  test('a delay moves the start and the end of an event', () => {
+    expect(getDelayedStart({ timeStart: 100, delay: 10 })).toBe(110);
+    expect(getDelayedEnd({ timeEnd: 200, delay: 10, countToEnd: false })).toBe(210);
+  });
+
+  test('a delay never moves the end of a count to end event', () => {
+    expect(getDelayedEnd({ timeEnd: 200, delay: 10, countToEnd: true })).toBe(200);
+  });
+
+  test('a negative delay does not start an event before midnight', () => {
+    expect(getDelayedStart({ timeStart: 5, delay: -10 })).toBe(0);
   });
 });

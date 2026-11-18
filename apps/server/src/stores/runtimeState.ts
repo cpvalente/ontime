@@ -23,6 +23,7 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  getDelayedStart,
   getLastEventNormal,
   getLinksToLoaded,
   isPlaybackActive,
@@ -470,7 +471,8 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
     state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
     state._startEpoch = epoch;
-    state._startEventStart = state.eventNow.timeStart as TimeOfDay;
+    // the relative offset discounts lateness against the delayed start, as the absolute offset does
+    state._startEventStart = getDelayedStart(state.eventNow) as TimeOfDay;
     state._startEventDay = state.eventNow.dayOffset;
     state.rundown.actualStart = state.clock;
   }
@@ -966,6 +968,8 @@ function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
       countToEnd: eventNow.countToEnd,
       timeStart: eventNow.timeStart as TimeOfDay,
       dayOffset: eventNow.dayOffset,
+      // roll starts events on their planned time, so its offset ignores delays until roll follows them
+      delay: (timer.playback === Playback.Roll ? 0 : eventNow.delay) as Duration,
     },
     startedAt: timer.startedAt as Maybe<TimeOfDay>,
     current: timer.current as Maybe<Duration>,

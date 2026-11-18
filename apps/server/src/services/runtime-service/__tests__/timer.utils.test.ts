@@ -679,7 +679,7 @@ test('normaliseEndTime()', () => {
 
 const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput>): RuntimeOffsetInput => ({
   clock: tod(0),
-  event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day },
+  event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(0) },
   startedAt: null,
   current: dur(0),
   addedTime: dur(0),
@@ -751,7 +751,7 @@ describe('getRuntimeOffset()', () => {
     const { absolute, relative } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: actualStart,
-        event: { countToEnd: false, timeStart: plannedStart, dayOffset: 0 as Day },
+        event: { countToEnd: false, timeStart: plannedStart, dayOffset: 0 as Day, delay: dur(0) },
         startedAt: actualStart,
         current: dur(MILLIS_PER_HOUR),
         startDayOffset: 1 as Day,
@@ -768,7 +768,7 @@ describe('getRuntimeOffset()', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(78480789),
-        event: { countToEnd: false, timeStart: tod(77400000), dayOffset: 0 as Day },
+        event: { countToEnd: false, timeStart: tod(77400000), dayOffset: 0 as Day, delay: dur(0) },
         current: dur(3600000),
         startedAt: null,
         startEventStart: tod(77400000),
@@ -783,7 +783,7 @@ describe('getRuntimeOffset()', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(80000000), // 22:13:20
-        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day, delay: dur(0) }, // 21:30:00
         current: dur(1600000),
         startedAt: tod(78000000),
         startEventStart: tod(77400000), // 21:30:00
@@ -798,7 +798,7 @@ describe('getRuntimeOffset()', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(82000000), // 22:46:40
-        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day, delay: dur(0) }, // 21:30:00
         addedTime: dur(-200000),
         current: dur(-400000),
         startedAt: tod(78000000),
@@ -814,7 +814,7 @@ describe('getRuntimeOffset()', () => {
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: tod(80000000), // 22:13:20
-        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day }, // 21:30:00
+        event: { countToEnd: true, timeStart: tod(77400000), dayOffset: 0 as Day, delay: dur(0) }, // 21:30:00
         current: dur(1000000),
         startedAt: tod(78000000),
         pausedAt: tod(79000000),
@@ -861,10 +861,67 @@ describe('getRuntimeOffset()', () => {
   });
 });
 
+describe('getRuntimeOffset() with delays', () => {
+  // see docs/agent-guides/domain-invariants.md#delays
+  it('measures from the delayed start, so an event started on its delayed time is on time', () => {
+    const { absolute, relative } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(110),
+        event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(10) },
+        startedAt: tod(110),
+        startEventStart: tod(110),
+        actualStart: tod(110),
+      }),
+    );
+    expect(absolute).toBe(0);
+    expect(relative).toBe(0);
+  });
+
+  it('is ahead when an event starts on its planned time despite a delay', () => {
+    const { absolute } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(100),
+        event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(10) },
+        startedAt: tod(100),
+      }),
+    );
+    expect(absolute).toBe(-10);
+  });
+
+  it('a delay does not change the offset of a count to end event', () => {
+    const offsetWith = (delay: number) =>
+      getRuntimeOffset(
+        makeRuntimeOffsetInput({
+          clock: tod(120),
+          event: { countToEnd: true, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(delay) },
+          startedAt: tod(120),
+          current: dur(-7), // in overtime
+          addedTime: dur(5),
+        }),
+      );
+    expect(offsetWith(10)).toStrictEqual(offsetWith(0));
+  });
+
+  it('measures lateness against the delayed plan in relative mode', () => {
+    // planned 100, delayed to 110, started 4 late at 114
+    const { absolute, relative } = getRuntimeOffset(
+      makeRuntimeOffsetInput({
+        clock: tod(114),
+        event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(10) },
+        startedAt: tod(114),
+        startEventStart: tod(110),
+        actualStart: tod(114),
+      }),
+    );
+    expect(absolute).toBe(4);
+    expect(relative).toBe(0);
+  });
+});
+
 describe('getRuntimeOffset() relative', () => {
   const makeInput = (timeStart: number, startedAt: number) =>
     makeRuntimeOffsetInput({
-      event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 0 as Day },
+      event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 0 as Day, delay: dur(0) },
       startedAt: tod(startedAt),
       startEventStart: tod(timeStart),
       startEventDay: 0 as Day,
@@ -894,7 +951,7 @@ describe('getRuntimeOffset() relative', () => {
     const { absolute, relative } = getRuntimeOffset(
       makeRuntimeOffsetInput({
         clock: startedAt,
-        event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 2 as Day },
+        event: { countToEnd: false, timeStart: tod(timeStart), dayOffset: 2 as Day, delay: dur(0) },
         startedAt,
         current: dur(MILLIS_PER_HOUR),
         startDayOffset: 2 as Day,

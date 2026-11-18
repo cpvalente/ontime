@@ -3,6 +3,19 @@ import { OffsetMode } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
 
+/**
+ * Delays are an announced change to the plan, see docs/agent-guides/domain-invariants.md#delays
+ * The delayed times are the ones the crew was told, and the runtime offset is measured from them
+ */
+export function getDelayedStart(event: Pick<OntimeEvent, 'timeStart' | 'delay'>): number {
+  return Math.max(0, event.timeStart + event.delay);
+}
+
+/** A delay moves the end of an event, but never the deadline of a count to end event */
+export function getDelayedEnd(event: Pick<OntimeEvent, 'timeEnd' | 'delay' | 'countToEnd'>): number {
+  return event.countToEnd ? event.timeEnd : event.timeEnd + event.delay;
+}
+
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
   state: {
@@ -16,13 +29,13 @@ export function getExpectedStart(
     startShift: Duration;
   },
 ): number {
-  const { timeStart, dayOffset, delay } = event;
+  const { dayOffset } = event;
   const { currentDay, totalGap, isLinkedToLoaded, offset, mode, startShift } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
 
-  const delayedStart = Math.max(0, timeStart + delay);
+  const delayedStart = getDelayedStart(event);
 
   //The normalised start time of this event relative to the currently running event
   const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;

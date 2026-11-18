@@ -7,7 +7,7 @@ import {
   isOntimeDelay,
   isOntimeEvent,
 } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import { getDelayedEnd, millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
@@ -83,23 +83,25 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
 
   const endTime = getValue() as number;
   const isEndLocked = event.timeStrategy === TimeStrategy.LockEnd;
-  const displayTime = showDelayedTimes ? endTime + event.delay : endTime;
+  const displayTime = showDelayedTimes ? getDelayedEnd({ ...event, timeEnd: endTime }) : endTime;
   const formattedTime = formatTime(displayTime, formatOpts);
+  // a delay never moves a count to end deadline, so the end has nothing to flag
+  const endDelay = event.countToEnd ? 0 : event.delay;
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
     return (
       <MutedText numeric>
         {formattedTime}
-        <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+        <DelayIndicator delayValue={endDelay} tooltipPrefix={millisToString(endTime)} />
       </MutedText>
     );
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={event.delay !== 0}>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={endDelay !== 0}>
       {formattedTime}
-      <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+      <DelayIndicator delayValue={endDelay} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
   );
 }

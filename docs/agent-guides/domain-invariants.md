@@ -57,7 +57,7 @@ A delay entry is an announced change to the plan, not an annotation. An event ha
 - A delay never moves a count-to-end deadline; only time given to the event (added time, pause) does.
 - Roll follows the delayed times.
 
-Not yet enforced: the offset is still measured from the planned times (`getRuntimeOffset`), a delay carries on past count-to-end events (`rundown.parser.ts`), some views add the delay to a count-to-end end, and roll ignores delays.
+Use `getDelayedStart()` and `getDelayedEnd()` from `ontime-utils` for delayed times. Not yet enforced: roll starts events on their planned times, so while rolling the offset ignores delays.
 
 When relevant, cover interactions among:
 
