@@ -1,6 +1,7 @@
 import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
+import * as timeCore from '../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
@@ -43,6 +44,7 @@ const baseState: RuntimeState = {
     pausedDuration: 0,
     secondaryTarget: null,
     hasFinished: false,
+    startedAt: null,
   },
   _rundown: {
     totalDelay: 0,
@@ -52,6 +54,7 @@ const baseState: RuntimeState = {
   _flag: null,
   _startDayOffset: null,
   _startEpoch: null,
+  _epoch: timeCore.toInstant(0 as TimeOfDay, timeCore.now()),
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState> | Record<string, unknown>): RuntimeState {

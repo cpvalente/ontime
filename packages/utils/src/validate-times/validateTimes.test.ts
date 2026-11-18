@@ -2,7 +2,7 @@ import type { OntimeEvent } from 'ontime-types';
 import { TimeStrategy } from 'ontime-types';
 
 import { dayInMs } from '../date-utils/conversionUtils';
-import { calculateDuration, getLinkedTimes, validateTimes } from './validateTimes';
+import { getLinkedTimes, validateTimes } from './validateTimes';
 
 describe('validateTimes()', () => {
   describe('when time strategy is inferred', () => {
@@ -44,6 +44,13 @@ describe('validateTimes()', () => {
       expect(timeEnd).toBe(10);
       expect(duration).toBe(dayInMs - 90);
       expect(timeStrategy).toBe(TimeStrategy.LockEnd);
+    });
+
+    it('handles events with no duration', () => {
+      const { timeStart, timeEnd, duration } = validateTimes(10, 10, undefined);
+      expect(timeStart).toBe(10);
+      expect(timeEnd).toBe(10);
+      expect(duration).toBe(0);
     });
 
     it('corrects time in case of conflicts', () => {
@@ -99,28 +106,6 @@ describe('validateTimes()', () => {
       expect(timeEnd).toBe(20);
       expect(duration).toBe(15);
       expect(timeStrategy).toBe(TimeStrategy.LockEnd);
-    });
-  });
-});
-
-describe('calculateDuration()', () => {
-  describe('Given start and end values', () => {
-    it('is the difference between end and start', () => {
-      const duration = calculateDuration(10, 20);
-      expect(duration).toBe(10);
-    });
-  });
-
-  describe('Handles edge cases', () => {
-    it('handles events that go over midnight', () => {
-      const duration = calculateDuration(51, 50);
-      expect(duration).toBe(dayInMs - 1);
-    });
-    it('handles no difference', () => {
-      const duration1 = calculateDuration(0, 0);
-      const duration2 = calculateDuration(dayInMs, dayInMs);
-      expect(duration1).toBe(0);
-      expect(duration2).toBe(0);
     });
   });
 });

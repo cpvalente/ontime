@@ -216,9 +216,9 @@ describe('roll timer phases', () => {
   });
 });
 
-// Characterizations of current behaviour: either jump finishes the running event before the time skip check runs.
+// Characterizations of current behaviour when the clock jumps
 describe('roll after the clock jumps', () => {
-  test('a clock moved back is read as midnight passing: the event finishes and roll waits for the next day', async () => {
+  test('a clock moved back is caught by the time skip check: roll waits for the event to start again', async () => {
     prepare([event('now', hour, 2 * hour)], hour + 5 * minute);
     runtimeService.roll();
     await flushLifecycle();
@@ -226,14 +226,14 @@ describe('roll after the clock jumps', () => {
 
     await tickAt(30 * minute);
 
-    expect(lifecycleOutputs().map(({ cycle }) => cycle)).toEqual([TimerLifeCycle.onFinish, TimerLifeCycle.onLoad]);
+    expect(lifecycleOutputs()).toEqual([]);
     expect(getState()).toMatchObject({
       eventNow: { id: 'now' },
-      timer: { playback: Playback.Roll, phase: TimerPhase.Pending, secondaryTimer: 23 * hour },
+      timer: { playback: Playback.Roll, phase: TimerPhase.Pending, secondaryTimer: 30 * minute, startedAt: null },
     });
   });
 
-  test('a clock moved past the end counts the skipped time as delay: the running event waits', async () => {
+  test('a clock moved past the end finishes the event before the time skip check runs: the skipped time counts as delay', async () => {
     prepare([event('first', hour, 2 * hour), event('later', 3 * hour, 4 * hour)], hour + 5 * minute);
     runtimeService.roll();
     await flushLifecycle();

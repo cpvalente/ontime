@@ -1,4 +1,5 @@
 import { Instant, OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { dayInMs } from 'ontime-utils';
 
 import { is } from '../../utils/is.js';
 import type { AuxTimer, AuxTimers } from '../aux-timer-service/auxTimer.utils.js';
@@ -58,15 +59,12 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
-  if (!is.number(point.startedAt) && point.startedAt !== null) {
+  // older versions saved these as a time of day, which cannot resume a timer
+  if (!isMaybeInstant(point.startedAt) || !isMaybeInstant(point.pausedAt)) {
     return false;
   }
 
   if (!is.number(point.addedTime)) {
-    return false;
-  }
-
-  if (!is.number(point.pausedAt) && point.pausedAt !== null) {
     return false;
   }
 
@@ -91,6 +89,11 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
   }
 
   return true;
+}
+
+/** any instant is more than a day after the epoch, smaller numbers are a time of day */
+function isMaybeInstant(value: unknown): boolean {
+  return value === null || (is.number(value) && value >= dayInMs);
 }
 
 function isAuxTimers(timers: unknown): timers is AuxTimers {

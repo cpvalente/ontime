@@ -107,7 +107,7 @@ export function validateTimes(
  * @param {number} timeEnd
  * @returns {number}
  */
-export function calculateDuration(timeStart: number, timeEnd: number): number {
+function calculateDuration(timeStart: number, timeEnd: number): number {
   // Durations must be positive
   if (timeEnd < timeStart) {
     return timeEnd + dayInMs - timeStart;
