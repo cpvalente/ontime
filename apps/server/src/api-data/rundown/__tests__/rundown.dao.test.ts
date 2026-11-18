@@ -1465,9 +1465,13 @@ describe('rundownMutation.applyDelay()', () => {
 
     expect(testRundown.entries).toMatchObject({
       '1': { timeStart: 20, timeEnd: 30 },
-      '2': { timeStart: 20, timeEnd: 20, duration: 0 },
+      '2': { timeStart: 20, timeEnd: 20, duration: 0, linkStart: false },
       '3': { timeStart: 30, timeEnd: 40 },
     });
+
+    // the deadline holds when the rundown is processed again, it does not follow the previous event
+    const reprocessed = processRundown(testRundown, []);
+    expect(reprocessed.entries['2']).toMatchObject({ timeStart: 20, timeEnd: 20 });
   });
 
   it('applies negative delays', () => {
