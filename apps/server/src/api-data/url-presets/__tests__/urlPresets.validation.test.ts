@@ -26,3 +26,19 @@ it.each([
   expect(req).toMatchObject(expected);
   expect(req.body.search).toBe('title=MainStage');
 });
+
+it.each([
+  ['create', validateNewPreset],
+  ['update', validateUpdatePreset],
+])('drops access tokens from the search on %s', async (_action, validators) => {
+  const req = {
+    body: { alias: 'main', target: 'timer', enabled: true, displayInNav: false, search: 'token=secret&n=1' },
+    params: { alias: 'main' },
+  } as Request;
+  for (const chain of validators.slice(0, -1) as ValidationChain[]) {
+    await chain.run(req);
+  }
+
+  expect(validationResult(req).array()).toEqual([]);
+  expect(req.body.search).toBe('n=1');
+});

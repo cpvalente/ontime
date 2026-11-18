@@ -1,6 +1,7 @@
 import { DatabaseModel, URLPreset } from 'ontime-types';
 
 import { ErrorEmitter } from '../../utils/parserUtils.js';
+import { removeTokenFromSearch } from '../../utils/urlToken.js';
 import { normaliseUrlPresets } from './urlPresets.utils.js';
 
 /**
@@ -24,7 +25,8 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
       enabled: preset.enabled ?? false,
       alias: preset.alias,
       target: preset.target,
-      search: preset.search ?? '',
+      // presets are readable by everyone, they must not carry access tokens
+      search: removeTokenFromSearch(preset.search ?? ''),
       displayInNav: preset.displayInNav ?? false,
       options: preset?.options,
     };

@@ -59,7 +59,10 @@ const websocketMocks = vi.hoisted(() => {
   };
 });
 
-const authenticationMocks = vi.hoisted(() => ({ reject: true, scope: 'write' as 'read' | 'write' }));
+const authenticationMocks = vi.hoisted(() => ({
+  reject: true,
+  scope: 'write' as 'read' | 'write',
+}));
 const dispatchMock = vi.hoisted(() => vi.fn());
 
 vi.mock('ws', () => ({
@@ -71,7 +74,9 @@ vi.mock('../../middleware/authenticate.js', () => ({
   authenticateSocket: () => (authenticationMocks.reject ? undefined : authenticationMocks.scope),
 }));
 
-vi.mock('../../api-integration/integration.controller.js', () => ({ dispatchFromAdapter: dispatchMock }));
+vi.mock('../../api-integration/integration.controller.js', () => ({
+  dispatchFromAdapter: dispatchMock,
+}));
 
 import { MessageTag } from 'ontime-types';
 
@@ -144,5 +149,48 @@ describe('WebsocketAdapter', () => {
     await Promise.resolve();
 
     expect(dispatchMock).toHaveBeenCalledTimes(calls);
+  });
+
+  it.each([
+    [
+      MessageTag.ClientSet,
+      {
+        type: 'ontime',
+        origin: 'http://ontime',
+        path: '/timer?token=secret&n=1',
+      },
+    ],
+    [MessageTag.ClientSetPath, '/timer?token=secret&n=1'],
+  ] as const)('does not share access tokens in client paths from %s', (tag, payload) => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(client);
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    client.emit('message', JSON.stringify({ tag, payload }));
+
+    const clientList = JSON.parse(client.send.mock.lastCall?.[0]);
+    expect(clientList.tag).toBe(MessageTag.ClientList);
+    expect(Object.values(clientList.payload)).toContainEqual(expect.objectContaining({ path: '/timer?n=1' }));
+    expect(client.send.mock.lastCall?.[0]).not.toContain('secret');
+  });
+
+  it('does not share access tokens in redirects', () => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(client);
+    websocketMocks.getConnectionHandler()?.(client, {});
+    const target = socket.getClientList().at(-1) as string;
+
+    socket.redirectClient(target, '/timer?token=secret');
+
+    expect(client.send).toHaveBeenLastCalledWith(
+      JSON.stringify({
+        tag: MessageTag.ClientRedirect,
+        payload: { target, path: '/timer' },
+      }),
+    );
   });
 });

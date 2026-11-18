@@ -194,6 +194,9 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
     throw new Error(`Invalid target view: ${path}`);
   }
 
+  // presets never store access tokens, the server would drop them on save
+  url.searchParams.delete('token');
+
   return {
     alias,
     target: path,

@@ -36,6 +36,7 @@ import { Access } from '../middleware/access.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
+import { removeTokenFromPath } from '../utils/urlToken.js';
 import type { IAdapter } from './IAdapter.js';
 
 type ClientId = string;
@@ -122,6 +123,7 @@ class SocketServer implements IAdapter {
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
+              updatedClient.path = removeTokenFromPath(updatedClient.path);
               this.clients.set(clientId, updatedClient);
               if (this.welcome && updatedClient.path?.toLowerCase().includes('editor')) {
                 sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
@@ -132,9 +134,9 @@ class SocketServer implements IAdapter {
             }
             case MessageTag.ClientSetPath: {
               const previousData = this.getOrCreateClient(clientId);
-              previousData.path = payload;
+              previousData.path = removeTokenFromPath(payload);
               this.clients.set(clientId, previousData);
-              if (this.welcome && payload.toLowerCase().includes('editor')) {
+              if (this.welcome && previousData.path.toLowerCase().includes('editor')) {
                 sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
                 this.welcome = null;
               }
@@ -220,7 +222,7 @@ class SocketServer implements IAdapter {
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
     }
-    this.sendAsJson(MessageTag.ClientRedirect, { target, path });
+    this.sendAsJson(MessageTag.ClientRedirect, { target, path: removeTokenFromPath(path) });
   }
 
   public identifyClient(target: ClientId, identify: boolean) {

@@ -10,6 +10,7 @@ import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
+import { parseUrlPresets } from '../../api-data/url-presets/urlPresets.parser.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { makeNewProject, makeProjectId } from '../../models/dataModel.js';
@@ -405,6 +406,9 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // these sections are parsed and applied on their own, the rest is merged as it is
   const { rundowns, customFields, teleprompter, ...rest } = data;
+  if (rest.urlPresets) {
+    rest.urlPresets = parseUrlPresets(rest);
+  }
 
   // we can pass some stuff straight to the data provider
   // callers list every section, so we only merge when a section has a value
