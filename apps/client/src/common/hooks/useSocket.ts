@@ -33,7 +33,6 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
 export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
-  secondarySource: state.message.timer.secondarySource,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -41,29 +40,27 @@ export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
   visible: state.message.timer.visible,
 }));
 
-export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
+export const useSecondaryInput = createSelector((state: RuntimeStore) => ({
   text: state.message.secondary,
-  visible: state.message.timer.secondarySource === 'secondary',
+  source: state.message.timer.secondarySource,
 }));
 
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
-  blink: state.message.timer.blink,
-  blackout: state.message.timer.blackout,
-  phase: state.timer.phase,
-  secondarySource: state.message.timer.secondarySource,
-  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
 }));
 
 export const setMessage = {
-  timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
-  secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  /** one patch, so a screen never shows the previous text */
+  showTimerMessage: (text: string) => sendSocket('message', { timer: { text, visible: true } }),
+  /** one patch, so a screen never shows the previous text */
+  showSecondary: (source: NonNullable<TimerMessage['secondarySource']>, text: string) =>
+    sendSocket('message', { secondary: text, timer: { secondarySource: source } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
