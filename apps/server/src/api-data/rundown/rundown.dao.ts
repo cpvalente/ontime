@@ -435,6 +435,10 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
         ? currentEntry.timeEnd
         : Math.max(0, (currentEntry.timeStart + delayValue) % dayInMs);
       currentEntry.duration = calculateDuration(currentEntry.timeStart, currentEntry.timeEnd);
+      // an event the delay consumed keeps its deadline, so it can no longer follow the end of the previous event
+      if (consumesEvent) {
+        currentEntry.linkStart = false;
+      }
       currentEntry.revision += 1;
 
       // only a delay longer than the event reaches the events after it
