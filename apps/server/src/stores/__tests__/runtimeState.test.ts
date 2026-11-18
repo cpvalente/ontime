@@ -457,6 +457,59 @@ describe('mutation on runtimeState', () => {
     });
   });
 
+  describe('delays, see docs/agent-guides/domain-invariants.md#delays', () => {
+    const at = (hours: number, minutes = 0) => hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE;
+    const makeDelayedRundown = async () => {
+      const a = makeOntimeEvent({ id: 'a', timeStart: at(9), timeEnd: at(10), duration: at(1) });
+      const delay = makeOntimeDelay({ id: 'delay', duration: 10 * MILLIS_PER_MINUTE });
+      const b = makeOntimeEvent({ id: 'b', timeStart: at(10), timeEnd: at(11), duration: at(1), linkStart: true });
+      const c = makeOntimeEvent({ id: 'c', timeStart: at(11), timeEnd: at(12), duration: at(1), linkStart: true });
+      await initTestRundown(
+        makeRundown({
+          entries: { a, delay, b, c },
+          order: ['a', 'delay', 'b', 'c'],
+          flatOrder: ['a', 'delay', 'b', 'c'],
+        }),
+      );
+      return rundownCache.get();
+    };
+
+    test('a delay ahead moves the expected rundown end', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      vi.setSystemTime('jan 1 09:00');
+      load(rundown.entries.a as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(0);
+      expect(state.offset.expectedRundownEnd).toBe(at(12, 10));
+    });
+
+    test('a delay the show has passed is not counted twice', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      // B starts on its delayed time
+      vi.setSystemTime('jan 1 10:10');
+      load(rundown.entries.b as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(0);
+      expect(state.offset.relative).toBe(0);
+      expect(state.offset.expectedRundownEnd).toBe(at(12, 10));
+    });
+
+    test('starting on the planned time despite a delay is ahead of the delayed plan', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      vi.setSystemTime('jan 1 10:00');
+      load(rundown.entries.b as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(-10 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(at(12));
+    });
+  });
+
   test('runtime offset', async () => {
     const entries = {
       event1: { ...mockEvent, id: 'event1', timeStart: 0, timeEnd: 1000, duration: 1000, parent: null },

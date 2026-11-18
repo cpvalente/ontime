@@ -193,7 +193,8 @@ export function getExpectedScheduleTimes(
     },
   );
   const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay, event.isLoaded);
-  const plannedEnd = event.timeStart + event.duration + event.delay;
+  // a delay moves the end, but never a count to end deadline
+  const plannedEnd = event.timeStart + event.duration + (event.countToEnd ? 0 : event.delay);
 
   return {
     expectedStart,

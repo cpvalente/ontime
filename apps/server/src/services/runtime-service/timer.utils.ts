@@ -10,7 +10,15 @@ import {
   TimeOfDay,
   TimerPhase,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, checkIsNow, dayInMs, getExpectedEnd, getExpectedStart, isPlaybackActive } from 'ontime-utils';
+import {
+  MILLIS_PER_HOUR,
+  checkIsNow,
+  dayInMs,
+  getDelayedStart,
+  getExpectedEnd,
+  getExpectedStart,
+  isPlaybackActive,
+} from 'ontime-utils';
 
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
@@ -200,14 +208,15 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
 
 export type RuntimeOffsetInput = {
   clock: TimeOfDay;
-  event: Maybe<{ countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day }>;
+  /** the delay the offset is measured from, see docs/agent-guides/domain-invariants.md#delays */
+  event: Maybe<{ countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day; delay: Duration }>;
   startedAt: Maybe<TimeOfDay>;
   current: Maybe<Duration>;
   addedTime: Duration;
   pausedAt: Maybe<TimeOfDay>;
   /** day playback started on, relative to the rundown's first event */
   startDayOffset: Maybe<Day>;
-  /** planned start of the event playback started from */
+  /** delayed start of the event playback started from */
   startEventStart: Maybe<TimeOfDay>;
   /** rundown day of the event playback started from */
   startEventDay: Maybe<Day>;
@@ -216,6 +225,7 @@ export type RuntimeOffsetInput = {
 
 /**
  * Calculates difference between the runtime and the schedule of an event
+ * The schedule is the delayed one: a delay is part of the plan, so it is never counted twice
  * Positive offset is over time / behind schedule
  * Negative offset is under time / ahead of schedule
  */
@@ -237,7 +247,7 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
     return { absolute: 0 as Duration, relative: 0 as Duration };
   }
 
-  const { countToEnd, timeStart, dayOffset } = event;
+  const { countToEnd, dayOffset } = event;
 
   // eslint-disable-next-line no-unused-labels -- dev code path
   DEV: {
@@ -248,8 +258,8 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
     if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: actualStart must be set');
   }
 
-  // difference between planned event start and actual event start (will be positive if we started behind)
-  const eventStartOffset = startedAt + startDayOffset * dayInMs - (timeStart + dayOffset * dayInMs);
+  // difference between delayed event start and actual event start (will be positive if we started behind)
+  const eventStartOffset = startedAt + startDayOffset * dayInMs - (getDelayedStart(event) + dayOffset * dayInMs);
 
   // how long has the event been running over (is a negative number when in over timer so inverted before adding to offset)
   const overtime = Math.abs(Math.min(current, 0));
