@@ -6,6 +6,7 @@ import {
   IoLocate,
   IoPause,
   IoPlay,
+  IoPlayBack,
   IoPlaySkipBack,
   IoPlaySkipForward,
   IoRemove,
@@ -117,7 +118,7 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
           }}
           data-testid='teleprompter-play'
         >
-          {isPlaying ? <IoPause /> : <IoPlay />}
+          {isPlaying ? <IoPause /> : <PlayIcon isReadingBack={state.speed < 0} />}
         </Button>
         <ControlButton
           label='Previous event (Shift + Up arrow)'
@@ -164,8 +165,8 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
 
       <div className='teleprompter__speed-control' role='group' aria-label='Speed'>
         <ControlButton
-          label='Slower (Left arrow)'
-          accessibleLabel='Slower'
+          label='Speed down (Left arrow)'
+          accessibleLabel='Speed down'
           onPress={() => onCommand({ type: 'speedBy', value: -speedStep })}
           testId='teleprompter-slower'
         >
@@ -176,8 +177,8 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
           <span className='teleprompter__speed-unit'>lpm</span>
         </div>
         <ControlButton
-          label='Faster (Right arrow)'
-          accessibleLabel='Faster'
+          label='Speed up (Right arrow)'
+          accessibleLabel='Speed up'
           onPress={() => onCommand({ type: 'speedBy', value: speedStep })}
           testId='teleprompter-faster'
         >
@@ -189,6 +190,11 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
       </ControlButton>
     </div>
   );
+}
+
+/** Play points the way playback will read */
+function PlayIcon({ isReadingBack }: { isReadingBack: boolean }) {
+  return isReadingBack ? <IoPlayBack /> : <IoPlay />;
 }
 
 function getGoToLoadedLabel(loadedEvent: LoadedEvent | null, canGoToLoaded: boolean): string {

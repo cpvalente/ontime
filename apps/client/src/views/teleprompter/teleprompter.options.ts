@@ -44,7 +44,7 @@ export type TeleprompterOptions = {
   speed: number;
 };
 
-const defaults: TeleprompterOptions = {
+export const defaults: TeleprompterOptions = {
   role: 'local',
   source: projectSource,
   onlyLoaded: false,
@@ -63,7 +63,8 @@ const bounds = {
   lineHeight: [1, 4],
   textWidth: [20, 100],
   readingLinePos: [0, 90],
-  speed: [teleprompterSpeed.min, teleprompterSpeed.max],
+  // a screen starts reading on: reading back is for the controls
+  speed: [1, teleprompterSpeed.max],
 } as const;
 
 const roles = ['local', 'controller', 'remote'] as const;

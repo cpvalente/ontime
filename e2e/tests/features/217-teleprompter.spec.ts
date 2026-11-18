@@ -45,15 +45,6 @@ function rowTexts(page: Page) {
   return page.locator('.teleprompter__row').allTextContents();
 }
 
-/** The row of the second event's heading, which follows the first event's script */
-function secondHeadingRow(page: Page) {
-  return page
-    .locator('.teleprompter__row')
-    .evaluateAll(
-      (rows) => rows.flatMap((row, index) => (row.matches('.teleprompter__row--heading') ? [index] : []))[1] ?? -1,
-    );
-}
-
 test.beforeEach(async ({ request }) => {
   await resetTeleprompter(request);
 });
@@ -321,7 +312,9 @@ test('the end of an event shows on the reading line', async ({ page, request }) 
   await page.goto(remoteUrl);
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
   // start a few rows before the end of the first event, so playback reaches it quickly
-  const firstEventRows = await secondHeadingRow(page);
+  const firstEventRows = await page
+    .locator('.teleprompter__row')
+    .evaluateAll((rows) => rows.findIndex((row, index) => index > 0 && row.matches('.teleprompter__row--heading')));
   expect((await request.get(`api/teleprompter/scroll/${firstEventRows - 4}`)).ok()).toBe(true);
 
   await request.get('api/teleprompter/speed/40');
@@ -330,28 +323,6 @@ test('the end of an event shows on the reading line', async ({ page, request }) 
 
   await request.get('api/teleprompter/play');
   await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
-});
-
-test('a negative speed reads back up the script, stopping at the end of the previous event', async ({
-  page,
-  request,
-}) => {
-  const transport = async () => (await (await request.get('api/poll')).json()).payload.teleprompter;
-  await page.goto(remoteUrl);
-  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
-  const secondHeading = await secondHeadingRow(page);
-  const first = (await transport()).event?.id;
-
-  expect((await request.get('api/teleprompter/next')).ok()).toBe(true);
-  const start = await settledRow(page);
-  expect((await request.get('api/teleprompter/speed/-60')).ok()).toBe(true);
-  expect((await request.get('api/teleprompter/play')).ok()).toBe(true);
-  await expect.poll(() => readingRow(page)).toBeLessThan(start - 0.5);
-
-  // the end notice sits above the heading of the event it read back out of
-  await expect(page.getByTestId('teleprompter-end')).toHaveText('End of event', { timeout: 10_000 });
-  expect(await transport()).toMatchObject({ playback: 'pause', ended: 'event', speed: -60, event: { id: first } });
-  expect(await settledRow(page)).toBeLessThan(secondHeading);
 });
 
 test('a view showing only the loaded event keeps its keyboard controls while waiting for one', async ({

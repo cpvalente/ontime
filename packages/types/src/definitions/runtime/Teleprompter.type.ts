@@ -2,7 +2,7 @@ import type { EntryId } from '../core/OntimeEntry.js';
 import type { TeleprompterAnchor } from '../core/Teleprompter.type.js';
 
 /** Whether the teleprompter reads on, in the words of Ontime's playback */
-export type TeleprompterPlayback = 'pause' | 'play';
+export type TeleprompterPlayback = 'play' | 'pause';
 
 /**
  * How playback reads the script
@@ -21,7 +21,7 @@ export type TeleprompterStop = 'event' | 'script';
 export type TeleprompterTransport = {
   playback: TeleprompterPlayback;
   mode: TeleprompterMode;
-  /** lines per minute, from 1 to 100 */
+  /** lines per minute, from 1 to 100 in either direction: negative reads back up the script */
   speed: number;
   /** where the reader was when the transport last changed, null while the script is empty */
   anchor: TeleprompterAnchor | null;
@@ -62,7 +62,7 @@ export type TeleprompterReadingEvent = {
 export type TeleprompterState = {
   playback: TeleprompterPlayback;
   mode: TeleprompterMode;
-  /** lines per minute, from 1 to 100 */
+  /** lines per minute, from 1 to 100 in either direction: negative reads back up the script */
   speed: number;
   /** the event at the reading position, null with an empty script */
   event: TeleprompterReadingEvent | null;

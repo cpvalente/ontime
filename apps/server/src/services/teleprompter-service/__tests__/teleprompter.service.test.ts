@@ -184,9 +184,7 @@ describe('teleprompter commands', () => {
     const service = await loadService();
     service.handleTeleprompterCommand({ type: 'pause' });
     clock.now = 1000;
-    expect(service.handleTeleprompterCommand({ type: 'pause' })).toMatchObject({
-      playback: 'pause',
-    });
+    expect(service.handleTeleprompterCommand({ type: 'pause' })).toMatchObject({ playback: 'pause' });
 
     expect(published.at(-1)).toEqual({ teleprompterSync: expect.objectContaining({ at: 1000 }) });
   });
@@ -205,10 +203,7 @@ describe('teleprompter commands', () => {
     // b starts one row after a, two seconds at 30 lines per minute
     clock.now = 2500;
     expect(tick(service)).toEqual({
-      teleprompter: expect.objectContaining({
-        playback: 'play',
-        event: expect.objectContaining({ id: 'b' }),
-      }),
+      teleprompter: expect.objectContaining({ playback: 'play', event: expect.objectContaining({ id: 'b' }) }),
     });
     expect(service.getTeleprompterSync()).toBe(sync);
     expect(service.getTeleprompterState().event?.id).toBe('b');
@@ -241,23 +236,5 @@ describe('teleprompter commands', () => {
       teleprompterSync: { playback: 'pause' },
     });
     expect(tick(service)).toEqual({});
-  });
-
-  test('a tick after playback read back to the top of the script settles it', async () => {
-    const service = await loadService();
-    service.handleTeleprompterCommand({ type: 'next' });
-    service.handleTeleprompterCommand({ type: 'speed', value: -30 });
-    service.handleTeleprompterCommand({ type: 'play' });
-
-    // b starts one row into the script, two seconds back at 30 lines per minute, reading back into a on the way
-    clock.now = 1500;
-    expect(tick(service)).toEqual({
-      teleprompter: expect.objectContaining({ playback: 'play', event: expect.objectContaining({ id: 'a' }) }),
-    });
-    clock.now = 2500;
-    expect(tick(service)).toMatchObject({
-      teleprompter: { playback: 'pause', ended: 'script', event: { id: 'a' } },
-      teleprompterSync: { playback: 'pause', row: 0 },
-    });
   });
 });

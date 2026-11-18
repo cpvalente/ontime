@@ -44,8 +44,6 @@ export const langEn = {
   'project.description': 'Description',
   'project.info': 'Project Info',
   'project.url': 'Project URL',
-  'teleprompter.end_of_event': 'End of event',
-  'teleprompter.end_of_script': 'End of script',
 };
 
 export type TranslationObject = Record<keyof typeof langEn, string>;

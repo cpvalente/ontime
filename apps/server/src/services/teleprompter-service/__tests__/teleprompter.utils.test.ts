@@ -43,7 +43,7 @@ describe('buildScriptEvents()', () => {
       ['custom-script', 'Script a'],
     ])('reads %s', (script, text) => {
       const [event] = build([makeEvent('a')], { script, heading: 'none' });
-      expect(event.lines).toEqual([{ kind: 'blank' }, { kind: 'text', text, start: 0 }, { kind: 'blank' }]);
+      expect(event.lines).toEqual([{ kind: 'text', text, start: 0 }, { kind: 'blank' }]);
     });
 
     test.each(['custom-poster', 'custom-missing', 'skip', 'none', 'custom-constructor'])(
@@ -72,27 +72,19 @@ describe('buildScriptEvents()', () => {
       ['both', 'A · Title a'],
     ] as const)('the %s heading', (heading, text) => {
       expect(build([makeEvent('a')], { heading })[0].lines).toEqual([
-        { kind: 'blank' },
         { kind: 'heading', text },
         { kind: 'text', text: 'Note a', start: 0 },
         { kind: 'blank' },
       ]);
     });
 
-    test('only the script starts with a blank line', () => {
-      const [first, second] = build([makeEvent('a'), makeEvent('b')], { heading: 'cue' });
-      expect(first.lines.slice(0, 2)).toEqual([{ kind: 'blank' }, { kind: 'heading', text: 'A' }]);
-      expect(second.lines[0]).toEqual({ kind: 'heading', text: 'B' });
-    });
-
     test('an event without a cue has no cue heading', () => {
-      expect(build([makeEvent('a', { cue: '' })], { heading: 'cue' })[0].lines[1].kind).toBe('text');
+      expect(build([makeEvent('a', { cue: '' })], { heading: 'cue' })[0].lines[0].kind).toBe('text');
     });
 
     test('lines keep their indentation and position in the text', () => {
       const [event] = build([makeEvent('a', { note: 'one\n  two three' })], { heading: 'none', charsPerLine: 12 });
       expect(event.lines).toEqual([
-        { kind: 'blank' },
         { kind: 'text', text: 'one', start: 0 },
         { kind: 'text', text: 'two three', start: 6, indent: 2 },
         { kind: 'blank' },
