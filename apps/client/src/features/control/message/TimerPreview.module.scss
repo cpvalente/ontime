@@ -1,53 +1,29 @@
 .preview {
-  background-color: $ui-black;
+  // a 16:9 picture at full panel width, shrinking when the fields need the room
+  flex: 0 1 auto;
+  height: calc(100cqw * 9 / 16);
+  min-height: 4rem;
+  container-type: size;
   display: grid;
-  place-content: center;
-  text-align: center;
+  place-items: center;
+}
+
+.frame {
   position: relative;
-}
-
-.mainContent {
-  font-size: 1rem;
-  font-weight: 600;
-  width: 100%;
-  color: var(--override-colour, $ui-white);
-
-  &[data-phase='pending'] {
-    color: $ontime-roll;
-  }
-  &[data-phase='overtime'] {
-    color: $playback-negative;
-  }
-  &[data-phase='none'] {
-    opacity: $opacity-disabled;
-  }
-}
-
-.secondaryContent {
-  border-top: 1px solid $white-7;
-}
-
-.blackout {
-  opacity: 0.3;
-}
-
-.blackoutLabel {
-  position: absolute;
-  bottom: 0.25rem;
-  right: 0.25rem;
-  pointer-events: none;
-  font-size: 0.625rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  width: min(100cqw, 100cqh * 16 / 9);
+  border-radius: $component-border-radius-sm;
+  overflow: hidden;
 }
 
 .eventStatus {
   position: absolute;
+  top: 0;
   left: 0;
   margin: 0.5rem 0.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  font-size: 0.75rem;
 }
 
 .statusIcon {

@@ -1,9 +1,6 @@
-import { SecondarySource } from 'ontime-types';
-import { useEffect, useState } from 'react';
+import { LuMonitorOff, LuZap } from 'react-icons/lu';
 
 import Button from '../../../common/components/buttons/Button';
-import * as Editor from '../../../common/components/editor-utils/EditorUtils';
-import Select from '../../../common/components/select/Select';
 import { setMessage, useTimerViewControl } from '../../../common/hooks/useSocket';
 import TimerPreview from './TimerPreview';
 
@@ -15,18 +12,14 @@ export default function TimerControlsPreview() {
   return (
     <div className={style.previewContainer}>
       <TimerPreview />
-      <div className={style.options}>
-        <SecondarySourceControl />
-
-        <Editor.Separator orientation='horizontal' />
-
+      <div className={style.toggles}>
         <Button
           variant={blink ? 'primary' : 'subtle'}
           fluid
           onClick={() => setMessage.timerBlink(!blink)}
           data-testid='toggle timer blink'
         >
-          Blink
+          <LuZap /> Blink
         </Button>
         <Button
           variant={blackout ? 'primary' : 'subtle'}
@@ -34,59 +27,9 @@ export default function TimerControlsPreview() {
           onClick={() => setMessage.timerBlackout(!blackout)}
           data-testid='toggle timer blackout'
         >
-          Blackout screen
+          <LuMonitorOff /> Blackout
         </Button>
       </div>
     </div>
-  );
-}
-
-function SecondarySourceControl() {
-  const { secondarySource } = useTimerViewControl();
-  const [value, setValue] = useState<SecondarySource>('aux1');
-
-  // sync secondary source with external changes
-  useEffect(() => {
-    if (secondarySource !== null) {
-      setValue(secondarySource);
-    }
-  }, [secondarySource]);
-
-  const toggleSecondary = () => {
-    if (secondarySource === value) {
-      setMessage.timerSecondarySource(null);
-    } else {
-      setMessage.timerSecondarySource(value);
-    }
-  };
-
-  return (
-    <>
-      <Select
-        value={value}
-        options={[
-          { value: 'aux1', label: 'Aux 1' },
-          { value: 'aux2', label: 'Aux 2' },
-          { value: 'aux3', label: 'Aux 3' },
-          { value: 'secondary', label: 'Secondary message' },
-        ]}
-        onValueChange={(value: SecondarySource | null) => {
-          if (value === null) return;
-          // we can only update the remote if it is enabled
-          if (secondarySource !== null) {
-            setMessage.timerSecondarySource(value);
-          }
-          setValue(value);
-        }}
-      />
-      <Button
-        variant={secondarySource !== null ? 'primary' : 'subtle'}
-        fluid
-        onClick={toggleSecondary}
-        data-testid='toggle secondary'
-      >
-        Show secondary
-      </Button>
-    </>
   );
 }
