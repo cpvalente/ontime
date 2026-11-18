@@ -326,7 +326,16 @@ function processEntry<T extends OntimeEntry>(
       }
 
       // current event delay is the current accumulated delay
-      entry.delay = rundownMetadata.totalDelay;
+      // a count to end event cannot start after its deadline, so it is delayed by at most its duration
+      entry.delay = entry.countToEnd
+        ? Math.min(rundownMetadata.totalDelay, entry.duration)
+        : rundownMetadata.totalDelay;
+
+      // a count to end event ends on its deadline whatever its start, so it absorbs the delay
+      // only a delay longer than the event reaches the events after it
+      if (entry.countToEnd) {
+        rundownMetadata.totalDelay = Math.max(rundownMetadata.totalDelay - entry.duration, 0);
+      }
 
       // assign data for next iteration
       rundownMetadata.previousEvent = entry;

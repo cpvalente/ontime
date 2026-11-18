@@ -1,5 +1,5 @@
 import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
+import { getDelayedEnd, parseUserTime } from 'ontime-utils';
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 
@@ -69,7 +69,7 @@ function EventEditorTimes({
 
   const hasDelay = delay !== 0;
   const delayedStart = normaliseWallClock(timeStart + delay);
-  const delayedEnd = normaliseWallClock(timeEnd + delay);
+  const delayedEnd = normaliseWallClock(getDelayedEnd({ timeEnd, delay, countToEnd }));
   const delayLabel = hasDelay
     ? `Event is ${millisToDelayString(delay, 'expanded')}. New schedule ${formatTime(delayedStart)} → ${formatTime(delayedEnd)}`
     : '';

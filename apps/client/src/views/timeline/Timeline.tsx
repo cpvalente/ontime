@@ -1,6 +1,6 @@
 import { useViewportSize } from '@mantine/hooks';
 import { OntimeEntry, PlayableEvent, isOntimeEvent, isPlayableEvent } from 'ontime-types';
-import { MILLIS_PER_HOUR, dayInMs, getLastEvent } from 'ontime-utils';
+import { MILLIS_PER_HOUR, dayInMs, getDelayedStart, getLastEvent } from 'ontime-utils';
 import { memo, useMemo, useRef } from 'react';
 
 import useHorizontalFollowComponent from '../../common/hooks/useHorizontalFollowComponent';
@@ -30,7 +30,7 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
 
   const { lastEvent } = getLastEvent(rundown);
   const startHour = getStartHour(firstStart);
-  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.delay ?? 0));
+  const endHour = getEndHour(firstStart + totalDuration + (lastEvent?.countToEnd ? 0 : (lastEvent?.delay ?? 0)));
   const scheduleStart = startHour * MILLIS_PER_HOUR;
   const scheduleEnd = endHour * MILLIS_PER_HOUR;
 
@@ -48,8 +48,9 @@ function Timeline({ firstStart, rundown, selectedEventId, totalDuration }: Timel
     const playableEvents = rundown
       .filter((event): event is ExtendedEntry<PlayableEvent> => isOntimeEvent(event) && isPlayableEvent(event))
       .map((event) => ({
-        start: event.timeStart + (event.dayOffset ?? 0) * dayInMs + (event.delay ?? 0),
-        duration: event.duration,
+        start: getDelayedStart(event) + (event.dayOffset ?? 0) * dayInMs,
+        // a delay shortens a count to end event, its deadline does not move
+        duration: event.countToEnd ? Math.max(event.duration - (event.delay ?? 0), 0) : event.duration,
       }));
 
     return calculateTimelineLayout(playableEvents, scheduleStart, scheduleEnd, screenWidth, !fixedSize);

@@ -310,6 +310,35 @@ describe('processRundown()', () => {
     expect(initResult.totalDuration).toBe(600);
   });
 
+  it('a count to end event absorbs a delay, as its end is a deadline', () => {
+    const rundown = makeRundown({
+      order: ['delay', '1', '2'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 30 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, countToEnd: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
+      },
+    });
+
+    const initResult = processRundown(rundown, []);
+    expect(initResult.entries['1']).toMatchObject({ delay: 30 });
+    expect(initResult.entries['2']).toMatchObject({ delay: 0 });
+  });
+
+  it('a count to end event passes on only the delay longer than itself', () => {
+    const rundown = makeRundown({
+      order: ['delay', '1', '2'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 130 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, countToEnd: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
+      },
+    });
+
+    const initResult = processRundown(rundown, []);
+    expect(initResult.entries['2']).toMatchObject({ delay: 30 });
+  });
+
   it('maintains delays over gaps when there are cumulative delays', () => {
     const rundown = makeRundown({
       order: ['delay1', '1', 'delay2', '2'],
@@ -1358,6 +1387,86 @@ describe('rundownMutation.applyDelay()', () => {
       '3': { id: '3' },
       '4': { id: '4', timeStart: 30, timeEnd: 40, duration: 10, revision: 2, linkStart: false },
       '5': { id: '5', timeStart: 40, timeEnd: 50, duration: 10, revision: 2, linkStart: true },
+    });
+  });
+
+  it('keeps the deadline of a count to end event, which absorbs the delay', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 50, duration: 40, linkStart: true, countToEnd: true }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 50, timeEnd: 60, duration: 10, linkStart: true }),
+      },
+    });
+
+    rundownCache.init(testRundown, []);
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 10, timeEnd: 20, duration: 10 },
+      '2': { timeStart: 20, timeEnd: 50, duration: 30, linkStart: true },
+      '3': { timeStart: 50, timeEnd: 60, duration: 10, linkStart: true },
+    });
+  });
+
+  it('moves a skipped count to end event like any other event, as the parser passes the delay on', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({
+          id: '2',
+          timeStart: 10,
+          timeEnd: 50,
+          duration: 40,
+          linkStart: true,
+          countToEnd: true,
+          skip: true,
+        }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 50, timeEnd: 60, duration: 10, linkStart: true }),
+      },
+    });
+
+    rundownCache.init(testRundown, []);
+    expect(processRundown(testRundown, []).entries['3']).toMatchObject({ delay: 10 });
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 10, timeEnd: 20 },
+      '2': { timeStart: 20, timeEnd: 60 },
+      '3': { timeStart: 60, timeEnd: 70 },
+    });
+  });
+
+  it('a delay longer than a count to end event moves its start to the deadline and the rest passes on', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 20 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true, countToEnd: true }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 20, timeEnd: 30, duration: 10, linkStart: true }),
+      },
+    });
+
+    // the delay of a count to end event never starts it after its deadline
+    const processed = processRundown(testRundown, []);
+    expect(processed.entries['2']).toMatchObject({ delay: 10 });
+    expect(processed.entries['3']).toMatchObject({ delay: 10 });
+
+    rundownCache.init(testRundown, []);
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 20, timeEnd: 30 },
+      '2': { timeStart: 20, timeEnd: 20, duration: 0 },
+      '3': { timeStart: 30, timeEnd: 40 },
     });
   });
 

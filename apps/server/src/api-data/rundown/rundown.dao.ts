@@ -29,8 +29,10 @@ import {
 } from 'ontime-types';
 import {
   addToRundown,
+  calculateDuration,
   createGroup,
   customFieldLabelToKey,
+  dayInMs,
   getInsertAfterId,
   insertAtIndex,
   sortCustomFields,
@@ -423,6 +425,26 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
     if (shouldUnlink) {
       currentEntry.linkStart = false;
       shouldUnlink = false;
+    }
+
+    // a count to end event keeps its deadline: only its start moves, and it absorbs the delay
+    // a skipped event never plays, so like the parser we treat it as any other event
+    if (currentEntry.countToEnd && !currentEntry.skip) {
+      const consumesEvent = delayValue >= currentEntry.duration;
+      currentEntry.timeStart = consumesEvent
+        ? currentEntry.timeEnd
+        : Math.max(0, (currentEntry.timeStart + delayValue) % dayInMs);
+      currentEntry.duration = calculateDuration(currentEntry.timeStart, currentEntry.timeEnd);
+      currentEntry.revision += 1;
+
+      // only a delay longer than the event reaches the events after it
+      delayValue = Math.max(delayValue - lastEntry.duration, 0);
+      if (delayValue === 0) {
+        break;
+      }
+      // the next event moves past the deadline, so like the first event it can no longer follow it
+      isFirstEvent = true;
+      continue;
     }
 
     // event times move up by the delay value
