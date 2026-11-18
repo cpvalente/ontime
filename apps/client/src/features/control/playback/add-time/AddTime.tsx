@@ -4,7 +4,9 @@ import { MILLIS_PER_HOUR, parseUserTime } from 'ontime-utils';
 import { IoAdd, IoRemove } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
+import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { setPlayback } from '../../../../common/hooks/useSocket';
+import { formatDuration } from '../../../../common/utils/time';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AddTime.module.scss';
@@ -34,17 +36,28 @@ export default function AddTime(props: AddTimeProps) {
 
   const canAddTime = playback === Playback.Play || playback === Playback.Pause;
   const doDisableButtons = !canAddTime || timeInMs === 0;
+  const amount = formatDuration(timeInMs, false);
 
   return (
     <div className={style.addTime}>
-      <TimeInput name='addtime' submitHandler={handleTimeChange} time={timeInMs} placeholder='Add time' />
+      <TimeInput
+        name='addtime'
+        submitHandler={handleTimeChange}
+        time={timeInMs}
+        placeholder='Add time'
+        className={style.amount}
+      />
       <div className={style.addButtons}>
-        <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
-          <IoRemove />
-        </TapButton>
-        <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
-          <IoAdd />
-        </TapButton>
+        <Tooltip text={`Remove ${amount} from the running timer`} render={<div className={style.tipTarget} />}>
+          <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
+            <IoRemove />
+          </TapButton>
+        </Tooltip>
+        <Tooltip text={`Add ${amount} to the running timer`} render={<div className={style.tipTarget} />}>
+          <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
+            <IoAdd />
+          </TapButton>
+        </Tooltip>
       </div>
     </div>
   );
