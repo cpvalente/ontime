@@ -2,6 +2,7 @@ import { body, param } from 'express-validator';
 import { OntimeView } from 'ontime-types';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
+import { removeTokenFromSearch } from '../../utils/urlToken.js';
 
 /**
  * validate array of URL preset objects
@@ -11,7 +12,7 @@ export const validateNewPreset = [
   body('enabled').isBoolean(),
   body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
-  body('search').isString().trim(),
+  body('search').isString().trim().customSanitizer(removeTokenFromSearch),
   body('displayInNav').isBoolean(),
 
   // options are currently only provided for cuesheet presets
@@ -27,7 +28,7 @@ export const validateUpdatePreset = [
   body('enabled').isBoolean(),
   body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
-  body('search').isString().trim(),
+  body('search').isString().trim().customSanitizer(removeTokenFromSearch),
   body('displayInNav').isBoolean(),
 
   // options are currently only provided for cuesheet presets
