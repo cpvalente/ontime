@@ -274,6 +274,18 @@ describe('generateUrlPresetOptions', () => {
         displayInNav: false,
       },
     ],
+    [
+      'URL with an access token',
+      'test',
+      'https://cloud.getontime.no/timer?token=secret&param1=value1',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1',
+        enabled: true,
+        displayInNav: false,
+      },
+    ],
   ])('should generate URL preset options for %s', (_description, alias, url, expected) => {
     expect(generateUrlPresetOptions(alias, url)).toStrictEqual(expected);
   });

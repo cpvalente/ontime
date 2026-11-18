@@ -1,4 +1,4 @@
-import type { TeleprompterSettings } from 'ontime-types';
+import { OntimeView, type TeleprompterSettings } from 'ontime-types';
 import { Mock } from 'vitest';
 
 import { parseDatabaseModel } from '../../../api-data/db/db.parser.js';
@@ -187,6 +187,17 @@ describe('patchCurrentProject', () => {
     await patchCurrentProject({ ...emptyPatch, settings });
 
     expect(dataProvider.mergeIntoData).toHaveBeenCalledExactlyOnceWith({ settings });
+  });
+
+  it('drops access tokens from patched url presets', async () => {
+    const urlPresets = [
+      { enabled: true, alias: 'main', target: OntimeView.Timer, search: 'token=secret&n=1', displayInNav: false },
+    ];
+    await patchCurrentProject({ ...emptyPatch, urlPresets });
+
+    expect(dataProvider.mergeIntoData).toHaveBeenCalledExactlyOnceWith({
+      urlPresets: [expect.objectContaining({ search: 'n=1' })],
+    });
   });
 
   it('hands patched teleprompter settings to the teleprompter, rather than merging them unparsed', async () => {
