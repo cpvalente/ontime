@@ -45,7 +45,7 @@ describe('PipTimer', () => {
     runtimeStore.setState({
       eventNow: createEvent({ timerType: TimerType.CountDown }),
       message: {
-        timer: { text: '', visible: false, blink: false, blackout: true, secondarySource: null },
+        timer: { text: '', visible: false, blink: false, blackout: true, secondarySource: null, swap: false },
         secondary: '',
       },
     });

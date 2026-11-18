@@ -163,6 +163,14 @@ export function getSecondaryDisplay(
   return;
 }
 
+/** Swap puts the secondary content in the main spot, only while there is any */
+export function getTimerSpots(timer: string, secondaryContent: string | undefined, swap: boolean) {
+  if (swap && secondaryContent) {
+    return { main: secondaryContent, secondary: timer, isSwapped: true };
+  }
+  return { main: timer, secondary: secondaryContent, isSwapped: false };
+}
+
 /**
  * What should we be showing in the cards?
  */

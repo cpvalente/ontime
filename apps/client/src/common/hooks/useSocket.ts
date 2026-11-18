@@ -33,6 +33,8 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
 export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
+  swap: state.message.timer.swap,
+  hasSecondary: state.message.timer.secondarySource !== null,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -54,6 +56,7 @@ export const setMessage = {
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
+  timerSwap: (payload: boolean) => sendSocket('message', { timer: { swap: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
   /** one patch, so a screen never shows the previous text */
