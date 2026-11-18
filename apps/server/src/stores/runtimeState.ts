@@ -468,7 +468,8 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
   state.timer.elapsed = getElapsed(elapsedInput(state));
 
   if (state.rundown.actualStart === null) {
-    state._startDayOffset = (findDayOffset(state.eventNow.timeStart, state.clock) + state.eventNow.dayOffset) as Day;
+    state._startDayOffset = (findDayOffset(getDelayedStart(state.eventNow) as TimeOfDay, state.clock) +
+      state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
     state._startEpoch = epoch;
     // the relative offset discounts lateness against the delayed start, as the absolute offset does
