@@ -6,6 +6,8 @@ export type TimerMessage = {
   blink: boolean;
   blackout: boolean;
   secondarySource: SecondarySource;
+  /** shows the secondary content in the main spot and the timer under it */
+  swap: boolean;
 };
 
 export type MessageState = {

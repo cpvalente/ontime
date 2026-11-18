@@ -6,6 +6,7 @@ import {
   getCurrentAux,
   getEstimatedFontSize,
   getSecondaryDisplay,
+  getTimerSpots,
   getShowMessage,
   getShowModifiers,
   getTotalTime,
@@ -44,7 +45,7 @@ describe('shouldPlayEndSound()', () => {
 });
 
 describe('getShowMessage()', () => {
-  const message = { text: 'Wrap up', visible: true, blink: false, blackout: false, secondarySource: null };
+  const message = { text: 'Wrap up', visible: true, blink: false, blackout: false, secondarySource: null, swap: false };
 
   it('shows a message which has text and is set visible', () => {
     expect(getShowMessage(message)).toBe(true);
@@ -120,7 +121,7 @@ describe('getShowModifiers()', () => {
 
 describe('getSecondaryDisplay()', () => {
   const message = (secondarySource: MessageState['timer']['secondarySource'], secondary = ''): MessageState => ({
-    timer: { text: '', visible: false, blink: false, blackout: false, secondarySource },
+    timer: { text: '', visible: false, blink: false, blackout: false, secondarySource, swap: false },
     secondary,
   });
   const display = (state: MessageState, hideSecondary = false) =>
@@ -145,7 +146,7 @@ describe('getSecondaryDisplay()', () => {
 describe('getCurrentAux()', () => {
   const auxTimer = { aux1: 1000, aux2: 2000, aux3: 3000 };
   const message = (secondarySource: MessageState['timer']['secondarySource']): MessageState => ({
-    timer: { text: '', visible: false, blink: false, blackout: false, secondarySource },
+    timer: { text: '', visible: false, blink: false, blackout: false, secondarySource, swap: false },
     secondary: '',
   });
 
@@ -209,5 +210,19 @@ describe('getCardData()', () => {
   it('hides the next card when there is nothing to show in it', () => {
     const result = getCardData(now, null, 'title', 'none', Playback.Play, TimerPhase.Default, entries);
     expect(result).toMatchObject({ showNow: true, showNext: false });
+  });
+});
+
+describe('getTimerSpots()', () => {
+  it('keeps the timer in the main spot without swap', () => {
+    expect(getTimerSpots('10:00', 'Q&A', false)).toEqual({ main: '10:00', secondary: 'Q&A', isSwapped: false });
+  });
+
+  it('swaps the timer and the secondary content', () => {
+    expect(getTimerSpots('10:00', 'Q&A', true)).toEqual({ main: 'Q&A', secondary: '10:00', isSwapped: true });
+  });
+
+  it('keeps the timer in the main spot when there is nothing to swap with', () => {
+    expect(getTimerSpots('10:00', undefined, true)).toEqual({ main: '10:00', secondary: undefined, isSwapped: false });
   });
 });
