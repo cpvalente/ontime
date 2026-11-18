@@ -146,7 +146,7 @@ describe('roll carrying a runtime delay', () => {
     expect(getState().timer.secondaryTimer).toBe(14 * minute);
   });
 
-  test.fails('starting a delayed cue preserves its shifted finish time', () => {
+  test('starting a delayed cue preserves its shifted finish time', () => {
     const next = event('next', hour, 2 * hour);
     const { rundown, metadata } = prepare([next]);
     at(hour + 10 * minute);

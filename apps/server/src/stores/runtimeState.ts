@@ -18,13 +18,7 @@ import {
   TimerState,
   runtimeStorePlaceholder,
 } from 'ontime-types';
-import {
-  type LinkToLoaded,
-  checkIsNow,
-  getLastEventNormal,
-  getLinksToLoaded,
-  isPlaybackActive,
-} from 'ontime-utils';
+import { type LinkToLoaded, getLastEventNormal, getLinksToLoaded, isPlaybackActive } from 'ontime-utils';
 
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
 import { getPlayableIndexFromTimedIndex } from '../api-data/rundown/rundown.utils.js';
@@ -361,20 +355,18 @@ function updateLoaded(event: PlayableEvent) {
   runtimeState.eventNow = event;
 
   // update data which is duplicate between eventNow and timer objects
-  runtimeState.timer.duration = event.duration
+  runtimeState.timer.duration = event.duration;
   runtimeState.timer.current = getCurrent(currentInput(runtimeState));
   runtimeState.timer.expectedFinish = getExpectedFinish(expectedFinishInput(runtimeState));
 
   // if waiting to roll, we update the target and potentially start the timer
   if (runtimeState.timer.playback === Playback.Roll && runtimeState._timer.secondaryTarget !== null) {
-    const timeStart = event.timeStart as TimeOfDay;
-    const offsetEpoch = getOffsetEpoch();
-    const start = timeCore.toNearestInstant(timeStart, offsetEpoch);
-    const end = timeCore.addDuration(start, runtimeState.timer.duration as Duration);
-    const isNow = timeCore.isWithinSpan(start, end, offsetEpoch);
+    const { start, isNow } = getScheduledSpan(event);
 
     // if the event is now, we queue a start, otherwise we wait for its next start
-    runtimeState._timer.secondaryTarget = isNow ? start : timeCore.toNextInstant(timeStart, offsetEpoch);
+    runtimeState._timer.secondaryTarget = isNow
+      ? start
+      : timeCore.toNextInstant(event.timeStart as TimeOfDay, getOffsetEpoch());
     runtimeState.timer.secondaryTimer = getRollCountdown();
   }
 }
@@ -663,24 +655,21 @@ export function roll(
     }
     runtimeState.timer.playback = Playback.Roll;
 
-    // account for offset
-    const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
-
     // state catch up
     runtimeState.timer.duration = runtimeState.eventNow.duration;
     runtimeState.timer.current = runtimeState.timer.duration;
     runtimeState.timer.elapsed = 0;
 
     // check if the event is ready to start or if needs to be pending
-    const isNow = checkIsNow(runtimeState.eventNow.timeStart, runtimeState.eventNow.timeEnd, offsetClock);
+    const { start: scheduledStart, isNow } = getScheduledSpan(runtimeState.eventNow);
     if (isNow) {
       /**
        * If we are starting an event in roll mode
-       * we backtrace all the start times to the supposed start time of the event
+       * we backtrace all the start times to the supposed start time of the event, shifted by the offset
        */
       const plannedStart = runtimeState.eventNow.timeStart;
-      const startedAt = timeCore.toNearestInstant(plannedStart as TimeOfDay, epoch);
-      runtimeState.timer.startedAt = plannedStart;
+      const startedAt = timeCore.addDuration(scheduledStart, runtimeState.offset.absolute as Duration);
+      runtimeState.timer.startedAt = timeCore.toTimeOfDay(startedAt);
       runtimeState._timer.startedAt = startedAt;
       // reset the secondary timer to cancel any countdowns
       runtimeState.timer.secondaryTimer = null;
@@ -690,7 +679,7 @@ export function roll(
       }
 
       if (runtimeState.rundown.actualStart === null) {
-        backdateShowStart(plannedStart, startedAt, epoch);
+        backDateShowStart(plannedStart, scheduledStart, epoch);
       }
     } else {
       runtimeState._timer.secondaryTarget = timeCore.toNextInstant(
@@ -772,11 +761,12 @@ export function roll(
   /**
    * At this point we know that there is something to run and the event is loaded
    * when we start in roll mode
-   * we need to backtrace all times to the supposed start time of the event
+   * we need to backtrace all times to the supposed start time of the event, shifted by the offset
    */
   const plannedStart = runtimeState.eventNow.timeStart;
-  const startedAt = timeCore.toNearestInstant(plannedStart as TimeOfDay, epoch);
-  runtimeState.timer.startedAt = plannedStart;
+  const { start: scheduledStart } = getScheduledSpan(runtimeState.eventNow);
+  const startedAt = timeCore.addDuration(scheduledStart, runtimeState.offset.absolute as Duration);
+  runtimeState.timer.startedAt = timeCore.toTimeOfDay(startedAt);
   runtimeState._timer.startedAt = startedAt;
 
   // state catch up
@@ -789,7 +779,7 @@ export function roll(
   if (runtimeState.groupNow !== null && runtimeState.rundown.actualGroupStart === null) {
     runtimeState.rundown.actualGroupStart = plannedStart;
   }
-  backdateShowStart(plannedStart, startedAt, epoch);
+  backDateShowStart(plannedStart, scheduledStart, epoch);
 
   return { eventId: runtimeState.eventNow.id, didLoad: runtimeState.eventNow.id !== previousEventId, didStart: true };
 }
@@ -816,6 +806,16 @@ function getOffsetEpoch(): Instant {
 }
 
 /**
+ * Places an event on the schedule roll is at, resolving its planned start around the current point in it
+ */
+function getScheduledSpan(event: PlayableEvent): { start: Instant; isNow: boolean } {
+  const offsetEpoch = getOffsetEpoch();
+  const start = timeCore.toNearestInstant(event.timeStart as TimeOfDay, offsetEpoch);
+  const end = timeCore.addDuration(start, event.duration as Duration);
+  return { start, isNow: timeCore.isWithinSpan(start, end, offsetEpoch) };
+}
+
+/**
  * Time left until the event start roll is waiting for
  */
 function getRollCountdown(): Duration {
@@ -827,12 +827,12 @@ function getRollCountdown(): Duration {
  * Backdates the show start to the planned start of the event roll started in, to prevent adding unintended offset
  * Uses the planned start rather than the clock, since the actual start is backdated to it
  */
-function backdateShowStart(plannedStart: number, startedAt: Instant, epoch: Instant) {
+function backDateShowStart(plannedStart: number, scheduledStart: Instant, epoch: Instant) {
   const event = runtimeState.eventNow!;
   runtimeState.rundown.actualStart = plannedStart;
   runtimeState._startDayOffset = (findDayOffset(event.timeStart, plannedStart) + event.dayOffset) as Day;
-  // the instant the event conceptually started
-  runtimeState._startEpoch = startedAt;
+  // the planned instant of the event, a carried offset stays measurable against it
+  runtimeState._startEpoch = scheduledStart;
   runtimeState.rundown.currentDay = (runtimeState._startDayOffset +
     timeCore.daysSinceStart(runtimeState._startEpoch, epoch)) as Day;
 }

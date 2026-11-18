@@ -228,33 +228,6 @@ describe('addDuration() moves a point in time by a duration', () => {
   });
 });
 
-describe('elapsedTime() calculates duration between two times of day', () => {
-  it('calculates elapsed time on the same day', () => {
-    const start = (10 * MILLIS_PER_HOUR) as TimeOfDay; // 10:00
-    const clock = (10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE) as TimeOfDay; // 10:30
-    expect(timeCore.elapsedTime(clock, start)).toBe(30 * MILLIS_PER_MINUTE);
-  });
-
-  it('calculates elapsed time when crossing midnight (overnight)', () => {
-    const start = (23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:50
-    const clock = (21 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:21
-    // From 23:50 to 00:21 = 31 minutes
-    expect(timeCore.elapsedTime(clock, start)).toBe(31 * MILLIS_PER_MINUTE);
-  });
-
-  it('returns 0 when start and clock are the same', () => {
-    const time = (15 * MILLIS_PER_HOUR) as TimeOfDay; // 15:00
-    expect(timeCore.elapsedTime(time, time)).toBe(0);
-  });
-
-  it('calculates correctly for just after midnight', () => {
-    const start = (23 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:59
-    const clock = (1 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:01
-    // From 23:59 to 00:01 = 2 minutes
-    expect(timeCore.elapsedTime(clock, start)).toBe(2 * MILLIS_PER_MINUTE);
-  });
-});
-
 describe('daysSinceStart() calculates full days elapsed since a start epoch', () => {
   it('returns 0 when current epoch equals start epoch', () => {
     vi.setSystemTime('2025-01-15T10:00:00Z');

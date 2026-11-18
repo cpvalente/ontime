@@ -91,14 +91,6 @@ export function addDuration(instant: Instant, duration: Duration | Duration[]): 
 }
 
 /**
- * Calculates elapsed time on the clock from a starting time to the current time
- * Handles overnight crossing (when current < start, assumes we've crossed midnight)
- */
-export function elapsedTime(current: TimeOfDay, start: TimeOfDay): Duration {
-  return (current < start ? current + dayInMs - start : current - start) as Duration;
-}
-
-/**
  * Calculates the number of calendar days elapsed since a start epoch
  * Uses local midnight as day boundaries (DST-safe via timezone offset)
  */

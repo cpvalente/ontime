@@ -40,6 +40,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
 
+Runtime timer calculations use instants: `_epoch` is the update time, and starts, pauses and roll targets are `Instant`s. `clock` and public `TimeOfDay` fields are derived for output only. Roll runs on the schedule shifted by the runtime offset (`getOffsetEpoch()`); a scheduled instant becomes real time by adding the offset.
+
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
 
 When relevant, cover interactions among:
