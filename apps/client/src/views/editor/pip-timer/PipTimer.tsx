@@ -22,9 +22,11 @@ import './PipTimer.scss';
 
 interface PipTimerProps {
   viewSettings: ViewSettings;
+  /** sized by its container instead of the window */
+  inline?: boolean;
 }
 
-export function PipTimer({ viewSettings }: PipTimerProps) {
+export function PipTimer({ viewSettings, inline }: PipTimerProps) {
   const { eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const clock = useAutoTickingClock();
 
@@ -58,6 +60,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
   const timerFontSize = getEstimatedFontSize(display, secondaryContent);
   const userStyles = {
+    '--timer-font-size': timerFontSize,
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
   };
 
@@ -65,6 +68,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     <div
       className={cx([
         'pip-timer',
+        inline && 'pip-timer--inline',
         showFinished && 'pip-timer--finished',
         message.timer.blackout && 'pip-timer--blackout',
       ])}
@@ -80,7 +84,6 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
         <div
           className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
-          style={{ fontSize: `${timerFontSize}vw` }}
           data-type={timerTypeNow}
           data-phase={showWarning || showDanger ? time.phase : undefined}
         >

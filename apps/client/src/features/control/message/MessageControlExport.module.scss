@@ -1,11 +1,21 @@
 .growPanel {
   flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.extracted {
+  height: 100%;
 }
 
 .contentLayout {
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: $section-spacing;
   color: $ui-white;
   padding-top: $panel-top-padding;
+  container-type: inline-size;
 }

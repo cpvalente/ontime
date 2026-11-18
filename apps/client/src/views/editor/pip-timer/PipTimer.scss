@@ -44,6 +44,7 @@
       text-align: center;
       letter-spacing: 0.05em;
       font-weight: 600;
+      font-size: calc(var(--timer-font-size) * 1vw);
 
       transition-property: font-size;
       transition-duration: $viewer-transition-time;
@@ -123,7 +124,8 @@
     position: absolute;
     top: 0.25em;
     left: 0.5em;
-    z-index: $zindex-floating;
+    // above the message overlay, which also hides behind a blackout
+    z-index: $zindex-floating + 1;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
@@ -156,5 +158,41 @@
     color: $viewer-color;
     text-align: center;
     font-weight: 600;
+  }
+
+  /* =================== INLINE ===================*/
+
+  /* sized from its container, not the window */
+  &--inline {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    container-type: inline-size;
+    // keeps the overlay below the controls drawn over the preview
+    isolation: isolate;
+
+    &.pip-timer--finished {
+      outline-width: 2px;
+      outline-offset: -2px;
+    }
+
+    .timer-container .timer {
+      font-size: calc(var(--timer-font-size) * 1cqw);
+    }
+
+    .secondary > div {
+      height: 14cqw;
+      min-height: 0;
+    }
+
+    .message-overlay {
+      position: absolute;
+      padding: 2cqw;
+    }
+
+    .blackout-label {
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+    }
   }
 }
