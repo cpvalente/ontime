@@ -1,5 +1,5 @@
 import { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
-import { MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, dayInMs } from 'ontime-utils';
 
 /** Returns the current instant */
 export function now(): Instant {
@@ -33,9 +33,41 @@ export function toInstant(clock: TimeOfDay, reference: Instant): Instant {
   return (dayStart + clock) as Instant;
 }
 
+function getMiddayReference(reference: Instant): Instant {
+  return toInstant((12 * MILLIS_PER_HOUR) as TimeOfDay, reference);
+}
+
+/**
+ * Converts a time of day to its closest instant to the reference
+ * - Picks the previous or next day when the same day is more than 12 hours away
+ * - Anchors day shifts to noon so they land on the intended calendar day across DST changes
+ */
+export function toNearestInstant(clock: TimeOfDay, reference: Instant): Instant {
+  const sameDay = toInstant(clock, reference);
+  const distance = sameDay - reference;
+  if (Math.abs(distance) <= 12 * MILLIS_PER_HOUR) {
+    return sameDay;
+  }
+  const noon = getMiddayReference(reference);
+  const dayShift = distance > 0 ? -dayInMs : dayInMs;
+  return toInstant(clock, addDuration(noon, dayShift as Duration));
+}
+
+/**
+ * Converts a time of day to its next instant at or after the reference
+ * - Anchors the day shift to noon so it lands on the next calendar day across DST changes
+ */
+export function toNextInstant(clock: TimeOfDay, reference: Instant): Instant {
+  const sameDay = toInstant(clock, reference);
+  if (sameDay >= reference) return sameDay;
+
+  const noon = getMiddayReference(reference);
+  return toInstant(clock, addDuration(noon, dayInMs as Duration));
+}
+
 /**
  * Returns the duration elapsed since a past instant
- * Result is positive when 'since' is before 'now'
+ * Result is positive when `since` is before `now`
  */
 export function timeSince(now: Instant, since: Instant): Duration {
   return (now - since) as Duration;
@@ -43,7 +75,7 @@ export function timeSince(now: Instant, since: Instant): Duration {
 
 /**
  * Returns the duration remaining until a future instant
- * Result is positive when 'until' is after 'now'
+ * Result is positive when `until` is after `now`
  */
 export function timeUntil(now: Instant, until: Instant): Duration {
   return (until - now) as Duration;

@@ -101,9 +101,9 @@ class RuntimeService {
         emitLifecycle({ cycle: TimerLifeCycle.onFinish, state: newState });
         this.handleRollTransition(newState, () => runtimeState.rollNext(getCurrentRundown(), getRundownMetadata()));
       } else if (
-        // if there is no previous clock, we could not have skipped
-        RuntimeService.previousState?.clock &&
-        skippedOutOfEvent(newState, RuntimeService.previousState.clock, timerConfig.skipLimit)
+        // if there is no previous update, we could not have skipped
+        RuntimeService.previousState?._epoch &&
+        skippedOutOfEvent(newState, RuntimeService.previousState._epoch, timerConfig.skipLimit)
       ) {
         // if we have skipped out of the event, we will recall roll
         // to push the playback to the right place
@@ -784,6 +784,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     if (updateClock) {
       batch.add('clock', state.clock);
       RuntimeService.previousState.clock = state.clock;
+      RuntimeService.previousState._epoch = state._epoch;
 
       // a playing teleprompter reads on with the clock, so the event it reaches arrives in the same frame
       onClockTick(batch);
@@ -835,7 +836,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           rundownId: getCurrentRundownId(),
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,
-          startedAt: state.timer.startedAt,
+          startedAt: state._timer.startedAt,
           addedTime: state.timer.addedTime,
           pausedAt: state._timer.pausedAt,
           pausedDuration: state._timer.pausedDuration,

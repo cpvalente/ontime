@@ -162,7 +162,7 @@ describe('mutation on runtimeState', () => {
         playback: Playback.Pause,
         addedTime: 0,
       });
-      expect(newState._timer.pausedAt).toEqual(newState.clock);
+      expect(newState._timer.pausedAt).toEqual(newState._epoch);
 
       success = pause();
       expect(success).toBe(false);
@@ -410,7 +410,7 @@ describe('mutation on runtimeState', () => {
       rundownId: rundown.id,
       playback: Playback.Play,
       selectedEventId: 'event1',
-      startedAt: 0,
+      startedAt: startEpoch,
       addedTime: 0,
       pausedAt: null,
       firstStart: 60 * 1000,
@@ -430,6 +430,92 @@ describe('mutation on runtimeState', () => {
     vi.setSystemTime('jan 4 00:00:01');
     update();
     expect(getState().rundown.currentDay).toBe(3);
+  });
+
+  test('resume keeps counting a playing timer from the instant it started', async () => {
+    clearState();
+    const mockRundown = makeRundown({
+      entries: {
+        event1: {
+          ...mockEvent,
+          id: 'event1',
+          timeStart: 0,
+          timeEnd: MILLIS_PER_HOUR,
+          duration: MILLIS_PER_HOUR,
+          dayOffset: 0 as Day,
+        },
+      },
+      order: ['event1'],
+    });
+    await initTestRundown(mockRundown);
+    const { rundown, metadata } = rundownCache.get();
+
+    const startedAt = new Date('jan 1 00:00').getTime() as Instant;
+    vi.setSystemTime('jan 1 00:10');
+    resume(
+      {
+        rundownId: rundown.id,
+        playback: Playback.Play,
+        selectedEventId: 'event1',
+        startedAt,
+        addedTime: 0,
+        pausedAt: null,
+        firstStart: 0,
+        startEpoch: startedAt,
+        currentDay: 0,
+        offsetMode: OffsetMode.Absolute,
+      },
+      mockRundown.entries.event1 as PlayableEvent,
+      rundown,
+      metadata,
+    );
+    update();
+
+    expect(getState().timer).toMatchObject({ startedAt: 0, current: 50 * MILLIS_PER_MINUTE });
+  });
+
+  test('resume holds a paused timer at the instant it paused', async () => {
+    clearState();
+    const mockRundown = makeRundown({
+      entries: {
+        event1: {
+          ...mockEvent,
+          id: 'event1',
+          timeStart: 0,
+          timeEnd: MILLIS_PER_HOUR,
+          duration: MILLIS_PER_HOUR,
+          dayOffset: 0 as Day,
+        },
+      },
+      order: ['event1'],
+    });
+    await initTestRundown(mockRundown);
+    const { rundown, metadata } = rundownCache.get();
+
+    const startedAt = new Date('jan 1 00:00').getTime() as Instant;
+    vi.setSystemTime('jan 1 00:10');
+    resume(
+      {
+        rundownId: rundown.id,
+        playback: Playback.Pause,
+        selectedEventId: 'event1',
+        startedAt,
+        addedTime: 0,
+        pausedAt: new Date('jan 1 00:05').getTime() as Instant,
+        firstStart: 0,
+        startEpoch: startedAt,
+        currentDay: 0,
+        offsetMode: OffsetMode.Absolute,
+      },
+      mockRundown.entries.event1 as PlayableEvent,
+      rundown,
+      metadata,
+    );
+    update();
+    expect(getState().timer.current).toBe(55 * MILLIS_PER_MINUTE);
+
+    start();
+    expect(getState().timer).toMatchObject({ addedTime: 5 * MILLIS_PER_MINUTE, current: 55 * MILLIS_PER_MINUTE });
   });
 });
 

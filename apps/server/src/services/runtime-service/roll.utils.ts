@@ -93,13 +93,6 @@ export function loadRoll(
 }
 
 /**
- * Utility function, checks whether the event start is the day after
- */
-export function normaliseRollStart(start: number, clock: number) {
-  return start < clock ? start + dayInMs : start;
-}
-
-/**
  * Finds the event roll moves to after the given one, after the last event it wraps to the first
  * Rolling into events of 0 duration would make the playback be stuck, so they are passed over
  * In a rundown with one event, that event follows itself

@@ -7,9 +7,9 @@ export type RuntimeRestore = {
   rundownId: string;
   playback: Playback;
   selectedEventId: MaybeString;
-  startedAt: MaybeNumber;
+  startedAt: Maybe<Instant>;
   addedTime: number;
-  pausedAt: MaybeNumber;
+  pausedAt: Maybe<Instant>;
   pausedDuration?: number;
   firstStart: MaybeNumber;
   startEpoch: Maybe<Instant>;
