@@ -20,7 +20,6 @@ import {
   isPlaybackActive,
 } from 'ontime-utils';
 
-import * as timeCore from '../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../../stores/runtimeState.js';
 
 /**
@@ -72,12 +71,12 @@ export function getTimeToBoundary(input: TimeToBoundaryInput): Maybe<Duration> {
 }
 
 export type ExpectedFinishInput = {
-  clock: TimeOfDay;
   event: Maybe<{ countToEnd: boolean; timeEnd: TimeOfDay }>;
   startedAt: Maybe<TimeOfDay>;
   duration: Maybe<Duration>;
   addedTime: Duration;
-  pausedAt: Maybe<TimeOfDay>;
+  /** time spent in the ongoing pause */
+  pausedTime: Duration;
 };
 
 /**
@@ -86,7 +85,7 @@ export type ExpectedFinishInput = {
  * not wrapped to a time of day for count to end events
  */
 export function getExpectedFinish(input: ExpectedFinishInput): MaybeNumber {
-  const { clock, event, startedAt, duration, addedTime, pausedAt } = input;
+  const { event, startedAt, duration, addedTime, pausedTime } = input;
 
   if (event === null) {
     return null;
@@ -95,8 +94,6 @@ export function getExpectedFinish(input: ExpectedFinishInput): MaybeNumber {
   if (startedAt === null) {
     return null;
   }
-
-  const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
 
   if (event.countToEnd) {
     return event.timeEnd + addedTime + pausedTime;
@@ -118,10 +115,12 @@ export type CurrentInput = {
   event: { countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day };
   /** day of the rundown we are in, null before the rundown starts */
   currentDay: Maybe<Day>;
-  startedAt: Maybe<TimeOfDay>;
+  /** time from the start to the ongoing pause, or to now when running; null before the start */
+  sinceStart: Maybe<Duration>;
   duration: Duration;
   addedTime: Duration;
-  pausedAt: Maybe<TimeOfDay>;
+  /** time spent in the ongoing pause */
+  pausedTime: Duration;
 };
 
 /**
@@ -129,7 +128,7 @@ export type CurrentInput = {
  * @returns time remaining in the timer, negative when in overtime
  */
 export function getCurrent(input: CurrentInput): Duration {
-  const { clock, event, currentDay, startedAt, duration, addedTime, pausedAt } = input;
+  const { clock, event, currentDay, sinceStart, duration, addedTime, pausedTime } = input;
   const { countToEnd, timeStart, dayOffset } = event;
 
   if (countToEnd) {
@@ -137,27 +136,19 @@ export function getCurrent(input: CurrentInput): Duration {
     const plannedEnd = dayOffset * dayInMs + timeStart + duration;
     const clockInRundown = (currentDay ?? dayOffset) * dayInMs + clock;
     // time paused gives the event time, as added time does
-    const pausedTime = pausedAt != null ? timeCore.elapsedTime(clock, pausedAt) : 0;
     return (plannedEnd + addedTime + pausedTime - clockInRundown) as Duration;
   }
 
-  if (startedAt === null) {
+  if (sinceStart === null) {
     return duration;
   }
 
-  if (pausedAt != null) {
-    return (duration + addedTime - timeCore.elapsedTime(pausedAt, startedAt)) as Duration;
-  }
-
-  const hasPassedMidnight = startedAt > clock;
-  const correctDay = hasPassedMidnight ? dayInMs : 0;
-  return (startedAt + duration + addedTime - clock - correctDay) as Duration;
+  return (duration + addedTime - sinceStart) as Duration;
 }
 
 export type ElapsedInput = {
-  clock: TimeOfDay;
-  startedAt: Maybe<TimeOfDay>;
-  pausedAt: Maybe<TimeOfDay>;
+  /** time from the start to the ongoing pause, or to now when running; null before the start */
+  sinceStart: Maybe<Duration>;
   /** time spent in pauses which have been resumed */
   pausedDuration: Duration;
 };
@@ -166,15 +157,13 @@ export type ElapsedInput = {
  * Calculates active time elapsed since the timer started.
  */
 export function getElapsed(input: ElapsedInput): Maybe<Duration> {
-  const { clock, startedAt, pausedAt, pausedDuration } = input;
+  const { sinceStart, pausedDuration } = input;
 
-  if (startedAt === null) {
+  if (sinceStart === null) {
     return null;
   }
 
-  const referenceClock = pausedAt ?? clock;
-  const elapsedSinceStart = timeCore.elapsedTime(referenceClock, startedAt);
-  const activeElapsed = elapsedSinceStart - pausedDuration;
+  const activeElapsed = sinceStart - pausedDuration;
 
   return Math.max(0, activeElapsed) as Duration;
 }
@@ -207,13 +196,13 @@ export function skippedOutOfEvent(state: RuntimeState, previousTime: number, ski
 }
 
 export type RuntimeOffsetInput = {
-  clock: TimeOfDay;
   /** the delay the offset is measured from, see docs/agent-guides/domain-invariants.md#delays */
   event: Maybe<{ countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day; delay: Duration }>;
   startedAt: Maybe<TimeOfDay>;
   current: Maybe<Duration>;
   addedTime: Duration;
-  pausedAt: Maybe<TimeOfDay>;
+  /** time spent in the ongoing pause */
+  pausedTime: Duration;
   /** day playback started on, relative to the rundown's first event */
   startDayOffset: Maybe<Day>;
   /** delayed start of the event playback started from */
@@ -231,12 +220,11 @@ export type RuntimeOffsetInput = {
  */
 export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duration; relative: Duration } {
   const {
-    clock,
     event,
     startedAt,
     current,
     addedTime,
-    pausedAt,
+    pausedTime,
     startDayOffset,
     startEventStart,
     startEventDay,
@@ -265,8 +253,6 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
   const overtime = Math.abs(Math.min(current, 0));
 
   // time the playback was paused is added to the offset
-  const pausedTime = pausedAt === null ? 0 : timeCore.elapsedTime(clock, pausedAt);
-
   // absolute offset is difference between schedule and playback time
   // in case of count to end, the absolute offset is overtime and the time given to the event
   const absolute = countToEnd

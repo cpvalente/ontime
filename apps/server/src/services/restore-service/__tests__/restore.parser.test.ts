@@ -1,5 +1,6 @@
 import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import type { Instant } from 'ontime-types';
+import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { parseRestorePoint } from '../restore.parser.js';
 import type { RestorePoint, RuntimeRestore } from '../restore.types.js';
@@ -8,12 +9,15 @@ const runtime: RuntimeRestore = {
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
-  startedAt: 1,
-  addedTime: 0,
+  startedAt: 1 as Instant,
   pausedAt: null,
-  firstStart: 1,
+  pausedDuration: 0 as Duration,
+  addedTime: 0 as Duration,
   startEpoch: 1 as Instant,
-  currentDay: 0,
+  startDayOffset: 0 as Day,
+  startEventStart: 0 as TimeOfDay,
+  startEventDay: 0 as Day,
+  groupStartedAt: null,
   offsetMode: OffsetMode.Relative,
 };
 
@@ -48,14 +52,49 @@ describe('parseRestorePoint()', () => {
       playback: Playback.Stop,
       selectedEventId: null,
       startedAt: null,
-      firstStart: null,
       startEpoch: null,
-      currentDay: null,
+      startDayOffset: null,
       startEventStart: null,
       startEventDay: null,
       pausedDuration: 3000,
     };
     expect(parseRestorePoint({ ...restorePoint, runtime: stoppedRuntime })).not.toBeNull();
+  });
+
+  it('reads the times of day of an older restore point as the latest instants before it was saved', () => {
+    // saved at 00:10, the timer started at 23:50 the day before and paused at 00:05
+    const savedAt = new Date(2026, 0, 2, 0, 10).getTime() as Instant;
+    const startEpoch = new Date(2026, 0, 1, 23, 50).getTime() as Instant;
+    const older = {
+      projectId: 'project',
+      rundownId: 'rundown',
+      playback: Playback.Pause,
+      selectedEventId: 'event',
+      startedAt: 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE,
+      addedTime: 0,
+      pausedAt: 5 * MILLIS_PER_MINUTE,
+      firstStart: 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE,
+      startEpoch,
+      currentDay: 0,
+      offsetMode: OffsetMode.Absolute,
+    };
+
+    expect(parseRestorePoint({ runtime: older, savedAt })?.runtime).toStrictEqual({
+      projectId: 'project',
+      rundownId: 'rundown',
+      playback: Playback.Pause,
+      selectedEventId: 'event',
+      startedAt: startEpoch,
+      pausedAt: savedAt - 5 * MILLIS_PER_MINUTE,
+      pausedDuration: 0,
+      addedTime: 0,
+      startEpoch,
+      startDayOffset: null,
+      startEventStart: null,
+      startEventDay: null,
+      groupStartedAt: null,
+      offsetMode: OffsetMode.Absolute,
+    });
   });
 
   it('accepts a paused aux timer', () => {
@@ -73,6 +112,8 @@ describe('parseRestorePoint()', () => {
     ['a malformed paused duration', { runtime: { ...savedRuntime, pausedDuration: '3000' } }],
     ['a malformed start event', { runtime: { ...savedRuntime, startEventStart: '1' } }],
     ['a malformed start event day', { runtime: { ...savedRuntime, startEventDay: '1' } }],
+    ['a malformed start day', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
+    ['a malformed group start', { runtime: { ...savedRuntime, groupStartedAt: '1' } }],
     ['two aux timers', { auxTimers: [running, stopped] }],
     ['a running aux timer without a start', { auxTimers: [running, stopped, { ...running, startedAt: null }] }],
     ['a paused aux timer still counting', { auxTimers: [running, stopped, { ...running, playback: 'pause' }] }],

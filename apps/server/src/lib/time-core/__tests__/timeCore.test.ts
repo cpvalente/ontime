@@ -78,6 +78,26 @@ describe('toTimeofDay() converts an instant to local milliseconds since midnight
   });
 });
 
+describe('lastInstantAt() recovers when a past time of day happened', () => {
+  it('is the reference itself at the same time of day', () => {
+    const reference = new Date(2026, 0, 2, 10, 0).getTime() as Instant;
+    expect(timeCore.lastInstantAt(timeCore.toTimeOfDay(reference), reference)).toBe(reference);
+  });
+
+  it('is earlier on the same day', () => {
+    const reference = new Date(2026, 0, 2, 10, 0).getTime() as Instant;
+    const clock = (9 * MILLIS_PER_HOUR) as TimeOfDay;
+    expect(timeCore.lastInstantAt(clock, reference)).toBe(new Date(2026, 0, 2, 9, 0).getTime());
+  });
+
+  it('is on the day before once past midnight, where toInstant lands in the future', () => {
+    const reference = new Date(2026, 0, 2, 0, 10).getTime() as Instant;
+    const clock = (23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE) as TimeOfDay;
+    expect(timeCore.lastInstantAt(clock, reference)).toBe(new Date(2026, 0, 1, 23, 50).getTime());
+    expect(timeCore.toInstant(clock, reference)).toBeGreaterThan(reference);
+  });
+});
+
 describe('toInstant() converts a time of day back to an instant anchored to a reference day', () => {
   const testTimes = [
     { time: '2025-01-15T08:30:00Z', label: 'winter morning' },
