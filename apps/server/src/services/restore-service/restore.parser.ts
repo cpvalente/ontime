@@ -71,15 +71,13 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
-  return [
-    point.startedAt,
-    point.pausedAt,
-    point.startEpoch,
-    point.startDayOffset,
-    point.startEventStart,
-    point.startEventDay,
-    point.groupStartedAt,
-  ].every(isMaybeNumber);
+  if (![point.startedAt, point.pausedAt, point.groupStartedAt].every(isMaybeNumber)) {
+    return false;
+  }
+
+  // the start anchor is saved whole or not at all
+  const anchor = [point.startEpoch, point.startDayOffset, point.startEventStart, point.startEventDay];
+  return anchor.every(is.number) || anchor.every((value) => value === null);
 }
 
 function isAuxTimers(timers: unknown): timers is AuxTimers {
