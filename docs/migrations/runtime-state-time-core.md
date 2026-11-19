@@ -59,6 +59,36 @@ Candidate brand, to decide during the inventory slice:
 
 Each slice must leave old/new boundaries explicit, compile cleanly, and preserve behaviour.
 
+### Later: timer base block (T15)
+
+The server keeps sending derived timer values: automations, end actions, roll, `/api/poll`, MCP and Companion read them, and automation templates accept any store path. So the derived values stay, but each one should follow from the clock plus a small base state. The rundown is needed only once per load or edit.
+
+Target shape, saved as is in the restore point instead of being rebuilt on resume:
+
+```ts
+type TimerBase = {
+  playback: Playback;
+  selectedEventId: MaybeString;
+  startedAt: Maybe<Instant>;
+  pausedAt: Maybe<Instant>;
+  pausedDuration: Duration;
+  addedTime: Duration;
+  startEpoch: Maybe<Instant>; // replaces firstStart
+  startDayOffset: Maybe<Day>; // saved, not rebuilt
+  startEventStart: Maybe<TimeOfDay>; // already saved (#2334)
+  startEventDay: Maybe<Day>; // already saved (#2334)
+  groupStartedAt: Maybe<Instant>; // not saved today
+};
+```
+
+Gaps it closes, in today's code:
+
+- `startedAt`, `pausedAt` and `firstStart` (`rundown.actualStart`) are `TimeOfDay`, so elapsed and pause time rely on `elapsedTime` guessing at midnight crossings. Instants remove the guess.
+- `load()` rebuilds `_startDayOffset` from `findDayOffset(startEventStart, firstStart)` on resume, instead of reading it back.
+- `rundown.actualGroupStart` is not in `RuntimeRestore`, so a resume loses the group start.
+
+Do not use `timeCore.toInstant` to turn a saved past time of day into an instant. It anchors to the reference's calendar day, so 23:50 saved at 00:10 lands in the future. Store instants, or derive them from `startEpoch`.
+
 ## Required coverage
 
 - before, at, and after midnight;
