@@ -16,11 +16,11 @@ export type RuntimeRestore = {
   pausedDuration: Duration;
   addedTime: Duration;
   startEpoch: Maybe<Instant>;
-  /** rundown day playback started on, null in older restore points */
+  /** rundown day playback started on */
   startDayOffset: Maybe<Day>;
-  /** planned start of the event playback started from, null in older restore points */
+  /** planned start of the event playback started from */
   startEventStart: Maybe<TimeOfDay>;
-  /** rundown day of the event playback started from, null in older restore points */
+  /** rundown day of the event playback started from */
   startEventDay: Maybe<Day>;
   groupStartedAt: Maybe<Instant>;
   offsetMode: OffsetMode;

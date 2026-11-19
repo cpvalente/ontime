@@ -68,7 +68,7 @@ Done:
 
 - `runtimeState` keeps `_now` beside `clock`, and the base as instants: `_timer.startedAt`, `_timer.pausedAt`, `_startEpoch`, `_groupStartedAt`. The store's `timer.startedAt`, `rundown.actualStart` and `rundown.actualGroupStart` are their times of day, set only through the paired setters.
 - Timer calculations take durations measured between instants (`sinceStart`, `pausedTime`) instead of guessing midnight crossings from times of day. A pause longer than a day keeps all its time.
-- The restore point saves the base: instants, `startDayOffset` and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. The parser reads an older point's times of day as the latest instants before it was saved (`timeCore.lastInstantAt`); its start day is rebuilt from the start event, as before.
+- The restore point saves the base: instants, `startDayOffset` and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. Resume rebuilds nothing; a point without the base is rejected as invalid.
 
 Still derived from times of day:
 

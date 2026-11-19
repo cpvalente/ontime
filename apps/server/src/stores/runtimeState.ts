@@ -252,21 +252,13 @@ function applyRestore(state: RuntimeState, restore: RuntimeRestore) {
     setGroupStartedAt(state, restore.groupStartedAt);
   }
 
-  if (restore.startEpoch !== null) {
-    setStartEpoch(state, restore.startEpoch);
-    // older restore points have no start event and count from the first event of the rundown
-    const hasStartEvent = restore.startEventStart !== null && restore.startEventDay !== null;
-    const startEventStart = hasStartEvent ? restore.startEventStart : (state.rundown.plannedStart as Maybe<TimeOfDay>);
-    const startEventDay = hasStartEvent ? restore.startEventDay : (0 as Day);
-    if (startEventStart !== null && startEventDay !== null) {
-      state._startEventStart = startEventStart;
-      state._startEventDay = startEventDay;
-      // older restore points have no start day, it is rebuilt from the start event
-      state._startDayOffset =
-        restore.startDayOffset ?? ((findDayOffset(startEventStart, state.rundown.actualStart!) + startEventDay) as Day);
-      state.rundown.currentDay = (state._startDayOffset +
-        timeCore.daysSinceStart(restore.startEpoch, state._now)) as Day;
-    }
+  const { startEpoch, startDayOffset, startEventStart, startEventDay } = restore;
+  if (startEpoch !== null && startDayOffset !== null && startEventStart !== null && startEventDay !== null) {
+    setStartEpoch(state, startEpoch);
+    state._startDayOffset = startDayOffset;
+    state._startEventStart = startEventStart;
+    state._startEventDay = startEventDay;
+    state.rundown.currentDay = (startDayOffset + timeCore.daysSinceStart(startEpoch, state._now)) as Day;
   }
 
   if (state._timer.startedAt !== null) {
