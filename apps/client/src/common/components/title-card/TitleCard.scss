@@ -4,40 +4,60 @@
   position: relative;
   display: flex;
   flex-direction: column;
-}
 
-.title-card__title,
-.title-card__placeholder {
-  font-weight: 600;
-  font-size: $title-font-size;
-  line-height: 1.2em;
-}
+  background-color: var(--card-background-color-override, $viewer-card-bg-color);
+  padding: $view-card-padding;
+  border-radius: $element-border-radius;
 
-.title-card__title {
-  color: var(--color-override, $viewer-color);
-  padding-right: 1em;
-  min-height: 1.2em;
-}
+  border-left: 1vw solid;
 
-.title-card__placeholder {
-  color: var(--label-color-override, $viewer-label-color);
-}
+  .title-card__title:empty::before {
+    color: var(--label-color-override, $viewer-label-color);
+    content: attr(data-placeholder);
+  }
 
-.title-card__secondary {
-  font-size: $base-font-size;
-  color: var(--secondary-color-override, $viewer-secondary-color);
-  line-height: 1.2em;
-}
+  .title-card__title {
+    font-weight: 600;
+    line-height: 1.4em;
+    padding-right: 1em;
+    color: var(--color-override, $viewer-color);
+  }
 
-.title-card__label {
-  position: absolute;
-  right: 1rem;
-  top: 0.5rem;
-  font-size: $timer-label-size;
-  color: var(--secondary-color-override, $viewer-secondary-color);
-  text-transform: uppercase;
+  .title-card__secondary {
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    line-height: 1.2em;
+  }
 
-  &--accent {
-    color: var(--accent-color-override, $accent-color);
+  &.md {
+    .title-card__title {
+      font-size: $title-font-size;
+    }
+    .title-card__secondary {
+      font-size: $base-font-size;
+    }
+  }
+  &.lg {
+    .title-card__title {
+      font-size: $large-font-size;
+    }
+    .title-card__secondary {
+      font-size: $title-font-size;
+    }
+    .schedule__ {
+      font-size: $base-font-size;
+    }
+  }
+
+  .title-card__label {
+    position: absolute;
+    right: 1rem;
+    top: 0.5rem;
+    font-size: $timer-label-size;
+    color: var(--secondary-color-override, $viewer-secondary-color);
+    text-transform: uppercase;
+
+    &--accent {
+      color: var(--accent-color-override, $accent-color);
+    }
   }
 }
