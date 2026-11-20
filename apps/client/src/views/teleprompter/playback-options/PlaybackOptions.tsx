@@ -1,6 +1,6 @@
 import { RadioGroup } from '@base-ui/react/radio-group';
-import { type KeyboardEvent, useId, useState } from 'react';
-import { useSearchParams } from 'react-router';
+import { type KeyboardEvent, type ReactNode, useId, useState } from 'react';
+import { Link, useSearchParams } from 'react-router';
 
 import { RadioItem } from '../../../common/components/radio-group/RadioGroup';
 import type { ParamField } from '../../../common/components/view-params-editor/viewParams.types';
@@ -11,21 +11,28 @@ import { cx } from '../../../common/utils/styleUtils';
 import { getScriptSourceLabel } from '../../../common/utils/teleprompterScriptSource';
 import type { TeleprompterRole } from '../teleprompter.options';
 
+import linkStyle from '../../../common/components/link/app-link/AppLink.module.scss';
 import style from './PlaybackOptions.module.scss';
 
 const settingsPath = 'Settings › Teleprompter';
+// a new tab, so the screen keeps its unapplied options
+const settingsLink = (
+  <Link to='/editor?settings=settings__teleprompter' target='_blank' rel='noreferrer' className={linkStyle.link}>
+    {settingsPath}
+  </Link>
+);
 
-const roleCards: { role: TeleprompterRole; title: string; summary: string }[] = [
+const roleCards: { role: TeleprompterRole; title: string; summary: ReactNode }[] = [
   { role: 'local', title: 'Independent', summary: 'Scrolls on its own. Other screens are not affected.' },
   {
     role: 'controller',
     title: 'Controller',
-    summary: `Moves every Follower screen with it. Its script field is set in ${settingsPath}.`,
+    summary: <>Moves every Follower screen with it. Its script field is set in {settingsLink}.</>,
   },
   {
     role: 'remote',
     title: 'Follower',
-    summary: `Shows where the Controller is reading and cannot scroll. Its script field is set in ${settingsPath}.`,
+    summary: <>Shows where the Controller is reading and cannot scroll. Its script field is set in {settingsLink}.</>,
   },
 ];
 

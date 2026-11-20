@@ -1,9 +1,8 @@
 .link {
-  color: $label-gray;
-  font-size: $text-body-size;
+  color: $blue-400;
+  font-size: inherit;
   text-decoration: underline;
   text-underline-offset: 2px;
-  color: $blue-400;
 
   &:hover {
     color: $blue-500;
