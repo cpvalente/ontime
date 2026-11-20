@@ -33,3 +33,7 @@
     color: $active-indicator;
   }
 }
+
+.statusIcon.countToEnd[data-active='true'] {
+  color: $orange-400;
+}
