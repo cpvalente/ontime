@@ -66,6 +66,6 @@ export type TeleprompterState = {
   speed: number;
   /** the event at the reading position, null with an empty script */
   event: TeleprompterReadingEvent | null;
-  /** set when playback stopped of its own accord at an end, cleared by any command */
+  /** set when playback stopped of its own accord at an end, cleared by navigation commands */
   ended: TeleprompterStop | null;
 };
