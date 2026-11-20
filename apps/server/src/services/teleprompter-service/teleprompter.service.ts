@@ -53,6 +53,7 @@ let transport: TeleprompterTransport = {
   anchor: null,
   at: 0,
   ended: null,
+  blackout: 'off',
 };
 /** The reading position screens following the transport animate from, in rows of the shared script */
 let sync: TeleprompterSync = { ...runtimeStorePlaceholder.teleprompterSync };

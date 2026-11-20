@@ -13,6 +13,7 @@ const invalidCommand = 'Invalid teleprompter command';
  * - speed: /teleprompter/speed/{lines per minute}, /teleprompter/speedBy/{lines per minute}
  *   a negative speed reads back up the script, and a step across 0 turns it around only from the slowest speed
  * - nudge: /teleprompter/scroll/{lines}
+ * - hide following screens while playback carries on: /teleprompter/blackout/{on | off | toggle}
  *
  * The mode is an operator setting, which controller views switch:
  * - /teleprompter/mode/{event | script | toggle}, to stop at the end of each event or read the whole script
@@ -38,6 +39,13 @@ export function parseTeleprompterCommand(payload: unknown): TeleprompterCommand 
 
   if ('mode' in payload && (payload.mode === 'event' || payload.mode === 'script' || payload.mode === 'toggle')) {
     return { type: 'mode', mode: payload.mode };
+  }
+
+  if (
+    'blackout' in payload &&
+    (payload.blackout === 'on' || payload.blackout === 'off' || payload.blackout === 'toggle')
+  ) {
+    return { type: 'blackout', blackout: payload.blackout };
   }
 
   if ('goto' in payload && payload.goto === 'loaded') return { type: 'goto', target: 'loaded' };

@@ -127,6 +127,8 @@ export function toTeleprompterPayload(command: TeleprompterViewCommand): Telepro
       return { mode: command.mode };
     case 'goto':
       return { goto: command.target };
+    case 'blackout':
+      return { blackout: command.blackout };
     default:
       return command.type;
   }
