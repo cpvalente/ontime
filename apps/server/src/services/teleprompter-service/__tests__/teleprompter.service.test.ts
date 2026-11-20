@@ -237,4 +237,28 @@ describe('teleprompter commands', () => {
     });
     expect(tick(service)).toEqual({});
   });
+
+  test('a tick after playback read back to the start of the event settles it, and adds both keys', async () => {
+    const twoLines: TeleprompterScriptEvent = {
+      ...makeEvent('b', 'two'),
+      lines: [
+        { kind: 'text', text: 'two', start: 0 },
+        { kind: 'text', text: 'three', start: 4 },
+      ],
+    };
+    vi.mocked(buildScriptEvents).mockReturnValue([makeEvent('a', 'one'), twoLines]);
+    const service = await loadService();
+    service.handleTeleprompterCommand({ type: 'goto', target: { id: 'b' } });
+    service.handleTeleprompterCommand({ type: 'scroll', lines: 1 });
+    service.handleTeleprompterCommand({ type: 'speed', value: -30 });
+    service.handleTeleprompterCommand({ type: 'play' });
+
+    // one line back to the start of b, two seconds at 30 lines per minute
+    clock.now = 2500;
+    expect(tick(service)).toMatchObject({
+      teleprompter: { playback: 'pause', ended: 'event', event: { id: 'b' } },
+      teleprompterSync: { playback: 'pause' },
+    });
+    expect(tick(service)).toEqual({});
+  });
 });
