@@ -325,6 +325,23 @@ test('the end of an event shows on the reading line', async ({ page, request }) 
   await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
 });
 
+test('reading back to the start of an event shows on the reading line', async ({ page, request }) => {
+  await page.goto(remoteUrl);
+  await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
+  // start a few rows into the second event, so reading back reaches its start quickly
+  const firstEventRows = await page
+    .locator('.teleprompter__row')
+    .evaluateAll((rows) => rows.findIndex((row, index) => index > 0 && row.matches('.teleprompter__row--heading')));
+  expect((await request.get(`api/teleprompter/scroll/${firstEventRows + 4}`)).ok()).toBe(true);
+
+  await request.get('api/teleprompter/speed/-40');
+  await request.get('api/teleprompter/play');
+  await expect(page.getByTestId('teleprompter-end')).toBeVisible({ timeout: 10_000 });
+
+  await request.get('api/teleprompter/play');
+  await expect(page.getByTestId('teleprompter-end')).toHaveCount(0);
+});
+
 test('a view showing only the loaded event keeps its keyboard controls while waiting for one', async ({
   page,
   request,

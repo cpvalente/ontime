@@ -245,8 +245,7 @@ function ScriptContent({
       sync={sync}
       scriptLayout={scriptLayout}
       isBehind={isBehind}
-      // reading back stops on the first line of a section, which needs no notice
-      ended={state.speed > 0 ? state.ended : null}
+      ended={state.ended}
       options={options}
       loadedEventId={loadedEventId}
       fallbackRow={options.onlyLoaded ? shown.events[0]?.lines.findIndex((line) => line.kind === 'text') : undefined}
