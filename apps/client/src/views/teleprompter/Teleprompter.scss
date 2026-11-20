@@ -132,14 +132,7 @@
 }
 
 .teleprompter__end {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  font-size: calc(var(--tp-font-size) * 0.38);
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: $warning-orange;
+  display: block;
   border-top: 2px solid $warning-orange;
 }
 
