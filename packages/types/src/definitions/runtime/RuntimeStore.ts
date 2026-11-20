@@ -81,6 +81,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
     speed: defaultTeleprompterSpeed,
     event: null,
     ended: null,
+    blackout: 'off',
   },
   teleprompterSync: {
     revision: 0,

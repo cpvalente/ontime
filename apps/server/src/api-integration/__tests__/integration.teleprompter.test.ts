@@ -43,6 +43,14 @@ describe('parseTeleprompterCommand()', () => {
   });
 
   test.each([
+    [{ blackout: 'on' }, { type: 'blackout', blackout: 'on' }],
+    [{ blackout: 'off' }, { type: 'blackout', blackout: 'off' }],
+    [{ blackout: 'toggle' }, { type: 'blackout', blackout: 'toggle' }],
+  ])('hides following screens with %j', (payload, command) => {
+    expect(parseTeleprompterCommand(payload)).toEqual(command);
+  });
+
+  test.each([
     undefined,
     'stop',
     'loaded',
@@ -54,6 +62,9 @@ describe('parseTeleprompterCommand()', () => {
     { goto: 'next' },
     { goto: { index: 0 } },
     { goto: { name: 'opening' } },
+    { blackout: 'dark' },
+    { blackout: true },
+    { blackout: 'constructor' },
   ])('rejects %j', (payload) => {
     expect(() => parseTeleprompterCommand(payload)).toThrow('Invalid teleprompter command');
   });

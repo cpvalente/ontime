@@ -130,6 +130,7 @@ export { OffsetMode } from './definitions/runtime/Offset.type.js';
 export type { RuntimeStore } from './definitions/runtime/RuntimeStore.type.js';
 export { defaultTeleprompterSpeed, runtimeStorePlaceholder } from './definitions/runtime/RuntimeStore.js';
 export type {
+  TeleprompterBlackout,
   TeleprompterMode,
   TeleprompterState,
   TeleprompterStop,

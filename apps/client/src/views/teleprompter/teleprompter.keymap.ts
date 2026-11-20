@@ -59,6 +59,9 @@ export function resolveTeleprompterKey(event: TeleprompterKeyEvent): Teleprompte
     case 'm':
     case 'M':
       return command({ type: 'mode', mode: 'toggle' });
+    case 'b':
+    case 'B':
+      return command({ type: 'blackout', blackout: 'toggle' });
   }
 
   return null;
