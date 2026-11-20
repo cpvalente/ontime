@@ -6,7 +6,6 @@ import {
   IoLocate,
   IoPause,
   IoPlay,
-  IoPlayBack,
   IoPlaySkipBack,
   IoPlaySkipForward,
   IoRemove,
@@ -194,7 +193,7 @@ export default function ControlOverlay({ state, loadedEvent, onCommand, onToggle
 
 /** Play points the way playback will read */
 function PlayIcon({ isReadingBack }: { isReadingBack: boolean }) {
-  return isReadingBack ? <IoPlayBack /> : <IoPlay />;
+  return <IoPlay style={isReadingBack ? { scale: '-1' } : {}} />;
 }
 
 function getGoToLoadedLabel(loadedEvent: LoadedEvent | null, canGoToLoaded: boolean): string {
