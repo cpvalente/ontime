@@ -126,9 +126,7 @@ export default function TeleprompterScreen({
           {!options.hideReadingLine && <span className='teleprompter__reading-marker' />}
           {ended && (
             // where the talent is looking, so the end is clear without the controls
-            <span className='teleprompter__end' data-testid='teleprompter-end'>
-              {ended === 'event' ? 'End of event' : 'End of script'}
-            </span>
+            <span className='teleprompter__end' data-testid='teleprompter-end' />
           )}
         </div>
       )}
