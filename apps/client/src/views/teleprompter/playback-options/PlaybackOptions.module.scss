@@ -89,6 +89,16 @@
   text-align: end;
 }
 
+.link {
+  color: $blue-400;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+
+  &:hover {
+    color: $blue-500;
+  }
+}
+
 .hidden {
   display: none;
 }
