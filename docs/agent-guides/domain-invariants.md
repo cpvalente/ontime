@@ -70,6 +70,7 @@ Runtime state owns roll transitions: it decides what loads and starts, the runti
 - The reading position is a place in the text, carried through edits; nothing stores an event index or row. Screens derive rows from a sync and the server clock, never by measuring the page, and hold their place until they have the script the sync names.
 - The script source is a custom field reference, renamed or reset with the field like any other usage.
 - Shared playback never carries into another project.
+- Blackout is shared state, changed only by commands. It hides only following screens and never moves or pauses the transport.
 - The teleprompter state holds no countdown and is published only when it changes; time moves it only when playback stops at an end or the reader reaches another event.
 
 ## Reports

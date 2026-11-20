@@ -1,7 +1,8 @@
 import { Combo, Separator, Shortcut, ShortcutGroup } from '../../../common/components/kbd/KeyboardShortcuts';
 import { modeLabels } from '../teleprompter.options';
 
-export default function TransportShortcuts() {
+/** @param isController - a controller also blacks out the screens following it */
+export default function TransportShortcuts({ isController }: { isController: boolean }) {
   return (
     <>
       <ShortcutGroup title='Transport'>
@@ -21,6 +22,11 @@ export default function TransportShortcuts() {
         <Shortcut label={`${modeLabels.event} / ${modeLabels.script}`}>
           <Combo keys={['M']} />
         </Shortcut>
+        {isController && (
+          <Shortcut label='Black out Followers'>
+            <Combo keys={['B']} />
+          </Shortcut>
+        )}
       </ShortcutGroup>
 
       <ShortcutGroup title='Navigation'>
