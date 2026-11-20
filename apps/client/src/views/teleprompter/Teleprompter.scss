@@ -253,23 +253,64 @@
 }
 
 /* a controller looks like the screens it drives, so it always says what it is */
-.teleprompter__badge {
+/** A controller's chips, side by side in the corner */
+.teleprompter__chips {
   position: absolute;
   top: min(2vh, 16px);
   right: clamp(16px, 2vw, 24px);
-  /* Cancel the view flip so the badge remains readable to the operator. */
+  /* Cancel the view flip so the chips remain readable to the operator. */
   transform: scale(var(--tp-flip-x), var(--tp-flip-y));
+  display: flex;
+  gap: 0.5rem;
+  font-size: clamp(11px, 1vw, 14px);
+  pointer-events: none;
+}
 
+.teleprompter__badge {
   padding: 0.25em 0.75em;
   border: 1px solid $accent-color;
-  border-radius: $element-border-radius;
+  border-radius: 2px;
   background: rgba(black, 60%);
   color: $accent-color;
-  font-size: clamp(11px, 1vw, 14px);
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  pointer-events: none;
+}
+
+.teleprompter__blackout,
+.teleprompter__blackout-chip {
+  /* hidden once faded, so a faded layer is not there at all */
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity $viewer-transition-time,
+    visibility 0s $viewer-transition-time;
+
+  &--active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity $viewer-transition-time;
+  }
+}
+
+.teleprompter__blackout {
+  position: absolute;
+  inset: 0;
+  background: #000000;
+}
+
+/** A controller's chip while its followers are blacked out, beside the role badge */
+.teleprompter__blackout-chip {
+  /* the badge's padding and border, so the chips are the same height */
+  padding: 0.25em 0.75em;
+  border: 1px solid $gray-700;
+  border-radius: 2px;
+  background: $ui-black;
+  color: $ui-white;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .teleprompter__help {

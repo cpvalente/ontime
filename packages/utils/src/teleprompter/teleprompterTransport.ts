@@ -1,5 +1,6 @@
 import type {
   EntryId,
+  TeleprompterBlackout,
   TeleprompterMode,
   TeleprompterScriptEvent,
   TeleprompterState,
@@ -49,7 +50,8 @@ export type TeleprompterTransportCommand =
   | { type: 'previous' }
   | { type: 'goto'; eventId: EntryId }
   | { type: 'top' }
-  | { type: 'mode'; mode: TeleprompterMode | 'toggle' };
+  | { type: 'mode'; mode: TeleprompterMode | 'toggle' }
+  | { type: 'blackout'; blackout: TeleprompterBlackout | 'toggle' };
 
 /**
  * A command as hosts receive it, naming events for the host to resolve in the script
@@ -219,7 +221,13 @@ export function applyTransportCommand(
       next = moveToEvent(layout.events[0]?.id);
       break;
     case 'mode':
-      next = { ...rebased, mode: command.mode === 'toggle' ? otherMode(current.mode) : command.mode };
+      next = { ...rebased, mode: command.mode === 'toggle' ? toggleMode(current.mode) : command.mode };
+      break;
+    case 'blackout':
+      next = {
+        ...rebased,
+        blackout: command.blackout === 'toggle' ? toggleBlackout(current.blackout) : command.blackout,
+      };
       break;
   }
 
@@ -227,7 +235,11 @@ export function applyTransportCommand(
   return settle(next, layout, now);
 }
 
-function otherMode(mode: TeleprompterMode): TeleprompterMode {
+function toggleBlackout(blackout: TeleprompterBlackout): TeleprompterBlackout {
+  return blackout === 'on' ? 'off' : 'on';
+}
+
+function toggleMode(mode: TeleprompterMode): TeleprompterMode {
   return mode === 'event' ? 'script' : 'event';
 }
 
@@ -268,14 +280,14 @@ export function describeTransport(
   now: number,
 ): TeleprompterState {
   const current = settle(transport, layout, now);
-  const { playback, mode, speed, ended } = current;
+  const { playback, mode, speed, ended, blackout } = current;
   const position = current.anchor ? positionAt(current, layout, now) : null;
   const reader = position === null ? null : eventAtRow(layout, position);
   if (position === null || !reader) {
-    return { playback, mode, speed, event: null, ended };
+    return { playback, mode, speed, event: null, ended, blackout };
   }
 
-  return { playback, mode, speed, event: { id: reader.id, cue: reader.cue, title: reader.title }, ended };
+  return { playback, mode, speed, event: { id: reader.id, cue: reader.cue, title: reader.title }, ended, blackout };
 }
 
 /**

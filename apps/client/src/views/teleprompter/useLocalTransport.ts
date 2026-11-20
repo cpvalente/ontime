@@ -47,6 +47,7 @@ export function useLocalTransport({ events, initialMode, initialSpeed, loadedEve
     anchor: null,
     at: 0,
     ended: null,
+    blackout: 'off',
   }));
   // reading on into another event renders again, to describe the event being read
   const [, setReaderId] = useState<EntryId | null>(null);
@@ -70,6 +71,8 @@ export function useLocalTransport({ events, initialMode, initialSpeed, loadedEve
 
   const handleCommand = useCallback(
     (command: TeleprompterViewCommand) => {
+      // blackout only hides the screens following the shared playback
+      if (command.type === 'blackout') return;
       if (command.type !== 'goto') return apply(command);
       // going back to the loaded event does nothing while nothing is loaded
       const { loadedEventId } = latest.current;

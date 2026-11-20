@@ -67,25 +67,56 @@ export default function Teleprompter() {
     ? `There is no script in ${sourceLabel}. Choose another field in Customise`
     : `There is no script in ${sourceLabel}. Change it in Settings\u00a0›\u00a0Teleprompter`;
 
+  const isController = role === 'controller';
+  const isRemote = role === 'remote';
+  const isLocal = role === 'local';
+
   return (
     <div
       className={cx(['teleprompter', flip.flipH && 'teleprompter--flip-h', flip.flipV && 'teleprompter--flip-v'])}
       data-testid='teleprompter-view'
     >
       <ViewParamsEditor target={OntimeView.Teleprompter} viewOptions={getTeleprompterOptions(customFields, settings)} />
-      {role === 'local' ? (
+      {isLocal ? (
         <LocalTeleprompter options={options} source={ownSource} emptyText={emptyText} onToggleHelp={toggleHelp} />
       ) : (
         <SharedTeleprompter options={options} emptyText={emptyText} onToggleHelp={toggleHelp} />
       )}
-      {role === 'controller' && (
-        <div className='teleprompter__badge' data-testid='teleprompter-badge'>
-          Controller · shared playback
+      {isController && (
+        <div className='teleprompter__chips'>
+          <BlackoutController />
+          <div className='teleprompter__badge' data-testid='teleprompter-badge'>
+            Controller · shared playback
+          </div>
         </div>
       )}
+      {isRemote && <BlackoutFollow />}
       <HelpOverlay isOpen={showHelp} onClose={() => setShowHelp(false)} note={helpNotes[role]}>
-        {role !== 'remote' && <TransportShortcuts />}
+        {!isRemote && <TransportShortcuts isController={isController} />}
       </HelpOverlay>
+    </div>
+  );
+}
+
+function BlackoutFollow() {
+  const isBlackout = useTeleprompterState().blackout === 'on';
+  // kept mounted, so it fades both ways
+  return (
+    <div
+      className={cx(['teleprompter__blackout', isBlackout && 'teleprompter__blackout--active'])}
+      data-testid='teleprompter-blackout'
+    />
+  );
+}
+
+function BlackoutController() {
+  const isBlackout = useTeleprompterState().blackout === 'on';
+  return (
+    <div
+      className={cx(['teleprompter__blackout-chip', isBlackout && 'teleprompter__blackout-chip--active'])}
+      data-testid='teleprompter-blackout-chip'
+    >
+      Blackout
     </div>
   );
 }
@@ -121,6 +152,7 @@ function SharedTeleprompter({ options, emptyText, onToggleHelp }: TeleprompterVi
       options={options}
       emptyText={emptyText}
       onCommand={isController ? sendCommand : undefined}
+      isController={isController}
       onToggleHelp={onToggleHelp}
     />
   );
@@ -183,6 +215,7 @@ interface ScriptContentProps {
   options: TeleprompterOptions;
   emptyText: string;
   onCommand?: (command: TeleprompterViewCommand) => void;
+  isController?: boolean;
   onUserScroll?: (anchor: TeleprompterAnchor) => void;
   onToggleHelp: () => void;
 }
@@ -197,6 +230,7 @@ function ScriptContent({
   options,
   emptyText,
   onCommand,
+  isController = false,
   onUserScroll,
   onToggleHelp,
 }: ScriptContentProps) {
@@ -225,6 +259,7 @@ function ScriptContent({
       state={state}
       loadedEvent={getLoadedEvent(script, loadedEventId)}
       onCommand={onCommand}
+      isController={isController}
       onToggleHelp={onToggleHelp}
     />
   ) : null;

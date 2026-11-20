@@ -11,7 +11,7 @@ const firstScriptLine = 'Welcome to Ontime.';
 /** Restores the demo project and a paused transport at the top, event by event, which the transport outlives */
 async function resetTeleprompter(request: APIRequestContext) {
   expect((await request.post('data/db/demo')).ok()).toBe(true);
-  for (const command of ['pause', `speed/${startSpeed}`, 'mode/event', 'top']) {
+  for (const command of ['pause', `speed/${startSpeed}`, 'mode/event', 'top', 'blackout/off']) {
     expect((await request.get(`api/teleprompter/${command}`)).ok()).toBe(true);
   }
 }
@@ -214,6 +214,44 @@ test('a controller changes the shared playback mode', async ({ page, request }) 
   await expect(page.getByTestId('teleprompter-playback-mode')).toHaveText('Whole script');
   await page.keyboard.press('m');
   await expect.poll(async () => (await transport()).mode).toBe('event');
+});
+
+test('a controller blacks out the following screens, which keep reading underneath', async ({
+  page,
+  context,
+  request,
+}) => {
+  const transport = async () => (await (await request.get('api/poll')).json()).payload.teleprompter;
+  const remote = await context.newPage();
+  await remote.goto(remoteUrl);
+  await expect(remote.getByText(firstScriptLine, { exact: true })).toBeVisible();
+  await page.goto('teleprompter?role=controller');
+  const toggle = page.getByTestId('teleprompter-blackout-toggle');
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await expect(remote.getByTestId('teleprompter-blackout')).toBeHidden();
+  await expect(page.getByTestId('teleprompter-blackout-chip')).toBeHidden();
+
+  await toggle.click();
+  await expect(remote.getByTestId('teleprompter-blackout')).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByTestId('teleprompter-blackout-chip')).toHaveText('Blackout', { ignoreCase: true });
+  await expect(page.getByTestId('teleprompter-blackout')).toHaveCount(0);
+
+  expect((await request.get('api/teleprompter/play')).ok()).toBe(true);
+  expect(await transport()).toMatchObject({ playback: 'play', blackout: 'on' });
+
+  await page.keyboard.press('b');
+  await expect(remote.getByTestId('teleprompter-blackout')).toBeHidden();
+  await expect(page.getByTestId('teleprompter-blackout-chip')).toBeHidden();
+  expect(await transport()).toMatchObject({ playback: 'play', blackout: 'off' });
+});
+
+test('a local view has no blackout', async ({ page, request }) => {
+  await page.goto('teleprompter');
+  await expect(page.getByTestId('teleprompter-controls')).toBeAttached();
+  await expect(page.getByTestId('teleprompter-blackout-toggle')).toHaveCount(0);
+  expect((await request.get('api/teleprompter/blackout/on')).ok()).toBe(true);
+  await expect(page.getByTestId('teleprompter-blackout')).toHaveCount(0);
 });
 
 test('a local view runs its own transport over the same script', async ({ page, context, request }) => {

@@ -103,6 +103,8 @@ describe('toTeleprompterPayload()', () => {
     [{ type: 'scroll', lines: -1 }, { scroll: -1 }],
     [{ type: 'speedBy', value: 5 }, { speedBy: 5 }],
     [{ type: 'speed', value: 20 }, { speed: 20 }],
+    [{ type: 'blackout', blackout: 'toggle' }, { blackout: 'toggle' }],
+    [{ type: 'blackout', blackout: 'on' }, { blackout: 'on' }],
   ] as const)('a controller sends %j as %j', (command, payload) => {
     expect(toTeleprompterPayload(command)).toEqual(payload);
   });

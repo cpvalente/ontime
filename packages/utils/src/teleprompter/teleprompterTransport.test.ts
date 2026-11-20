@@ -38,6 +38,7 @@ function makeState(patch: Partial<TeleprompterTransport> = {}): TeleprompterTran
     anchor: startOfEvent('a'),
     at: 0,
     ended: null,
+    blackout: 'off',
     ...patch,
   };
 }
@@ -288,6 +289,19 @@ test('only playing or moving the reader clears where playback ended', () => {
   }
 });
 
+test('blackout hides following screens without touching playback or where it ended', () => {
+  const stopped = settle(makeState({ playback: 'play' }), layout, 4000);
+  const blackedOut = apply(stopped, { type: 'blackout', blackout: 'on' }, 5000);
+  expect(blackedOut).toMatchObject({ blackout: 'on', playback: 'pause', ended: 'event', anchor: stopped.anchor });
+  expect(describeTransport(blackedOut, layout, 5000).blackout).toBe('on');
+
+  expect(apply(blackedOut, { type: 'blackout', blackout: 'toggle' }).blackout).toBe('off');
+  expect(apply(makeState(), { type: 'blackout', blackout: 'toggle' }).blackout).toBe('on');
+
+  const playing = apply(makeState({ playback: 'play' }), { type: 'blackout', blackout: 'on' }, 1000);
+  expect(positionAt(playing, layout, 3000)).toBe(positionAt(makeState({ playback: 'play' }), layout, 3000));
+});
+
 test('a command while paused keeps the reader on their exact anchor', () => {
   const between = { eventId: 'b', charOffset: 15, lines: 0.25 };
   expect(apply(makeState({ anchor: between }), { type: 'speed', value: 20 }).anchor).toEqual(between);
@@ -328,6 +342,7 @@ describe('describeTransport()', () => {
       speed: 30,
       event: { id: 'b', cue: 'B', title: 'b' },
       ended: null,
+      blackout: 'off',
     });
   });
 

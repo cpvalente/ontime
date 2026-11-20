@@ -4,6 +4,9 @@ import type { TeleprompterAnchor } from '../core/Teleprompter.type.js';
 /** Whether the teleprompter reads on, in the words of Ontime's playback */
 export type TeleprompterPlayback = 'play' | 'pause';
 
+/** Whether the screens following the shared playback show nothing, while it carries on underneath */
+export type TeleprompterBlackout = 'on' | 'off';
+
 /**
  * How playback reads the script
  * - event: event by event, playback stops at the end of each event and follows the event Ontime loads
@@ -27,8 +30,10 @@ export type TeleprompterTransport = {
   anchor: TeleprompterAnchor | null;
   /** when the anchor was true, as the server's time of day in milliseconds, the clock every Ontime client shares */
   at: number;
-  /** set when playback stopped at the end of an event or of the script, cleared by any command */
+  /** set when playback stopped at the end of an event or of the script, cleared by playing or moving the reader */
   ended: TeleprompterStop | null;
+  /** following screens show nothing, while playback carries on underneath */
+  blackout: TeleprompterBlackout;
 };
 
 /**
@@ -68,4 +73,6 @@ export type TeleprompterState = {
   event: TeleprompterReadingEvent | null;
   /** set when playback stopped of its own accord at an end, cleared by playing or moving the reader */
   ended: TeleprompterStop | null;
+  /** following screens show nothing, while playback carries on underneath */
+  blackout: TeleprompterBlackout;
 };

@@ -26,6 +26,7 @@ describe('resolveTeleprompterKey()', () => {
     ['PageDown', { code: 'PageDown' }, { type: 'page', direction: 1 }],
     ['L', { key: 'l' }, { type: 'command', command: { type: 'goto', target: 'loaded' } }],
     ['M', { key: 'm' }, { type: 'command', command: { type: 'mode', mode: 'toggle' } }],
+    ['B', { key: 'b' }, { type: 'command', command: { type: 'blackout', blackout: 'toggle' } }],
   ])('%s', (_, event, action) => {
     expect(resolveTeleprompterKey(makeEvent(event))).toEqual(action);
   });
