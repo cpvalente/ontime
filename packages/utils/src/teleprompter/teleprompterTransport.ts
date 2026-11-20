@@ -162,7 +162,7 @@ export function settle(
 
 /**
  * Applies a command at a moment
- * Moving the reader keeps the play state, and any command clears where playback ended
+ * Moving the reader keeps the play state, and only playing or moving the reader clears where playback ended
  * @throws if the command names an event which is not in the script
  */
 export function applyTransportCommand(
@@ -177,16 +177,16 @@ export function applyTransportCommand(
   // every command sets the time, so a repeated command is still a change of state
   // only playback moves the reader off their anchor, which a row would round to the start of its line
   const anchor = isPlaying ? anchorAtRow(layout, position) : current.anchor;
-  const rebased: TeleprompterTransport = { ...current, anchor, at: now, ended: null };
+  const rebased: TeleprompterTransport = { ...current, anchor, at: now };
 
   const moveTo = (row: number) => {
     const lastRow = layout.events.at(-1)?.endRow ?? 0;
     const target = Math.min(Math.max(row, 0), lastRow);
-    return { ...rebased, anchor: anchorAtRow(layout, target) };
+    return { ...rebased, anchor: anchorAtRow(layout, target), ended: null };
   };
   const moveToEvent = (eventId: EntryId | undefined) => {
     if (!eventId) return rebased;
-    return { ...rebased, anchor: startOfEvent(eventId) };
+    return { ...rebased, anchor: startOfEvent(eventId), ended: null };
   };
   const reader = eventAtRow(layout, position);
   const readerIndex = reader ? layout.events.indexOf(reader) : -1;
@@ -194,13 +194,13 @@ export function applyTransportCommand(
   let next: TeleprompterTransport;
   switch (command.type) {
     case 'play':
-      next = { ...rebased, playback: 'play' };
+      next = { ...rebased, playback: 'play', ended: null };
       break;
     case 'pause':
       next = { ...rebased, playback: 'pause' };
       break;
     case 'toggle':
-      next = { ...rebased, playback: isPlaying ? 'pause' : 'play' };
+      next = isPlaying ? { ...rebased, playback: 'pause' } : { ...rebased, playback: 'play', ended: null };
       break;
     case 'speed':
       next = { ...rebased, speed: clampTeleprompterSpeed(command.value, current.speed) };

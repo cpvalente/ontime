@@ -272,10 +272,30 @@ test('the mode toggles between event by event and the whole script', () => {
   expect(apply(toggled, { type: 'mode', mode: 'toggle' }).mode).toBe('event');
 });
 
-test('any command clears where playback ended', () => {
+test('only playing or moving the reader clears where playback ended', () => {
   const stopped = settle(makeState({ playback: 'play' }), layout, 4000);
   expect(stopped.ended).toBe('event');
-  expect(apply(stopped, { type: 'speed', value: 20 }, 5000).ended).toBeNull();
+
+  for (const command of [
+    { type: 'pause' },
+    { type: 'speed', value: 20 },
+    { type: 'speedBy', value: 5 },
+    { type: 'mode', mode: 'toggle' },
+  ] as const) {
+    expect(apply(stopped, command, 5000).ended).toBe('event');
+  }
+
+  for (const command of [
+    { type: 'play' },
+    { type: 'toggle' },
+    { type: 'scroll', lines: -1 },
+    { type: 'next' },
+    { type: 'previous' },
+    { type: 'top' },
+    { type: 'goto', eventId: 'a' },
+  ] as const) {
+    expect(apply(stopped, command, 5000).ended).toBeNull();
+  }
 });
 
 test('a command while paused keeps the reader on their exact anchor', () => {
