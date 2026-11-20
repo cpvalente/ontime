@@ -7,6 +7,7 @@ import Tooltip from '../../../common/components/tooltip/Tooltip';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
+import { cx } from '../../../common/utils/styleUtils';
 import PipRoot from '../../../views/editor/pip-timer/PipRoot';
 import { PipTimer } from '../../../views/editor/pip-timer/PipTimer';
 
@@ -57,7 +58,7 @@ export default function TimerPreview() {
           <Tooltip
             text={countToEnd ? 'Count to end' : 'Count duration'}
             render={<span />}
-            className={style.statusIcon}
+            className={cx([style.statusIcon, style.countToEnd])}
             data-active={countToEnd}
           >
             <LuArrowDownToLine />
