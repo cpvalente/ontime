@@ -31,12 +31,13 @@ describe('resolveTeleprompterKey()', () => {
     expect(resolveTeleprompterKey(makeEvent(event))).toEqual(action);
   });
 
-  test('a held arrow keeps scrolling, but a held Space does not keep toggling', () => {
+  test('a held arrow keeps scrolling, but a held toggle does not keep toggling', () => {
     expect(resolveTeleprompterKey(makeEvent({ code: 'ArrowDown', repeat: true }))).toEqual({
       type: 'command',
       command: { type: 'scroll', lines: 1 },
     });
     expect(resolveTeleprompterKey(makeEvent({ code: 'Space', repeat: true }))).toBeNull();
+    expect(resolveTeleprompterKey(makeEvent({ key: 'b', repeat: true }))).toBeNull();
   });
 
   test('never shadows a shortcut which carries a modifier', () => {
