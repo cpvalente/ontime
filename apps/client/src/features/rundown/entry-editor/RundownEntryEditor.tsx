@@ -4,7 +4,7 @@ import { useMemo } from 'react';
 import useRundown from '../../../common/hooks-query/useRundown';
 import { useEventSelection } from '../useEventSelection';
 import EventEditorFooter from './composite/EventEditorFooter';
-import { getEditTarget } from './entryEditor.utils';
+import { getEditTarget, getGroupThresholds } from './entryEditor.utils';
 import EventEditor from './EventEditor';
 import EventEditorEmpty from './EventEditorEmpty';
 import GroupEditor from './GroupEditor';
@@ -32,7 +32,7 @@ export default function RundownEntryEditor() {
   if (isOntimeEvent(entry)) {
     return (
       <div className={style.rundownEditor} data-testid='editor-container'>
-        <EventEditor event={entry} />
+        <EventEditor event={entry} groupThresholds={getGroupThresholds(data.entries, entry.parent)} />
         <EventEditorFooter id={entry.id} cue={entry.cue} />
       </div>
     );

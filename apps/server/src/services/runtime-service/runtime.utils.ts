@@ -48,7 +48,9 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
     previousValue.duration !== currentValue.duration ||
     previousValue.phase !== currentValue.phase ||
     previousValue.playback !== currentValue.playback ||
-    previousValue.startedAt !== currentValue.startedAt
+    previousValue.startedAt !== currentValue.startedAt ||
+    previousValue.timeWarning !== currentValue.timeWarning ||
+    previousValue.timeDanger !== currentValue.timeDanger
     // elapsed - this is derived from current / duration / addedTime, so the fields above cover it
     // expectedFinish - this will be moved out by the current value going into over time, no need to check
   );

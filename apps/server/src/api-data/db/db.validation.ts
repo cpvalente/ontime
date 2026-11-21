@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { parsePhaseThresholds } from 'ontime-utils';
 import sanitize from 'sanitize-filename';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
@@ -20,6 +21,12 @@ export const validateNewProject = [
   requestValidationFunction,
 ];
 
+const phaseThresholdsValidator = body('settings.phaseThresholds')
+  .optional()
+  .custom((input) => parsePhaseThresholds(input) !== null)
+  .withMessage('phaseThresholds must hold a warning and a danger threshold')
+  .customSanitizer(parsePhaseThresholds);
+
 /**
  * @description Validates request for a quick project.
  */
@@ -30,6 +37,7 @@ export const validateQuickProject = [
   // Settings fields
   body('settings.timeFormat').optional().isIn(['12', '24']),
   body('settings.language').optional().isString().trim(),
+  phaseThresholdsValidator,
 
   requestValidationFunction,
 ];
@@ -42,6 +50,7 @@ export const validatePatchProject = [
   body('rundowns').isObject().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
+  phaseThresholdsValidator,
   body('viewSettings').isObject().optional({ nullable: false }),
   body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isArray().optional({ nullable: false }),

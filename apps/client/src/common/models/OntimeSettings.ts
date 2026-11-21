@@ -1,4 +1,5 @@
 import { Settings } from 'ontime-types';
+import { defaultPhaseThresholds } from 'ontime-utils';
 
 import { appVersion } from '../../externals';
 
@@ -9,4 +10,5 @@ export const ontimePlaceholderSettings: Settings = {
   timeFormat: '24',
   language: 'en',
   auxTimerNames: ['', '', ''],
+  phaseThresholds: defaultPhaseThresholds,
 };

@@ -20,6 +20,10 @@ const baseSettings = {
   timeFormat: '24',
   language: 'en',
   auxTimerNames: ['', '', ''],
+  phaseThresholds: {
+    warning: { unit: 'percent', value: 20 },
+    danger: { unit: 'time', value: 60000 },
+  },
 };
 
 describe('validateSettings', () => {
@@ -42,5 +46,10 @@ describe('validateSettings', () => {
     const { errors, data } = await validate({ ...baseSettings, editorKey: pin });
     expect(errors).toEqual([]);
     expect(data.editorKey).toBeNull();
+  });
+
+  it('rejects settings without phase thresholds, which replace the stored ones', async () => {
+    const { errors } = await validate({ ...baseSettings, phaseThresholds: undefined });
+    expect(errors).toContain('phaseThresholds');
   });
 });

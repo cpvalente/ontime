@@ -77,6 +77,7 @@ export async function quickProjectFile(req: Request, res: Response<{ filename: s
     project.title = projectTitle;
     if (maybeTimeFormat) settings.timeFormat = maybeTimeFormat;
     if (maybeLanguage) settings.language = maybeLanguage;
+    if (req.body.settings?.phaseThresholds) settings.phaseThresholds = req.body.settings.phaseThresholds;
 
     const filename = await projectService.createProjectWithPatch(projectTitle, {
       project,

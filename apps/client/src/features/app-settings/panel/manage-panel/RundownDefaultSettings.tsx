@@ -4,41 +4,32 @@ import { parseUserTime } from 'ontime-utils';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
-import Tag from '../../../../common/components/tag/Tag';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
+import PhaseThresholdSettings from './PhaseThresholdSettings';
 
 export default function RundownDefaultSettings() {
   const {
     defaultDuration,
     linkPrevious,
     defaultTimeStrategy,
-    defaultWarnTime,
-    defaultDangerTime,
     defaultTimerType,
     defaultEndAction,
     inheritGroupColour,
     setDefaultDuration,
     setLinkPrevious,
     setTimeStrategy,
-    setWarnTime,
-    setDangerTime,
     setDefaultTimerType,
     setDefaultEndAction,
     setInheritGroupColour,
   } = useEditorSettings((state) => state);
 
   const durationInMs = parseUserTime(defaultDuration);
-  const warnTimeInMs = parseUserTime(defaultWarnTime);
-  const dangerTimeInMs = parseUserTime(defaultDangerTime);
 
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>
-          Rundown defaults
-          <Tag>This browser only</Tag>
-        </Panel.SubHeader>
+        <Panel.SubHeader>Rundown defaults</Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
           <Panel.Title>Default settings for new events</Panel.Title>
@@ -117,26 +108,7 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
           </Panel.ListGroup>
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field title='Warning time' description='Default threshold for warning time in an event' />
-              <TimeInput<'warnTime'>
-                name='warnTime'
-                submitHandler={(_field, value) => setWarnTime(value)}
-                time={warnTimeInMs}
-                placeholder={editorSettingsDefaults.warnTime}
-              />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field title='Danger time' description='Default threshold for danger time in an event' />
-              <TimeInput<'dangerTime'>
-                name='dangerTime'
-                submitHandler={(_field, value) => setDangerTime(value)}
-                time={dangerTimeInMs}
-                placeholder={editorSettingsDefaults.dangerTime}
-              />
-            </Panel.ListItem>
-          </Panel.ListGroup>
+          <PhaseThresholdSettings />
         </Panel.Section>
       </Panel.Card>
     </Panel.Section>

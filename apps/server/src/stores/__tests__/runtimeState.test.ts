@@ -3,13 +3,14 @@ import {
   Instant,
   OffsetMode,
   OntimeEvent,
+  OntimeGroup,
   PlayableEvent,
   Playback,
   type Rundown,
   SupportedEntry,
   TimerPhase,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, defaultPhaseThresholds } from 'ontime-utils';
 
 import {
   makeOntimeDelay,
@@ -31,9 +32,11 @@ import {
   pause,
   resume,
   roll,
+  setPhaseThresholds,
   start,
   stop,
   update,
+  updateAll,
   updateRundownData,
 } from '../runtimeState.js';
 
@@ -454,6 +457,73 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
       expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
       expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+    });
+  });
+
+  describe('timer phases', () => {
+    const at = (hours: number, minutes = 0) => hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE;
+    const makePhasedRundown = async () => {
+      const inGroup = makeOntimeEvent({
+        id: 'inGroup',
+        timeStart: at(9),
+        timeEnd: at(10),
+        duration: at(1),
+        parent: 'group',
+      });
+      const outside = makeOntimeEvent({ id: 'outside', timeStart: at(11), timeEnd: at(12), duration: at(1) });
+      const group = makeOntimeGroup({
+        id: 'group',
+        entries: ['inGroup'],
+        phaseThresholds: { warning: { unit: 'percent', value: 25 }, danger: { unit: 'percent', value: 5 } },
+      });
+      await initTestRundown(makeRundown({ entries: { group, inGroup, outside }, order: ['group', 'outside'] }));
+      return rundownCache.get();
+    };
+
+    afterEach(() => setPhaseThresholds(defaultPhaseThresholds));
+
+    test('resolves the loaded event thresholds from its group or the project', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+
+      load(rundown.entries.inGroup as PlayableEvent, rundown, metadata);
+      expect(getState().timer).toMatchObject({
+        timeWarning: 15 * MILLIS_PER_MINUTE,
+        timeDanger: 3 * MILLIS_PER_MINUTE,
+      });
+
+      load(rundown.entries.outside as PlayableEvent, rundown, metadata);
+      expect(getState().timer).toMatchObject({ timeWarning: 2 * MILLIS_PER_MINUTE, timeDanger: MILLIS_PER_MINUTE });
+
+      clearState();
+      expect(getState().timer).toMatchObject({ timeWarning: null, timeDanger: null });
+    });
+
+    test('follows edits to the loaded event group', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+      load(rundown.entries.inGroup as PlayableEvent, rundown, metadata);
+
+      const group = { ...rundown.entries.group, phaseThresholds: null } as OntimeGroup;
+      updateAll({ ...rundown, entries: { ...rundown.entries, group } }, metadata);
+      expect(getState().timer).toMatchObject({ timeWarning: 2 * MILLIS_PER_MINUTE, timeDanger: MILLIS_PER_MINUTE });
+    });
+
+    test('a running timer follows changes to the project thresholds', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+      vi.setSystemTime('jan 1 11:00');
+      load(rundown.entries.outside as PlayableEvent, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 11:50');
+      update();
+      expect(getState().timer.phase).toBe(TimerPhase.Default);
+
+      setPhaseThresholds({
+        warning: { unit: 'percent', value: 20 },
+        danger: { unit: 'time', value: MILLIS_PER_MINUTE },
+      });
+      expect(getState().timer.phase).toBe(TimerPhase.Warning);
     });
   });
 

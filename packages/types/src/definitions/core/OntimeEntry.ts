@@ -4,6 +4,7 @@ import type { TimerType } from '../TimerType.type.js';
 import type { TimeStrategy } from '../TimeStrategy.type.js';
 import type { Trigger } from './Automation.type.js';
 import type { EntryCustomFields } from './CustomFields.type.js';
+import type { PhaseThresholds } from './PhaseThresholds.type.js';
 import type { Day } from './Temporal.js';
 
 export type EntryId = string;
@@ -45,6 +46,8 @@ export type OntimeGroup = OntimeBaseEvent & {
   entries: EntryId[];
   targetDuration: MaybeNumber;
   colour: string;
+  /** When the events in the group enter warning and danger, null uses the project thresholds */
+  phaseThresholds: PhaseThresholds | null;
   custom: EntryCustomFields;
   // !==== RUNTIME METADATA ====! //
   revision: number;
@@ -70,8 +73,10 @@ export type OntimeEvent = OntimeBaseEvent & {
   duration: number;
   skip: boolean;
   colour: string;
-  timeWarning: number;
-  timeDanger: number;
+  /** Remaining time at which the timer enters warning, null uses the group or project threshold */
+  timeWarning: MaybeNumber;
+  /** Remaining time at which the timer enters danger, null uses the group or project threshold */
+  timeDanger: MaybeNumber;
   custom: EntryCustomFields;
   triggers: Trigger[];
   parent: EntryId | null;

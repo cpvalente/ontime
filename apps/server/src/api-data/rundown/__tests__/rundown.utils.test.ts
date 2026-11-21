@@ -32,6 +32,7 @@ import {
   calculateDayOffset,
   cleanupCustomFields,
   cloneEntryData,
+  createGroupPatch,
   deleteById,
   doesInvalidateMetadata,
   getIntegerAndFraction,
@@ -116,6 +117,25 @@ describe('test event validator', () => {
       throw new Error('unexpected value');
     }
     expect(typeof validated.title).toEqual('string');
+  });
+});
+
+describe('createGroupPatch()', () => {
+  const thresholds = {
+    warning: { unit: 'percent', value: 20 },
+    danger: { unit: 'time', value: 60000 },
+  } as const;
+
+  test('sets, keeps and clears the group phase thresholds', () => {
+    const group = makeOntimeGroup({ phaseThresholds: null });
+
+    const overridden = createGroupPatch(group, { phaseThresholds: thresholds });
+    expect(overridden.phaseThresholds).toStrictEqual(thresholds);
+
+    const invalid = { warning: thresholds.warning } as unknown as typeof thresholds;
+    expect(createGroupPatch(overridden, { phaseThresholds: invalid }).phaseThresholds).toStrictEqual(thresholds);
+    expect(createGroupPatch(overridden, { title: 'renamed' }).phaseThresholds).toStrictEqual(thresholds);
+    expect(createGroupPatch(overridden, { phaseThresholds: null }).phaseThresholds).toBeNull();
   });
 });
 

@@ -130,9 +130,9 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
           complete={totalTime}
           eventId={eventNow?.id}
           normalColor={viewSettings.normalColor}
-          warning={eventNow?.timeWarning}
+          warning={time.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={eventNow?.timeDanger}
+          danger={time.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

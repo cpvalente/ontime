@@ -1,5 +1,5 @@
 import { body } from 'express-validator';
-import { regex, sanitiseAuxTimerNames } from 'ontime-utils';
+import { parsePhaseThresholds, regex, sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 
@@ -33,6 +33,10 @@ export const validateSettings = [
   body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
   body('language').isString().trim().notEmpty(),
   body('auxTimerNames').isArray().withMessage('auxTimerNames must be an array').customSanitizer(sanitiseAuxTimerNames),
+  body('phaseThresholds')
+    .custom((input) => parsePhaseThresholds(input) !== null)
+    .withMessage('phaseThresholds must hold a warning and a danger threshold')
+    .customSanitizer(parsePhaseThresholds),
 
   requestValidationFunction,
 ];

@@ -15,6 +15,11 @@ function clampDuration(value: number): number {
   return value;
 }
 
+/** an empty value inherits the group or project threshold */
+function coercePhaseOverride(value: unknown) {
+  return value === null || value === '' ? null : clampDuration(coerceNumber(value));
+}
+
 const propertyConversion: Record<string, (value: unknown) => unknown> = {
   title: coerceString,
   note: coerceString,
@@ -28,8 +33,8 @@ const propertyConversion: Record<string, (value: unknown) => unknown> = {
 
   custom: coerceString,
 
-  timeWarning: (value: unknown) => clampDuration(coerceNumber(value)),
-  timeDanger: (value: unknown) => clampDuration(coerceNumber(value)),
+  timeWarning: coercePhaseOverride,
+  timeDanger: coercePhaseOverride,
 
   endAction: (value: unknown) => coerceEnum<EndAction>(value, EndAction),
   timerType: (value: unknown) => coerceEnum<TimerType>(value, TimerType),

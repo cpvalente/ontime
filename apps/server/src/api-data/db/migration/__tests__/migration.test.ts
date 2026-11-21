@@ -184,6 +184,10 @@ describe('v3 to v4', () => {
       timeFormat: '24',
       language: 'en',
       auxTimerNames: ['', '', ''],
+      phaseThresholds: {
+        warning: { unit: 'time', value: 120000 },
+        danger: { unit: 'time', value: 60000 },
+      },
     };
     const newSettings = v3.migrateSettings(oldDb);
     expect(newSettings).toEqual(expectSettings);
@@ -315,6 +319,7 @@ describe('v3 to v4', () => {
           note: '',
           revision: -1,
           targetDuration: null,
+          phaseThresholds: null,
           timeEnd: null,
           timeStart: null,
         },
@@ -391,6 +396,7 @@ describe('v3 to v4', () => {
           note: '',
           revision: -1,
           targetDuration: null,
+          phaseThresholds: null,
           timeEnd: null,
           timeStart: null,
         },

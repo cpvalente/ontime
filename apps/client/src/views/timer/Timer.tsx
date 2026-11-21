@@ -222,9 +222,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           complete={totalTime}
           eventId={eventNow?.id}
           normalColor={viewSettings.normalColor}
-          warning={eventNow?.timeWarning}
+          warning={time.timeWarning}
           warningColor={viewSettings.warningColor}
-          danger={eventNow?.timeDanger}
+          danger={time.timeDanger}
           dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />

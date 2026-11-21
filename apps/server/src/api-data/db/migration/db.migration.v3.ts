@@ -21,6 +21,7 @@ import {
 import {
   checkRegex,
   customFieldLabelToKey,
+  defaultPhaseThresholds,
   eventDef as eventModel,
   isKnownTimerType,
   validateEndAction,
@@ -83,6 +84,7 @@ export function migrateSettings(jsonData: object): (Settings & { serverPort: num
       timeFormat,
       language,
       auxTimerNames: ['', '', ''],
+      phaseThresholds: structuredClone(defaultPhaseThresholds),
     };
   }
 }
@@ -422,6 +424,7 @@ export function migrateRundown(
           entries: [], // leave empty
           targetDuration: null,
           colour: '', //leave default colour
+          phaseThresholds: null,
           custom: {}, // leave empty
           // !==== RUNTIME METADATA ====! //
           revision: -1,

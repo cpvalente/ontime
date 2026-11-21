@@ -1,17 +1,20 @@
-import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
-import { getDelayedEnd, parseUserTime } from 'ontime-utils';
+import { EndAction, MaybeNumber, PhaseThresholds, TimeStrategy, TimerType } from 'ontime-types';
+import { getDelayedEnd, resolvePhaseThresholds } from 'ontime-utils';
 import { memo } from 'react';
 import { IoInformationCircle } from 'react-icons/io5';
 
 import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
-import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import Tooltip from '../../../../common/components/tooltip/Tooltip';
 import { useEntryActionsContext } from '../../../../common/context/EntryActionsContext';
+import useSettings from '../../../../common/hooks-query/useSettings';
 import { millisToDelayString } from '../../../../common/utils/dateConfig';
+import { cx } from '../../../../common/utils/styleUtils';
 import { formatTime, normaliseWallClock } from '../../../../common/utils/time';
 import TimeInputFlow from '../../time-input-flow/TimeInputFlow';
+import { PhaseThresholdIssue, getPhaseThresholdIssue } from '../entryEditor.utils';
+import PhaseOverrideInput, { PhaseField } from './PhaseOverrideInput';
 
 import style from '../EntryEditor.module.scss';
 
@@ -26,11 +29,17 @@ interface EventEditorTimesProps {
   delay: number;
   endAction: EndAction;
   timerType: TimerType;
-  timeWarning: number;
-  timeDanger: number;
+  timeWarning: MaybeNumber;
+  timeDanger: MaybeNumber;
+  groupThresholds: PhaseThresholds | null;
 }
 
-type HandledActions = 'countToEnd' | 'timerType' | 'endAction' | 'timeWarning' | 'timeDanger';
+type HandledActions = 'countToEnd' | 'timerType' | 'endAction';
+
+const phaseIssueLabel: Record<PhaseThresholdIssue, string> = {
+  'warning-exceeds-duration': 'Warning is as long as the event, the timer starts in warning',
+  'danger-exceeds-warning': 'Danger is longer than warning, the timer skips warning',
+};
 
 export default memo(EventEditorTimes);
 function EventEditorTimes({
@@ -46,18 +55,26 @@ function EventEditorTimes({
   timerType,
   timeWarning,
   timeDanger,
+  groupThresholds,
 }: EventEditorTimesProps) {
   const { updateEntry } = useEntryActionsContext();
+  const { data: settings } = useSettings();
+  const resolved = resolvePhaseThresholds(
+    { timeWarning, timeDanger, duration },
+    groupThresholds,
+    settings.phaseThresholds,
+  );
+  const phaseIssue = getPhaseThresholdIssue(resolved, duration);
+  // views only show phases on count down timers, see getShowModifiers()
+  const showsPhases = timerType === TimerType.CountDown || countToEnd;
+
+  const handlePhaseSubmit = (field: PhaseField, value: MaybeNumber) => {
+    updateEntry({ id: eventId, [field]: value });
+  };
 
   const handleSubmit = (field: HandledActions, value: string | boolean) => {
     if (field === 'countToEnd') {
       updateEntry({ id: eventId, countToEnd: value as boolean });
-      return;
-    }
-
-    if (field === 'timeWarning' || field === 'timeDanger') {
-      const newTime = parseUserTime(value as string);
-      updateEntry({ id: eventId, [field]: newTime });
       return;
     }
 
@@ -154,30 +171,33 @@ function EventEditorTimes({
               ]}
             />
           </div>
-
-          <div className={style.inline}>
-            <div>
-              <Editor.Label htmlFor='timeWarning'>Warning Time</Editor.Label>
-              <TimeInput
-                id='timeWarning'
-                name='timeWarning'
-                submitHandler={handleSubmit}
-                time={timeWarning}
-                placeholder='Duration'
-              />
-            </div>
-            <div>
-              <Editor.Label htmlFor='timeDanger'>Danger Time</Editor.Label>
-              <TimeInput
-                id='timeDanger'
-                name='timeDanger'
-                submitHandler={handleSubmit}
-                time={timeDanger}
-                placeholder='Duration'
-              />
-            </div>
-          </div>
         </div>
+      </div>
+
+      <div className={style.column}>
+        <Editor.Title>Warning and danger</Editor.Title>
+        <div className={style.inline}>
+          <PhaseOverrideInput
+            field='timeWarning'
+            label='Warning Time'
+            value={timeWarning}
+            resolved={resolved.timeWarning}
+            submitHandler={handlePhaseSubmit}
+          />
+          <PhaseOverrideInput
+            field='timeDanger'
+            label='Danger Time'
+            value={timeDanger}
+            resolved={resolved.timeDanger}
+            submitHandler={handlePhaseSubmit}
+          />
+        </div>
+        {!showsPhases && (
+          <div className={style.phaseHint}>Warning and danger only show on count down timers or with count to end</div>
+        )}
+        {showsPhases && phaseIssue && (
+          <div className={cx([style.phaseHint, style.phaseIssue])}>{phaseIssueLabel[phaseIssue]}</div>
+        )}
       </div>
     </>
   );
