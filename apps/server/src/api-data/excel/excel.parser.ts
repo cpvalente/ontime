@@ -15,8 +15,10 @@ import {
   ImportMap,
   defaultImportMap,
   generateId,
+  isISO8601,
   isKnownTimerType,
   makeString,
+  parsePhaseTimeInput,
   validateEndAction,
   validateTimerType,
 } from 'ontime-utils';
@@ -31,6 +33,15 @@ type MergedOntimeEntry = Prettify<
     type: SupportedEntry | 'group-end';
   }
 >;
+
+/**
+ * An empty warning or danger cell, or text which is not a time, inherits the project threshold
+ */
+function parsePhaseCell(cell: unknown): number | null {
+  if (cell == null) return null;
+  if (is.string(cell) && !isISO8601(cell)) return parsePhaseTimeInput(cell);
+  return parseExcelDate(cell);
+}
 
 /**
  * @description Excel array parser
@@ -126,9 +137,9 @@ export const parseExcel = (
       } else if (j === indexMap.endAction) {
         entry.endAction = validateEndAction(column);
       } else if (j === indexMap.timeWarning) {
-        entry.timeWarning = parseExcelDate(column);
+        entry.timeWarning = parsePhaseCell(column);
       } else if (j === indexMap.timeDanger) {
-        entry.timeDanger = parseExcelDate(column);
+        entry.timeDanger = parsePhaseCell(column);
       } else if (j === indexMap.colour) {
         entry.colour = makeString(column, '');
       } else if (j === indexMap.id) {

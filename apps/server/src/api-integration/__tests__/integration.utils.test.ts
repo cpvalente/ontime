@@ -1,6 +1,6 @@
 import { CustomFields, EntryCustomFields, OntimeDelay, OntimeEvent } from 'ontime-types';
 
-import { isValidChangeProperty } from '../integration.utils.js';
+import { isValidChangeProperty, parseProperty } from '../integration.utils.js';
 
 describe('isValidChangeProperty()', () => {
   test('allows changing a valid event property with valid value', () => {
@@ -117,5 +117,11 @@ describe('isValidChangeProperty()', () => {
     ] satisfies CustomFields;
 
     expect(isValidChangeProperty(testEvent, 'toString', 123, testCustomFields)).toBeFalsy();
+  });
+});
+
+describe('parseProperty()', () => {
+  test.each([null, ''])('an empty warning time of %j inherits', (value) => {
+    expect(parseProperty('timeWarning', value)).toStrictEqual({ timeWarning: null });
   });
 });

@@ -5,7 +5,6 @@ import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
 import Tag from '../../../common/components/tag/Tag';
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
 import { handleLinks } from '../../../common/utils/linkUtils';
 import { cx } from '../../../common/utils/styleUtils';
@@ -42,12 +41,11 @@ const timerTypeLabel = {
 export default function TimerPreview() {
   const { countToEnd, timerType, playback, phase, blackout } = useMessagePreview();
   const stateTag = previewStateTag[getPreviewState(playback, phase, blackout)];
-  const { data } = useViewSettings();
 
   return (
     <div className={style.preview}>
       <div className={style.frame}>
-        <PipTimer viewSettings={data} inline />
+        <PipTimer inline />
         <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
         <div className={style.tags}>
           <Tag variant={stateTag.variant} className={cx([style.tag, style.state])}>

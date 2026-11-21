@@ -77,16 +77,8 @@ export type EntryActions = ReturnType<typeof useEntryActions>;
  */
 export function useEntryActions(scopedRundownId: string) {
   const queryClient = useQueryClient();
-  const {
-    linkPrevious,
-    defaultTimeStrategy,
-    defaultDuration,
-    defaultWarnTime,
-    defaultDangerTime,
-    defaultTimerType,
-    defaultEndAction,
-    inheritGroupColour,
-  } = useEditorSettings();
+  const { linkPrevious, defaultTimeStrategy, defaultDuration, defaultTimerType, defaultEndAction, inheritGroupColour } =
+    useEditorSettings();
 
   /**
    * Returns the currently loaded rundown
@@ -227,14 +219,6 @@ export function useEntryActions(scopedRundownId: string) {
           newEntry.duration = parseUserTime(defaultDuration);
         }
 
-        if (newEntry.timeDanger === undefined) {
-          newEntry.timeDanger = parseUserTime(defaultDangerTime);
-        }
-
-        if (newEntry.timeWarning === undefined) {
-          newEntry.timeWarning = parseUserTime(defaultWarnTime);
-        }
-
         if (newEntry.timerType === undefined) {
           newEntry.timerType = defaultTimerType;
         }
@@ -266,8 +250,6 @@ export function useEntryActions(scopedRundownId: string) {
       getCurrentRundownData,
       linkPrevious,
       defaultDuration,
-      defaultDangerTime,
-      defaultWarnTime,
       defaultTimerType,
       defaultEndAction,
       defaultTimeStrategy,

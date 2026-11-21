@@ -54,7 +54,7 @@
     line-height: 1;
     letter-spacing: 0.05em;
     font-size: $timer-value-size;
-    color: var(--timer-color-override, var(--phase-color));
+    color: var(--timer-color-override, $timer-color);
 
     &--paused {
       opacity: $viewer-opacity-disabled;
@@ -67,10 +67,10 @@
     }
 
     &[data-phase='warning'] {
-      color: var(--timer-warning-color-override, var(--phase-color));
+      color: var(--timer-warning-color-override, $timer-warning-color);
     }
     &[data-phase='danger'] {
-      color: var(--timer-danger-color-override, var(--phase-color));
+      color: var(--timer-danger-color-override, $timer-danger-color);
     }
   }
 

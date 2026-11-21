@@ -8,8 +8,6 @@ type EditorSettingsStore = {
   defaultDuration: string;
   linkPrevious: boolean;
   defaultTimeStrategy: TimeStrategy;
-  defaultWarnTime: string;
-  defaultDangerTime: string;
   defaultTimerType: TimerType;
   defaultEndAction: EndAction;
   inheritGroupColour: boolean;
@@ -17,8 +15,6 @@ type EditorSettingsStore = {
   setLinkPrevious: (linkPrevious: boolean) => void;
   setInheritGroupColour: (inheritGroupColour: boolean) => void;
   setTimeStrategy: (timeStrategy: TimeStrategy) => void;
-  setWarnTime: (warnTime: string) => void;
-  setDangerTime: (dangerTime: string) => void;
   setDefaultTimerType: (defaultTimerType: TimerType) => void;
   setDefaultEndAction: (defaultEndAction: EndAction) => void;
 };
@@ -27,8 +23,6 @@ export const editorSettingsDefaults = {
   duration: '00:10:00',
   linkPrevious: true,
   timeStrategy: TimeStrategy.LockDuration,
-  warnTime: '00:02:00', // 120000 same as backend
-  dangerTime: '00:01:00', // 60000 same as backend
   timerType: TimerType.CountDown,
   endAction: EndAction.None,
   inheritGroupColour: false,
@@ -38,8 +32,6 @@ enum EditorSettingsKeys {
   DefaultDuration = 'ontime-default-duration',
   LinkPrevious = 'ontime-link-previous',
   DefaultTimeStrategy = 'ontime-time-strategy',
-  DefaultWarnTime = 'ontime-default-warn-time',
-  DefaultDangerTime = 'ontime-default-danger-time',
   DefaultTimerType = 'ontime-default-timer-type',
   DefaultEndAction = 'ontime-default-end-action',
   InheritGroupColour = 'ontime-inherit-group-colour',
@@ -53,8 +45,6 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
       localStorage.getItem(EditorSettingsKeys.DefaultTimeStrategy),
       editorSettingsDefaults.timeStrategy,
     ),
-    defaultWarnTime: localStorage.getItem(EditorSettingsKeys.DefaultWarnTime) ?? editorSettingsDefaults.warnTime,
-    defaultDangerTime: localStorage.getItem(EditorSettingsKeys.DefaultDangerTime) ?? editorSettingsDefaults.dangerTime,
     defaultTimerType: validateTimerType(
       localStorage.getItem(EditorSettingsKeys.DefaultTimerType),
       editorSettingsDefaults.timerType,
@@ -85,16 +75,6 @@ export const useEditorSettings = create<EditorSettingsStore>((set) => {
         return { defaultTimeStrategy };
       }),
 
-    setWarnTime: (defaultWarnTime) =>
-      set(() => {
-        localStorage.setItem(EditorSettingsKeys.DefaultWarnTime, String(defaultWarnTime));
-        return { defaultWarnTime };
-      }),
-    setDangerTime: (defaultDangerTime) =>
-      set(() => {
-        localStorage.setItem(EditorSettingsKeys.DefaultDangerTime, String(defaultDangerTime));
-        return { defaultDangerTime };
-      }),
     setDefaultTimerType: (defaultTimerType) =>
       set(() => {
         localStorage.setItem(EditorSettingsKeys.DefaultTimerType, String(defaultTimerType));

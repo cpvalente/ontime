@@ -1,5 +1,5 @@
 import { DatabaseModel, Settings } from 'ontime-types';
-import { sanitiseAuxTimerNames } from 'ontime-utils';
+import { parsePhaseThresholds, sanitiseAuxTimerNames } from 'ontime-utils';
 
 import { getPartialProject } from '../../models/dataModel.js';
 
@@ -22,5 +22,6 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
     timeFormat: data.settings.timeFormat ?? defaultSettings.timeFormat,
     language: data.settings.language ?? defaultSettings.language,
     auxTimerNames: sanitiseAuxTimerNames(data.settings.auxTimerNames),
+    phaseThresholds: parsePhaseThresholds(data.settings.phaseThresholds) ?? defaultSettings.phaseThresholds,
   };
 }

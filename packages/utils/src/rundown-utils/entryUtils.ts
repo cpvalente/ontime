@@ -2,6 +2,7 @@ import type { OntimeDelay, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ont
 import { SupportedEntry, TimeStrategy } from 'ontime-types';
 
 import { generateId } from '../generate-id/generateId.js';
+import { parsePhaseOverride } from '../phase-thresholds/phaseThresholds.js';
 import { validateEndAction, validateTimerType } from '../validate-events/validateEvent.js';
 import { validateTimes } from '../validate-times/validateTimes.js';
 import { event as eventDef, group as groupDef, milestone as milestoneDef } from './entryDefinitions.js';
@@ -147,8 +148,8 @@ function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial<Ontime
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     parent: originalEvent.parent,
     revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
+    timeWarning: parsePhaseOverride(patchEvent.timeWarning, originalEvent.timeWarning),
+    timeDanger: parsePhaseOverride(patchEvent.timeDanger, originalEvent.timeDanger),
     custom: { ...originalEvent.custom, ...patchEvent.custom },
     triggers: patchEvent.triggers ?? originalEvent.triggers,
   };

@@ -45,9 +45,9 @@ function getBuiltInValue(label: string, entry: OntimeEntry): string {
     case 'timerType':
       return isOntimeEvent(entry) ? entry.timerType : '';
     case 'timeWarning':
-      return isOntimeEvent(entry) ? millisToString(entry.timeWarning) : '';
+      return isOntimeEvent(entry) ? millisToString(entry.timeWarning, { fallback: '' }) : '';
     case 'timeDanger':
-      return isOntimeEvent(entry) ? millisToString(entry.timeDanger) : '';
+      return isOntimeEvent(entry) ? millisToString(entry.timeDanger, { fallback: '' }) : '';
     case 'id':
       return entry.id;
     default:

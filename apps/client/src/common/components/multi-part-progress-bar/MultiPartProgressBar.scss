@@ -12,6 +12,14 @@ $progress-bar-br: 3px;
     display: none;
     transition: display 0.5s;
   }
+
+  &--ignore-css-override {
+    --timer-progress-override: initial;
+    --timer-color-override: initial;
+    --timer-warning-color-override: initial;
+    --timer-danger-color-override: initial;
+    --timer-overtime-color-override: initial;
+  }
 }
 
 .multiprogress-bar__bg {
@@ -38,18 +46,20 @@ $progress-bar-br: 3px;
 .multiprogress-bar__indicator-bar {
   background-color: var(--timer-progress-override, $ui-black);
   opacity: 0.8;
-
-  .multiprogress-bar--ignore-css-override & {
-    background-color: $ui-black;
-  }
 }
 
 .multiprogress-bar__bg-normal {
   flex: 1;
+  background-color: var(--timer-color-override, $timer-color);
+}
+
+.multiprogress-bar__bg-warning {
+  background-color: var(--timer-warning-color-override, $timer-warning-color);
 }
 
 .multiprogress-bar__bg-danger {
   flex-shrink: 0;
+  background-color: var(--timer-danger-color-override, $timer-danger-color);
 }
 .multiprogress-bar__bg-danger--overtime {
   background: var(--timer-overtime-color-override, $timer-finished-color);

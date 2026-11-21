@@ -457,6 +457,24 @@ describe('parseExcel()', () => {
     });
   });
 
+  it('empty warning and danger cells, or text which is not a time, inherit the project thresholds', () => {
+    const testData = [
+      ['ID', 'Duration', 'Timer Type', 'Warning time', 'Danger time'],
+      ['inherits', '10', 'count-down', '', ' '],
+      ['not-time', '10', 'count-down', '20%', 'n/a'],
+      ['overrides', '10', 'count-down', '3', '0'],
+    ];
+
+    const parsedData = parseExcel(testData, [], 'phases');
+
+    expect(parsedData.rundown.entries['inherits']).toMatchObject({ timeWarning: null, timeDanger: null });
+    expect(parsedData.rundown.entries['not-time']).toMatchObject({ timeWarning: null, timeDanger: null });
+    expect(parsedData.rundown.entries['overrides']).toMatchObject({
+      timeWarning: 3 * MILLIS_PER_MINUTE,
+      timeDanger: 0,
+    });
+  });
+
   it('handles milestones', () => {
     const testdata = [
       ['Title', 'type', 'notes'],

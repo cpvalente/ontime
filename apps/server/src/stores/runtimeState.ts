@@ -8,6 +8,7 @@ import {
   Offset,
   OntimeEvent,
   OntimeGroup,
+  PhaseThresholds,
   PlayableEvent,
   Playback,
   Rundown,
@@ -22,10 +23,12 @@ import {
   calculateDuration,
   checkIsNow,
   dayInMs,
+  defaultPhaseThresholds,
   getDelayedStart,
   getLastEventNormal,
   getLinksToLoaded,
   isPlaybackActive,
+  resolvePhaseThresholds,
 } from 'ontime-utils';
 
 import { RundownMetadata } from '../api-data/rundown/rundown.types.js';
@@ -80,6 +83,8 @@ export type RuntimeState = {
   _group: Maybe<ExpectedMetadata>;
   _flag: Maybe<ExpectedMetadata>;
   _end: Maybe<ExpectedMetadata>;
+  /** project thresholds, which the loaded event may override */
+  _phaseThresholds: PhaseThresholds;
   /** when playback started, rundown.actualStart is its time of day */
   _startEpoch: Maybe<Instant>;
   /** rundown day playback started on */
@@ -116,6 +121,7 @@ const runtimeState: RuntimeState = {
   _group: null,
   _flag: null,
   _end: null,
+  _phaseThresholds: defaultPhaseThresholds,
   _startEpoch: null,
   _startDayOffset: null,
   _offsetBaseline: null,
@@ -267,6 +273,23 @@ function applyRestore(state: RuntimeState, restore: RuntimeRestore) {
   updateExpectedTimes(state);
 }
 
+export function setPhaseThresholds(thresholds: PhaseThresholds) {
+  runtimeState._phaseThresholds = thresholds;
+  resolveTimerPhases(runtimeState);
+  runtimeState.timer.phase = getTimerPhase(timerPhaseInput(runtimeState));
+}
+
+function resolveTimerPhases(state: RuntimeState) {
+  if (state.eventNow === null) {
+    state.timer.timeWarning = null;
+    state.timer.timeDanger = null;
+    return;
+  }
+  const { timeWarning, timeDanger } = resolvePhaseThresholds(state.eventNow, state._phaseThresholds);
+  state.timer.timeWarning = timeWarning;
+  state.timer.timeDanger = timeDanger;
+}
+
 /**
  * Utility, allows updating data derived from the rundown
  * Expected times depend on the loaded entries, they are recalculated in updateAll()
@@ -310,6 +333,7 @@ export function load(
   loadNow(rundown, metadata, eventIndex);
   loadNext(rundown, metadata, eventIndex);
   loadGroupFlagAndEnd(rundown, metadata);
+  resolveTimerPhases(runtimeState);
 
   // update state
   runtimeState.timer.playback = Playback.Armed;
@@ -458,6 +482,7 @@ export function updateAll(rundown: Rundown, metadata: RundownMetadata) {
   loadNext(rundown, metadata, eventNowIndex);
   updateLoaded(runtimeState.eventNow ?? undefined);
   loadGroupFlagAndEnd(rundown, metadata);
+  resolveTimerPhases(runtimeState);
   if (isPlaybackActive(runtimeState.timer.playback)) updateExpectedTimes();
 }
 
@@ -810,6 +835,7 @@ export function roll(
   loadNow(rundown, metadata, index);
   loadNext(rundown, metadata, index);
   loadGroupFlagAndEnd(rundown, metadata);
+  resolveTimerPhases(runtimeState);
 
   // update roll state
   runtimeState.timer.playback = Playback.Roll;
@@ -1011,15 +1037,15 @@ function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
 }
 
 function timerPhaseInput(state: RuntimeState): TimerPhaseInput {
-  const { eventNow, timer } = state;
+  const { timer } = state;
+  const hasThresholds = timer.timeWarning !== null && timer.timeDanger !== null;
   return {
     playback: timer.playback,
     current: timer.current as Maybe<Duration>,
     secondaryTimer: timer.secondaryTimer as Maybe<Duration>,
-    event: eventNow && {
-      timeDanger: eventNow.timeDanger as Duration,
-      timeWarning: eventNow.timeWarning as Duration,
-    },
+    event: hasThresholds
+      ? { timeDanger: timer.timeDanger as Duration, timeWarning: timer.timeWarning as Duration }
+      : null,
   };
 }
 

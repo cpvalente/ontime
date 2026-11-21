@@ -49,6 +49,7 @@ export type { ProjectData, ProjectStartup } from './definitions/core/ProjectData
 
 // ---> Settings
 export type { Settings } from './definitions/core/Settings.type.js';
+export type { PhaseThreshold, PhaseThresholds } from './definitions/core/PhaseThresholds.type.js';
 
 // ---> Views
 export type { ViewSettings } from './definitions/core/Views.type.js';

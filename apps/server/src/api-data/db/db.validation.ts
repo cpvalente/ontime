@@ -1,4 +1,5 @@
 import { body, param } from 'express-validator';
+import { parsePhaseThresholds } from 'ontime-utils';
 import sanitize from 'sanitize-filename';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
@@ -42,6 +43,11 @@ export const validatePatchProject = [
   body('rundowns').isObject().optional({ nullable: false }),
   body('project').isObject().optional({ nullable: false }),
   body('settings').isObject().optional({ nullable: false }),
+  body('settings.phaseThresholds')
+    .optional()
+    .custom((input) => parsePhaseThresholds(input) !== null)
+    .withMessage('phaseThresholds must hold a warning and a danger threshold')
+    .customSanitizer(parsePhaseThresholds),
   body('viewSettings').isObject().optional({ nullable: false }),
   body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isArray().optional({ nullable: false }),

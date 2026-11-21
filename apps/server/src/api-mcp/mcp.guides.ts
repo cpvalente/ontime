@@ -59,7 +59,7 @@ Prefer Ontime's default palette — the editor's swatches — so colours look na
 
 - \`linkStart\` events inside a block so schedule edits propagate.
 - \`flag\` sparingly — it marks critical moments and dilutes with overuse.
-- Set \`timeWarning\` where a moderator would signal the speaker to wrap (commonly 5 min); \`timeDanger\` for the final push (e.g. 1 min). Scale both down for short items.
+- Warning and danger thresholds come from the project settings, as a time before the end of each event. Set \`timeWarning\` / \`timeDanger\` on an event only when it needs its own values, eg: where a moderator would signal the speaker to wrap; \`null\` returns it to the inherited thresholds.
 - Hard out? Backtime: build the closing items from the end with \`timeEnd\` + \`duration\` (Ontime calculates \`timeStart\`), protect their ends with \`timeStrategy: lock-end\`, and use \`countToEnd\` for true curfew items.
 
 After tidying, read \`ontime://views\` and suggest views that use the new structure.

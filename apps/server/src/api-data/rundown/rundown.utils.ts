@@ -34,6 +34,7 @@ import {
   makeString,
   maxDuration,
   validateEndAction,
+  parsePhaseOverride,
   validateTimerType,
   validateTimes,
 } from 'ontime-utils';
@@ -153,8 +154,8 @@ export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     parent: originalEvent.parent,
     revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
+    timeWarning: parsePhaseOverride(patchEvent.timeWarning, originalEvent.timeWarning),
+    timeDanger: parsePhaseOverride(patchEvent.timeDanger, originalEvent.timeDanger),
     custom: { ...originalEvent.custom, ...patchEvent.custom },
     triggers: patchEvent.triggers ?? originalEvent.triggers,
   };

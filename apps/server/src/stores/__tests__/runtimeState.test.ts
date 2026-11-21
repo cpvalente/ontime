@@ -9,7 +9,7 @@ import {
   SupportedEntry,
   TimerPhase,
 } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
+import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, defaultPhaseThresholds } from 'ontime-utils';
 
 import {
   makeOntimeDelay,
@@ -34,9 +34,11 @@ import {
   resume,
   roll,
   rollNext,
+  setPhaseThresholds,
   start,
   stop,
   update,
+  updateAll,
   updateRundownData,
 } from '../runtimeState.js';
 
@@ -599,6 +601,73 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
       expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
       expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+    });
+  });
+
+  describe('timer phases', () => {
+    const at = (hours: number, minutes = 0) => hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE;
+    const makePhasedRundown = async () => {
+      const own = makeOntimeEvent({
+        id: 'own',
+        timeStart: at(9),
+        timeEnd: at(10),
+        duration: at(1),
+        timeWarning: 15 * MILLIS_PER_MINUTE,
+        timeDanger: null,
+      });
+      const outside = makeOntimeEvent({ id: 'outside', timeStart: at(11), timeEnd: at(12), duration: at(1) });
+      await initTestRundown(makeRundown({ entries: { own, outside }, order: ['own', 'outside'] }));
+      return rundownCache.get();
+    };
+
+    // time thresholds, the default is a share of the duration
+    beforeEach(() =>
+      setPhaseThresholds({
+        warning: { unit: 'time', value: 2 * MILLIS_PER_MINUTE },
+        danger: { unit: 'time', value: MILLIS_PER_MINUTE },
+      }),
+    );
+    afterEach(() => setPhaseThresholds(defaultPhaseThresholds));
+
+    test('resolves the loaded event thresholds from the event or the project', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+
+      load(rundown.entries.own as PlayableEvent, rundown, metadata);
+      expect(getState().timer).toMatchObject({ timeWarning: 15 * MILLIS_PER_MINUTE, timeDanger: MILLIS_PER_MINUTE });
+
+      load(rundown.entries.outside as PlayableEvent, rundown, metadata);
+      expect(getState().timer).toMatchObject({ timeWarning: 2 * MILLIS_PER_MINUTE, timeDanger: MILLIS_PER_MINUTE });
+
+      clearState();
+      expect(getState().timer).toMatchObject({ timeWarning: null, timeDanger: null });
+    });
+
+    test('follows edits to the loaded event', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+      load(rundown.entries.own as PlayableEvent, rundown, metadata);
+
+      const own = { ...rundown.entries.own, timeWarning: null } as OntimeEvent;
+      updateAll({ ...rundown, entries: { ...rundown.entries, own } }, metadata);
+      expect(getState().timer).toMatchObject({ timeWarning: 2 * MILLIS_PER_MINUTE, timeDanger: MILLIS_PER_MINUTE });
+    });
+
+    test('a running timer follows changes to the project thresholds', async () => {
+      clearState();
+      const { rundown, metadata } = await makePhasedRundown();
+      vi.setSystemTime('jan 1 11:00');
+      load(rundown.entries.outside as PlayableEvent, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 11:50');
+      update();
+      expect(getState().timer.phase).toBe(TimerPhase.Default);
+
+      setPhaseThresholds({
+        warning: { unit: 'percent', value: 20 },
+        danger: { unit: 'time', value: MILLIS_PER_MINUTE },
+      });
+      expect(getState().timer.phase).toBe(TimerPhase.Warning);
     });
   });
 

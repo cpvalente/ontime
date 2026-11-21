@@ -1,5 +1,5 @@
 import { Duration, EndAction, Instant, Playback, RefetchKey } from 'ontime-types';
-import { MILLIS_PER_HOUR } from 'ontime-utils';
+import { MILLIS_PER_HOUR, defaultPhaseThresholds } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import type { RundownMetadata } from '../../../api-data/rundown/rundown.types.js';
@@ -50,7 +50,13 @@ vi.mock('../../../stores/runtimeState.js', () => ({
   start: vi.fn((_state?: RuntimeState, _at?: Instant) => true),
   update: vi.fn((): UpdateResult => ({ hasTimerFinished: false, finishedAt: null, hasSecondaryTimerFinished: false })),
   getTimeToNextBoundary: vi.fn(() => null),
+  setPhaseThresholds: vi.fn(),
 }));
+
+vi.mock('../../../api-data/settings/settings.dao.js', async () => {
+  const { defaultPhaseThresholds } = await import('ontime-utils');
+  return { getSettings: () => ({ phaseThresholds: defaultPhaseThresholds }) };
+});
 
 vi.mock('../../../api-data/rundown/rundown.dao.js', () => ({
   getCurrentRundown: vi.fn(() => ({ id: 'rundown', title: '', order: [], flatOrder: [], entries: {}, revision: 0 })),
@@ -213,6 +219,20 @@ describe('init()', () => {
     runtimeService.shutdown();
     notifyChange(RefetchKey.Rundown, 2, 'rundown');
     expect(runtimeState.updateRundownData).toHaveBeenCalledTimes(1);
+  });
+
+  it('follows the project thresholds when the settings change', () => {
+    stateRef.current = makeRuntimeStateData();
+    rundownRef.metadata = makeRundownMetadata();
+
+    runtimeService.init(null);
+    expect(runtimeState.setPhaseThresholds).toHaveBeenCalledWith(defaultPhaseThresholds);
+
+    vi.mocked(runtimeState.setPhaseThresholds).mockClear();
+    notifyChange(RefetchKey.Settings);
+    expect(runtimeState.setPhaseThresholds).toHaveBeenCalledTimes(1);
+
+    runtimeService.shutdown();
   });
 });
 

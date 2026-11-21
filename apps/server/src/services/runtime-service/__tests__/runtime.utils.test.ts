@@ -56,6 +56,8 @@ describe('getShouldTimerUpdate()', () => {
     playback: Playback.Play,
     secondaryTimer: null,
     startedAt: 0,
+    timeWarning: 2000,
+    timeDanger: 1000,
   };
 
   it('always updates when there is no previous state', () => {
@@ -83,6 +85,8 @@ describe('getShouldTimerUpdate()', () => {
     ['phase', { phase: TimerPhase.Warning }],
     ['playback', { playback: Playback.Pause }],
     ['startedAt', { startedAt: 1 }],
+    ['timeWarning', { timeWarning: 3000 }],
+    ['timeDanger', { timeDanger: 500 }],
   ])('updates immediately when %s changes', (_label, patch) => {
     expect(getShouldTimerUpdate(baseTimer, { ...baseTimer, ...patch })).toBe(true);
   });
