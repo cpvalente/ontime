@@ -2,11 +2,12 @@ import type { IncomingMessage } from 'node:http';
 
 import { parse as parseCookie } from 'cookie';
 import express, { Router, type NextFunction, type Request, type Response } from 'express';
+import { Access, type AccessScope } from 'ontime-types';
 
 import { hashedPassword } from '../api-data/session/session.service.js';
 import { srcFiles } from '../setup/index.js';
 import { hashPassword } from '../utils/hash.js';
-import { Access, type AccessScope, getTokenScope } from './access.js';
+import { getTokenScope } from './access.js';
 
 /**
  * List of public assets that can be accessed without authentication

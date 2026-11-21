@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express from 'express';
 import {
+  Access,
   LogOrigin,
   Playback,
   type ProjectStartup,
@@ -25,7 +26,7 @@ import { integrationRouter } from './api-integration/integration.router.js';
 import { flushPendingWrites, getDataProvider } from './classes/data-provider/DataProvider.js';
 import { portManager } from './classes/port-manager/PortManager.js';
 import { updateRouterPrefix } from './externals.js';
-import { Access, scopedAccess } from './middleware/access.js';
+import { scopedAccess } from './middleware/access.js';
 import { makeAuthenticateMiddleware, makeLoginRouter } from './middleware/authenticate.js';
 // Import middleware configuration
 import { bodyParser } from './middleware/bodyParser.js';

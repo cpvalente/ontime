@@ -17,6 +17,7 @@
 import type { Server } from 'http';
 
 import {
+  Access,
   Client,
   LogOrigin,
   MaybeNumber,
@@ -32,7 +33,6 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { now } from '../lib/time-core/timeCore.js';
-import { Access } from '../middleware/access.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';

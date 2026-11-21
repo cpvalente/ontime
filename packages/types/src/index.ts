@@ -147,7 +147,7 @@ export { type TimerState, TimerPhase } from './definitions/runtime/TimerState.ty
 export { type SimpleTimerState, SimplePlayback, SimpleDirection } from './definitions/runtime/AuxTimer.type.js';
 
 // CLIENT
-export type { Client, ClientList, ClientType } from './definitions/Clients.type.js';
+export { type Client, type ClientList, type ClientType, Access, type AccessScope } from './definitions/Clients.type.js';
 
 // TYPE UTILITIES
 export {

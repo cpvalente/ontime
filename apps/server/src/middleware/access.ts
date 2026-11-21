@@ -1,17 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
+import { Access, type AccessScope } from 'ontime-types';
 
 import { hasPassword, hashedPassword, hashedReadPassword } from '../api-data/session/session.service.js';
-
-/**
- * What a request or a socket may do
- * read: make GET requests and follow the show
- * write: everything, including sending commands
- */
-export const Access = {
-  read: 'read',
-  write: 'write',
-} as const;
-export type AccessScope = (typeof Access)[keyof typeof Access];
 
 /**
  * Resolves what a token grants, if anything

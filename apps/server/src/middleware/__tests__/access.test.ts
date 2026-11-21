@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import { Access, type AccessScope } from 'ontime-types';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../api-data/session/session.service.js', () => ({
@@ -7,7 +8,7 @@ vi.mock('../../api-data/session/session.service.js', () => ({
   hashedReadPassword: 'read-hash',
 }));
 
-import { Access, type AccessScope, getTokenScope, scopedAccess } from '../access.js';
+import { getTokenScope, scopedAccess } from '../access.js';
 
 describe('getTokenScope()', () => {
   it('gives write to the hash of the session password', () => {
