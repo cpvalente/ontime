@@ -12,11 +12,6 @@ import { customFieldOfScriptSource, teleprompterCharsPerLine } from 'ontime-util
 
 import { wrapText } from './teleprompter.wrap.js';
 
-/**
- * Builds the script from the rundown, in rundown order, as the rows every screen shows
- * Only the note, the title or a text custom field hold a script, anything else gives an empty one
- * Events without text have nothing to read and are left out
- */
 export function buildScriptEvents(
   rundown: Readonly<Rundown>,
   customFields: Readonly<CustomFields>,
@@ -49,7 +44,6 @@ export function buildScriptEvents(
   return events;
 }
 
-/** Whether a script source names something the script can be built from: the note, the title or a text custom field */
 export function isReadableScriptSource(script: string, customFields: Readonly<CustomFields>): boolean {
   return getTextReader(script, customFields) !== null;
 }
@@ -80,10 +74,7 @@ function makeHeading(heading: TeleprompterHeading, cue: string, title: string): 
 
 export const teleprompterHeadings: TeleprompterHeading[] = ['title', 'cue', 'both', 'none'];
 
-/**
- * Parses teleprompter settings from a project file or a request body
- * Values which are missing or invalid are taken from the fallback
- */
+/** Values which are missing or invalid are taken from the fallback */
 export function parseTeleprompterSettings(data: unknown, fallback: TeleprompterSettings): TeleprompterSettings {
   if (!data || typeof data !== 'object') {
     return { ...fallback };

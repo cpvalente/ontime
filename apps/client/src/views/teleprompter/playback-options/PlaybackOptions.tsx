@@ -43,11 +43,6 @@ function keepKeysInFields(event: KeyboardEvent) {
   }
 }
 
-/**
- * Chooses how a view plays the script, a card per role
- * Every card says what its role does, so the shared roles explain where their settings come from
- * @param options - the role, then the options which only independent playback reads
- */
 export default function PlaybackOptions({ options }: { options: ParamField[] }) {
   const [searchParams] = useSearchParams();
   const { data: settings } = useTeleprompterSettings();
@@ -57,7 +52,6 @@ export default function PlaybackOptions({ options }: { options: ParamField[] }) 
   const [roleField, ...independentOptions] = options;
   const search = searchParams.toString();
   const fromUrl = searchParams.get(roleField.id);
-  // like the view, anything other than a shared role plays on its own
   const applied = roleCards.find(({ role }) => role === fromUrl)?.role ?? 'local';
   // a role chosen and not applied, until the URL changes
   const [chosen, setChosen] = useState<{ search: string; role: TeleprompterRole } | null>(null);

@@ -38,7 +38,6 @@ function stepTeleprompterSpeed(current: number, step: number): number {
   return Math.abs(current) === 1 ? -current : Math.sign(current);
 }
 
-/** A change to the transport, with the event it goes to already resolved */
 export type TeleprompterTransportCommand =
   | { type: 'play' }
   | { type: 'pause' }
@@ -53,10 +52,7 @@ export type TeleprompterTransportCommand =
   | { type: 'mode'; mode: TeleprompterMode | 'toggle' }
   | { type: 'blackout'; blackout: TeleprompterBlackout | 'toggle' };
 
-/**
- * A command as hosts receive it, naming events for the host to resolve in the script
- * An index counts the events of the script, from 1
- */
+/** An index counts the events of the script, from 1 */
 export type TeleprompterCommand =
   | Exclude<TeleprompterTransportCommand, { type: 'goto' }>
   | { type: 'goto'; target: { cue: string } | { id: string } | { index: number } | 'loaded' };
@@ -68,7 +64,6 @@ export type TeleprompterCommand =
 const clockLagTolerance = 60_000;
 
 /**
- * Time since the transport changed, on the server's clock
  * Times are times of day, so a time before the change was taken after midnight,
  * unless it is just before: a client clock running a little behind the server's, for which no time has passed
  */
@@ -87,7 +82,6 @@ const boundaryEpsilon = 1e-6;
 const previousRestartLines = 1;
 
 /**
- * The row at the reading position at a moment, as a fraction between rows
  * Calculated from the transport and the clock, never measured
  * @returns null while the anchor is not in the script, as between an edit and the refetch of the script
  */
@@ -155,7 +149,6 @@ export function settle(
 }
 
 /**
- * Applies a command at a moment
  * Moving the reader keeps the play state, and only playing or moving the reader clears where playback ended
  * @throws if the command names an event which is not in the script
  */
@@ -243,17 +236,13 @@ function toggleMode(mode: TeleprompterMode): TeleprompterMode {
   return mode === 'event' ? 'script' : 'event';
 }
 
-/**
- * Carries the transport over to a new version of the script
- * The reader keeps their place in the text, and playback carries on from there without a jump
- */
+/** The reader keeps their place in the text, and playback carries on from there without a jump */
 export function reanchorTransport(
   transport: TeleprompterTransport,
   previous: { events: TeleprompterScriptEvent[]; layout: TeleprompterLayout },
   next: { events: TeleprompterScriptEvent[]; layout: TeleprompterLayout },
   now: number,
 ): TeleprompterTransport {
-  // where the reader got to in the previous script
   const current = settle(transport, previous.layout, now);
   const isPlaying = current.playback === 'play';
   // only playback moves the reader off their anchor, which a row would round to the start of its line
@@ -270,7 +259,6 @@ function isSameAnchor(a: TeleprompterTransport['anchor'], b: TeleprompterTranspo
 }
 
 /**
- * The teleprompter as people and integrations read it, at a moment
  * Every view, and the server, describe a transport with it, so they all show the same thing
  * Time only changes it when playback stops at an end or the reader reaches another event
  */
@@ -290,10 +278,7 @@ export function describeTransport(
   return { playback, mode, speed, event: { id: reader.id, cue: reader.cue, title: reader.title }, ended, blackout };
 }
 
-/**
- * The reading position screens following a transport animate from, in rows of the script with this revision
- * Only the host which holds the transport resolves its anchor, so every screen counts from the same row
- */
+/** Only the host which holds the transport resolves its anchor, so every screen counts from the same row */
 export function describeSync(
   transport: TeleprompterTransport,
   layout: TeleprompterLayout,
@@ -305,7 +290,6 @@ export function describeSync(
   return { revision, playback, speed, row, until, at };
 }
 
-/** The row at the reading position at a moment, from what the host published */
 export function syncPositionAt(sync: TeleprompterSync, now: number): number {
   if (sync.playback !== 'play') return sync.row;
   return travel(sync.row, sync.speed, elapsedSince(sync.at, now), sync.until);

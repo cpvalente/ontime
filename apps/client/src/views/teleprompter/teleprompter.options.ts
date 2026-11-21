@@ -14,21 +14,13 @@ import { getScriptSourceLabel, makeScriptSourceOptions } from '../../common/util
 import { isStringBoolean } from '../common/viewUtils';
 import PlaybackOptions from './playback-options/PlaybackOptions';
 
-/** Whose playback a view shows: its own, or the one the controllers and Companion drive */
 export type TeleprompterRole = 'local' | 'remote' | 'controller';
 
-/** A view which reads the field set in the project settings, as the shared playback does */
 export const projectSource = 'project';
 
-/**
- * How a view shows the script
- * Where its lines break is set once, in the project settings, for every view
- */
 export type TeleprompterOptions = {
   role: TeleprompterRole;
-  /** the field a local view reads, or the project's field */
   source: string;
-  /** a local view which shows only the loaded event */
   onlyLoaded: boolean;
   lineHeight: number;
   textWidth: number;
@@ -37,9 +29,7 @@ export type TeleprompterOptions = {
   readingLinePos: number;
   flipH: boolean;
   flipV: boolean;
-  /** a local view's starting mode */
   mode: TeleprompterMode;
-  /** a local view's starting speed, in lines per minute */
   speed: number;
 };
 
@@ -76,10 +66,6 @@ const modes = (['event', 'script'] as const).map((value) => ({ value, label: mod
 
 const resetOnReload = 'Changes while playing reset on reload.';
 
-/**
- * The view options, which only change how a view shows the script
- * The playback role comes first, as it decides which of the options that follow apply
- */
 export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
   const projectField = getScriptSourceLabel(shared.script, customFields);
 
@@ -87,11 +73,9 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
     {
       title: OptionTitle.Playback,
       component: PlaybackOptions,
-      // the role, then the options which only a view playing on its own reads
       options: [
         {
           id: 'role',
-          // PlaybackOptions renders the role as cards, so its title, description and labels are not shown
           title: 'Role',
           description: '',
           type: 'option',
@@ -147,7 +131,6 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
       ],
     },
     {
-      // a prompter is read from a fixed line, often through a glass, which no other view needs
       title: OptionTitle.ReadingLayout,
       collapsible: true,
       options: [
@@ -220,7 +203,6 @@ export function getOptionsFromParams(
   return {
     role,
     source: getParam('source') || defaults.source,
-    // a shared screen cannot keep its place in an event it does not show, so it shows them all
     onlyLoaded: role === 'local' && toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
     lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
     textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),

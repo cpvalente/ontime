@@ -17,7 +17,6 @@ export const defaultTeleprompterSettings: Readonly<TeleprompterSettings> = {
  */
 const customFieldPrefix = 'custom-';
 
-/** The script source which reads a custom field */
 export function scriptSourceOfCustomField(key: CustomFieldKey): string {
   return `${customFieldPrefix}${key}`;
 }
@@ -31,7 +30,6 @@ export function renameScriptSource(source: string, oldKey: CustomFieldKey, newKe
   return newKey ? scriptSourceOfCustomField(newKey) : defaultTeleprompterSettings.script;
 }
 
-/** The custom field a script source reads, or null for the note, the title or anything else */
 export function customFieldOfScriptSource(source: string): CustomFieldKey | null {
   return source.startsWith(customFieldPrefix) ? source.slice(customFieldPrefix.length) : null;
 }

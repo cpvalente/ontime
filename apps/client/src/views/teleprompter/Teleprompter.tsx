@@ -60,7 +60,6 @@ export default function Teleprompter() {
 
   const { role } = options;
   const flip = composeFlip(options.flipH, options.flipV, isMirrored);
-  // only a view playing on its own reads a field of its own, so the shared playback shows the same lines everywhere
   const ownSource = role === 'local' && options.source !== projectSource ? options.source : undefined;
   const sourceLabel = getScriptSourceLabel(ownSource ?? settings.script, customFields);
   const emptyText = ownSource
@@ -123,18 +122,12 @@ function BlackoutController() {
 
 interface TeleprompterViewProps {
   options: TeleprompterOptions;
-  /** what the view says when the field it reads holds no script */
   emptyText: string;
   onToggleHelp: () => void;
 }
 
 const sendCommand = (command: TeleprompterViewCommand) => sendSocket('teleprompter', toTeleprompterPayload(command));
 
-/**
- * Shows the transport the server holds, which Companion and the integration API drive
- * It shows what the server publishes, and reads from the position the server calculates, in rows of the script
- * A controller also sends commands, which reach every following view
- */
 function SharedTeleprompter({ options, emptyText, onToggleHelp }: TeleprompterViewProps) {
   const { data: script, status } = useTeleprompterScript();
   const state = useTeleprompterState();
@@ -147,7 +140,6 @@ function SharedTeleprompter({ options, emptyText, onToggleHelp }: TeleprompterVi
       status={status}
       state={state}
       sync={sync}
-      // until the script and the sync count the same rows, the screen holds its place
       isBehind={script?.revision !== sync.revision}
       options={options}
       emptyText={emptyText}
@@ -158,10 +150,6 @@ function SharedTeleprompter({ options, emptyText, onToggleHelp }: TeleprompterVi
   );
 }
 
-/**
- * Runs the same transport in the browser, over the same script or one read from another field
- * @param source - the field to read instead of the project's
- */
 function LocalTeleprompter({
   options,
   source,
@@ -203,14 +191,10 @@ const waitingMessages = {
 
 interface ScriptContentProps {
   script: TeleprompterScript | undefined;
-  /** A local transport already owns the layout of its script. */
   scriptLayout?: TeleprompterLayout;
   status: 'pending' | 'error' | 'success';
-  /** what the view shows */
   state: TeleprompterState;
-  /** where the view reads from, in rows of the script */
   sync: TeleprompterSync;
-  /** the sync refers to a script the view has not received yet */
   isBehind: boolean;
   options: TeleprompterOptions;
   emptyText: string;
@@ -242,7 +226,6 @@ function ScriptContent({
   // a new array of events would lay out the rows and size the text again, so it changes only with what it shows
   const shown = useMemo(() => {
     if (!script) return null;
-    // a field with no script says so before what the loaded event holds
     if (!options.onlyLoaded || script.events.length === 0) return { events: script.events };
     return filterToLoadedEvent(script.events, loadedEventId);
   }, [script, loadedEventId, options.onlyLoaded]);
@@ -292,7 +275,6 @@ function ScriptContent({
   );
 }
 
-/** Waiting views still control playback, even though there are no rows to show or measure. */
 function WaitingScript({
   text,
   onCommand,
@@ -315,11 +297,6 @@ function getLoadedEvent(script: TeleprompterScript, loadedEventId: EntryId | nul
   return { id: event.id, cue: event.cue, title: event.title, inScript: true };
 }
 
-/**
- * Keys every teleprompter view answers to, whatever its role
- * - ? opens the shortcut list
- * - outside a dialog, Space never presses a focused button or opens a menu: on a controller or a local view it only plays and pauses
- */
 function useViewKeys(onToggleHelp: () => void) {
   const handler = useRef(onToggleHelp);
   // keeps the latest handler for the listener, which is registered once

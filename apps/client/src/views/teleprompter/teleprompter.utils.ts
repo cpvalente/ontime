@@ -10,13 +10,8 @@ export function composeFlip(flipH: boolean, flipV: boolean, isMirrored: boolean)
   return { flipH: flipH !== isMirrored, flipV: flipV !== isMirrored };
 }
 
-/** What a screen showing only the loaded event has to show */
 export type LoadedEventScript = { events: TeleprompterScriptEvent[] } | { waiting: 'nothing-loaded' | 'no-script' };
 
-/**
- * Narrows the script to the loaded event
- * Says what the screen is waiting for while nothing is loaded, or the loaded event has no text
- */
 export function filterToLoadedEvent(
   events: TeleprompterScriptEvent[],
   loadedEventId: EntryId | null,
@@ -26,10 +21,6 @@ export function filterToLoadedEvent(
   return event ? { events: [event] } : { waiting: 'no-script' };
 }
 
-/**
- * A row of the whole script, in the rows a screen shows, which can be fewer, as only the loaded event
- * @returns null while the row is in an event the screen does not show
- */
 export function rowInShown(
   row: number,
   scriptLayout: TeleprompterLayout,
@@ -61,7 +52,6 @@ export function easeTowards(shown: number, target: number, deltaSeconds: number)
   return target + (shown - target) * Math.exp(-catchUpRate * deltaSeconds);
 }
 
-/** How long scrolling is gathered into one command */
 const scrollInterval = 50;
 
 /**
@@ -101,20 +91,17 @@ export function createScrollBatcher(send: (lines: number) => void, interval = sc
 const wheelDeltaLine = 1;
 const wheelDeltaPage = 2;
 
-/** Converts a wheel movement into lines of the script */
 export function wheelToLines(deltaY: number, deltaMode: number, rowHeight: number, screenLines: number): number {
   if (deltaMode === wheelDeltaLine) return deltaY;
   if (deltaMode === wheelDeltaPage) return deltaY * screenLines;
   return rowHeight > 0 ? deltaY / rowHeight : 0;
 }
 
-/** Lines to move for a screen, keeping a little of the last one in view */
 export function linesPerScreen(screenHeight: number, rowHeight: number): number {
   if (rowHeight <= 0) return 1;
   return Math.max(1, Math.floor((screenHeight / rowHeight) * 0.85));
 }
 
-/** A view's command as the integration API takes it, for a controller to send to the server */
 export function toTeleprompterPayload(command: TeleprompterViewCommand): TeleprompterPayload {
   switch (command.type) {
     case 'speed':

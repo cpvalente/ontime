@@ -25,7 +25,6 @@ const headingOptions: { value: TeleprompterHeading; label: string }[] = [
   { value: 'none', label: 'None' },
 ];
 
-/** What the shared teleprompter playback reads, kept with the project */
 export default function TeleprompterSettings() {
   const { data, status, mutateAsync } = useTeleprompterSettings();
   const { data: customFields } = useCustomFields();

@@ -8,20 +8,13 @@ import { easeTowards, frameDeltaSeconds, rowInShown } from './teleprompter.utils
 
 interface UseTeleprompterScrollArgs {
   scroller: HTMLElement | null;
-  /** the rows, which a screen that is not scrolled by hand moves rather than scroll */
   content: HTMLElement | null;
-  /** where the transport reads from, in rows of the script: a new sync releases the place a reader scrolled to by hand */
   sync: TeleprompterSync;
-  /** the rows of the whole script, which the sync counts */
   scriptLayout: TeleprompterLayout;
-  /** the sync refers to a script the screen has not received yet, so the screen holds its place */
   isBehind: boolean;
-  /** the rows the screen shows */
   layout: TeleprompterLayout;
   rowHeight: number;
-  /** where to rest while the position is outside the rows shown */
   fallbackRow?: number;
-  /** a screen which can be scrolled by hand reports the row it was scrolled to */
   onUserScroll?: (row: number) => void;
 }
 
@@ -33,7 +26,6 @@ const userScrollCommitMs = 150;
 const sentScrollMs = 1000;
 
 /**
- * Turns the transport into the scroll position, once per frame
  * The position is calculated from the transport and the clock, the page is never measured to find it
  * @returns a function which shows a scroll command sent to the server straight away, until the server answers it
  */
@@ -142,7 +134,6 @@ export function useTeleprompterScroll(args: UseTeleprompterScrollArgs) {
   return showSentScroll;
 }
 
-/** The reading position with the scrolls the server has not answered, which it keeps within the script */
 function sentPositionAt(sync: TeleprompterSync, scriptLayout: TeleprompterLayout, sentLines: number[]): number {
   const position = syncPositionAt(sync, serverNow());
   if (sentLines.length === 0) return position;
