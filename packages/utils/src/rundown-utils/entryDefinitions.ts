@@ -16,8 +16,8 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   duration: 0,
   skip: false,
   colour: '',
-  timeWarning: 120000,
-  timeDanger: 60000,
+  timeWarning: null,
+  timeDanger: null,
   triggers: [],
   custom: {},
   // !==== RUNTIME METADATA ====! //
@@ -53,6 +53,7 @@ export const group: Omit<OntimeGroup, 'id'> = {
   entries: [],
   targetDuration: null,
   colour: '',
+  phaseThresholds: null,
   custom: {},
   // !==== RUNTIME METADATA ====! //
   revision: 0, // calculated at runtime

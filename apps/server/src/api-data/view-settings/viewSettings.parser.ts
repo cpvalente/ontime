@@ -15,9 +15,6 @@ export function parseViewSettings(data: Partial<DatabaseModel>, emitError?: Erro
   }
 
   return {
-    dangerColor: data.viewSettings.dangerColor ?? defaultViewSettings.dangerColor,
-    normalColor: data.viewSettings.normalColor ?? defaultViewSettings.normalColor,
     overrideStyles: data.viewSettings.overrideStyles ?? defaultViewSettings.overrideStyles,
-    warningColor: data.viewSettings.warningColor ?? defaultViewSettings.warningColor,
   };
 }

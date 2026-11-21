@@ -10,11 +10,8 @@ interface MultiPartProgressBar {
   now: MaybeNumber;
   complete: MaybeNumber;
   eventId?: string | null;
-  normalColor: string;
   warning?: MaybeNumber;
-  warningColor: string;
   danger?: MaybeNumber;
-  dangerColor: string;
   hidden?: boolean;
   hideOvertime?: boolean;
   ignoreCssOverride?: boolean;
@@ -22,20 +19,7 @@ interface MultiPartProgressBar {
 }
 
 export default function MultiPartProgressBar(props: MultiPartProgressBar) {
-  const {
-    now,
-    complete,
-    eventId,
-    normalColor,
-    warning,
-    warningColor,
-    danger,
-    dangerColor,
-    hidden,
-    hideOvertime,
-    ignoreCssOverride,
-    className = '',
-  } = props;
+  const { now, complete, eventId, warning, danger, hidden, hideOvertime, ignoreCssOverride, className = '' } = props;
 
   const percentRemaining = 100 - useAnimatedProgress(now, complete, eventId);
   const dangerWidth = danger ? 100 - getProgress(danger, complete) : 0;
@@ -55,14 +39,11 @@ export default function MultiPartProgressBar(props: MultiPartProgressBar) {
       {now !== null && (
         <>
           <div className='multiprogress-bar__bg'>
-            <div className='multiprogress-bar__bg-normal' style={{ backgroundColor: normalColor }} />
-            <div
-              className='multiprogress-bar__bg-warning'
-              style={{ width: `${warningWidth}%`, backgroundColor: warningColor }}
-            />
+            <div className='multiprogress-bar__bg-normal' />
+            <div className='multiprogress-bar__bg-warning' style={{ width: `${warningWidth}%` }} />
             <div
               className={cx(['multiprogress-bar__bg-danger', showOvertime && 'multiprogress-bar__bg-danger--overtime'])}
-              style={{ width: `${dangerWidth}%`, backgroundColor: showOvertime ? undefined : dangerColor }}
+              style={{ width: `${dangerWidth}%` }}
             />
           </div>
           <div className='multiprogress-bar__indicator'>

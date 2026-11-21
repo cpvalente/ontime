@@ -33,6 +33,14 @@ type MergedOntimeEntry = Prettify<
 >;
 
 /**
+ * An empty warning or danger cell inherits the group or project threshold
+ */
+function parsePhaseCell(cell: unknown): number | null {
+  if (cell == null || (is.string(cell) && cell.trim() === '')) return null;
+  return parseExcelDate(cell);
+}
+
+/**
  * @description Excel array parser
  * @param {array} excelData - array with excel sheet
  * @param {ImportOptions} options - an object that contains the import map
@@ -126,9 +134,9 @@ export const parseExcel = (
       } else if (j === indexMap.endAction) {
         entry.endAction = validateEndAction(column);
       } else if (j === indexMap.timeWarning) {
-        entry.timeWarning = parseExcelDate(column);
+        entry.timeWarning = parsePhaseCell(column);
       } else if (j === indexMap.timeDanger) {
-        entry.timeDanger = parseExcelDate(column);
+        entry.timeDanger = parsePhaseCell(column);
       } else if (j === indexMap.colour) {
         entry.colour = makeString(column, '');
       } else if (j === indexMap.id) {

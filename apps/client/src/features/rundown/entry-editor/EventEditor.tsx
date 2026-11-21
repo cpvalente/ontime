@@ -1,4 +1,4 @@
-import { OntimeEvent } from 'ontime-types';
+import { OntimeEvent, PhaseThresholds } from 'ontime-types';
 import { useCallback } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
@@ -17,9 +17,10 @@ export type EventEditorUpdateFields = 'cue' | 'title' | 'note' | 'colour' | stri
 
 interface EventEditorProps {
   event: OntimeEvent;
+  groupThresholds: PhaseThresholds | null;
 }
 
-export default function EventEditor({ event }: EventEditorProps) {
+export default function EventEditor({ event, groupThresholds }: EventEditorProps) {
   const { data: customFields } = useCustomFields();
   const { updateEntry } = useEntryActionsContext();
 
@@ -53,6 +54,7 @@ export default function EventEditor({ event }: EventEditorProps) {
         timerType={event.timerType}
         timeWarning={event.timeWarning}
         timeDanger={event.timeDanger}
+        groupThresholds={groupThresholds}
       />
       <EventEditorTitles
         key={`${event.id}-titles`}

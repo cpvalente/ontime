@@ -37,12 +37,13 @@ export const demoDb: Omit<DatabaseModel, 'projectId'> = {
     timeFormat: '24',
     language: 'en',
     auxTimerNames: ['Q&A', 'Break', 'Reset'],
+    phaseThresholds: {
+      warning: { unit: 'time', value: 120000 },
+      danger: { unit: 'time', value: 60000 },
+    },
   },
   viewSettings: {
-    dangerColor: '#ff7300',
-    normalColor: '#ffffffcc',
     overrideStyles: false,
-    warningColor: '#ffa528',
   },
   urlPresets: [
     {

@@ -1,19 +1,16 @@
 import { QuickStartData } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
 import { useForm } from 'react-hook-form';
 
 import { quickProject } from '../../../common/api/db';
 import { invalidateAllCaches, maybeAxiosError } from '../../../common/api/utils';
 import Button from '../../../common/components/buttons/Button';
 import Input from '../../../common/components/input/input/Input';
-import TimeInput from '../../../common/components/input/time-input/TimeInput';
+import PhaseThresholdInput from '../../../common/components/input/phase-threshold-input/PhaseThresholdInput';
 import Modal from '../../../common/components/modal/Modal';
 import Select from '../../../common/components/select/Select';
-import { editorSettingsDefaults, useEditorSettings } from '../../../common/stores/editorSettings';
 import * as Panel from '../panel-utils/PanelUtils';
+import { phaseDescription } from '../panel/manage-panel/PhaseThresholdSettings';
 import { quickStartDefaults } from './quickStart.utils';
-
-type QuickStartForm = QuickStartData & { warnTime: string; dangerTime: string };
 
 interface QuickStartProps {
   isOpen: boolean;
@@ -21,14 +18,6 @@ interface QuickStartProps {
 }
 
 export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
-  const { defaultWarnTime, defaultDangerTime, setDangerTime, setWarnTime } = useEditorSettings();
-
-  const formDefaults: QuickStartForm = {
-    ...quickStartDefaults,
-    warnTime: defaultWarnTime,
-    dangerTime: defaultDangerTime,
-  };
-
   const {
     handleSubmit,
     register,
@@ -36,31 +25,26 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
     watch,
     setError,
     setValue,
-  } = useForm<QuickStartForm>({
-    defaultValues: formDefaults,
-    values: formDefaults,
+  } = useForm<QuickStartData>({
+    defaultValues: quickStartDefaults,
+    values: quickStartDefaults,
     resetOptions: {
       keepDirtyValues: true,
     },
   });
 
-  const onSubmit = async ({ warnTime, dangerTime, ...formData }: QuickStartForm) => {
+  const onSubmit = async (formData: QuickStartData) => {
     try {
       if (formData.project.title === '') {
         formData.project.title = 'untitled';
       }
       await quickProject(formData);
-      setWarnTime(warnTime);
-      setDangerTime(dangerTime);
       await invalidateAllCaches();
       onClose();
     } catch (error) {
       setError('root', { message: maybeAxiosError(error) });
     }
   };
-
-  const warnTimeInMs = parseUserTime(watch('warnTime'));
-  const dangerTimeInMs = parseUserTime(watch('dangerTime'));
 
   return (
     <Modal
@@ -122,21 +106,23 @@ export default function QuickStart({ isOpen, onClose }: QuickStartProps) {
 
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='Warning time' description='Default threshold for warning time in an event' />
-              <TimeInput<'warnTime'>
+              <Panel.Field title='Warning' description={phaseDescription.warning} />
+              <PhaseThresholdInput
                 name='warnTime'
-                submitHandler={(_field, value) => setValue('warnTime', value, { shouldDirty: true })}
-                time={warnTimeInMs}
-                placeholder={editorSettingsDefaults.warnTime}
+                label='Warning'
+                phase='warning'
+                value={watch('settings.phaseThresholds.warning')}
+                onChange={(threshold) => setValue('settings.phaseThresholds.warning', threshold, { shouldDirty: true })}
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Danger time' description='Default threshold for danger time in an event' />
-              <TimeInput<'dangerTime'>
+              <Panel.Field title='Danger' description={phaseDescription.danger} />
+              <PhaseThresholdInput
                 name='dangerTime'
-                submitHandler={(_field, value) => setValue('dangerTime', value, { shouldDirty: true })}
-                time={dangerTimeInMs}
-                placeholder={editorSettingsDefaults.dangerTime}
+                label='Danger'
+                phase='danger'
+                value={watch('settings.phaseThresholds.danger')}
+                onChange={(threshold) => setValue('settings.phaseThresholds.danger', threshold, { shouldDirty: true })}
               />
             </Panel.ListItem>
           </Panel.ListGroup>

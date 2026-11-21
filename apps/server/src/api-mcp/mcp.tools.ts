@@ -372,7 +372,7 @@ export const TOOL_DEFINITIONS = [
   {
     name: 'ontime_get_timer_state',
     description:
-      'Get the current timer/playback state. Returns: clock (time of day), timer ({ playback, current, elapsed, phase, expectedFinish, addedTime, startedAt }), eventNow (full event object or null), eventNext (full event object or null), offset.',
+      'Get the current timer/playback state. Returns: clock (time of day), timer ({ playback, current, elapsed, phase, expectedFinish, addedTime, startedAt, timeWarning, timeDanger: the resolved warning and danger thresholds of the loaded event }), eventNow (full event object or null), eventNext (full event object or null), offset.',
     inputSchema: { type: 'object', properties: {} },
     annotations: READ,
   },

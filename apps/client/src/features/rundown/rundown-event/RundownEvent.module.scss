@@ -178,6 +178,7 @@ $skip-opacity: 0.2;
 }
 
 .progressBg {
+  position: relative;
   grid-area: progb;
   border-radius: 1px;
   background-color: $gray-1100;

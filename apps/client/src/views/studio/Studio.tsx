@@ -33,7 +33,7 @@ export default function StudioLoader() {
   return <Studio {...data} />;
 }
 
-function Studio({ customFields, projectData, isMirrored, settings, viewSettings }: StudioData) {
+function Studio({ customFields, projectData, isMirrored, settings }: StudioData) {
   const { hideCards } = useStudioOptions();
 
   // gather option data
@@ -53,7 +53,7 @@ function Studio({ customFields, projectData, isMirrored, settings, viewSettings 
 
       <div className={cx(['studio-contents', hideCards && 'studio-contents--onecol'])}>
         <StudioClock hideCards={hideCards} />
-        {!hideCards && <StudioTimers viewSettings={viewSettings} />}
+        {!hideCards && <StudioTimers />}
       </div>
     </div>
   );

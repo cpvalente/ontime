@@ -21,6 +21,7 @@ import {
 import {
   checkRegex,
   customFieldLabelToKey,
+  defaultPhaseThresholds,
   eventDef as eventModel,
   isKnownTimerType,
   validateEndAction,
@@ -83,6 +84,7 @@ export function migrateSettings(jsonData: object): (Settings & { serverPort: num
       timeFormat,
       language,
       auxTimerNames: ['', '', ''],
+      phaseThresholds: structuredClone(defaultPhaseThresholds),
     };
   }
 }
@@ -100,13 +102,12 @@ type old_ViewSettings = {
  * migrates a view settings from v3 to v4
  * - drop `freezeEnd`
  * - drop `endMessage`
+ * - drop the timer colours
  */
 export function migrateViewSettings(jsonData: object): ViewSettings | undefined {
   if (is.objectWithKeys(jsonData, ['viewSettings']) && is.object(jsonData.viewSettings)) {
-    const { dangerColor, normalColor, overrideStyles, warningColor } = structuredClone(
-      jsonData.viewSettings,
-    ) as old_ViewSettings;
-    return { dangerColor, normalColor, overrideStyles, warningColor };
+    const { overrideStyles } = jsonData.viewSettings as old_ViewSettings;
+    return { overrideStyles };
   }
 }
 
@@ -422,6 +423,7 @@ export function migrateRundown(
           entries: [], // leave empty
           targetDuration: null,
           colour: '', //leave default colour
+          phaseThresholds: null,
           custom: {}, // leave empty
           // !==== RUNTIME METADATA ====! //
           revision: -1,

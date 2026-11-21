@@ -3,11 +3,9 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { CornerPipButton } from '../../../common/components/editor-utils/EditorUtils';
-import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { PipTimer } from './PipTimer';
 
 export default function PipTimerHost() {
-  const { data, status } = useViewSettings();
   const [pipContainer, setPipContainer] = useState<HTMLElement | null>(null);
 
   // do not leave an orphan window if the editor goes away
@@ -58,14 +56,13 @@ export default function PipTimerHost() {
     setPipContainer(pipDiv);
   };
 
-  // rendering through a portal keeps the PiP window in our React tree, so it follows view settings changes
   return (
     <>
-      <CornerPipButton onClick={status === 'success' ? openPictureInPicture : undefined} />
+      <CornerPipButton onClick={openPictureInPicture} />
       {pipContainer &&
         createPortal(
           <ErrorBoundary>
-            <PipTimer viewSettings={data} />
+            <PipTimer />
           </ErrorBoundary>,
           pipContainer,
         )}

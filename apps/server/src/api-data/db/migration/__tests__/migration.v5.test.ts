@@ -34,6 +34,32 @@ describe('migrateToV5()', () => {
     expect(migrated.customFields).toStrictEqual(asList(data.customFields));
     expect({ ...migrated, customFields: data.customFields }).toStrictEqual(data);
   });
+
+  test('events at the 4.x default warning and danger times inherit the project thresholds', () => {
+    const event = (id: string, timeWarning: number, timeDanger: number) => ({
+      id,
+      type: 'event',
+      timeWarning,
+      timeDanger,
+    });
+    const data = {
+      customFields: {},
+      rundowns: {
+        default: {
+          entries: {
+            defaults: event('defaults', 120000, 60000),
+            custom: event('custom', 300000, 120000),
+            group: { id: 'group', type: 'group' },
+          },
+        },
+      },
+    } as unknown as Parameters<typeof v5.migrateToV5>[0];
+
+    const { entries } = v5.migrateToV5(data).rundowns!.default;
+    expect(entries.defaults).toMatchObject({ timeWarning: null, timeDanger: null });
+    expect(entries.custom).toMatchObject({ timeWarning: 300000, timeDanger: 120000 });
+    expect(entries.group).toStrictEqual({ id: 'group', type: 'group' });
+  });
 });
 
 /**

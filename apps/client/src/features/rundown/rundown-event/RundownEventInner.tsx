@@ -146,7 +146,8 @@ function RundownEventInner({
       <div className={style.statusElements} id='entry-status' data-timertype={timerType}>
         <span className={style.eventNote}>{note}</span>
         <div className={loaded ? style.progressBg : `${style.progressBg} ${style.hidden}`}>
-          {loaded && <EventBlockProgressBar />}
+          {/* views only show phases on count down timers, see getShowModifiers() */}
+          {loaded && <EventBlockProgressBar showPhases={timerType === TimerType.CountDown || countToEnd} />}
         </div>
         <div className={style.eventStatus} tabIndex={-1}>
           <Tooltip text={`Time type: ${timerType}`} render={<span />}>

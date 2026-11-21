@@ -27,7 +27,7 @@ export default function useSettings() {
 }
 
 export function useUpdateSettings() {
-  const { mutateAsync } = useMutation({
+  const { mutateAsync, isPending } = useMutation({
     mutationFn: postSettings,
     onMutate: () => ontimeQueryClient.cancelQueries({ queryKey: APP_SETTINGS }),
     onError: () => ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS }),
@@ -36,5 +36,5 @@ export function useUpdateSettings() {
     },
   });
 
-  return { updateSettings: mutateAsync };
+  return { updateSettings: mutateAsync, isPending };
 }

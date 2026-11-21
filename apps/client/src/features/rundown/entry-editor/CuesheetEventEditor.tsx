@@ -1,6 +1,7 @@
 import { OntimeEntry, Rundown, isOntimeEvent, isOntimeGroup, isOntimeMilestone } from 'ontime-types';
 import { useMemo } from 'react';
 
+import { getGroupThresholds } from './entryEditor.utils';
 import EventEditor from './EventEditor';
 import GroupEditor from './GroupEditor';
 import MilestoneEditor from './MilestoneEditor';
@@ -25,7 +26,7 @@ export default function CuesheetEntryEditor({ entryId, rundown }: CuesheetEntryE
   if (isOntimeEvent(entry)) {
     return (
       <div className={style.entryEditor} data-testid='editor-container'>
-        <EventEditor event={entry} />
+        <EventEditor event={entry} groupThresholds={getGroupThresholds(rundown.entries, entry.parent)} />
       </div>
     );
   }

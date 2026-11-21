@@ -1,12 +1,15 @@
-import { MaybeNumber, OntimeGroup } from 'ontime-types';
+import { MaybeNumber, OntimeGroup, PhaseThreshold, PhaseThresholds } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
 import * as Editor from '../../../common/components/editor-utils/EditorUtils';
 import SwatchSelect from '../../../common/components/input/colour-input/SwatchSelect';
+import PhaseThresholdInput from '../../../common/components/input/phase-threshold-input/PhaseThresholdInput';
 import AppLink from '../../../common/components/link/app-link/AppLink';
+import Switch from '../../../common/components/switch/Switch';
 import { useEntryActionsContext } from '../../../common/context/EntryActionsContext';
 import useCustomFields from '../../../common/hooks-query/useCustomFields';
+import useSettings from '../../../common/hooks-query/useSettings';
 import { getOffsetState } from '../../../common/utils/offset';
 import { cx, enDash } from '../../../common/utils/styleUtils';
 import { formatTime } from '../../../common/utils/time';
@@ -97,6 +100,8 @@ export default function GroupEditor({ group }: GroupEditorProps) {
         </div>
       </div>
 
+      <GroupPhaseThresholds groupId={group.id} phaseThresholds={group.phaseThresholds} />
+
       <div className={style.column}>
         <Editor.Title>Group data</Editor.Title>
         <div>
@@ -114,6 +119,67 @@ export default function GroupEditor({ group }: GroupEditorProps) {
         </Editor.Title>
         <EntryEditorCustomFields customFields={customFields} handleSubmit={handleSubmit} entry={group} />
       </div>
+    </div>
+  );
+}
+
+interface GroupPhaseThresholdsProps {
+  groupId: string;
+  phaseThresholds: PhaseThresholds | null;
+}
+
+function GroupPhaseThresholds({ groupId, phaseThresholds }: GroupPhaseThresholdsProps) {
+  const { updateEntry } = useEntryActionsContext();
+  const { data: settings } = useSettings();
+  const isOverride = phaseThresholds !== null;
+
+  const submit = (newThresholds: PhaseThresholds | null) => {
+    updateEntry({ id: groupId, phaseThresholds: newThresholds });
+  };
+
+  const submitPhase = (phase: keyof PhaseThresholds, threshold: PhaseThreshold) => {
+    if (!phaseThresholds) return;
+    submit({ ...phaseThresholds, [phase]: threshold });
+  };
+
+  return (
+    <div className={style.column}>
+      <Editor.Title>Warning and danger</Editor.Title>
+      <div>
+        <Editor.Label htmlFor='groupPhaseOverride'>Override project thresholds</Editor.Label>
+        <Editor.Label className={style.switchLabel}>
+          <Switch
+            id='groupPhaseOverride'
+            checked={isOverride}
+            onCheckedChange={(checked) => submit(checked ? settings.phaseThresholds : null)}
+          />
+          {isOverride ? 'On' : 'Off, uses the project thresholds'}
+        </Editor.Label>
+      </div>
+      {phaseThresholds && (
+        <div className={style.splitTwo}>
+          <div>
+            <Editor.Label htmlFor='groupWarning'>Warning</Editor.Label>
+            <PhaseThresholdInput
+              name='groupWarning'
+              label='Warning'
+              phase='warning'
+              value={phaseThresholds.warning}
+              onChange={(threshold) => submitPhase('warning', threshold)}
+            />
+          </div>
+          <div>
+            <Editor.Label htmlFor='groupDanger'>Danger</Editor.Label>
+            <PhaseThresholdInput
+              name='groupDanger'
+              label='Danger'
+              phase='danger'
+              value={phaseThresholds.danger}
+              onChange={(threshold) => submitPhase('danger', threshold)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

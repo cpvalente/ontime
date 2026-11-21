@@ -346,10 +346,7 @@ export const demoDb: DatabaseModel = {
     auxTimerNames: ['', '', ''],
   },
   viewSettings: {
-    dangerColor: '#ff7300',
-    normalColor: '#ffffffcc',
     overrideStyles: false,
-    warningColor: '#ffa528',
   },
   urlPresets: [
     {

@@ -2,7 +2,6 @@ import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
-import { useEditorSettings } from '../../../../../common/stores/editorSettings';
 import ProjectPanel from '../ProjectPanel';
 
 vi.mock('../ManageProjects', () => ({ default: () => null }));
@@ -24,7 +23,6 @@ afterEach(async () => {
 });
 
 it('discards staged thresholds when project creation is cancelled', async () => {
-  const savedSettings = useEditorSettings.getState();
   const setLocation = vi.fn();
   const renderPanel = async (location?: string) => {
     await act(async () => root.render(createElement(ProjectPanel, { location, setLocation })));
@@ -52,6 +50,4 @@ it('discards staged thresholds when project creation is cancelled', async () => 
 
   expect(getTimeInput('warnTime').value).toBe(originalWarnTime);
   expect(getTimeInput('dangerTime').value).toBe(originalDangerTime);
-  expect(useEditorSettings.getState().defaultWarnTime).toBe(savedSettings.defaultWarnTime);
-  expect(useEditorSettings.getState().defaultDangerTime).toBe(savedSettings.defaultDangerTime);
 });

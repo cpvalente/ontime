@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { defaultTeleprompterSettings, generateId } from 'ontime-utils';
+import { defaultPhaseThresholds, defaultTeleprompterSettings, generateId } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
@@ -34,12 +34,10 @@ const dbModel: Omit<DatabaseModel, 'projectId'> = {
     timeFormat: '24',
     language: 'en',
     auxTimerNames: ['', '', ''],
+    phaseThresholds: structuredClone(defaultPhaseThresholds),
   },
   viewSettings: {
     overrideStyles: false,
-    normalColor: '#ffffffcc',
-    warningColor: '#ffa528',
-    dangerColor: '#ff7300',
   },
   urlPresets: [],
   customFields: [],

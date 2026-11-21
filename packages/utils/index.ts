@@ -114,6 +114,14 @@ export { isPlaybackActive } from './src/playback-utils/playbackstate.js';
 // aux timers
 export { auxTimerNameMaxLength, sanitiseAuxTimerNames } from './src/aux-timer-utils/auxTimerUtils.js';
 
+// timer phases
+export {
+  defaultPhaseThresholds,
+  parsePhaseOverride,
+  parsePhaseThresholds,
+  resolvePhaseThresholds,
+} from './src/phase-thresholds/phaseThresholds.js';
+
 // teleprompter
 export {
   anchorAtRow,

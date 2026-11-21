@@ -73,6 +73,10 @@ Pass time/state explicitly to keep rules deterministic and unit-testable.
 
 Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
 
+Warning and danger resolve from the event's own value per phase, else its group's thresholds, else the project's; a
+percentage is taken of the planned event duration. An event or group value of `null` inherits. The runtime publishes the
+resolved values on the timer state: live consumers read those, never the event fields.
+
 Pausing gives the running event time, the same as added time: a paused countdown holds and its end moves later. A count-to-end event aims at its planned end plus the time given to it.
 
 ## Lifecycle events

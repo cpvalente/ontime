@@ -34,6 +34,8 @@ import {
   makeString,
   maxDuration,
   validateEndAction,
+  parsePhaseOverride,
+  parsePhaseThresholds,
   validateTimerType,
   validateTimes,
 } from 'ontime-utils';
@@ -153,8 +155,8 @@ export function createEventPatch(originalEvent: OntimeEvent, patchEvent: Partial
     cue: makeString(patchEvent.cue ?? null, originalEvent.cue),
     parent: originalEvent.parent,
     revision: originalEvent.revision,
-    timeWarning: patchEvent.timeWarning ?? originalEvent.timeWarning,
-    timeDanger: patchEvent.timeDanger ?? originalEvent.timeDanger,
+    timeWarning: parsePhaseOverride(patchEvent.timeWarning, originalEvent.timeWarning),
+    timeDanger: parsePhaseOverride(patchEvent.timeDanger, originalEvent.timeDanger),
     custom: { ...originalEvent.custom, ...patchEvent.custom },
     triggers: patchEvent.triggers ?? originalEvent.triggers,
   };
@@ -183,6 +185,10 @@ export function createGroupPatch(originalGroup: OntimeGroup, patchGroup: Partial
     entries: patchGroup.entries ?? originalGroup.entries,
     targetDuration: maybeTargetDuration(),
     colour: makeString(patchGroup.colour, originalGroup.colour),
+    phaseThresholds:
+      patchGroup.phaseThresholds === null
+        ? null
+        : (parsePhaseThresholds(patchGroup.phaseThresholds) ?? originalGroup.phaseThresholds),
     revision: originalGroup.revision,
     timeStart: originalGroup.timeStart,
     timeEnd: originalGroup.timeEnd,
@@ -366,6 +372,7 @@ enum RegenerateWhitelist {
   colour,
   timeWarning,
   timeDanger,
+  phaseThresholds,
   custom,
   triggers,
 }

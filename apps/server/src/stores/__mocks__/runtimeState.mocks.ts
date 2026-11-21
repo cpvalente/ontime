@@ -1,5 +1,5 @@
 import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
-import { deepmerge } from 'ontime-utils';
+import { deepmerge, defaultPhaseThresholds } from 'ontime-utils';
 
 import type { RuntimeState } from '../runtimeState.js';
 
@@ -36,6 +36,8 @@ const baseState: RuntimeState = {
     playback: Playback.Stop,
     secondaryTimer: null,
     startedAt: null,
+    timeWarning: null,
+    timeDanger: null,
   },
   _timer: {
     forceFinish: null,
@@ -50,6 +52,7 @@ const baseState: RuntimeState = {
   _group: null,
   _end: null,
   _flag: null,
+  _phaseThresholds: defaultPhaseThresholds,
   _startDayOffset: null,
   _startEpoch: null,
   _startEventStart: null,
