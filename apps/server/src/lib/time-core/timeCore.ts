@@ -26,11 +26,41 @@ export function timeOfDayNow(): TimeOfDay {
 /**
  * Converts a time of day to an instant anchored to the same day as the reference
  * - Uses the reference instant to determine which calendar day to anchor to
+ * - Not for past times of day: 23:50 anchored at 00:10 lands in the future, use lastInstantAt
  */
 export function toInstant(clock: TimeOfDay, reference: Instant): Instant {
   const referenceClock = toTimeOfDay(reference);
   const dayStart = reference - referenceClock;
   return (dayStart + clock) as Instant;
+}
+
+/**
+ * Returns the latest instant, at or before the reference, when the local clock showed the given time of day
+ * - Use to recover when a past time of day happened, eg: 23:50 seen at 00:10 is 20 minutes ago
+ * - Follows the local calendar, so a DST change between the two keeps the time of day
+ */
+export function lastInstantAt(clock: TimeOfDay, reference: Instant): Instant {
+  const date = new Date(reference);
+  date.setHours(0, 0, 0, clock);
+  if (date.getTime() > reference) {
+    date.setDate(date.getDate() - 1);
+    date.setHours(0, 0, 0, clock);
+  }
+  return date.getTime() as Instant;
+}
+
+/**
+ * Returns the time between two instants as the local wall clock shows it
+ * - A DST change between them adds or removes its hour, so timers follow the planned times of day
+ * - Result is positive when 'since' is before 'now'
+ */
+export function wallTimeSince(now: Instant, since: Instant): Duration {
+  return (localMillis(now) - localMillis(since)) as Duration;
+}
+
+/** milliseconds since the epoch, read on the local wall clock */
+function localMillis(instant: Instant): number {
+  return instant - new Date(instant).getTimezoneOffset() * MILLIS_PER_MINUTE;
 }
 
 /**
