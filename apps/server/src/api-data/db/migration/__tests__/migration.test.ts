@@ -184,6 +184,10 @@ describe('v3 to v4', () => {
       timeFormat: '24',
       language: 'en',
       auxTimerNames: ['', '', ''],
+      phaseThresholds: {
+        warning: { unit: 'time', value: 120000 },
+        danger: { unit: 'time', value: 60000 },
+      },
     };
     const newSettings = v3.migrateSettings(oldDb);
     expect(newSettings).toEqual(expectSettings);
@@ -191,10 +195,7 @@ describe('v3 to v4', () => {
 
   test('migrate view settings', () => {
     const expectViewSettings: ViewSettings = {
-      dangerColor: '#ff7300',
-      normalColor: '#ffffffcc',
       overrideStyles: false,
-      warningColor: '#ffa528',
     };
     const newViewSettings = v3.migrateViewSettings(oldDb);
     expect(newViewSettings).toEqual(expectViewSettings);

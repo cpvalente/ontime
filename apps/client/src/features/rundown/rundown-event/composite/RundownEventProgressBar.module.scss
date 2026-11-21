@@ -1,7 +1,23 @@
 .progressBar {
+  position: relative;
   height: 100%;
   width: 0;
   border-radius: 1px 0 0 1px;
 
   background-color: $gray-200;
+}
+
+.warningZone,
+.dangerZone {
+  position: absolute;
+  inset-block: 0;
+  opacity: 0.5;
+}
+
+.warningZone {
+  background-color: $timer-warning-color;
+}
+
+.dangerZone {
+  background-color: $timer-danger-color;
 }

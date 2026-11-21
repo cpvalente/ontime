@@ -466,10 +466,7 @@
     "language": "en"
   },
   "viewSettings": {
-    "dangerColor": "#ff7300",
-    "normalColor": "#ffffffcc",
-    "overrideStyles": false,
-    "warningColor": "#ffa528"
+    "overrideStyles": false
   },
   "customFields": {
     "song": {

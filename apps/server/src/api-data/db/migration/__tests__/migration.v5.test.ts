@@ -32,7 +32,86 @@ describe('migrateToV5()', () => {
     const data = readFixture('v4.15.json');
     const migrated = v5.migrateToV5(data);
     expect(migrated.customFields).toStrictEqual(asList(data.customFields));
-    expect({ ...migrated, customFields: data.customFields }).toStrictEqual(data);
+    // the fixture events share their warning and danger times, which move to the project
+    expect(migrated.settings?.phaseThresholds).toStrictEqual({
+      warning: { unit: 'time', value: 500000 },
+      danger: { unit: 'time', value: 100000 },
+    });
+    expect({
+      ...migrated,
+      customFields: data.customFields,
+      settings: data.settings,
+      rundowns: data.rundowns,
+    }).toStrictEqual(data);
+  });
+
+  test('events at the 4.x default warning and danger times inherit the project thresholds', () => {
+    const event = (id: string, timeWarning: number, timeDanger: number) => ({
+      id,
+      type: 'event',
+      timeWarning,
+      timeDanger,
+    });
+    const data = {
+      customFields: {},
+      rundowns: {
+        default: {
+          entries: {
+            defaults: event('defaults', 120000, 60000),
+            custom: event('custom', 300000, 120000),
+            group: { id: 'group', type: 'group' },
+          },
+        },
+      },
+    } as unknown as Parameters<typeof v5.migrateToV5>[0];
+
+    const { entries } = v5.migrateToV5(data).rundowns!.default;
+    expect(entries.defaults).toMatchObject({ timeWarning: null, timeDanger: null });
+    expect(entries.custom).toMatchObject({ timeWarning: 300000, timeDanger: 120000 });
+    expect(entries.group).toStrictEqual({ id: 'group', type: 'group' });
+  });
+
+  test('a time every event shares becomes the project threshold, which the events inherit', () => {
+    const event = (id: string, timeWarning: number, timeDanger: number) => ({
+      id,
+      type: 'event',
+      timeWarning,
+      timeDanger,
+    });
+    const data = {
+      customFields: {},
+      settings: { version: '4.15.0' },
+      rundowns: {
+        first: { entries: { a: event('a', 300000, 60000), b: event('b', 300000, 90000) } },
+        second: { entries: { c: event('c', 300000, 30000) } },
+      },
+    } as unknown as Parameters<typeof v5.migrateToV5>[0];
+
+    const migrated = v5.migrateToV5(data);
+    expect(migrated.settings?.phaseThresholds).toStrictEqual({
+      warning: { unit: 'time', value: 300000 },
+      danger: { unit: 'time', value: 60000 },
+    });
+    expect(migrated.rundowns!.first.entries).toMatchObject({
+      a: { timeWarning: null, timeDanger: null },
+      b: { timeWarning: null, timeDanger: 90000 },
+    });
+    expect(migrated.rundowns!.second.entries.c).toMatchObject({ timeWarning: null, timeDanger: 30000 });
+  });
+
+  test('keeps the 4.x default times in the project, not the v5 percentages', () => {
+    const data = {
+      customFields: {},
+      settings: { version: '4.15.0' },
+      rundowns: { default: { entries: { a: { id: 'a', type: 'event', timeWarning: 120000, timeDanger: 60000 } } } },
+    } as unknown as Parameters<typeof v5.migrateToV5>[0];
+
+    const migrated = v5.migrateToV5(data);
+    expect(migrated.settings).toStrictEqual({
+      version: '4.15.0',
+      phaseThresholds: { warning: { unit: 'time', value: 120000 }, danger: { unit: 'time', value: 60000 } },
+    });
+    expect(migrated.rundowns!.default.entries.a).toMatchObject({ timeWarning: null, timeDanger: null });
   });
 });
 

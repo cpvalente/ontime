@@ -1,4 +1,5 @@
 import { Settings } from 'ontime-types';
+import { defaultPhaseThresholds } from 'ontime-utils';
 
 import { parseSettings } from '../settings.parser.js';
 
@@ -17,6 +18,7 @@ describe('parseSettings()', () => {
       timeFormat: '24',
       language: 'en',
       auxTimerNames: ['', '', ''],
+      phaseThresholds: defaultPhaseThresholds,
     });
   });
 

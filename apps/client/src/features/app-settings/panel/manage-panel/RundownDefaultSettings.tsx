@@ -1,10 +1,13 @@
-import { EndAction, TimeStrategy, TimerType } from 'ontime-types';
+import { EndAction, PhaseThreshold, PhaseThresholds, TimeStrategy, TimerType } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
+import { useState } from 'react';
 
+import { maybeAxiosError } from '../../../../common/api/utils';
+import PhaseThresholdInput from '../../../../common/components/input/phase-threshold-input/PhaseThresholdInput';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
-import Tag from '../../../../common/components/tag/Tag';
+import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 
@@ -13,32 +16,36 @@ export default function RundownDefaultSettings() {
     defaultDuration,
     linkPrevious,
     defaultTimeStrategy,
-    defaultWarnTime,
-    defaultDangerTime,
     defaultTimerType,
     defaultEndAction,
     inheritGroupColour,
     setDefaultDuration,
     setLinkPrevious,
     setTimeStrategy,
-    setWarnTime,
-    setDangerTime,
     setDefaultTimerType,
     setDefaultEndAction,
     setInheritGroupColour,
   } = useEditorSettings((state) => state);
 
+  const { data: settings, status } = useSettings();
+  const { updateSettings } = useUpdateSettings();
+  const [error, setError] = useState<string | null>(null);
+
   const durationInMs = parseUserTime(defaultDuration);
-  const warnTimeInMs = parseUserTime(defaultWarnTime);
-  const dangerTimeInMs = parseUserTime(defaultDangerTime);
+
+  const submitThreshold = async (phase: keyof PhaseThresholds, threshold: PhaseThreshold) => {
+    try {
+      setError(null);
+      await updateSettings({ ...settings, phaseThresholds: { ...settings.phaseThresholds, [phase]: threshold } });
+    } catch (submitError) {
+      setError(maybeAxiosError(submitError));
+    }
+  };
 
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>
-          Rundown defaults
-          <Tag>This browser only</Tag>
-        </Panel.SubHeader>
+        <Panel.SubHeader>Rundown defaults</Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
           <Panel.Title>Default settings for new events</Panel.Title>
@@ -117,23 +124,26 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
           </Panel.ListGroup>
+          {error && <Panel.Error>{error}</Panel.Error>}
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='Warning time' description='Default threshold for warning time in an event' />
-              <TimeInput<'warnTime'>
-                name='warnTime'
-                submitHandler={(_field, value) => setWarnTime(value)}
-                time={warnTimeInMs}
-                placeholder={editorSettingsDefaults.warnTime}
+              <Panel.Field title='Warning time' description='Time or % of duration left, eg: 2m or 20%' />
+              <PhaseThresholdInput
+                name='projectWarning'
+                label='Warning'
+                disabled={status !== 'success'}
+                value={settings.phaseThresholds.warning}
+                onChange={(threshold) => submitThreshold('warning', threshold)}
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Danger time' description='Default threshold for danger time in an event' />
-              <TimeInput<'dangerTime'>
-                name='dangerTime'
-                submitHandler={(_field, value) => setDangerTime(value)}
-                time={dangerTimeInMs}
-                placeholder={editorSettingsDefaults.dangerTime}
+              <Panel.Field title='Danger time' description='Time or % of duration left, eg: 1m or 10%' />
+              <PhaseThresholdInput
+                name='projectDanger'
+                label='Danger'
+                disabled={status !== 'success'}
+                value={settings.phaseThresholds.danger}
+                onChange={(threshold) => submitThreshold('danger', threshold)}
               />
             </Panel.ListItem>
           </Panel.ListGroup>

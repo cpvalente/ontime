@@ -187,8 +187,8 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
   current: state.timer.current,
   duration: state.timer.duration,
   eventId: state.eventNow?.id ?? null,
-  timeWarning: state.eventNow?.timeWarning ?? null,
-  timeDanger: state.eventNow?.timeDanger ?? null,
+  timeWarning: state.timer.timeWarning,
+  timeDanger: state.timer.timeDanger,
 }));
 
 const selectExpectedScheduleData = (state: RuntimeStore) => ({

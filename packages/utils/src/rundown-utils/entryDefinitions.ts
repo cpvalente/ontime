@@ -16,8 +16,8 @@ export const event: Omit<OntimeEvent, 'id' | 'cue'> = {
   duration: 0,
   skip: false,
   colour: '',
-  timeWarning: 120000,
-  timeDanger: 60000,
+  timeWarning: null,
+  timeDanger: null,
   triggers: [],
   custom: {},
   // !==== RUNTIME METADATA ====! //

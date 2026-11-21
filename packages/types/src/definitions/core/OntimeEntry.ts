@@ -70,8 +70,8 @@ export type OntimeEvent = OntimeBaseEvent & {
   duration: number;
   skip: boolean;
   colour: string;
-  timeWarning: number;
-  timeDanger: number;
+  timeWarning: MaybeNumber;
+  timeDanger: MaybeNumber;
   custom: EntryCustomFields;
   triggers: Trigger[];
   parent: EntryId | null;

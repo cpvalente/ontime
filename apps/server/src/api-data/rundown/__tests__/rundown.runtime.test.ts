@@ -48,18 +48,24 @@ vi.mock('../../../stores/EventStore.js', () => ({
 
 const stored = vi.hoisted(() => ({ rundowns: {} as Record<string, Rundown> }));
 
-vi.mock('../../../classes/data-provider/DataProvider.js', () => ({
-  getDataProvider: () => ({
-    getRundown: (id: string) => stored.rundowns[id],
-    setRundown: vi.fn<(id: string, rundown: Rundown) => Promise<void>>(async (id, rundown) => {
-      stored.rundowns[id] = rundown;
+vi.mock('../../../classes/data-provider/DataProvider.js', async () => {
+  const { defaultPhaseThresholds } = await import('ontime-utils');
+  return {
+    getDataProvider: () => ({
+      getRundown: (id: string) => stored.rundowns[id],
+      setRundown: vi.fn<(id: string, rundown: Rundown) => Promise<void>>(async (id, rundown) => {
+        stored.rundowns[id] = rundown;
+      }),
+      getProjectRundowns: () => stored.rundowns,
+      getCustomFields: () => [],
+      getSettings: () => ({ phaseThresholds: defaultPhaseThresholds }),
+      getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
+      setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(
+        async (customFields) => customFields,
+      ),
     }),
-    getProjectRundowns: () => stored.rundowns,
-    getCustomFields: () => [],
-    getTeleprompterSettings: () => ({ script: 'note', charsPerLine: 32, heading: 'title' }),
-    setCustomFields: vi.fn<(customFields: CustomFields) => Promise<CustomFields>>(async (customFields) => customFields),
-  }),
-}));
+  };
+});
 
 // the timer owns a setInterval, we drive the runtime state without it
 vi.mock('../../../services/runtime-service/tickingTimer.js', () => ({

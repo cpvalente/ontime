@@ -26,6 +26,7 @@ import {
   getRundownMetadata,
 } from '../../api-data/rundown/rundown.dao.js';
 import { cloneEntryData, isLoadedPlayable } from '../../api-data/rundown/rundown.utils.js';
+import { getSettings } from '../../api-data/settings/settings.dao.js';
 import * as timeCore from '../../lib/time-core/timeCore.js';
 import { timerConfig } from '../../setup/config.js';
 import { eventStore } from '../../stores/EventStore.js';
@@ -189,6 +190,7 @@ class RuntimeService {
 
     // the project loads before the runtime, nothing is loaded yet so we only catch up with the rundown data
     runtimeState.updateRundownData(getRundownMetadata());
+    runtimeState.setPhaseThresholds(getSettings().phaseThresholds);
     this.stopListening = onChange((change) => this.handleChange(change));
 
     if (resumable) {
@@ -212,12 +214,21 @@ class RuntimeService {
    * Reconciles with changes to the loaded rundown, a rundown change without an id affects every rundown
    */
   private handleChange({ target, rundownId }: Change) {
+    if (target === RefetchKey.All || target === RefetchKey.Settings) {
+      this.applyPhaseThresholds();
+    }
+
     const isLoadedRundownChange =
       target === RefetchKey.All ||
       (target === RefetchKey.Rundown && (rundownId === undefined || rundownId === getCurrentRundownId()));
     if (isLoadedRundownChange) {
       this.notifyOfChangedEvents();
     }
+  }
+
+  @broadcastResult
+  private applyPhaseThresholds() {
+    runtimeState.setPhaseThresholds(getSettings().phaseThresholds);
   }
 
   /**

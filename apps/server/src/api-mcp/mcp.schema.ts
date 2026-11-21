@@ -39,8 +39,14 @@ export const EVENT_TIMER_FIELDS = {
     description:
       'How linked events adapt to an inherited start: lock-duration recalculates end, lock-end recalculates duration',
   },
-  timeWarning: { type: 'number', description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min)' },
-  timeDanger: { type: 'number', description: 'ms before timeEnd to enter danger state (e.g. 60000 = 1 min)' },
+  timeWarning: {
+    type: ['number', 'null'],
+    description: 'ms before timeEnd to enter warning state (e.g. 300000 = 5 min), null inherits the project threshold',
+  },
+  timeDanger: {
+    type: ['number', 'null'],
+    description: 'ms before timeEnd to enter danger state (e.g. 60000 = 1 min), null inherits the project threshold',
+  },
 } as const;
 
 export const EVENT_WRITABLE_FIELDS = {
@@ -123,8 +129,8 @@ There are four entry types discriminated by \`type\`:
   skip: boolean              // event is skipped during playback
   flag: boolean              // critical operational marker, highlighted to operators
   timeStrategy: 'lock-duration' | 'lock-end'
-  timeWarning: number        // ms before end to trigger 'warning' state
-  timeDanger: number         // ms before end to trigger 'danger' state
+  timeWarning: number | null // ms before end to trigger 'warning' state, null inherits the project threshold
+  timeDanger: number | null  // ms before end to trigger 'danger' state, null inherits the project threshold
   custom: { [key: string]: string }   // custom field values
   triggers: Trigger[]        // automation trigger references
   parent: EntryId | null     // parent group, when nested

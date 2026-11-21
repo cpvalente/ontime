@@ -33,4 +33,8 @@ export type TimerState = {
   secondaryTimer: MaybeNumber;
   /** Timestamp when the timer started */
   startedAt: MaybeNumber;
+  /** Remaining time at which the loaded event enters warning, the event value or else the project threshold */
+  timeWarning: MaybeNumber;
+  /** Remaining time at which the loaded event enters danger, the event value or else the project threshold */
+  timeDanger: MaybeNumber;
 };

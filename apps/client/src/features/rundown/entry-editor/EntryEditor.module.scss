@@ -59,6 +59,12 @@
   }
 }
 
+.phaseIssue {
+  min-height: 1lh;
+  font-size: $aux-text-size;
+  color: $warning-orange;
+}
+
 .switchLabel {
   display: flex;
   align-items: center;

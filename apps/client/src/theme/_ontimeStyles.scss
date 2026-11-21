@@ -45,6 +45,10 @@ $text-black: $gray-1350;
 $playback-over: #f57c13;
 $playback-under: $green-500;
 
+// timer phase colours
+$timer-warning-color: #ffa528; // --timer-warning-color-override
+$timer-danger-color: #ff7300; // --timer-danger-color-override
+
 // interface panels
 $bg-container-l1: $gray-1350;
 $bg-container-l2: $gray-1300;

@@ -35,6 +35,7 @@ export function migrateServerPort(jsonData: Partial<DatabaseModel>): {
     timeFormat,
     language,
     auxTimerNames,
+    phaseThresholds: settings?.phaseThresholds,
     app: 'ontime',
   } as Settings;
   return { db, serverPort: settings?.serverPort };

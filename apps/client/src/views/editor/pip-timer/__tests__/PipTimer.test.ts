@@ -5,7 +5,6 @@ import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { viewsSettingsPlaceholder } from '../../../../common/models/ViewSettings.type';
 import { setMeasuredClockOffset } from '../../../../common/stores/clockStore';
 import { runtimeStore } from '../../../../common/stores/runtime';
 import { PipTimer } from '../PipTimer';
@@ -35,7 +34,7 @@ describe('PipTimer', () => {
     runtimeStore.setState({ clock: 9 * MILLIS_PER_HOUR, eventNow: createEvent({ timerType: TimerType.Clock }) });
     setMeasuredClockOffset(10 * MILLIS_PER_HOUR - performance.now());
 
-    act(() => root.render(createElement(PipTimer, { viewSettings: viewsSettingsPlaceholder })));
+    act(() => root.render(createElement(PipTimer, {})));
 
     expect(container.textContent).toContain('10:00:00');
     expect(container.textContent).not.toContain('09:00:00');
@@ -50,7 +49,7 @@ describe('PipTimer', () => {
       },
     });
 
-    act(() => root.render(createElement(PipTimer, { viewSettings: viewsSettingsPlaceholder })));
+    act(() => root.render(createElement(PipTimer, {})));
 
     expect(container.querySelector('.blackout-label')).not.toBeNull();
     expect(container.querySelector('.timer')).not.toBeNull();

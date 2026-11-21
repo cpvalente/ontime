@@ -95,6 +95,7 @@ describe('safeMerge', () => {
       timeFormat: baseDb.settings.timeFormat,
       language: 'pt',
       auxTimerNames: baseDb.settings.auxTimerNames,
+      phaseThresholds: baseDb.settings.phaseThresholds,
     });
   });
 

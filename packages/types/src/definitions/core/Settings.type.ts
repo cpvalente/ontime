@@ -1,3 +1,4 @@
+import type { PhaseThresholds } from './PhaseThresholds.type.js';
 import type { TimeFormat } from './TimeFormat.type.js';
 
 export type Settings = {
@@ -11,4 +12,6 @@ export type Settings = {
    * An empty string means the timer is unnamed and consumers show the default label
    */
   auxTimerNames: [string, string, string];
+  /** When timers enter warning and danger, events can override them */
+  phaseThresholds: PhaseThresholds;
 };
