@@ -18,6 +18,6 @@ allowBuilds:
   esbuild: true
 
 overrides:
-  'body-parser': '^2.4.0' #express
-  'hono': '^4.12.34' #modelcontextprotocol/node
-  'jws': '^4.0.1' #googleapis
+  'body-parser': '^2.4.0' # express - CVE-2026-111181
+  'hono': '^4.12.34' # @modelcontextprotocol/node - CVE-2026-71849
+  'jws': '^4.0.1' # googleapis - CVE-2025-65945
