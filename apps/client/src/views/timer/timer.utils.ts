@@ -164,11 +164,17 @@ export function getSecondaryDisplay(
 }
 
 /** Swap puts the secondary content in the main spot, only while there is any */
-export function getTimerSpots(timer: string, secondaryContent: string | undefined, swap: boolean) {
+export function getTimerSpots(
+  timer: string,
+  secondaryContent: string | undefined,
+  swap: boolean,
+  secondaryIsText: boolean,
+) {
   if (swap && secondaryContent) {
-    return { main: secondaryContent, secondary: timer, isSwapped: true };
+    // free text cannot use the timer's size estimate, it is fitted to the spot instead
+    return { main: secondaryContent, secondary: timer, isSwapped: true, fitMain: secondaryIsText };
   }
-  return { main: timer, secondary: secondaryContent, isSwapped: false };
+  return { main: timer, secondary: secondaryContent, isSwapped: false, fitMain: false };
 }
 
 /**

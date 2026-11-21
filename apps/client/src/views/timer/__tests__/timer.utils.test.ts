@@ -215,14 +215,38 @@ describe('getCardData()', () => {
 
 describe('getTimerSpots()', () => {
   it('keeps the timer in the main spot without swap', () => {
-    expect(getTimerSpots('10:00', 'Q&A', false)).toEqual({ main: '10:00', secondary: 'Q&A', isSwapped: false });
+    expect(getTimerSpots('10:00', 'Q&A', false, true)).toEqual({
+      main: '10:00',
+      secondary: 'Q&A',
+      isSwapped: false,
+      fitMain: false,
+    });
   });
 
-  it('swaps the timer and the secondary content', () => {
-    expect(getTimerSpots('10:00', 'Q&A', true)).toEqual({ main: 'Q&A', secondary: '10:00', isSwapped: true });
+  it('swaps the timer and a message, fitting the message to the main spot', () => {
+    expect(getTimerSpots('10:00', 'Q&A', true, true)).toEqual({
+      main: 'Q&A',
+      secondary: '10:00',
+      isSwapped: true,
+      fitMain: true,
+    });
+  });
+
+  it('swaps the timer and an auxiliary timer, which keeps the timer sizing', () => {
+    expect(getTimerSpots('10:00', '05:00', true, false)).toEqual({
+      main: '05:00',
+      secondary: '10:00',
+      isSwapped: true,
+      fitMain: false,
+    });
   });
 
   it('keeps the timer in the main spot when there is nothing to swap with', () => {
-    expect(getTimerSpots('10:00', undefined, true)).toEqual({ main: '10:00', secondary: undefined, isSwapped: false });
+    expect(getTimerSpots('10:00', undefined, true, true)).toEqual({
+      main: '10:00',
+      secondary: undefined,
+      isSwapped: false,
+      fitMain: false,
+    });
   });
 });

@@ -133,6 +133,31 @@
     }
   }
 
+  /* =================== FITTED MAIN ===================*/
+
+  // a swapped message fills the room the timer would use
+  .timer-container--fit {
+    min-height: 0;
+
+    .timer--fit {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      line-height: 1.1;
+      letter-spacing: 0.02em;
+      text-wrap: balance;
+      // FitText measures as it resizes, an animated size would mislead it
+      transition: none;
+    }
+
+    // auto margins centre without overflowing upwards, where FitText cannot measure
+    .timer__text {
+      margin-block: auto;
+    }
+  }
+
   .secondary {
     white-space: nowrap;
     max-height: 100%;
@@ -154,6 +179,11 @@
     > div {
       height: clamp(112px, calc(112 * var(--viewer-font-unit, 1px)), 224px);
       line-height: 1.5;
+    }
+
+    // under a fitted message, the timer stays clearly second
+    &--compact > div {
+      height: clamp(48px, 12vh, 160px);
     }
 
     &--hidden {

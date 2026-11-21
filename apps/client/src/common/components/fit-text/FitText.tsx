@@ -11,6 +11,8 @@ interface FitTextProps extends HTMLAttributes<HTMLDivElement> {
   mode?: 'single' | 'multi';
   min?: number; // inclusive
   max?: number; // inclusive
+  /** also caps the font size to this share of the element's width, to match text sized in viewport or container units */
+  maxRatio?: number;
 }
 
 export function FitText({
@@ -18,6 +20,7 @@ export function FitText({
   mode = 'multi',
   min = 16,
   max = 256,
+  maxRatio,
   ...elementProps
 }: PropsWithChildren<FitTextProps>) {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,13 +38,14 @@ export function FitText({
     const originVisibility = el.style.visibility;
 
     el.style.visibility = 'hidden';
-    const fontSize = bsearch(min, max + 1, (mid) => {
+    const ceiling = maxRatio ? Math.max(min, Math.min(max, Math.floor(el.clientWidth * maxRatio))) : max;
+    const fontSize = bsearch(min, ceiling + 1, (mid) => {
       el.style.fontSize = `${mid}px`;
       return !isOverflown();
     });
     el.style.fontSize = `${fontSize}px`;
     el.style.visibility = originVisibility;
-  }, [isOverflown, min, max]);
+  }, [isOverflown, min, max, maxRatio]);
 
   useEffect(() => {
     const el = ref.current;
