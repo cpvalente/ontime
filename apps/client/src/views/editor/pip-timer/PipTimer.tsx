@@ -14,6 +14,7 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
+  getTimerSpots,
   getTotalTime,
 } from '../../timer/timer.utils';
 import { getTimerColour } from '../../utils/presentation.utils';
@@ -22,9 +23,11 @@ import './PipTimer.scss';
 
 interface PipTimerProps {
   viewSettings: ViewSettings;
+  /** sized by its container instead of the window */
+  inline?: boolean;
 }
 
-export function PipTimer({ viewSettings }: PipTimerProps) {
+export function PipTimer({ viewSettings, inline }: PipTimerProps) {
   const { eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const clock = useAutoTickingClock();
 
@@ -47,17 +50,25 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
   const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
-    removeLeadingZero: false,
+    removeLeadingZero: true,
   });
 
   const currentAux = getCurrentAux(message, auxTimer);
 
   const secondaryContent = getSecondaryDisplay(message, currentAux, 'min', false, true, false);
+  const spots = getTimerSpots(
+    display,
+    secondaryContent,
+    message.timer.swap,
+    message.timer.secondarySource === 'secondary',
+  );
 
   // gather presentation styles
   const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  // fitted text is capped at the size the timer would have in its place
+  const timerFontSize = getEstimatedFontSize(spots.fitMain ? display : spots.main, spots.secondary);
   const userStyles = {
+    '--timer-font-size': timerFontSize,
     ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
   };
 
@@ -65,6 +76,7 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
     <div
       className={cx([
         'pip-timer',
+        inline && 'pip-timer--inline',
         showFinished && 'pip-timer--finished',
         message.timer.blackout && 'pip-timer--blackout',
       ])}
@@ -75,20 +87,38 @@ export function PipTimer({ viewSettings }: PipTimerProps) {
         <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
+        <div className='hidden-timer'>Timer {display}</div>
       </div>
 
-      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
+      <div
+        className={cx([
+          'timer-container',
+          spots.fitMain && 'timer-container--fit',
+          message.timer.blink && !showOverlay && 'blink',
+        ])}
+      >
+        {spots.fitMain ? (
+          <FitText mode='multi' min={6} max={512} maxRatio={timerFontSize / 100} className='timer timer--fit'>
+            <span className='timer__text'>{spots.main}</span>
+          </FitText>
+        ) : (
+          <div
+            className={cx([
+              'timer',
+              !spots.isSwapped && subduePaused && 'timer--paused',
+              !spots.isSwapped && showFinished && 'timer--finished',
+            ])}
+            data-type={spots.isSwapped ? undefined : timerTypeNow}
+            data-phase={!spots.isSwapped && (showWarning || showDanger) ? time.phase : undefined}
+          >
+            {spots.main}
+          </div>
+        )}
         <div
-          className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
-          style={{ fontSize: `${timerFontSize}vw` }}
-          data-type={timerTypeNow}
-          data-phase={showWarning || showDanger ? time.phase : undefined}
+          className={cx(['secondary', !spots.secondary && 'secondary--hidden', spots.fitMain && 'secondary--compact'])}
         >
-          {display}
-        </div>
-        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
-          <FitText mode='multi' min={12} max={256}>
-            {secondaryContent}
+          <FitText mode='multi' min={6} max={256}>
+            {spots.secondary}
           </FitText>
         </div>
       </div>

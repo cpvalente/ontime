@@ -81,6 +81,35 @@ describe('getLinksToLoaded()', () => {
     });
   });
 
+  it('measures gaps between delayed times, a delay uses up the gap after it', () => {
+    // the delay of 10 is used up by the gap, so the next event keeps its planned time
+    const result = walk(
+      [event('loaded', { delay: 10 }), event('next', { gap: 10, delay: 0 }), event('later', { gap: 5, delay: 0 })],
+      'loaded',
+    );
+
+    expect(result).toMatchObject({
+      next: { totalGap: 0 },
+      later: { totalGap: 5 },
+    });
+  });
+
+  it('gives back only the part of a countToEnd duration which a delay did not use', () => {
+    const result = walk(
+      [
+        event('loaded', { delay: 10 }),
+        event('countToEnd', { linkStart: true, countToEnd: true, duration: 30, delay: 10 }),
+        event('next', { linkStart: true, delay: 0 }),
+      ],
+      'loaded',
+    );
+
+    expect(result).toMatchObject({
+      countToEnd: { totalGap: 0 },
+      next: { totalGap: 20, isLinkedToLoaded: false },
+    });
+  });
+
   it('keeps the chain after a loaded countToEnd event', () => {
     const result = walk([event('loaded', { countToEnd: true }), event('next', { linkStart: true })], 'loaded');
 

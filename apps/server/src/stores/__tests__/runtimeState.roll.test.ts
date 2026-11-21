@@ -24,7 +24,7 @@ function prepare(entries: OntimeEntry[]) {
     entries: Object.fromEntries(entries.map((entry) => [entry.id, entry])),
     order: entries.map((entry) => entry.id),
   });
-  const metadata = processRundown(input, {});
+  const metadata = processRundown(input, []);
   const rundown = { ...input, entries: metadata.entries };
   updateRundownData(metadata);
   return { rundown, metadata };
@@ -107,7 +107,7 @@ describe('roll across midnight (edge cases for overnight shows)', () => {
     expect(update(at(dayInMs + 32))).toMatchObject({ hasSecondaryTimerFinished: true });
   });
 
-  test.fails('joining a count-to-end event after midnight counts down to its end today', () => {
+  test('joining a count-to-end event after midnight counts down to its end today', () => {
     const overnight = { ...event('overnight', 23 * hour, hour), countToEnd: true };
     const { rundown, metadata } = prepare([overnight]);
     at(30 * minute);

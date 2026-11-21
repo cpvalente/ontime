@@ -1,13 +1,11 @@
 import {
+  CustomField,
   CustomFieldKey,
   CustomFields,
   DatabaseModel,
   Day,
   EntryId,
   OntimeEntry,
-  OntimeEvent,
-  OntimeGroup,
-  OntimeMilestone,
   PlayableEvent,
   ProjectRundowns,
   Rundown,
@@ -23,6 +21,7 @@ import {
   createEvent,
   createGroup,
   createMilestone,
+  getCustomFieldsByKey,
   generateId,
   getLinkedTimes,
   getTimeFrom,
@@ -75,6 +74,7 @@ export function parseRundown(
   parsedCustomFields: Readonly<CustomFields>,
   emitError?: ErrorEmitter,
 ): Rundown {
+  const knownFields = getCustomFieldsByKey(parsedCustomFields);
   const parsedRundown: Rundown = {
     id: rundown.id || generateId(),
     // Preserve existing names; title validation applies when creating or renaming a rundown.
@@ -114,13 +114,13 @@ export function parseRundown(
         continue;
       }
 
-      cleanupCustomFields(newEvent.custom, parsedCustomFields);
+      cleanupCustomFields(newEvent.custom, knownFields);
       eventIndex += 1;
     } else if (isOntimeDelay(event)) {
       newEvent = createDelay({ duration: event.duration, id });
     } else if (isOntimeMilestone(event)) {
       newEvent = createMilestone({ ...event, id });
-      cleanupCustomFields(newEvent.custom, parsedCustomFields);
+      cleanupCustomFields(newEvent.custom, knownFields);
       /**
        * We leave here an entry point for blocks for the alpha testers, should remove this after a while
        */
@@ -145,7 +145,7 @@ export function parseRundown(
           }
 
           newNestedEvent.parent = event.id;
-          cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
+          cleanupCustomFields(newNestedEvent.custom, knownFields);
           eventIndex += 1;
         } else if (isOntimeDelay(nestedEvent)) {
           newNestedEvent = createDelay({ duration: nestedEvent.duration, id: nestedEventId });
@@ -153,7 +153,7 @@ export function parseRundown(
         } else if (isOntimeMilestone(nestedEvent)) {
           newNestedEvent = createMilestone({ ...nestedEvent, id: nestedEventId });
           newNestedEvent.parent = event.id;
-          cleanupCustomFields(newNestedEvent.custom, parsedCustomFields);
+          cleanupCustomFields(newNestedEvent.custom, knownFields);
         }
 
         if (newNestedEvent) {
@@ -166,7 +166,7 @@ export function parseRundown(
       // a group lists only the entries parsed into it
       newEvent.entries = nestedEntryIds;
       // ensure custom fields are valid
-      cleanupCustomFields(newEvent.custom, parsedCustomFields);
+      cleanupCustomFields(newEvent.custom, knownFields);
     } else {
       emitError?.('Unknown event type, skipping');
       continue;
@@ -181,19 +181,6 @@ export function parseRundown(
   }
 
   return parsedRundown;
-}
-
-/**
- * Ensures that custom fields have references
- * If a field is exists in the entry but not in the project customFields, it is deleted
- * Mutates the given event in place
- */
-export function sanitiseCustomFields(customFields: CustomFields, entry: OntimeEvent | OntimeMilestone | OntimeGroup) {
-  for (const field in entry.custom) {
-    if (field in customFields) continue;
-    delete entry.custom[field];
-  }
-  return entry;
 }
 
 export type ProcessedRundownMetadata = RundownMetadata & {
@@ -213,8 +200,9 @@ export type ProcessedRundownMetadata = RundownMetadata & {
  *                      Callers must own (or have already cloned) the input rundown.
  * @returns process() - processes entries in order | getMetadata() returns the accumulated metadata
  */
-export function makeRundownMetadata(customFields: CustomFields, options?: { mutate?: boolean }) {
+export function makeRundownMetadata(customFields: Readonly<CustomFields>, options?: { mutate?: boolean }) {
   const mutate = options?.mutate ?? false;
+  const knownFields = getCustomFieldsByKey(customFields);
   const rundownMeta: ProcessedRundownMetadata = {
     totalDelay: 0,
     totalDuration: 0,
@@ -236,7 +224,7 @@ export function makeRundownMetadata(customFields: CustomFields, options?: { muta
   };
 
   function process<T extends OntimeEntry>(entry: T, childOfGroup: EntryId | null): T {
-    return processEntry(rundownMeta, customFields, mutate ? entry : cloneEntryData(entry), childOfGroup);
+    return processEntry(rundownMeta, knownFields, mutate ? entry : cloneEntryData(entry), childOfGroup);
   }
 
   function getMetadata(): ProcessedRundownMetadata {
@@ -252,7 +240,7 @@ export function makeRundownMetadata(customFields: CustomFields, options?: { muta
  */
 function processEntry<T extends OntimeEntry>(
   rundownMetadata: ProcessedRundownMetadata,
-  customFields: CustomFields,
+  knownCustomFields: ReadonlyMap<CustomFieldKey, CustomField>,
   entry: T,
   childOfGroup: EntryId | null,
 ): T {
@@ -279,7 +267,7 @@ function processEntry<T extends OntimeEntry>(
     }
 
     // 2. handle custom fields - mutates entry
-    sanitiseCustomFields(customFields, entry);
+    cleanupCustomFields(entry.custom, knownCustomFields);
 
     /*
      * we initialise data so that is not calculated for skipped events
@@ -338,7 +326,16 @@ function processEntry<T extends OntimeEntry>(
       }
 
       // current event delay is the current accumulated delay
-      entry.delay = rundownMetadata.totalDelay;
+      // a count to end event cannot start after its deadline, so it is delayed by at most its duration
+      entry.delay = entry.countToEnd
+        ? Math.min(rundownMetadata.totalDelay, entry.duration)
+        : rundownMetadata.totalDelay;
+
+      // a count to end event ends on its deadline whatever its start, so it absorbs the delay
+      // only a delay longer than the event reaches the events after it
+      if (entry.countToEnd) {
+        rundownMetadata.totalDelay = Math.max(rundownMetadata.totalDelay - entry.duration, 0);
+      }
 
       // assign data for next iteration
       rundownMetadata.previousEvent = entry;

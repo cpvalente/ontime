@@ -313,7 +313,7 @@ describe('extendEventData()', () => {
       scheduledDuration: hour,
     },
   };
-  const extend = (event: CountdownTarget) => extendEventData(event, 0, null, null, 0, OffsetMode.Absolute, report);
+  const extend = (event: CountdownTarget) => extendEventData(event, 0, 0, 0, OffsetMode.Absolute, report);
 
   it('reports when the event ended, according to the report', () => {
     const event = makeEvent({ id: 'a', timeStart: start, timeEnd: start + hour, duration: hour });
@@ -333,6 +333,17 @@ describe('extendEventData()', () => {
   it('expects an event on time to start and end as scheduled', () => {
     const event = makeEvent({ id: 'a', timeStart: start, timeEnd: start + hour, duration: hour });
     expect(extend(event)).toMatchObject({ expectedStart: start, expectedEnd: start + hour });
+  });
+
+  it('moves the end of a loaded count to end event by the time given to it', () => {
+    const timeGiven = 5 * MILLIS_PER_MINUTE;
+    const countToEnd = { id: 'a', timeStart: start, timeEnd: start + hour, duration: hour, countToEnd: true };
+    const extendWithOffset = (event: CountdownTarget) =>
+      extendEventData(event, 0, 0, timeGiven, OffsetMode.Absolute, report);
+
+    expect(extendWithOffset(makeEvent({ ...countToEnd, isLoaded: true })).expectedEnd).toBe(start + hour + timeGiven);
+    // an event which is not loaded keeps its planned end
+    expect(extendWithOffset(makeEvent({ ...countToEnd, isLoaded: false })).expectedEnd).toBe(start + hour);
   });
 });
 

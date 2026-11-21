@@ -129,6 +129,20 @@ export async function projectDownload(req: Request, res: Response) {
 }
 
 /**
+ * Reads a project file in the current format, migrating it if needed
+ * The file on disk is left as it is
+ */
+export async function readProjectFile(req: Request, res: Response<DatabaseModel | ErrorResponse>) {
+  try {
+    const data = await projectService.readProjectFile(req.body.filename);
+    res.status(200).send(data);
+  } catch (error) {
+    const message = getErrorMessage(error);
+    res.status(400).send({ message });
+  }
+}
+
+/**
  * uploads, parses and applies the data from a given file
  * Pretty much loadProject but with the extra upload step
  */

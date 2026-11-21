@@ -841,6 +841,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           pausedDuration: state._timer.pausedDuration,
           firstStart: state.rundown.actualStart,
           startEpoch: state._startEpoch,
+          startEventStart: state._startEventStart,
+          startEventDay: state._startEventDay,
           currentDay: state.rundown.currentDay,
           offsetMode: state.offset.mode,
         })

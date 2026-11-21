@@ -1,6 +1,9 @@
 import { CustomFields, OntimeEvent, OntimeGroup, OntimeMilestone } from 'ontime-types';
 import { CSSProperties, Fragment } from 'react';
 
+import * as Editor from '../../../../common/components/editor-utils/EditorUtils';
+import Select from '../../../../common/components/select/Select';
+import { getOptionTint, makeOptionSelectItems } from '../../../../common/utils/customFieldOptions';
 import { getAccessibleColour } from '../../../../common/utils/styleUtils';
 import { EventEditorUpdateFields } from '../EventEditor';
 import EventEditorImage from './EventEditorImage';
@@ -10,60 +13,75 @@ import EntryEditorTextInput from './EventTextInput';
 import style from '../EntryEditor.module.scss';
 
 interface EntryEditorCustomFieldsProps {
-  fields: CustomFields;
+  customFields: CustomFields;
   entry: OntimeEvent | OntimeGroup | OntimeMilestone;
   handleSubmit: (field: EventEditorUpdateFields, value: string) => void;
 }
 
-export default function EntryEditorCustomFields({
-  fields: customFields,
-  handleSubmit,
-  entry,
-}: EntryEditorCustomFieldsProps) {
+export default function EntryEditorCustomFields({ customFields, handleSubmit, entry }: EntryEditorCustomFieldsProps) {
   return (
     <Fragment>
-      {Object.keys(customFields).map((fieldKey) => {
-        const key = `${entry.id}-${fieldKey}`;
-        const fieldName = `custom-${fieldKey}`;
-        const initialValue = entry.custom[fieldKey] ?? '';
-        const { backgroundColor, color } = getAccessibleColour(customFields[fieldKey].colour);
-        const labelText = customFields[fieldKey].label;
+      {customFields.map((field) => {
+        const key = `${entry.id}-${field.key}`;
+        const fieldName = `custom-${field.key}`;
+        const initialValue = entry.custom[field.key] ?? '';
+        const { backgroundColor, color } = getAccessibleColour(field.colour);
+        const labelText = field.label;
 
-        if (customFields[fieldKey].type === 'text') {
-          return (
-            <EventTextArea
-              key={key}
-              field={fieldName}
-              label={labelText}
-              initialValue={initialValue}
-              submitHandler={handleSubmit}
-              className={style.decorated}
-              style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
-            />
-          );
-        }
-
-        if (customFields[fieldKey].type === 'image') {
-          return (
-            <div key={key} className={style.customImage}>
-              <EntryEditorTextInput
+        switch (field.type) {
+          case 'text':
+            return (
+              <EventTextArea
                 key={key}
                 field={fieldName}
                 label={labelText}
                 initialValue={initialValue}
-                placeholder='Paste image URL'
                 submitHandler={handleSubmit}
                 className={style.decorated}
-                maxLength={255}
                 style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
               />
-              <EventEditorImage src={initialValue} />
-            </div>
-          );
+            );
+          case 'image':
+            return (
+              <div key={key} className={style.customImage}>
+                <EntryEditorTextInput
+                  key={key}
+                  field={fieldName}
+                  label={labelText}
+                  initialValue={initialValue}
+                  placeholder='Paste image URL'
+                  submitHandler={handleSubmit}
+                  className={style.decorated}
+                  maxLength={255}
+                  style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+                />
+                <EventEditorImage src={initialValue} />
+              </div>
+            );
+          case 'option':
+            return (
+              <div key={key}>
+                <Editor.Label
+                  htmlFor={fieldName}
+                  className={style.decorated}
+                  style={{ '--decorator-bg': backgroundColor, '--decorator-color': color } as CSSProperties}
+                >
+                  {labelText}
+                </Editor.Label>
+                <Select
+                  id={fieldName}
+                  options={makeOptionSelectItems(field, initialValue)}
+                  value={initialValue || null}
+                  placeholder='Select an option'
+                  triggerStyle={getOptionTint(field, initialValue)}
+                  onValueChange={(value) => {
+                    if (value !== null && value !== initialValue) handleSubmit(fieldName, value);
+                  }}
+                  fluid
+                />
+              </div>
+            );
         }
-
-        // we should have exhausted all types by now
-        return null;
       })}
     </Fragment>
   );

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router';
 
 import { useViewUrlPresets } from '../../hooks-query/useUrlPresets';
 import { cx } from '../../utils/styleUtils';
+import { parseUrlPresetAlias } from '../../utils/urlPresets';
 import Button from '../buttons/Button';
 import Eyebrow from '../eyebrow/Eyebrow';
 
@@ -14,6 +15,7 @@ import style from './ViewParamsPresets.module.scss';
 export function ViewParamsPresets({ target }: { target: OntimeView }) {
   const { viewPresets } = useViewUrlPresets(target);
   const [searchParams, setSearchParams] = useSearchParams();
+  const alias = parseUrlPresetAlias(searchParams.get('alias'));
 
   const handleRecall = (preset: URLPreset) => {
     const newSearch = new URLSearchParams(preset.search);
@@ -32,7 +34,7 @@ export function ViewParamsPresets({ target }: { target: OntimeView }) {
       </div>
       <div className={style.presetList}>
         {viewPresets.map((preset) => {
-          const active = searchParams.get('alias') === preset.alias;
+          const active = alias === preset.alias;
           return (
             <div key={preset.alias} className={cx([style.preset, active && style.active])}>
               <span className={style.presetName}>{preset.alias}</span>

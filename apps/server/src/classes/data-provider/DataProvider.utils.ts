@@ -1,5 +1,8 @@
 import { DatabaseModel } from 'ontime-types';
 
+import { mergeCustomFieldList } from '../../api-data/custom-fields/customFields.utils.js';
+import { normaliseUrlPresets } from '../../api-data/url-presets/urlPresets.utils.js';
+
 /**
  * Merges a partial ontime project into a given ontime project
  */
@@ -19,7 +22,7 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     settings = {},
     viewSettings = {},
     urlPresets = [],
-    customFields = {},
+    customFields = [],
     automation,
     teleprompter = {},
   } = deepNewData;
@@ -31,10 +34,9 @@ export function safeMerge(existing: DatabaseModel, newData: Partial<DatabaseMode
     project: { ...deepExisting.project, ...project },
     settings: { ...deepExisting.settings, ...settings },
     viewSettings: { ...deepExisting.viewSettings, ...viewSettings },
-    // URL presets are independent and we can append them together
-    urlPresets: [...deepExisting.urlPresets, ...urlPresets],
+    urlPresets: normaliseUrlPresets([...deepExisting.urlPresets, ...urlPresets]),
     // custom fields can be merged
-    customFields: { ...deepExisting.customFields, ...customFields },
+    customFields: mergeCustomFieldList(deepExisting.customFields, customFields),
     // trigger and automation are coupled and cannot be changed individually so we replace the whole automation
     automation: automation ?? deepExisting.automation,
     teleprompter: { ...deepExisting.teleprompter, ...teleprompter },

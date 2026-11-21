@@ -26,6 +26,7 @@ export default function Schedule({ className }: ScheduleProps) {
             delay={event.delay}
             totalGap={event.totalGap}
             isLinkedToLoaded={event.isLinkedToLoaded}
+            isLoaded={event.isLoaded}
             countToEnd={event.countToEnd}
             duration={event.duration}
             colour={event.colour}

@@ -25,6 +25,7 @@ export function validateTimerMessage(message: unknown): Partial<TimerMessage> {
   if ('blink' in message) result.blink = coerceBoolean(message.blink);
   if ('blackout' in message) result.blackout = coerceBoolean(message.blackout);
   if ('secondarySource' in message) result.secondarySource = coerceSecondary(message.secondarySource);
+  if ('swap' in message) result.swap = coerceBoolean(message.swap);
 
   return result;
 }

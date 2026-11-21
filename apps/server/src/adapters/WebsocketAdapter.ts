@@ -31,10 +31,12 @@ import { WebSocket, WebSocketServer } from 'ws';
 
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
-import { timeOfDayNow } from '../lib/time-core/timeCore.js';
+import { now } from '../lib/time-core/timeCore.js';
+import { Access } from '../middleware/access.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
+import { removeTokenFromPath } from '../utils/urlToken.js';
 import type { IAdapter } from './IAdapter.js';
 
 type ClientId = string;
@@ -68,16 +70,9 @@ class SocketServer implements IAdapter {
       // Rejected sockets can emit an error while their close handshake is in progress.
       ws.on('error', console.error);
 
-      let isAuthenticated = false;
-      authenticateSocket(ws, req, (error) => {
-        if (error) {
-          ws.close(1008, 'Unauthorized');
-          return;
-        }
-        isAuthenticated = true;
-      });
-
-      if (!isAuthenticated) {
+      const connectionScope = authenticateSocket(req);
+      if (!connectionScope) {
+        ws.close(1008, 'Unauthorized');
         return;
       }
 
@@ -121,13 +116,14 @@ class SocketServer implements IAdapter {
 
           switch (tag) {
             case MessageTag.Ping: {
-              const pong: WsPacketToClient = { tag: MessageTag.Pong, payload, clock: timeOfDayNow() };
+              const pong: WsPacketToClient = { tag: MessageTag.Pong, payload, epoch: now() };
               ws.send(JSON.stringify(pong));
               break;
             }
             case MessageTag.ClientSet: {
               const previousData = this.getOrCreateClient(clientId);
               const updatedClient = { ...previousData, ...payload };
+              updatedClient.path = removeTokenFromPath(updatedClient.path);
               this.clients.set(clientId, updatedClient);
               if (this.welcome && updatedClient.path?.toLowerCase().includes('editor')) {
                 sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
@@ -138,9 +134,9 @@ class SocketServer implements IAdapter {
             }
             case MessageTag.ClientSetPath: {
               const previousData = this.getOrCreateClient(clientId);
-              previousData.path = payload;
+              previousData.path = removeTokenFromPath(payload);
               this.clients.set(clientId, previousData);
-              if (this.welcome && payload.toLowerCase().includes('editor')) {
+              if (this.welcome && previousData.path.toLowerCase().includes('editor')) {
                 sendPacket(MessageTag.Dialog, { dialog: 'welcome', ...this.welcome });
                 this.welcome = null;
               }
@@ -150,6 +146,14 @@ class SocketServer implements IAdapter {
             default: {
               tag satisfies never;
               // Protocol specific stuff handled above
+              // commands change things, so read sockets may not send them
+              if (connectionScope !== Access.write) {
+                logger.warning(LogOrigin.Client, 'Command not allowed', {
+                  tag,
+                  client: this.clients.get(clientId)?.name,
+                });
+                break;
+              }
               try {
                 const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
                 if (reply) {
@@ -218,7 +222,7 @@ class SocketServer implements IAdapter {
     if (!previousData) {
       throw new Error(`Client "${target}" not found`);
     }
-    this.sendAsJson(MessageTag.ClientRedirect, { target, path });
+    this.sendAsJson(MessageTag.ClientRedirect, { target, path: removeTokenFromPath(path) });
   }
 
   public identifyClient(target: ClientId, identify: boolean) {

@@ -1,6 +1,21 @@
-import { EntryId, OntimeEvent, OntimeGroup, RundownEntries, SupportedEntry } from 'ontime-types';
+import {
+  EntryId,
+  OntimeDelay,
+  OntimeEntry,
+  OntimeEvent,
+  OntimeGroup,
+  RundownEntries,
+  SupportedEntry,
+} from 'ontime-types';
 
-import { makeRevealLocation, makeSortableList, moveDown, moveUp, orderEntries } from '../rundown.utils';
+import {
+  getAdjacentDayStarts,
+  makeRevealLocation,
+  makeSortableList,
+  moveDown,
+  moveUp,
+  orderEntries,
+} from '../rundown.utils';
 
 describe('makeSortableList()', () => {
   it('generates a list with group ends', () => {
@@ -320,5 +335,37 @@ describe('makeRevealLocation()', () => {
     const tall = reveal({ ...short, itemTop: -400, itemBottom: -100, locationParams });
     expect(tall).toMatchObject({ align: 'start' });
     expect(tall?.offset).toBeCloseTo(0);
+  });
+});
+
+describe('getAdjacentDayStarts()', () => {
+  const event = (id: string, dayOffset: number, parent: EntryId | null = null) =>
+    ({ type: SupportedEntry.Event, id, dayOffset, parent }) as OntimeEvent;
+  const makeRundown = (entries: OntimeEntry[]) => ({
+    entries: Object.fromEntries(entries.map((entry) => [entry.id, entry])),
+    flatOrder: entries.map((entry) => entry.id),
+  });
+
+  const threeDays = makeRundown([event('1', 0), event('2', 0), event('3', 1), event('4', 2), event('5', 2)]);
+
+  it.each([
+    { name: 'first', dayOffset: 0, previous: null, next: { id: '3', index: 2 } },
+    { name: 'middle', dayOffset: 1, previous: { id: '1', index: 0 }, next: { id: '4', index: 3 } },
+    { name: 'last', dayOffset: 2, previous: { id: '3', index: 2 }, next: null },
+  ])('finds the days around the $name day', ({ dayOffset, previous, next }) => {
+    expect(getAdjacentDayStarts(threeDays, dayOffset)).toStrictEqual({ previous, next });
+  });
+
+  it('indexes days inside groups by event position, ignoring other entries', () => {
+    const rundown = makeRundown([
+      { type: SupportedEntry.Delay, id: 'delay' } as OntimeDelay,
+      { type: SupportedEntry.Group, id: 'group-1' } as OntimeGroup,
+      event('11', 0, 'group-1'),
+      { type: SupportedEntry.Group, id: 'group-2' } as OntimeGroup,
+      event('21', 0, 'group-2'),
+      event('22', 1, 'group-2'),
+    ]);
+    expect(getAdjacentDayStarts(rundown, 1)).toStrictEqual({ previous: { id: '11', index: 0 }, next: null });
+    expect(getAdjacentDayStarts(rundown, 0)).toStrictEqual({ previous: null, next: { id: '22', index: 2 } });
   });
 });

@@ -1,54 +1,49 @@
-import { PropsWithChildren, useEffect, useRef, useState } from 'react';
+import { PropsWithChildren } from 'react';
+import { IoCheckmark, IoEye, IoEyeOffOutline } from 'react-icons/io5';
 
-import Input from '../../../common/components/input/input/Input';
+import IconButton from '../../../common/components/buttons/IconButton';
 import { cx } from '../../../common/utils/styleUtils';
 
 import style from './InputRow.module.scss';
 
 interface InputRowProps {
   label: string;
-  placeholder: string;
-  text: string;
-  visible: boolean;
-  changeHandler: (newValue: string) => void;
+  isLive: boolean;
+  /** the field holds a change that is not on screen yet */
+  isPending: boolean;
+  onButtonClick: () => void;
+  'data-testid'?: string;
 }
 
 export default function InputRow(props: PropsWithChildren<InputRowProps>) {
-  const { label, placeholder, text, visible, changeHandler, children } = props;
+  const { label, isLive, isPending, onButtonClick, children, 'data-testid': testId } = props;
 
-  const [value, setValue] = useState(text);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const cursorPositionRef = useRef(0);
-
-  // sync cursor position with text
-  useEffect(() => {
-    if (inputRef.current && inputRef.current !== document.activeElement) {
-      inputRef.current.selectionStart = cursorPositionRef.current;
-      inputRef.current.selectionEnd = cursorPositionRef.current;
-    }
-  }, [text]);
-
-  // synchronise external text
-  useEffect(() => {
-    if (inputRef.current !== document.activeElement) {
-      setValue(text);
-    }
-  }, [text]);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    cursorPositionRef.current = event.target.selectionStart ?? 0;
-    setValue(event.target.value);
-    changeHandler(event.target.value);
-  };
+  const subject = label.toLowerCase();
+  const buttonLabel = isPending ? `Apply ${subject}` : `Toggle ${subject} visibility`;
 
   return (
-    <div>
-      <label className={cx([style.label, visible ?? style.active])} htmlFor={label}>
-        {label}
-      </label>
+    <div className={style.row}>
+      <span className={style.labelRow}>
+        <span className={cx([style.label, isLive && style.active])}>{label}</span>
+        {isPending && (
+          <span className={style.pendingHint}>
+            <span className={style.keyHint}>Enter to apply</span>
+            <span className={style.touchHint}>Tap ✓ to apply</span>
+          </span>
+        )}
+      </span>
       <div className={style.inputItems}>
-        <Input id={label} ref={inputRef} value={value} onChange={handleInputChange} placeholder={placeholder} />
-        {children}
+        <div className={cx([style.field, isPending && style.pending])}>{children}</div>
+        <IconButton
+          aria-label={buttonLabel}
+          title={buttonLabel}
+          onClick={onButtonClick}
+          variant={isLive ? 'primary' : 'subtle'}
+          className={cx([isPending && style.pending])}
+          data-testid={testId}
+        >
+          {isPending ? <IoCheckmark /> : isLive ? <IoEye /> : <IoEyeOffOutline />}
+        </IconButton>
       </div>
     </div>
   );

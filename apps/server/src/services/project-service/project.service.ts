@@ -1,4 +1,5 @@
 import { copyFile, rm } from 'fs/promises';
+import { dirname } from 'path';
 
 import { DatabaseModel, LogOrigin, ProjectFileListResponse, ProjectStartup, RefetchKey } from 'ontime-types';
 import { getErrorMessage, getFirstRundown, isObjectEmpty, withoutUndefinedValues } from 'ontime-utils';
@@ -9,6 +10,7 @@ import * as logger from '../../api-data/logs/logs.service.js';
 import { getCurrentRundown } from '../../api-data/rundown/rundown.dao.js';
 import { parseRundowns } from '../../api-data/rundown/rundown.parser.js';
 import { initRundown, mergeCustomFields } from '../../api-data/rundown/rundown.service.js';
+import { parseUrlPresets } from '../../api-data/url-presets/urlPresets.parser.js';
 import { getDataProvider, getFileToRead, initPersistence } from '../../classes/data-provider/DataProvider.js';
 import { safeMerge } from '../../classes/data-provider/DataProvider.utils.js';
 import { makeNewProject, makeProjectId } from '../../models/dataModel.js';
@@ -146,7 +148,8 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
   });
 
   // and make a new file with the recovered data
-  const newPath = appendToName(filePath, '(recovered)');
+  // a file of the same name made by an earlier load stays, the new one gets a numbered name
+  const newPath = getBackupPath(dirname(filePath), appendToName(fileName, '(recovered)'));
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
@@ -161,12 +164,12 @@ async function handleCorruptedFile(filePath: string, fileName: string): Promise<
 async function handleMigratedFile(filePath: string, fileName: string): Promise<string> {
   // copy file to migrated folder, keeping a file of the same name backed up earlier
   const copyPath = getBackupPath(publicDir.migrateDir, fileName);
-  await copyFile(filePath, copyPath).catch((_) => {
-    /* while we have to catch the error, we dont need to handle it */
-  });
+  // without a backup we must not write over the original, so a failed copy stops the load
+  await copyFile(filePath, copyPath);
 
   // and make a new file with the migrated data
-  const newPath = appendToName(filePath, '(migrated)');
+  // a file of the same name made by an earlier load stays, the new one gets a numbered name
+  const newPath = getBackupPath(dirname(filePath), appendToName(fileName, '(migrated)'));
   await dockerSafeRename(filePath, newPath);
   return getFileNameFromPath(newPath);
 }
@@ -286,6 +289,23 @@ export async function getProjectFileToRead(filename: string): Promise<string | n
 }
 
 /**
+ * Reads a project file through the migrations, without loading it or writing to it
+ * Used to merge parts of another project, which may have been saved by an older version
+ */
+export async function readProjectFile(filename: string): Promise<DatabaseModel> {
+  const filePath = await getProjectFileToRead(filename);
+  if (filePath === null) {
+    throw new Error('Project file not found');
+  }
+
+  const { data, errors } = parseDatabaseModel(await parseJsonFile(filePath));
+  if (errors.length > 0) {
+    logger.warning(LogOrigin.Server, 'Project read with errors', { project: filename, errors: errors.length });
+  }
+  return data;
+}
+
+/**
  * Duplicates an existing project file
  * The duplicate gets its own copy of the logo, so changing the logo in one project does not delete the other's
  */
@@ -386,6 +406,9 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
 
   // these sections are parsed and applied on their own, the rest is merged as it is
   const { rundowns, customFields, teleprompter, ...rest } = data;
+  if (rest.urlPresets) {
+    rest.urlPresets = parseUrlPresets(rest);
+  }
 
   // we can pass some stuff straight to the data provider
   // callers list every section, so we only merge when a section has a value
@@ -405,8 +428,7 @@ export async function patchCurrentProject(data: Partial<DatabaseModel>) {
   // the rundown depends on custom fields
   // so custom fields needs to be checked first
   if (customFields) {
-    const parsedCustomFields = parseCustomFields(data);
-    await mergeCustomFields(parsedCustomFields);
+    await mergeCustomFields(parseCustomFields(data));
   }
 
   // then we can check the rundown

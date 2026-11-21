@@ -129,6 +129,7 @@ export const stageRundown: Rundown = {
       timeWarning: 600000,
       timeDanger: 300000,
       custom: {
+        Content_Status: 'Received',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
         Video_Notes: 'Camera + PowerPoint on stream\nPowerPoint on screens',
         Audio_Notes: '2x Wireless Hand Helds',
@@ -172,6 +173,7 @@ export const stageRundown: Rundown = {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
+        Content_Status: 'Received',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
         Video_Notes: 'Cameras on stream\nPowerPoint on screens',
         Audio_Notes: '1x Wireless Hand Held',
@@ -205,6 +207,7 @@ export const stageRundown: Rundown = {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
+        Content_Status: 'In review',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide2.webp',
         Video_Notes: 'Camera + PowerPoint on stream\nPowerPoint on screens',
         Audio_Notes: '2x Wireless Hand Helds',
@@ -264,6 +267,7 @@ export const stageRundown: Rundown = {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
+        Content_Status: 'Not needed',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
         Video_Notes: 'Holding slide on screens',
         Audio_Notes: 'House music',
@@ -322,6 +326,7 @@ export const stageRundown: Rundown = {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
+        Content_Status: 'Missing',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide3.webp',
         Video_Notes: 'Camera + PPT + Video on stream\nPowerPoint + Video on screens\n\nVideo file: Session2.mp4',
         Audio_Notes: '1x Wireless Hand Held\n1x Video with audio',
@@ -355,6 +360,7 @@ export const stageRundown: Rundown = {
       timeWarning: 120000,
       timeDanger: 60000,
       custom: {
+        Content_Status: 'Received',
         PowerPoint_Slide: 'https://www.getontime.no/images/aux/demo-slide1.webp',
         Video_Notes: 'Holding slide on screens',
         Audio_Notes: '1x Wireless Hand Held',

@@ -42,7 +42,7 @@ import {
  * outside of tests, the runtime service does this when it is told of the change
  */
 async function initTestRundown(rundown: Rundown) {
-  await initRundown(rundown, {});
+  await initRundown(rundown, []);
   vi.runAllTimers();
   updateRundownData(rundownCache.get().metadata);
 }
@@ -314,6 +314,200 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.current).toBe(110 * MILLIS_PER_MINUTE);
       expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
     });
+
+    test('a count to end event counts through midnight to its end the day after', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-overnight',
+        timeStart: 23 * MILLIS_PER_HOUR,
+        timeEnd: MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 23:00');
+      load(event, rundown, metadata);
+      start();
+
+      vi.setSystemTime('jan 2 00:30');
+      update();
+      let state = getState();
+      expect(state.timer.current).toBe(30 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(0);
+
+      vi.setSystemTime('jan 2 01:10');
+      update();
+      state = getState();
+      expect(state.timer.current).toBe(-10 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(10 * MILLIS_PER_MINUTE);
+    });
+
+    test('a count to end event does not finish while paused past its planned end', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-pause-past-end',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:25');
+      update();
+      pause();
+
+      vi.setSystemTime('jan 1 10:35');
+      const { hasTimerFinished } = update();
+      const state = getState();
+      expect(hasTimerFinished).toBe(false);
+      expect(state.timer.current).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.timer.phase).not.toBe(TimerPhase.Overtime);
+    });
+
+    test('a pause gives a count to end event time, as added time does', async () => {
+      clearState();
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-pause',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:10');
+      update();
+      pause();
+
+      // while paused, the countdown holds and the end moves by the time paused
+      vi.setSystemTime('jan 1 10:12');
+      update();
+      let state = getState();
+      expect(state.timer.current).toBe(20 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+
+      // resuming keeps the pause as added time, nothing jumps
+      start();
+      state = getState();
+      expect(state.timer.addedTime).toBe(2 * MILLIS_PER_MINUTE);
+      expect(state.timer.current).toBe(20 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+
+      vi.setSystemTime('jan 1 10:13');
+      update();
+      state = getState();
+      expect(state.timer.current).toBe(19 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 32 * MILLIS_PER_MINUTE);
+      expect(state.offset.absolute).toBe(2 * MILLIS_PER_MINUTE);
+    });
+
+    test('the expected group and rundown end follow the time given to a loaded count to end event', async () => {
+      clearState();
+      const group = makeOntimeGroup({ id: 'group', entries: ['count-to-end-end'] });
+      const event = {
+        ...mockEvent,
+        id: 'count-to-end-end',
+        timeStart: 10 * MILLIS_PER_HOUR,
+        timeEnd: 10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 30 * MILLIS_PER_MINUTE,
+        countToEnd: true,
+        parent: group.id,
+      };
+      await initTestRundown(makeRundown({ entries: { [group.id]: group, [event.id]: event }, order: [group.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime('jan 1 10:00');
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime('jan 1 10:10');
+      update();
+      let state = getState();
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+
+      addTime(5 * MILLIS_PER_MINUTE);
+      state = getState();
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+
+      pause();
+      vi.setSystemTime('jan 1 10:12');
+      update();
+      state = getState();
+      expect(state.timer.expectedFinish).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedGroupEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(10 * MILLIS_PER_HOUR + 37 * MILLIS_PER_MINUTE);
+    });
+  });
+
+  describe('delays, see docs/agent-guides/domain-invariants.md#delays', () => {
+    const at = (hours: number, minutes = 0) => hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE;
+    const makeDelayedRundown = async () => {
+      const a = makeOntimeEvent({ id: 'a', timeStart: at(9), timeEnd: at(10), duration: at(1) });
+      const delay = makeOntimeDelay({ id: 'delay', duration: 10 * MILLIS_PER_MINUTE });
+      const b = makeOntimeEvent({ id: 'b', timeStart: at(10), timeEnd: at(11), duration: at(1), linkStart: true });
+      const c = makeOntimeEvent({ id: 'c', timeStart: at(11), timeEnd: at(12), duration: at(1), linkStart: true });
+      await initTestRundown(
+        makeRundown({
+          entries: { a, delay, b, c },
+          order: ['a', 'delay', 'b', 'c'],
+          flatOrder: ['a', 'delay', 'b', 'c'],
+        }),
+      );
+      return rundownCache.get();
+    };
+
+    test('a delay ahead moves the expected rundown end', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      vi.setSystemTime('jan 1 09:00');
+      load(rundown.entries.a as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(0);
+      expect(state.offset.expectedRundownEnd).toBe(at(12, 10));
+    });
+
+    test('a delay the show has passed is not counted twice', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      // B starts on its delayed time
+      vi.setSystemTime('jan 1 10:10');
+      load(rundown.entries.b as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(0);
+      expect(state.offset.relative).toBe(0);
+      expect(state.offset.expectedRundownEnd).toBe(at(12, 10));
+    });
+
+    test('starting on the planned time despite a delay is ahead of the delayed plan', async () => {
+      clearState();
+      const { rundown, metadata } = await makeDelayedRundown();
+      vi.setSystemTime('jan 1 10:00');
+      load(rundown.entries.b as PlayableEvent, rundown, metadata);
+      start();
+      const state = getState();
+      expect(state.offset.absolute).toBe(-10 * MILLIS_PER_MINUTE);
+      expect(state.offset.expectedRundownEnd).toBe(at(12));
+    });
   });
 
   test('runtime offset', async () => {
@@ -430,6 +624,97 @@ describe('mutation on runtimeState', () => {
     vi.setSystemTime('jan 4 00:00:01');
     update();
     expect(getState().rundown.currentDay).toBe(3);
+  });
+
+  describe('multi-day rundown', () => {
+    const at = (date: string) => {
+      vi.setSystemTime(date);
+      return new Date(date).getTime() as Instant;
+    };
+    const event = (id: string, start: number, end: number) =>
+      ({ ...mockEvent, id, timeStart: start, timeEnd: end, duration: end - start }) as PlayableEvent;
+
+    // three days, each one from 09:00 to 10:00
+    async function initThreeDays() {
+      clearState();
+      const entries = {
+        day0: event('day0', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+        day1: event('day1', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+        day2: event('day2', 9 * MILLIS_PER_HOUR, 10 * MILLIS_PER_HOUR),
+      };
+      await initTestRundown(makeRundown({ entries, order: ['day0', 'day1', 'day2'] }));
+      return rundownCache.get();
+    }
+
+    test('starting from a later day counts the relative offset from that event', async () => {
+      const { rundown, metadata } = await initThreeDays();
+
+      load(rundown.entries.day2 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 09:05'));
+
+      const state = getState();
+      expect(state.rundown.currentDay).toBe(2);
+      expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(0);
+    });
+
+    test('a show running past midnight keeps its run', async () => {
+      clearState();
+      const entries = {
+        late: event(
+          'late',
+          23 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+          23 * MILLIS_PER_HOUR + 45 * MILLIS_PER_MINUTE,
+        ),
+        afterMidnight: event('afterMidnight', 10 * MILLIS_PER_MINUTE, MILLIS_PER_HOUR),
+      };
+      await initTestRundown(makeRundown({ entries, order: ['late', 'afterMidnight'] }));
+      const { rundown, metadata } = rundownCache.get();
+
+      load(rundown.entries.late as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 23:35'));
+
+      // the next event is planned for the day after, we reach it early
+      at('jan 1 23:50');
+      load(rundown.entries.afterMidnight as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 23:50'));
+
+      const state = getState();
+      expect(state.rundown.actualStart).toBe(23 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
+      expect(state.rundown.currentDay).toBe(0);
+      expect(state.offset.absolute).toBe(-20 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(-25 * MILLIS_PER_MINUTE);
+    });
+
+    test('resume keeps a run started from a later day', async () => {
+      const { rundown, metadata } = await initThreeDays();
+      const startEpoch = at('jan 1 09:05');
+      at('jan 1 09:10');
+
+      resume(
+        {
+          rundownId: rundown.id,
+          playback: Playback.Play,
+          selectedEventId: 'day2',
+          startedAt: 9 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE,
+          addedTime: 0,
+          pausedAt: null,
+          firstStart: 9 * MILLIS_PER_HOUR + 5 * MILLIS_PER_MINUTE,
+          startEpoch,
+          startEventStart: 9 * MILLIS_PER_HOUR,
+          startEventDay: 2,
+          currentDay: 2,
+          offsetMode: OffsetMode.Relative,
+        },
+        rundown.entries.day2 as PlayableEvent,
+        rundown,
+        metadata,
+      );
+
+      const state = getState();
+      expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(0);
+    });
   });
 });
 
@@ -1289,7 +1574,7 @@ describe('loadGroupFlagAndEnd()', () => {
         },
         order: ['skipped', 'group', 'last'],
       }),
-      {},
+      [],
     );
     const { metadata, rundown } = rundownCache.get();
 

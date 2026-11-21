@@ -82,6 +82,14 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
+  if ('startEventStart' in point && !is.number(point.startEventStart) && point.startEventStart !== null) {
+    return false;
+  }
+
+  if ('startEventDay' in point && !is.number(point.startEventDay) && point.startEventDay !== null) {
+    return false;
+  }
+
   if (!is.number(point.currentDay) && point.currentDay !== null) {
     return false;
   }

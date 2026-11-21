@@ -23,6 +23,7 @@ import {
   createTransaction,
   customFieldMutation,
   getProcessedRundown,
+  getProjectCustomFields,
   processRundown,
   rundownCache,
   rundownMutation,
@@ -41,7 +42,7 @@ vi.mock('../../../classes/data-provider/DataProvider.js', () => {
         setCustomFields: setCustomFieldsMock,
         getRundown: getRundownMock,
         getProjectRundowns: () => ({ background: {} }),
-        getCustomFields: () => ({}),
+        getCustomFields: () => [],
       };
     }),
   };
@@ -71,32 +72,38 @@ describe('createTransaction', () => {
   it('should return the updated data after commit is called and writes are scheduled', async () => {
     const { rundown, customFields, commit } = createTransaction({ mutableRundown: true, mutableCustomFields: true });
     rundown.title = 'Another Title';
-    customFields['newField'] = {
-      label: 'New Field',
-      type: 'text',
-      colour: 'blue',
-    };
+    customFields.push({ key: 'newField', label: 'New Field', type: 'text', colour: 'blue' });
 
     const updated = await commit();
 
     expect(updated.rundown.title).toBe('Another Title');
-    expect(updated.customFields).toHaveProperty('newField');
+    expect(updated.customFields).toEqual([expect.objectContaining({ key: 'newField' })]);
 
     expect(setRundownMock).toHaveBeenCalledOnce();
-    expect(setCustomFieldsMock).toHaveBeenCalledOnce();
+    expect(setCustomFieldsMock).toHaveBeenCalledExactlyOnceWith(updated.customFields);
+  });
+});
+
+describe('rundownCache.init()', () => {
+  it('keeps the custom fields in their given order, without holding on to the source', () => {
+    const customFields: CustomFields = [makeCustomField({ label: 'First' }), makeCustomField({ label: '2' })];
+    rundownCache.init(makeRundown({}), customFields);
+
+    expect(getProjectCustomFields().map((field) => field.key)).toEqual(['First', '2']);
+    expect(getProjectCustomFields()).not.toBe(customFields);
   });
 });
 
 describe('getProcessedRundown()', () => {
   it('serves the loaded rundown from cache', () => {
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), []);
 
     expect(getProcessedRundown('loaded')).toBe(rundownCache.get().rundown);
     expect(getRundownMock).not.toHaveBeenCalled();
   });
 
   it('reads and processes a rundown which is not loaded', () => {
-    rundownCache.init(makeRundown({ id: 'loaded' }), {});
+    rundownCache.init(makeRundown({ id: 'loaded' }), []);
     getRundownMock.mockReturnValueOnce(
       makeRundown({
         id: 'background',
@@ -156,7 +163,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(3);
     expect(initResult.order).toStrictEqual(['1', '2', '3']);
     expect(initResult.entries['1'].type).toBe(SupportedEntry.Event);
@@ -174,7 +181,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const processed = processRundown(rundown, {});
+    const processed = processRundown(rundown, []);
 
     expect(processed.order).toEqual(['1', 'delay', '2']);
     expect(processed.flatEntryOrder).toEqual(['1', 'delay', '2']);
@@ -190,7 +197,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(2);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(100);
     expect(initResult.totalDelay).toBe(100);
@@ -210,7 +217,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(7);
     expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(200);
@@ -230,7 +237,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.totalDuration).toBe(10500 - 9000); // last end - first start
   });
 
@@ -245,7 +252,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.totalDuration).toBe(20000 - 9000); // last end - first start
   });
 
@@ -280,7 +287,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.totalDuration).toBe(dayInMs + MILLIS_PER_HOUR); // day + last end - first start
   });
 
@@ -294,13 +301,42 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.entries['2']).toMatchObject({
       gap: 400,
       delay: 500,
     });
     expect(initResult.totalDelay).toBe(500);
     expect(initResult.totalDuration).toBe(600);
+  });
+
+  it('a count to end event absorbs a delay, as its end is a deadline', () => {
+    const rundown = makeRundown({
+      order: ['delay', '1', '2'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 30 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, countToEnd: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
+      },
+    });
+
+    const initResult = processRundown(rundown, []);
+    expect(initResult.entries['1']).toMatchObject({ delay: 30 });
+    expect(initResult.entries['2']).toMatchObject({ delay: 0 });
+  });
+
+  it('a count to end event passes on only the delay longer than itself', () => {
+    const rundown = makeRundown({
+      order: ['delay', '1', '2'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 130 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 100, duration: 100, countToEnd: true }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 100, timeEnd: 200, duration: 100, linkStart: true }),
+      },
+    });
+
+    const initResult = processRundown(rundown, []);
+    expect(initResult.entries['2']).toMatchObject({ delay: 30 });
   });
 
   it('maintains delays over gaps when there are cumulative delays', () => {
@@ -314,7 +350,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.entries['1']).toMatchObject({
       gap: 0,
       delay: 100,
@@ -338,7 +374,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.entries['1']).toMatchObject({
       gap: 0,
       delay: -100,
@@ -365,7 +401,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(7);
     expect((initResult.entries['1'] as OntimeEvent).delay).toBe(0);
     expect((initResult.entries['2'] as OntimeEvent).delay).toBe(-200);
@@ -407,7 +443,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(5);
     expect((initResult.entries['2'] as OntimeEvent).timeStart).toBe(2);
     expect((initResult.entries['2'] as OntimeEvent).timeEnd).toBe(12);
@@ -428,7 +464,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(3);
     expect((initResult.entries['3'] as OntimeEvent).timeStart).toBe(2);
   });
@@ -444,7 +480,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -460,7 +496,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.order.length).toBe(4);
     expect(initResult.totalDuration).toBe(500 - 100);
   });
@@ -491,7 +527,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
 
     expect((initResult.entries.skipped as OntimeEvent).dayOffset).toBe(0);
     expect((initResult.entries.skipped as OntimeEvent).gap).toBe(0);
@@ -524,7 +560,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.totalDuration).toBe((23 - 9 + 48) * MILLIS_PER_HOUR);
   });
 
@@ -547,7 +583,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     const expectedDuration = 8 * MILLIS_PER_HOUR + (dayInMs - 12 * MILLIS_PER_HOUR);
     expect(initResult.totalDuration).toBe(expectedDuration);
   });
@@ -583,7 +619,7 @@ describe('processRundown()', () => {
       },
     });
 
-    const initResult = processRundown(rundown, {});
+    const initResult = processRundown(rundown, []);
     expect(initResult.entries).toMatchObject({
       '1': {
         timeStart: 0,
@@ -611,18 +647,10 @@ describe('processRundown()', () => {
 
   describe('custom properties feature', () => {
     it('creates a map of custom properties', () => {
-      const customProperties: CustomFields = {
-        lighting: {
-          label: 'lighting',
-          type: 'text',
-          colour: 'red',
-        },
-        sound: {
-          label: 'sound',
-          type: 'text',
-          colour: 'red',
-        },
-      };
+      const customProperties: CustomFields = [
+        makeCustomField({ label: 'lighting', colour: 'red' }),
+        makeCustomField({ label: 'sound', colour: 'red' }),
+      ];
 
       const rundown = makeRundown({
         order: ['1', '2'],
@@ -662,7 +690,7 @@ describe('processRundown()', () => {
           '300': makeOntimeEvent({ id: '300', timeStart: 300, timeEnd: 400, duration: 100 }),
         },
       });
-      const generatedRundown = processRundown(rundown, {});
+      const generatedRundown = processRundown(rundown, []);
 
       expect(generatedRundown.order).toMatchObject(['1']);
       expect(generatedRundown.totalDuration).toBe(300);
@@ -701,7 +729,7 @@ describe('processRundown()', () => {
           '303': makeOntimeEvent({ id: '303', timeStart: 1100, timeEnd: 1200, duration: 100, linkStart: true }),
         },
       });
-      const generatedRundown = processRundown(rundown, {});
+      const generatedRundown = processRundown(rundown, []);
 
       expect(generatedRundown.order).toMatchObject(['0', '1', '2', '3']);
       expect(generatedRundown.totalDuration).toBe(1200);
@@ -1350,7 +1378,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1360,6 +1388,90 @@ describe('rundownMutation.applyDelay()', () => {
       '4': { id: '4', timeStart: 30, timeEnd: 40, duration: 10, revision: 2, linkStart: false },
       '5': { id: '5', timeStart: 40, timeEnd: 50, duration: 10, revision: 2, linkStart: true },
     });
+  });
+
+  it('keeps the deadline of a count to end event, which absorbs the delay', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 50, duration: 40, linkStart: true, countToEnd: true }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 50, timeEnd: 60, duration: 10, linkStart: true }),
+      },
+    });
+
+    rundownCache.init(testRundown, []);
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 10, timeEnd: 20, duration: 10 },
+      '2': { timeStart: 20, timeEnd: 50, duration: 30, linkStart: true },
+      '3': { timeStart: 50, timeEnd: 60, duration: 10, linkStart: true },
+    });
+  });
+
+  it('moves a skipped count to end event like any other event, as the parser passes the delay on', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 10 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({
+          id: '2',
+          timeStart: 10,
+          timeEnd: 50,
+          duration: 40,
+          linkStart: true,
+          countToEnd: true,
+          skip: true,
+        }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 50, timeEnd: 60, duration: 10, linkStart: true }),
+      },
+    });
+
+    rundownCache.init(testRundown, []);
+    expect(processRundown(testRundown, []).entries['3']).toMatchObject({ delay: 10 });
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 10, timeEnd: 20 },
+      '2': { timeStart: 20, timeEnd: 60 },
+      '3': { timeStart: 60, timeEnd: 70 },
+    });
+  });
+
+  it('a delay longer than a count to end event moves its start to the deadline and the rest passes on', () => {
+    const testRundown = makeRundown({
+      revision: 0,
+      order: ['delay', '1', '2', '3'],
+      entries: {
+        delay: makeOntimeDelay({ id: 'delay', duration: 20 }),
+        '1': makeOntimeEvent({ id: '1', timeStart: 0, timeEnd: 10, duration: 10 }),
+        '2': makeOntimeEvent({ id: '2', timeStart: 10, timeEnd: 20, duration: 10, linkStart: true, countToEnd: true }),
+        '3': makeOntimeEvent({ id: '3', timeStart: 20, timeEnd: 30, duration: 10, linkStart: true }),
+      },
+    });
+
+    // the delay of a count to end event never starts it after its deadline
+    const processed = processRundown(testRundown, []);
+    expect(processed.entries['2']).toMatchObject({ delay: 10 });
+    expect(processed.entries['3']).toMatchObject({ delay: 10 });
+
+    rundownCache.init(testRundown, []);
+    rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
+
+    expect(testRundown.entries).toMatchObject({
+      '1': { timeStart: 20, timeEnd: 30 },
+      '2': { timeStart: 20, timeEnd: 20, duration: 0, linkStart: false },
+      '3': { timeStart: 30, timeEnd: 40 },
+    });
+
+    // the deadline holds when the rundown is processed again, it does not follow the previous event
+    const reprocessed = processRundown(testRundown, []);
+    expect(reprocessed.entries['2']).toMatchObject({ timeStart: 20, timeEnd: 20 });
   });
 
   it('applies negative delays', () => {
@@ -1376,7 +1488,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1398,7 +1510,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1432,7 +1544,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1464,7 +1576,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1496,7 +1608,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1529,7 +1641,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1570,7 +1682,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1589,7 +1701,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
@@ -1604,7 +1716,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({ '1': { id: '1', timeStart: 0, timeEnd: 100, duration: 100 } });
@@ -1621,7 +1733,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1656,7 +1768,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1706,7 +1818,7 @@ describe('rundownMutation.applyDelay()', () => {
       },
     });
 
-    rundownCache.init(testRundown, {});
+    rundownCache.init(testRundown, []);
     rundownMutation.applyDelay(testRundown, testRundown.entries['delay'] as OntimeDelay);
 
     expect(testRundown.entries).toMatchObject({
@@ -1749,7 +1861,7 @@ describe('rundownMutation.applyDelay()', () => {
         'loaded-ev': makeOntimeEvent({ id: 'loaded-ev', timeStart: 0, timeEnd: 100, duration: 100 }),
       },
     });
-    rundownCache.init(loadedRundown, {});
+    rundownCache.init(loadedRundown, []);
 
     // Background rundown is independent of the loaded one
     const bgRundown = makeRundown({
@@ -2039,61 +2151,50 @@ describe('rundownMutation.ungroup()', () => {
 
 describe('customFieldMutation.add()', () => {
   it('adds a custom field given object', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one' }),
-    };
+    const customFields = [makeCustomField({ label: 'one' })];
 
-    customFieldMutation.add(customFields, 'two', makeCustomField({ label: 'two' }));
+    customFieldMutation.add(customFields, makeCustomField({ label: 'two' }));
 
-    expect(customFields).toMatchObject({
-      one: { label: 'one' },
-      two: { label: 'two' },
-    });
+    expect(customFields).toMatchObject([
+      { key: 'one', label: 'one' },
+      { key: 'two', label: 'two' },
+    ]);
   });
 });
 
 describe('customFieldMutation.edit()', () => {
   it('changes properties of an existing custom field', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
+    const customFields = [makeCustomField({ label: 'one', colour: 'blue' })];
 
-    customFieldMutation.edit(customFields, 'one', customFields.one, { colour: 'red' });
+    customFieldMutation.edit(customFields, 'one', { colour: 'red' });
 
-    expect(customFields).toMatchObject({
-      one: { label: 'one', colour: 'red' },
-    });
+    expect(customFields).toMatchObject([{ key: 'one', label: 'one', colour: 'red' }]);
   });
 
-  it('changing the label makes a new key', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
+  it('changing the label makes a new key in the same position', () => {
+    const customFields = [
+      makeCustomField({ label: 'one', colour: 'blue' }),
+      makeCustomField({ label: 'other', colour: 'green' }),
+    ];
 
-    const { oldKey, newKey } = customFieldMutation.edit(customFields, 'one', customFields.one, {
-      label: 'two',
-      colour: 'red',
-    });
+    const { oldKey, newKey } = customFieldMutation.edit(customFields, 'one', { label: 'two', colour: 'red' });
 
     expect(oldKey).toBe('one');
-    expect(newKey).not.toEqual(oldKey);
-
-    expect(customFields).toMatchObject({
-      [oldKey]: { label: 'one', colour: 'blue' },
-      [newKey]: { label: 'two', colour: 'red' },
-    });
+    expect(newKey).toBe('two');
+    expect(customFields).toMatchObject([
+      { key: 'two', label: 'two', colour: 'red' },
+      { key: 'other', label: 'other', colour: 'green' },
+    ]);
   });
 });
 
 describe('customFieldMutation.remove()', () => {
-  it('deletes a custom field from the object', () => {
-    const customFields = {
-      one: makeCustomField({ label: 'one', colour: 'blue' }),
-    };
+  it('deletes a custom field from the list', () => {
+    const customFields = [makeCustomField({ label: 'one' }), makeCustomField({ label: 'two' })];
 
     customFieldMutation.remove(customFields, 'one');
 
-    expect(customFields).not.toHaveProperty('one');
+    expect(customFields.map((field) => field.key)).toEqual(['two']);
   });
 });
 

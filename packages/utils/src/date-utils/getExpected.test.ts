@@ -1,7 +1,7 @@
-import { Day, OffsetMode } from 'ontime-types';
+import { Day, Duration, OffsetMode } from 'ontime-types';
 
 import { MILLIS_PER_HOUR, dayInMs } from './conversionUtils';
-import { getExpectedEnd, getExpectedStart } from './getExpected';
+import { getDelayedEnd, getDelayedStart, getExpectedEnd, getExpectedStart } from './getExpected';
 
 describe('getExpectedStart()', () => {
   describe('Absolute offset mode', () => {
@@ -16,8 +16,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: 0,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0 as Duration,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(testEvent.timeStart);
@@ -35,8 +34,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0 as Duration,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120);
@@ -54,8 +52,7 @@ describe('getExpectedStart()', () => {
         totalGap: 0,
         offset: -10,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0 as Duration,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(100); // <-- when running ahead the unlinked timer stays put
@@ -73,8 +70,7 @@ describe('getExpectedStart()', () => {
         totalGap: 20,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: null,
-        plannedStart: null,
+        startShift: 0 as Duration,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(100); // <-- when gap is enough to compensate for the running behind
@@ -92,8 +88,7 @@ describe('getExpectedStart()', () => {
         totalGap: 10,
         offset: 20,
         mode: OffsetMode.Absolute,
-        actualStart: 0,
-        plannedStart: 0,
+        startShift: 0 as Duration,
       };
 
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(110); // <-- when gap is not enough to compensate for the running behind it absorbs at much as possible
@@ -106,8 +101,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100 as Duration,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -146,7 +140,7 @@ describe('getExpectedStart()', () => {
       ).toBe(120);
 
       // if we actually started 5ms later
-      testState.actualStart = 105;
+      testState.startShift = 105 as Duration;
 
       //event 2
       expect(
@@ -186,8 +180,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 10,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100 as Duration,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -196,7 +189,7 @@ describe('getExpectedStart()', () => {
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(120);
 
       // if we actually started 5ms later
-      testState.actualStart = 105;
+      testState.startShift = 105 as Duration;
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: true })).toBe(125);
       expect(getExpectedStart(testEvent, { ...testState, isLinkedToLoaded: false })).toBe(125);
     });
@@ -210,8 +203,7 @@ describe('getExpectedStart()', () => {
       const testState = {
         currentDay: 0,
         totalGap: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100 as Duration,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -233,8 +225,7 @@ describe('getExpectedStart()', () => {
     test('next day', () => {
       const testState = {
         currentDay: 0,
-        actualStart: 100,
-        plannedStart: 0,
+        startShift: 100 as Duration,
         offset: 0,
         mode: OffsetMode.Relative,
       };
@@ -267,8 +258,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: 0,
-      actualStart: 100,
-      plannedStart: 0,
+      startShift: 100 as Duration,
       offset: 0,
       mode: OffsetMode.Relative,
       isLinkedToLoaded: false,
@@ -286,8 +276,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: -1,
-      actualStart: 23 * MILLIS_PER_HOUR,
-      plannedStart: 0,
+      startShift: 0 as Duration,
       offset: -1 * MILLIS_PER_HOUR,
       mode: OffsetMode.Absolute,
       isLinkedToLoaded: true,
@@ -304,8 +293,7 @@ describe('getExpectedStart()', () => {
     };
     const testState = {
       currentDay: -1,
-      actualStart: 23 * MILLIS_PER_HOUR,
-      plannedStart: 0,
+      startShift: 0 as Duration,
       offset: -1 * MILLIS_PER_HOUR,
       mode: OffsetMode.Absolute,
       isLinkedToLoaded: true,
@@ -321,8 +309,7 @@ describe('getExpectedEnd()', () => {
     currentDay: 0,
     totalGap: 0,
     mode: OffsetMode.Absolute,
-    actualStart: null,
-    plannedStart: null,
+    startShift: 0 as Duration,
     isLinkedToLoaded: true,
   };
 
@@ -337,11 +324,11 @@ describe('getExpectedEnd()', () => {
 
     // on schedule
     const expectedStart0 = getExpectedStart(testEvent, { ...baseState, offset: 0 });
-    expect(getExpectedEnd(testEvent, expectedStart0, baseState.currentDay)).toBe(150);
+    expect(getExpectedEnd(testEvent, expectedStart0, baseState.currentDay, false)).toBe(150);
 
     // running 20 behind pushes the end out
     const expectedStart20 = getExpectedStart(testEvent, { ...baseState, offset: 20 });
-    expect(getExpectedEnd(testEvent, expectedStart20, baseState.currentDay)).toBe(170);
+    expect(getExpectedEnd(testEvent, expectedStart20, baseState.currentDay, false)).toBe(170);
   });
 
   test('a countToEnd event pins to the planned end while in overtime', () => {
@@ -355,7 +342,7 @@ describe('getExpectedEnd()', () => {
 
     // overtime would otherwise push the end to 170, but countToEnd absorbs it and pins to 150
     const expectedStart = getExpectedStart(testEvent, { ...baseState, offset: 20 });
-    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay)).toBe(150);
+    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(150);
   });
 
   test('an overnight countToEnd event returns a normalised end', () => {
@@ -371,7 +358,7 @@ describe('getExpectedEnd()', () => {
     };
 
     const expectedStart = getExpectedStart(testEvent, { ...baseState, offset: 0 });
-    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay)).toBe(timeStart + duration);
+    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(timeStart + duration);
   });
 
   test('a countToEnd event ignores upstream delays and stays pinned to its fixed end', () => {
@@ -384,11 +371,13 @@ describe('getExpectedEnd()', () => {
 
     // events shift their schedule based on delay...
     const expectedStart = getExpectedStart({ ...testEvent }, { ...baseState, offset: 0 });
-    expect(getExpectedEnd({ ...testEvent, countToEnd: false }, expectedStart, baseState.currentDay)).toBe(170);
+    expect(getExpectedEnd({ ...testEvent, countToEnd: false }, expectedStart, baseState.currentDay, false)).toBe(170);
 
     // ... but count to end events stay pinned to the scheduled end
     const expectedStartCountToEnd = getExpectedStart({ ...testEvent }, { ...baseState, offset: 0 });
-    expect(getExpectedEnd({ ...testEvent, countToEnd: true }, expectedStartCountToEnd, baseState.currentDay)).toBe(150);
+    expect(
+      getExpectedEnd({ ...testEvent, countToEnd: true }, expectedStartCountToEnd, baseState.currentDay, false),
+    ).toBe(150);
   });
 
   test('a countToEnd event drifts when a delay pushes its start past the fixed end', () => {
@@ -403,7 +392,7 @@ describe('getExpectedEnd()', () => {
     // the delayed start (160) is past the fixed end (150), so the event can no longer
     // finish on time and the end follows the compromised start
     const expectedStart = getExpectedStart(testEvent, { ...baseState, offset: 0 });
-    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay)).toBe(160);
+    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(160);
   });
 
   test('a countToEnd event on a later day keeps the day offset on the end', () => {
@@ -418,14 +407,16 @@ describe('getExpectedEnd()', () => {
     // the scheduled end must include the day offset (timeStart + dayInMs + duration),
     // not collapse to the day-shifted start
     const expectedStart = getExpectedStart(testEvent, { ...baseState, currentDay: 0, offset: 0 });
-    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay)).toBe(150 + dayInMs);
+    expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(150 + dayInMs);
 
     // when the running event is already on the same day, no extra day is added
     const expectedStartSameDay = getExpectedStart(
       { ...testEvent, dayOffset: 0 as Day },
       { ...baseState, currentDay: 0, offset: 0 },
     );
-    expect(getExpectedEnd({ ...testEvent, dayOffset: 0 as Day }, expectedStartSameDay, baseState.currentDay)).toBe(150);
+    expect(
+      getExpectedEnd({ ...testEvent, dayOffset: 0 as Day }, expectedStartSameDay, baseState.currentDay, false),
+    ).toBe(150);
   });
 
   test('a countToEnd event is anchored to its wall-clock end in relative mode', () => {
@@ -440,19 +431,74 @@ describe('getExpectedEnd()', () => {
     const relativeState = {
       ...baseState,
       mode: OffsetMode.Relative,
-      actualStart: 30,
-      plannedStart: 0,
+      startShift: 30 as Duration,
       offset: 0,
     };
 
     // a regular event in the same state is shifted by the relative-start offset to 180
     const expectedStartRegular = getExpectedStart({ ...testEvent }, relativeState);
-    expect(getExpectedEnd({ ...testEvent, countToEnd: false }, expectedStartRegular, relativeState.currentDay)).toBe(
-      180,
-    );
+    expect(
+      getExpectedEnd({ ...testEvent, countToEnd: false }, expectedStartRegular, relativeState.currentDay, false),
+    ).toBe(180);
 
     // the countToEnd event stays pinned to its wall-clock end (150), not shifted
     const expectedStartCountToEnd = getExpectedStart(testEvent, relativeState);
-    expect(getExpectedEnd(testEvent, expectedStartCountToEnd, relativeState.currentDay)).toBe(150);
+    expect(getExpectedEnd(testEvent, expectedStartCountToEnd, relativeState.currentDay, false)).toBe(150);
+  });
+
+  describe('the loaded countToEnd event', () => {
+    // the runtime offset of a loaded count to end event is the time given to it, plus any overtime
+    const timeGiven = 7;
+    const testEvent = {
+      timeStart: 100,
+      duration: 50,
+      delay: 0,
+      dayOffset: 0 as Day,
+      countToEnd: true,
+    };
+
+    test('ends at its planned end plus the time given to it', () => {
+      const expectedStart = getExpectedStart(testEvent, { ...baseState, offset: timeGiven });
+      expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, true)).toBe(157);
+
+      // an event which is not loaded absorbs the same offset
+      expect(getExpectedEnd(testEvent, expectedStart, baseState.currentDay, false)).toBe(150);
+    });
+
+    test('keeps its end when a delay moves its start, as its timer counts to the planned end', () => {
+      const delayed = { ...testEvent, delay: 10 };
+      const expectedStart = getExpectedStart(delayed, { ...baseState, offset: timeGiven });
+      expect(getExpectedEnd(delayed, expectedStart, baseState.currentDay, true)).toBe(157);
+    });
+
+    test('ends at its planned end plus the time given to it in relative mode', () => {
+      const actualStart = 30;
+      const plannedStart = 0;
+      const relativeState = {
+        ...baseState,
+        mode: OffsetMode.Relative,
+        startShift: actualStart - plannedStart,
+        // relative offset as the runtime gives it: absolute - startShift
+        offset: timeGiven - (actualStart - plannedStart),
+      };
+
+      const expectedStart = getExpectedStart(testEvent, relativeState);
+      expect(getExpectedEnd(testEvent, expectedStart, relativeState.currentDay, true)).toBe(157);
+    });
+  });
+});
+
+describe('delayed times', () => {
+  test('a delay moves the start and the end of an event', () => {
+    expect(getDelayedStart({ timeStart: 100, delay: 10 })).toBe(110);
+    expect(getDelayedEnd({ timeEnd: 200, delay: 10, countToEnd: false })).toBe(210);
+  });
+
+  test('a delay never moves the end of a count to end event', () => {
+    expect(getDelayedEnd({ timeEnd: 200, delay: 10, countToEnd: true })).toBe(200);
+  });
+
+  test('a negative delay does not start an event before midnight', () => {
+    expect(getDelayedStart({ timeStart: 5, delay: -10 })).toBe(0);
   });
 });

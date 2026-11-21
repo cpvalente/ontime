@@ -34,6 +34,10 @@ Before the pure timer calculations can move to `ontime-utils` for client use:
 - `getRuntimeOffset` asserts its inputs in `DEV` blocks, which only the server build strips;
 - clients do not receive `pausedAt`, `pausedDuration`, `_startDayOffset`, `hasFinished`, `triggerAhead` or the expected-time lookahead.
 
+Candidate brand, to decide during the inventory slice:
+
+- `TimelinePosition`: milliseconds from midnight of the rundown's first day, `timeStart + dayOffset * dayInMs`. None of the four brands fits it: it can pass `dayInMs`, so it is not a `TimeOfDay`, it has no calendar date, so it is not an `Instant`, and it is a position, not a `Duration`. It is rebuilt by hand in `report.utils.ts` (`getPlannedShowDuration`), `getTimeFrom.ts`, and `getRuntimeOffset` for the event and the start event. A brand would come with one `timeCore` helper that builds it from a `TimeOfDay` and a `Day`. Until then, store the parts separately, as the runtime does for the start event (`_startEventStart`, `_startEventDay`).
+
 ## Migration rules
 
 - Classify each temporal field before changing it. No generic `Time` type.

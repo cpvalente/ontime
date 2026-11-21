@@ -160,13 +160,10 @@ export function useTimeUntilExpectedStart(
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, currentDay, mode, actualStart, plannedStart, clock } = useExpectedStartData();
+  const { offset, currentDay, mode, startShift, clock } = useExpectedStartData();
   if (event === null) return 0;
 
-  const expectedStart = getExpectedStart(
-    { ...event },
-    { ...state, currentDay, offset, mode, actualStart, plannedStart },
-  );
+  const expectedStart = getExpectedStart({ ...event }, { ...state, currentDay, offset, mode, startShift });
   return expectedStart - clock;
 }
 
@@ -181,7 +178,7 @@ export function getExpectedTimesFromExtendedEvent(
 export function getExpectedScheduleTimes(
   event: Pick<
     ExtendedEntry<OntimeEvent>,
-    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'countToEnd' | 'duration'
+    'timeStart' | 'dayOffset' | 'delay' | 'totalGap' | 'isLinkedToLoaded' | 'isLoaded' | 'countToEnd' | 'duration'
   > | null,
   state: ReturnType<typeof useExpectedScheduleData>,
 ) {
@@ -195,8 +192,9 @@ export function getExpectedScheduleTimes(
       ...state,
     },
   );
-  const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay);
-  const plannedEnd = event.timeStart + event.duration + event.delay;
+  const expectedEnd = getExpectedEnd(event, expectedStart, state.currentDay, event.isLoaded);
+  // a delay moves the end, but never a count to end deadline
+  const plannedEnd = event.timeStart + event.duration + (event.countToEnd ? 0 : event.delay);
 
   return {
     expectedStart,

@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('../../api-data/session/session.service.js', () => ({
   hasPassword: true,
   hashedPassword: 'valid-token',
+  hashedReadPassword: 'read-token',
 }));
 
 // identity hash so the plain password 'valid-token' matches the mocked hashedPassword
@@ -28,6 +29,7 @@ function makeResponse() {
     redirect: vi.fn(),
     send: vi.fn(),
     status: vi.fn().mockReturnThis(),
+    locals: {},
   } as unknown as Response;
 }
 
@@ -97,8 +99,7 @@ describe('bearer authentication', () => {
     const cookie = `token=${encodeURIComponent(JSON.stringify({ token: 'valid-token' }))}`;
     const req = { headers: makeHeadersWithFailingAuthorization(cookie) } as IncomingMessage;
 
-    expect(() => authenticateSocket({} as never, req, next)).not.toThrow();
-    expect(next).toHaveBeenCalledOnce();
+    expect(authenticateSocket(req)).toBe('write');
   });
 
   it('authenticates API requests with a bearer token', () => {
@@ -150,10 +151,7 @@ describe('bearer authentication', () => {
       headers: { authorization: 'Bearer valid-token' },
     } as IncomingMessage;
 
-    authenticateSocket({} as never, req, next);
-
-    expect(next).toHaveBeenCalledOnce();
-    expect(next).toHaveBeenCalledWith();
+    expect(authenticateSocket(req)).toBe('write');
   });
 
   it('rejects an invalid bearer token', () => {
@@ -178,26 +176,15 @@ describe('bearer authentication', () => {
     expect(next).not.toHaveBeenCalled();
     expect(redirectRes.redirect).toHaveBeenCalledWith('/login?redirect=%2Fexternal%2Fimage.png');
 
-    const socketNext = vi.fn();
-    authenticateSocket(
-      {} as never,
-      { headers: { authorization: 'Bearer invalid-token' } } as IncomingMessage,
-      socketNext,
-    );
-
-    expect(socketNext).toHaveBeenCalledOnce();
-    expect(socketNext.mock.calls[0][0]).toEqual(new Error('Unauthorized'));
+    expect(
+      authenticateSocket({ headers: { authorization: 'Bearer invalid-token' } } as IncomingMessage),
+    ).toBeUndefined();
   });
 
   it.each(['/socket?not_token=valid-token', '/socket?token=valid-token-suffix'])(
     'rejects lookalike WebSocket query tokens in %s',
     (url) => {
-      const socketNext = vi.fn();
-
-      authenticateSocket({} as never, { headers: { host: 'localhost' }, url } as IncomingMessage, socketNext);
-
-      expect(socketNext).toHaveBeenCalledOnce();
-      expect(socketNext.mock.calls[0][0]).toEqual(new Error('Unauthorized'));
+      expect(authenticateSocket({ headers: { host: 'localhost' }, url } as IncomingMessage)).toBeUndefined();
     },
   );
 });
@@ -289,4 +276,111 @@ it('keeps the query string of the requested view through the login redirect', ()
   // the login page reads the value with URLSearchParams and posts it back for the login handler
   const redirect = new URL(loginUrl, 'http://localhost').searchParams.get('redirect');
   expect(getSafeRedirect(redirect, '/stage-hash')).toBe(originalUrl);
+});
+
+describe('links with a token', () => {
+  function open(cookieToken: string | undefined, urlToken: string) {
+    const { authenticateAndRedirect } = makeAuthenticateMiddleware('');
+    const res = makeResponse();
+    const next = vi.fn();
+    const cookies = cookieToken ? { token: JSON.stringify({ token: cookieToken }) } : {};
+    authenticateAndRedirect(
+      { cookies, headers: {}, originalUrl: '/timer', query: { token: urlToken } } as unknown as Request,
+      res,
+      next,
+    );
+    return { res, next };
+  }
+
+  it('sets the cookie from the link', () => {
+    const readToken = 'read-token';
+    const { res, next } = open(undefined, readToken);
+    expect(next).toHaveBeenCalled();
+    expect(res.cookie).toHaveBeenCalledWith(
+      'token',
+      JSON.stringify({ token: readToken, scope: 'ro' }),
+      expect.anything(),
+    );
+  });
+
+  it('raises a read cookie to write with the password link', () => {
+    const { res } = open('read-token', 'valid-token');
+    expect(res.cookie).toHaveBeenCalledWith(
+      'token',
+      JSON.stringify({ token: 'valid-token', scope: 'rw' }),
+      expect.anything(),
+    );
+  });
+
+  it('keeps a write cookie', () => {
+    const { res, next } = open('valid-token', 'read-token');
+    expect(next).toHaveBeenCalled();
+    expect(res.cookie).not.toHaveBeenCalled();
+  });
+});
+
+describe('token precedence', () => {
+  function request(cookieToken: string, query: Record<string, string>) {
+    const { authenticate } = makeAuthenticateMiddleware('');
+    const res = makeResponse();
+    const next = vi.fn();
+    authenticate(
+      {
+        cookies: { token: JSON.stringify({ token: cookieToken }) },
+        headers: {},
+        query,
+      } as unknown as Request,
+      res,
+      next,
+    );
+    return { res, next };
+  }
+
+  it('prefers a token in the URL over the cookie', () => {
+    const { res, next } = request('stale-token', { token: 'valid-token' });
+    expect(next).toHaveBeenCalled();
+    expect(res.locals.scope).toBe('write');
+  });
+
+  it('clears an invalid cookie, so the next request can use its own token', () => {
+    const { res, next } = request('stale-token', {});
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.clearCookie).toHaveBeenCalledWith('token', { path: '/' });
+  });
+
+  it('keeps a valid cookie when another token was the one rejected', () => {
+    const { res, next } = request('valid-token', { token: 'nope' });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.clearCookie).not.toHaveBeenCalled();
+  });
+});
+
+describe('authenticateSocket()', () => {
+  it('gives the scope of a token in the URL, also to clients without an Origin like Companion', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001' },
+      url: '/ws?token=valid-token',
+    } as unknown as IncomingMessage;
+
+    expect(authenticateSocket(req)).toBe('write');
+  });
+
+  it('gives read to the read token', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001' },
+      url: '/ws?token=read-token',
+    } as unknown as IncomingMessage;
+
+    expect(authenticateSocket(req)).toBe('read');
+  });
+
+  it('refuses a connection with a wrong token', () => {
+    const req = {
+      headers: { host: '192.168.1.10:4001' },
+      url: '/ws?token=nope',
+    } as unknown as IncomingMessage;
+
+    expect(authenticateSocket(req)).toBeUndefined();
+  });
 });

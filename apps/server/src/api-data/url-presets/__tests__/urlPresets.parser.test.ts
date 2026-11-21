@@ -49,4 +49,12 @@ describe('parseUrlPresets()', () => {
     // generates missing id
     expect(parsed[0].alias).toBeDefined();
   });
+
+  it('drops access tokens from the preset search', () => {
+    const urlPresets = [
+      { enabled: true, alias: 'alias', target: 'timer', search: 'n=1&token=secret', displayInNav: false },
+    ] as URLPreset[];
+    const result = parseUrlPresets({ urlPresets });
+    expect(result.at(0)?.search).toBe('n=1');
+  });
 });

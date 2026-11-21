@@ -1,5 +1,5 @@
 import { MaybeNumber, OntimeEvent } from 'ontime-types';
-import { dayInMs } from 'ontime-utils';
+import { dayInMs, getDelayedStart } from 'ontime-utils';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { IoPencil } from 'react-icons/io5';
 
@@ -45,7 +45,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const showFab = useFadeOutOnInactivity(true);
 
   const { data: reportData } = useReport();
-  const { offset, currentDay, actualStart, plannedStart, mode } = useExpectedScheduleData();
+  const { offset, currentDay, startShift, mode } = useExpectedScheduleData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
@@ -133,15 +133,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
               // only ever hand the ref to a single row, sharing it would null it out on the next commit
               const isAnchor = isLive && (anchorId === null || event.id === anchorId);
               const rowRef = isAnchor ? selectedRef : event.isGroup && anchorId ? stickyHeaderRef : undefined;
-              const countdownEvent = extendEventData(
-                event,
-                currentDay,
-                actualStart,
-                plannedStart,
-                offset,
-                mode,
-                reportData,
-              );
+              const countdownEvent = extendEventData(event, currentDay, startShift, offset, mode, reportData);
               const displayTitle = getPropertyValue(event, mainSource ?? 'title');
 
               return (
@@ -194,7 +186,7 @@ export function ScheduleTime(props: ScheduleTimeProps) {
   const { event, showExpected } = props;
   const { timeStart, duration, delay, expectedStart, expectedEnd } = event;
 
-  const plannedStart = timeStart + delay + event.dayOffset * dayInMs;
+  const plannedStart = getDelayedStart(event) + event.dayOffset * dayInMs;
 
   // only show new exacted value if outside  range of the planned value
   const isExpectedValueShow = showExpected && isOutsideRange(plannedStart, expectedStart);
@@ -202,7 +194,8 @@ export function ScheduleTime(props: ScheduleTimeProps) {
   const plannedStateClass = isExpectedValueShow ? 'sub__schedule--strike' : delay !== 0 ? 'sub__schedule--delayed' : '';
 
   const expectedStateClass = `sub__schedule--${getOffsetState(expectedStart - plannedStart)}`;
-  const plannedEnd = plannedStart + duration + delay;
+  // a delay moves the end, but never a count to end deadline
+  const plannedEnd = event.countToEnd ? timeStart + event.dayOffset * dayInMs + duration : plannedStart + duration;
   const expectedEndClass = `sub__schedule--${getOffsetState(expectedEnd - plannedEnd)}`;
 
   return (

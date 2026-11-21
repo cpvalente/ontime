@@ -29,6 +29,7 @@ import {
   getShowMessage,
   getShowModifiers,
   getShowProgressBar,
+  getTimerSpots,
   getTotalTime,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
@@ -129,9 +130,17 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     hideSecondary,
   );
 
+  const spots = getTimerSpots(
+    display,
+    secondaryContent,
+    message.timer.swap && !showEndMessage,
+    message.timer.secondarySource === 'secondary',
+  );
+
   // gather presentation styles
   const timerSettingsColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(display, secondaryContent);
+  // fitted text is capped at the size the timer would have in its place
+  const timerFontSize = getEstimatedFontSize(spots.fitMain ? display : spots.main, spots.secondary);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
     '--timer-settings-color': timerSettingsColour,
@@ -168,24 +177,40 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
       {showClock && <TimerAutoTickingClock clockFormat={timeformat} />}
 
-      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
+      <div
+        className={cx([
+          'timer-container',
+          spots.fitMain && 'timer-container--fit',
+          message.timer.blink && !showOverlay && 'blink',
+        ])}
+      >
         {showEndMessage ? (
           <FitText mode='multi' min={64} max={256} className='end-message'>
             {freezeMessage}
           </FitText>
+        ) : spots.fitMain ? (
+          <FitText mode='multi' min={16} max={512} maxRatio={timerFontSize / 100} className='timer timer--fit'>
+            <span className='timer__text'>{spots.main}</span>
+          </FitText>
         ) : (
           <div
-            className={cx(['timer', subduePaused && 'timer--paused', showFinished && 'timer--finished'])}
+            className={cx([
+              'timer',
+              !spots.isSwapped && subduePaused && 'timer--paused',
+              !spots.isSwapped && showFinished && 'timer--finished',
+            ])}
             style={{ fontSize: `${timerFontSize}vw` }}
-            data-type={viewTimerType}
-            data-phase={showWarning || showDanger ? time.phase : undefined}
+            data-type={spots.isSwapped ? undefined : viewTimerType}
+            data-phase={!spots.isSwapped && (showWarning || showDanger) ? time.phase : undefined}
           >
-            {display}
+            {spots.main}
           </div>
         )}
-        <div className={cx(['secondary', !secondaryContent && 'secondary--hidden'])}>
-          <FitText mode='multi' min={64} max={256}>
-            {secondaryContent}
+        <div
+          className={cx(['secondary', !spots.secondary && 'secondary--hidden', spots.fitMain && 'secondary--compact'])}
+        >
+          <FitText mode='multi' min={16} max={256}>
+            {spots.secondary}
           </FitText>
         </div>
       </div>

@@ -10,10 +10,10 @@ import { parseProjectData } from '../project-data/projectData.parser.js';
 import { parseRundowns } from '../rundown/rundown.parser.js';
 import { parseSettings } from '../settings/settings.parser.js';
 import { parseTeleprompter } from '../teleprompter/teleprompter.parser.js';
-import { parseUrlPresets } from '../url-presets/urlPresets.parser.js';
 import { parseViewSettings } from '../view-settings/viewSettings.parser.js';
 import * as v3 from './migration/db.migration.v3.js';
 import * as v4 from './migration/db.migration.v4.js';
+import * as v5 from './migration/db.migration.v5.js';
 
 type ParsingError = {
   context: string;
@@ -59,8 +59,14 @@ export function parseDatabaseModel(
       const message = getErrorMessage(error);
       logger.error(LogOrigin.Server, 'Settings migration failed', { key: 'serverPort', error: message });
       errors.push({ context: 'v4 migration', message });
-      migratedData = jsonData;
+      // keep the result of the v3 migration, the port is only a setting
     }
+  }
+
+  // migrated files are backed up by the project service, since v4 cannot open the result
+  if (v5.shouldMigrateToV5(migratedData)) {
+    migrated = true;
+    migratedData = v5.migrateToV5(migratedData);
   }
 
   // we need to parse settings first to make sure the data is ours
@@ -76,13 +82,16 @@ export function parseDatabaseModel(
   const customFields = parseCustomFields(migratedData, makeEmitError('Custom Fields'));
   const rundowns = parseRundowns(migratedData, customFields, makeEmitError('Rundowns'));
 
+  const presetMigration = v4.migrateUrlPresetAliases(migratedData, makeEmitError('URL Presets'));
+  migrated ||= presetMigration.migrated;
+
   const data: DatabaseModel = {
     projectId: migratedData.projectId || makeProjectId(),
     rundowns,
     project: parseProjectData(migratedData, makeEmitError('Project')),
     settings,
     viewSettings: parseViewSettings(migratedData, makeEmitError('View Settings')),
-    urlPresets: parseUrlPresets(migratedData, makeEmitError('URL Presets')),
+    urlPresets: presetMigration.urlPresets,
     customFields,
     automation: parseAutomationSettings(migratedData),
     teleprompter: parseTeleprompter(migratedData),
