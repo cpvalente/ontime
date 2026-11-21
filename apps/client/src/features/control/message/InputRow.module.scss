@@ -36,8 +36,16 @@
   outline-offset: 2px;
 }
 
-.label {
+.labelRow {
+  display: flex;
+  gap: $element-spacing;
+  min-width: 0;
   font-size: $inner-section-text-size;
+  white-space: nowrap;
+}
+
+.label {
+  flex-shrink: 0;
   color: $label-gray;
 
   &.active {
@@ -46,7 +54,9 @@
 }
 
 .pendingHint {
-  font-size: $inner-section-text-size;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: $blue-500;
 }
 

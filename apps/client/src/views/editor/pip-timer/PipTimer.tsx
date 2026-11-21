@@ -50,7 +50,7 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
   const stageTimer = getTimerByType(false, timerTypeNow, clock, time, timerTypeNow);
   const display = getFormattedTimer(stageTimer, timerTypeNow, 'min', {
     removeSeconds: false,
-    removeLeadingZero: false,
+    removeLeadingZero: true,
   });
 
   const currentAux = getCurrentAux(message, auxTimer);
@@ -81,6 +81,7 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
         <FitText mode='multi' min={12} max={256} className={cx(['message', message.timer.blink && 'blink'])}>
           {message.timer.text}
         </FitText>
+        <div className='hidden-timer'>Timer {display}</div>
       </div>
 
       <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
@@ -96,7 +97,7 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
           {spots.main}
         </div>
         <div className={cx(['secondary', !spots.secondary && 'secondary--hidden'])}>
-          <FitText mode='multi' min={12} max={256}>
+          <FitText mode='multi' min={6} max={256}>
             {spots.secondary}
           </FitText>
         </div>

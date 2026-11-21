@@ -18,4 +18,10 @@
   color: $ui-white;
   padding-top: $panel-top-padding;
   container-type: inline-size;
+  // the last resort on very short screens, rather than overlapping fields
+  overflow-y: auto;
+  // a scroll container clips its children, this leaves room for their focus rings
+  padding-inline: 4px;
+  padding-bottom: 4px;
+  margin-inline: -4px;
 }

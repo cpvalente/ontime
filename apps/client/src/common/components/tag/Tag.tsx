@@ -6,7 +6,7 @@ import style from './Tag.module.scss';
 
 interface TagProps {
   className?: string;
-  variant?: 'default' | 'active' | 'warning';
+  variant?: 'default' | 'active' | 'warning' | 'danger';
 }
 
 export default function Tag({ className, variant = 'default', children }: PropsWithChildren<TagProps>) {
