@@ -1,8 +1,8 @@
 .preview {
-  // a 16:9 picture at full panel width, shrinking when the fields need the room
-  flex: 0 1 auto;
-  height: calc(100cqw * 9 / 16);
-  min-height: 4rem;
+  // a 16:9 picture as large as the room the fields leave
+  flex: 1 1 0;
+  // keeps the corner buttons usable when there is no room for a legible picture
+  min-height: 2rem;
   container-type: size;
   display: grid;
   place-items: center;
@@ -10,30 +10,51 @@
 
 .frame {
   position: relative;
+  // without container units, the picture takes the panel width
+  width: 100%;
   width: min(100cqw, 100cqh * 16 / 9);
   border-radius: $component-border-radius-sm;
   overflow: hidden;
+  // the tags fit themselves to the picture, not to the panel
+  container-type: inline-size;
 }
 
-.eventStatus {
+.tags {
   position: absolute;
-  top: 0;
-  left: 0;
-  margin: 0.5rem 0.25rem;
+  top: 0.5rem;
+  left: 0.5rem;
   display: flex;
-  flex-direction: column;
   gap: 0.25rem;
-  font-size: 0.75rem;
 }
 
-.statusIcon {
-  color: $gray-1000;
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
 
-  &[data-active='true'] {
-    color: $active-indicator;
+// the shared tag outlines its active variant, which reads poorly over the picture
+.state {
+  background-color: $gray-1100;
+}
+
+.countToEnd {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: $orange-400;
+}
+
+// a smaller picture keeps only the icons, leaving the corner buttons clear
+@container (max-width: 22rem) {
+  .label {
+    display: none;
   }
 }
 
-.statusIcon.countToEnd[data-active='true'] {
-  color: $orange-400;
+// a tiny picture keeps only the playback state, leaving the timer clear
+@container (max-width: 19rem) {
+  .timerType {
+    display: none;
+  }
 }

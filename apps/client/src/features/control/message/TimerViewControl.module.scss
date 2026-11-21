@@ -1,6 +1,7 @@
 .previewContainer {
+  // room for a full width picture and the toggles; shrinks only down to the picture's minimum
   flex: 0 1 auto;
-  min-height: 0;
+  flex: 0 1 calc(100cqw * 9 / 16 + #{$element-spacing} + 2rem);
   display: flex;
   flex-direction: column;
   gap: $element-spacing;

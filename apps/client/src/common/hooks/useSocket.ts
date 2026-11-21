@@ -50,6 +50,9 @@ export const useSecondaryInput = createSelector((state: RuntimeStore) => ({
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
+  playback: state.timer.playback,
+  phase: state.timer.phase,
+  blackout: state.message.timer.blackout,
 }));
 
 export const setMessage = {

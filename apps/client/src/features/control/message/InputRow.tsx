@@ -23,7 +23,15 @@ export default function InputRow(props: PropsWithChildren<InputRowProps>) {
 
   return (
     <div className={style.row}>
-      <span className={cx([style.label, isLive && style.active])}>{label}</span>
+      <span className={style.labelRow}>
+        <span className={cx([style.label, isLive && style.active])}>{label}</span>
+        {isPending && (
+          <span className={style.pendingHint}>
+            <span className={style.keyHint}>Enter to apply</span>
+            <span className={style.touchHint}>Tap ✓ to apply</span>
+          </span>
+        )}
+      </span>
       <div className={style.inputItems}>
         <div className={cx([style.field, isPending && style.pending])}>{children}</div>
         <IconButton
@@ -37,12 +45,6 @@ export default function InputRow(props: PropsWithChildren<InputRowProps>) {
           {isPending ? <IoCheckmark /> : isLive ? <IoEye /> : <IoEyeOffOutline />}
         </IconButton>
       </div>
-      {isPending && (
-        <span className={style.pendingHint}>
-          Not on screen yet: <span className={style.keyHint}>Enter to apply, Esc to discard</span>
-          <span className={style.touchHint}>tap the check to apply</span>
-        </span>
-      )}
     </div>
   );
 }

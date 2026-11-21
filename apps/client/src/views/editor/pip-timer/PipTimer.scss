@@ -1,6 +1,7 @@
 @use '../../../theme/viewerDefs' as *;
 
 /* The styles in this file are a stripped down version of the timer */
+/* sized in container units, so the PiP window and the inline preview scale the same way */
 .pip-timer {
   margin: 0;
   padding: 0;
@@ -11,17 +12,21 @@
   height: 100vh;
   transition: opacity 0.5s ease-in-out;
 
+  container-type: inline-size;
   font-family: $viewer-font-family;
   background: $viewer-background-color;
   color: $viewer-color;
-  gap: $view-element-gap;
+  gap: 2cqw;
 
   display: flex;
   flex-direction: column;
+  // the bottom inset keeps the overtime frame clear of the progress bar
+  // the top mirrors the gap, bar and inset below, so the timer centres on the picture
+  padding: calc(2cqw + max(12px, 5cqw) + 2cqw) 4cqw 2cqw;
 
   &--finished {
-    outline: clamp(4px, 1vw, 16px) solid $timer-finished-color;
-    outline-offset: calc(clamp(4px, 1vw, 16px) * -1);
+    outline: clamp(2px, 1cqw, 16px) solid $timer-finished-color;
+    outline-offset: calc(clamp(2px, 1cqw, 16px) * -1);
     transition: $viewer-transition-time;
   }
 
@@ -44,13 +49,14 @@
       text-align: center;
       letter-spacing: 0.05em;
       font-weight: 600;
-      font-size: calc(var(--timer-font-size) * 1vw);
+      font-size: calc(var(--timer-font-size) * 1cqw);
 
       transition-property: font-size;
       transition-duration: $viewer-transition-time;
 
       &--paused {
-        opacity: $viewer-opacity-disabled;
+        opacity: 0.45;
+        color: $viewer-secondary-color;
         transition: $viewer-transition-time;
       }
 
@@ -89,12 +95,13 @@
     transition-duration: $viewer-transition-time;
     border-top: 1px solid color-mix(in srgb, $external-color 10%, transparent);
 
-    // Bound the line box so auto-fit can scale the text with the window.
+    // Bound the line box so auto-fit can scale the text with the picture.
     > div {
-      height: 14vw;
-      min-height: 32px;
+      display: grid;
+      place-content: center;
+      height: 16cqw;
       max-height: 96px;
-      line-height: 1.5;
+      line-height: 1.2;
     }
 
     &--hidden {
@@ -105,6 +112,7 @@
 
   .progress-container {
     width: 100%;
+    height: max(12px, 5cqw);
     margin: 0 auto;
     opacity: 1;
     transition: $viewer-transition-time;
@@ -115,9 +123,12 @@
     }
   }
 
-  /* the view would be black out, we only indicate it */
-  &--blackout .timer-container {
-    opacity: 0.3;
+  /* the stage is dark, operators still see what it would show */
+  &--blackout .timer-container,
+  &--blackout .progress-container,
+  // the overlay contents, not the overlay, whose background must keep hiding the timer
+  &--blackout .message-overlay--active > * {
+    opacity: 0.35;
   }
 
   .blackout-label {
@@ -126,7 +137,11 @@
     left: 0.5em;
     // above the message overlay, which also hides behind a blackout
     z-index: $zindex-floating + 1;
-    font-size: 12px;
+    padding: 0.125em 0.5em;
+    border-radius: 2px;
+    outline: 1px solid $gray-700;
+    background: $ui-black;
+    font-size: max(10px, 2.5cqw);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -136,9 +151,9 @@
   /* =================== OVERLAY ===================*/
 
   .message-overlay {
-    position: fixed;
+    position: absolute;
     inset: 0;
-    padding: 2vw;
+    padding: 2cqw;
     background: $viewer-background-color;
     opacity: 0;
     transition: opacity $viewer-transition-time;
@@ -147,6 +162,15 @@
       z-index: $zindex-floating;
       opacity: 1;
     }
+  }
+
+  .hidden-timer {
+    position: absolute;
+    right: 0.5em;
+    bottom: 0.25em;
+    font-size: max(10px, 2.5cqw);
+    font-weight: 600;
+    color: $viewer-secondary-color;
   }
 
   .message {
@@ -166,33 +190,56 @@
   &--inline {
     height: auto;
     aspect-ratio: 16 / 9;
-    container-type: inline-size;
     // keeps the overlay below the controls drawn over the preview
     isolation: isolate;
 
-    &.pip-timer--finished {
-      outline-width: 2px;
-      outline-offset: -2px;
+    // the preview draws its tags and buttons over the top edge
+    .message-overlay {
+      padding-top: min(2rem, 10cqw);
+    }
+
+    // the preview's own tags show blackout
+    .blackout-label {
+      display: none;
+    }
+  }
+
+  /* =================== FALLBACK ===================*/
+
+  // Safari before 16 has no container units: size from the window, which is exact for the PiP window
+  // declarations with var() cannot fall back by repetition, so they all live here
+  @supports not (width: 1cqw) {
+    gap: 2vw;
+    padding: calc(2vw + max(12px, 5vw) + 2vw) 4vw 2vw;
+
+    &--finished {
+      outline-width: clamp(2px, 1vw, 16px);
+      outline-offset: calc(clamp(2px, 1vw, 16px) * -1);
     }
 
     .timer-container .timer {
-      font-size: calc(var(--timer-font-size) * 1cqw);
+      font-size: calc(var(--timer-font-size) * 1vw);
     }
 
     .secondary > div {
-      height: 14cqw;
-      min-height: 0;
+      height: 16vw;
+    }
+
+    .progress-container {
+      height: max(12px, 5vw);
+    }
+
+    .blackout-label,
+    .hidden-timer {
+      font-size: max(10px, 2.5vw);
     }
 
     .message-overlay {
-      position: absolute;
-      padding: 2cqw;
+      padding: 2vw;
     }
 
-    .blackout-label {
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 10px;
+    &--inline .message-overlay {
+      padding-top: min(2rem, 10vw);
     }
   }
 }
