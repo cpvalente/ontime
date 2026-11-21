@@ -13,19 +13,11 @@ interface RundownEventPlaybackProps {
   skip: boolean;
   isPlaying: boolean;
   isPaused: boolean;
-  loaded: boolean;
   disablePlayback: boolean;
 }
 
 export default memo(RundownEventPlayback);
-function RundownEventPlayback({
-  eventId,
-  skip,
-  isPlaying,
-  isPaused,
-  loaded,
-  disablePlayback,
-}: RundownEventPlaybackProps) {
+function RundownEventPlayback({ eventId, skip, isPlaying, isPaused, disablePlayback }: RundownEventPlaybackProps) {
   const { updateEntry } = useEntryActionsContext();
 
   const toggleSkip = (event: MouseEvent) => {
@@ -79,7 +71,6 @@ function RundownEventPlayback({
         render={<IconButton variant={skip ? 'subtle-destructive' : 'subtle-white'} />}
         onClick={toggleSkip}
         tabIndex={-1}
-        disabled={loaded}
         aria-label={skip ? 'Include event' : 'Skip event'}
         aria-pressed={skip}
       >
