@@ -130,11 +130,17 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
     hideSecondary,
   );
 
-  const spots = getTimerSpots(display, secondaryContent, message.timer.swap && !showEndMessage);
+  const spots = getTimerSpots(
+    display,
+    secondaryContent,
+    message.timer.swap && !showEndMessage,
+    message.timer.secondarySource === 'secondary',
+  );
 
   // gather presentation styles
   const timerSettingsColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
-  const timerFontSize = getEstimatedFontSize(spots.main, spots.secondary);
+  // fitted text is capped at the size the timer would have in its place
+  const timerFontSize = getEstimatedFontSize(spots.fitMain ? display : spots.main, spots.secondary);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
     '--timer-settings-color': timerSettingsColour,
@@ -171,10 +177,20 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
 
       {showClock && <TimerAutoTickingClock clockFormat={timeformat} />}
 
-      <div className={cx(['timer-container', message.timer.blink && !showOverlay && 'blink'])}>
+      <div
+        className={cx([
+          'timer-container',
+          spots.fitMain && 'timer-container--fit',
+          message.timer.blink && !showOverlay && 'blink',
+        ])}
+      >
         {showEndMessage ? (
           <FitText mode='multi' min={64} max={256} className='end-message'>
             {freezeMessage}
+          </FitText>
+        ) : spots.fitMain ? (
+          <FitText mode='multi' min={16} max={512} maxRatio={timerFontSize / 100} className='timer timer--fit'>
+            <span className='timer__text'>{spots.main}</span>
           </FitText>
         ) : (
           <div
@@ -190,7 +206,9 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
             {spots.main}
           </div>
         )}
-        <div className={cx(['secondary', !spots.secondary && 'secondary--hidden'])}>
+        <div
+          className={cx(['secondary', !spots.secondary && 'secondary--hidden', spots.fitMain && 'secondary--compact'])}
+        >
           <FitText mode='multi' min={16} max={256}>
             {spots.secondary}
           </FitText>
