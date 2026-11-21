@@ -48,20 +48,20 @@ export function resolveTeleprompterKey(event: TeleprompterKeyEvent): Teleprompte
     case 'ArrowLeft':
       return command({ type: 'speedBy', value: event.shiftKey ? -coarseSpeedStep : -speedStep });
     case 'Home':
-      return command({ type: 'top' });
+      return event.repeat ? null : command({ type: 'top' });
   }
 
   // Character bindings use key so they work across keyboard layouts.
   switch (event.key) {
     case 'l':
     case 'L':
-      return command({ type: 'goto', target: 'loaded' });
+      return event.repeat ? null : command({ type: 'goto', target: 'loaded' });
     case 'm':
     case 'M':
-      return command({ type: 'mode', mode: 'toggle' });
+      return event.repeat ? null : command({ type: 'mode', mode: 'toggle' });
     case 'b':
     case 'B':
-      return command({ type: 'blackout', blackout: 'toggle' });
+      return event.repeat ? null : command({ type: 'blackout', blackout: 'toggle' });
   }
 
   return null;
