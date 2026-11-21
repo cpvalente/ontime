@@ -195,10 +195,7 @@ describe('v3 to v4', () => {
 
   test('migrate view settings', () => {
     const expectViewSettings: ViewSettings = {
-      dangerColor: '#ff7300',
-      normalColor: '#ffffffcc',
       overrideStyles: false,
-      warningColor: '#ffa528',
     };
     const newViewSettings = v3.migrateViewSettings(oldDb);
     expect(newViewSettings).toEqual(expectViewSettings);

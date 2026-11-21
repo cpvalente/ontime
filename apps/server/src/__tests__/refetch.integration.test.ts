@@ -48,7 +48,7 @@ describe('clients are told to refetch after every write', { timeout: 15_000 }, (
       [{ target: RefetchKey.Settings }],
     );
 
-    const viewSettings = { dangerColor: '#f00', normalColor: '#fff', overrideStyles: false, warningColor: '#ff0' };
+    const viewSettings = { overrideStyles: false };
     await client.expectRefetch(
       () => server.send('POST', '/data/view-settings', viewSettings),
       [{ target: RefetchKey.ViewSettings }],

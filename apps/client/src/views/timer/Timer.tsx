@@ -17,7 +17,6 @@ import { useTranslation } from '../../translation/TranslationProvider';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../common/viewUtils';
-import { getTimerColour } from '../utils/presentation.utils';
 import { getTimerOptions, useTimerOptions } from './timer.options';
 import {
   getCardData,
@@ -54,7 +53,7 @@ export default function TimerLoader() {
   return <Timer {...data} />;
 }
 
-function Timer({ customFields, projectData, isMirrored, settings, viewSettings, entries }: TimerData) {
+function Timer({ customFields, projectData, isMirrored, settings, entries }: TimerData) {
   const { eventNext, eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const clock = useAutoTickingClock();
   const {
@@ -138,12 +137,10 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
   );
 
   // gather presentation styles
-  const timerSettingsColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
   // fitted text is capped at the size the timer would have in its place
   const timerFontSize = getEstimatedFontSize(spots.fitMain ? display : spots.main, spots.secondary);
   const subduePaused = !isPlaying && viewTimerType !== TimerType.Clock;
   const userStyles = {
-    '--timer-settings-color': timerSettingsColour,
     ...(keyColour && { '--timer-bg': keyColour }),
     ...(timerColour && { '--timer-colour': timerColour }),
     ...(font && { '--timer-font': font }),
@@ -221,11 +218,8 @@ function Timer({ customFields, projectData, isMirrored, settings, viewSettings, 
           now={time.current}
           complete={totalTime}
           eventId={eventNow?.id}
-          normalColor={viewSettings.normalColor}
           warning={time.timeWarning}
-          warningColor={viewSettings.warningColor}
           danger={time.timeDanger}
-          dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />
       )}

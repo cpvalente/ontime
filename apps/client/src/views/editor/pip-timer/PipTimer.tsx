@@ -1,4 +1,4 @@
-import { TimerType, ViewSettings } from 'ontime-types';
+import { TimerType } from 'ontime-types';
 
 import { FitText } from '../../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../../common/components/multi-part-progress-bar/MultiPartProgressBar';
@@ -17,17 +17,15 @@ import {
   getTimerSpots,
   getTotalTime,
 } from '../../timer/timer.utils';
-import { getTimerColour } from '../../utils/presentation.utils';
 
 import './PipTimer.scss';
 
 interface PipTimerProps {
-  viewSettings: ViewSettings;
   /** sized by its container instead of the window */
   inline?: boolean;
 }
 
-export function PipTimer({ viewSettings, inline }: PipTimerProps) {
+export function PipTimer({ inline }: PipTimerProps) {
   const { eventNow, message, time, timerTypeNow, countToEndNow, auxTimer } = useTimerSocket();
   const clock = useAutoTickingClock();
 
@@ -63,13 +61,10 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
     message.timer.secondarySource === 'secondary',
   );
 
-  // gather presentation styles
-  const resolvedTimerColour = getTimerColour(viewSettings, undefined, showWarning, showDanger);
   // fitted text is capped at the size the timer would have in its place
   const timerFontSize = getEstimatedFontSize(spots.fitMain ? display : spots.main, spots.secondary);
   const userStyles = {
     '--timer-font-size': timerFontSize,
-    ...(resolvedTimerColour && { '--timer-colour': resolvedTimerColour }),
   };
 
   return (
@@ -129,11 +124,8 @@ export function PipTimer({ viewSettings, inline }: PipTimerProps) {
           now={time.current}
           complete={totalTime}
           eventId={eventNow?.id}
-          normalColor={viewSettings.normalColor}
           warning={time.timeWarning}
-          warningColor={viewSettings.warningColor}
           danger={time.timeDanger}
-          dangerColor={viewSettings.dangerColor}
           hideOvertime={!showFinished}
         />
       )}

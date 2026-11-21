@@ -6,7 +6,6 @@ import { useForm } from 'react-hook-form';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
-import { SwatchPickerRHF } from '../../../../common/components/input/colour-input/SwatchPicker';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
@@ -116,20 +115,6 @@ export default function ViewSettings() {
               <Button onClick={codeEditorHandler.open} disabled={status !== 'success' || isSubmitting}>
                 Edit CSS override
               </Button>
-            </Panel.ListItem>
-          </Panel.ListGroup>
-          <Panel.ListGroup>
-            <Panel.ListItem>
-              <Panel.Field title='Timer colour' description='Default colour of a running timer' />
-              <SwatchPickerRHF name='normalColor' control={control} />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field title='Warning colour' description='Colour of a running timer in warning mode' />
-              <SwatchPickerRHF name='warningColor' control={control} />
-            </Panel.ListItem>
-            <Panel.ListItem>
-              <Panel.Field title='Danger colour' description='Colour of a running timer in danger mode' />
-              <SwatchPickerRHF name='dangerColor' control={control} />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

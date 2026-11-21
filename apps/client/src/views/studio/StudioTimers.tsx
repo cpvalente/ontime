@@ -1,4 +1,4 @@
-import { Playback, TimerPhase, ViewSettings } from 'ontime-types';
+import { Playback, TimerPhase } from 'ontime-types';
 import { millisToString } from 'ontime-utils';
 
 import { useLoadedRundown } from '../../common/hooks-query/useLoadedRundown';
@@ -8,17 +8,12 @@ import { getOffsetState } from '../../common/utils/offset';
 import { cx } from '../../common/utils/styleUtils';
 import { useTranslation } from '../../translation/TranslationProvider';
 import { getPropertyValue } from '../common/viewUtils';
-import { getTimerColour } from '../utils/presentation.utils';
 import { useStudioOptions } from './studio.options';
 import { getFormattedEventData, getFormattedScheduleTimes } from './studioTimers.utils';
 
 import './StudioTimers.scss';
 
-interface StudioTimersProps {
-  viewSettings: ViewSettings;
-}
-
-export default function StudioTimers({ viewSettings }: StudioTimersProps) {
+export default function StudioTimers() {
   const { getLocalizedString } = useTranslation();
   const { mainSource, secondarySource } = useStudioOptions();
   const { eventNow, eventNext, message, time, offset, rundown, expectedRundownEnd } = useStudioTimersSocket();
@@ -35,14 +30,6 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
   const eventNextSecondary = getPropertyValue(eventNext, secondarySource, loadedRundown.entries);
   const formattedTimerMessage = (message.timer.visible && message.timer.text) || '-';
   const formattedSecondaryMessage = message.timer.secondarySource === 'secondary' ? message.secondary || '-' : '-';
-
-  // gather presentation styles
-  const timerColour = getTimerColour(
-    viewSettings,
-    undefined,
-    time.phase === TimerPhase.Warning,
-    time.phase === TimerPhase.Danger,
-  );
 
   const offsetState = getOffsetState(offset);
 
@@ -92,9 +79,6 @@ export default function StudioTimers({ viewSettings }: StudioTimersProps) {
                 time.phase === TimerPhase.Overtime && 'event-timer--finished',
                 time.playback === Playback.Pause && 'event-timer--paused',
               ])}
-              style={{
-                '--phase-color': timerColour,
-              }}
               data-phase={time.phase}
             >
               {event.timer}

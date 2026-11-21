@@ -102,13 +102,12 @@ type old_ViewSettings = {
  * migrates a view settings from v3 to v4
  * - drop `freezeEnd`
  * - drop `endMessage`
+ * - drop the timer colours
  */
 export function migrateViewSettings(jsonData: object): ViewSettings | undefined {
   if (is.objectWithKeys(jsonData, ['viewSettings']) && is.object(jsonData.viewSettings)) {
-    const { dangerColor, normalColor, overrideStyles, warningColor } = structuredClone(
-      jsonData.viewSettings,
-    ) as old_ViewSettings;
-    return { dangerColor, normalColor, overrideStyles, warningColor };
+    const { overrideStyles } = jsonData.viewSettings as old_ViewSettings;
+    return { overrideStyles };
   }
 }
 

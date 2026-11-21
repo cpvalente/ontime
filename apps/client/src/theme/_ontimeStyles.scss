@@ -43,6 +43,10 @@ $active-indicator: $green-400;
 $text-black: $gray-1350;
 
 $playback-over: #f57c13;
+
+// timer phase colours
+$timer-warning-color: #ffa528; // --timer-warning-color-override
+$timer-danger-color: #ff7300; // --timer-danger-color-override
 $playback-under: $green-500;
 
 // interface panels

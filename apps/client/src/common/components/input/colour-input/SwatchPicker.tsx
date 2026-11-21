@@ -1,6 +1,4 @@
 import { useDebouncedCallback } from '@mantine/hooks';
-import { ViewSettings } from 'ontime-types';
-import { UseControllerProps, useController } from 'react-hook-form';
 import { IoEyedrop } from 'react-icons/io5';
 
 import { cx, getAccessibleColour } from '../../../utils/styleUtils';
@@ -31,24 +29,6 @@ export default function SwatchPicker(props: SwatchPickerProps) {
         className={cx([style.swatch, isSelected && style.selected, style.selectable])}
         style={{ backgroundColor: displayColor }}
       >
-        <IoEyedrop color={iconColor} />
-      </div>
-    </PopoverPicker>
-  );
-}
-
-export function SwatchPickerRHF(props: UseControllerProps<ViewSettings>) {
-  const { name, control } = props;
-  const {
-    field: { onChange, value },
-  } = useController({ control, name });
-
-  const displayColor = typeof value === 'string' ? value : '';
-  const { color: iconColor } = getAccessibleColour(displayColor);
-
-  return (
-    <PopoverPicker color={value as string} onChange={onChange}>
-      <div className={cx([style.swatch, style.selectable])} style={{ backgroundColor: displayColor }}>
         <IoEyedrop color={iconColor} />
       </div>
     </PopoverPicker>

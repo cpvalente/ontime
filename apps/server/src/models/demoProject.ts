@@ -43,10 +43,7 @@ export const demoDb: Omit<DatabaseModel, 'projectId'> = {
     },
   },
   viewSettings: {
-    dangerColor: '#ff7300',
-    normalColor: '#ffffffcc',
     overrideStyles: false,
-    warningColor: '#ffa528',
   },
   urlPresets: [
     {

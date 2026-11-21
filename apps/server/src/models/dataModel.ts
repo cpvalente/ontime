@@ -38,9 +38,6 @@ const dbModel: Omit<DatabaseModel, 'projectId'> = {
   },
   viewSettings: {
     overrideStyles: false,
-    normalColor: '#ffffffcc',
-    warningColor: '#ffa528',
-    dangerColor: '#ff7300',
   },
   urlPresets: [],
   customFields: [],
