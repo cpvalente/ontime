@@ -1,14 +1,12 @@
 import type { TeleprompterLine } from 'ontime-types';
 import { useEffect, useState } from 'react';
 
-/** Text size the width is measured at */
 const referenceSize = 100;
 const alphabet = 'abcdefghijklmnopqrstuvwxyz';
 /** Rendered text runs a few pixels wider than the canvas measures on some browsers, which would clip the widest line */
 const fitSafety = 0.97;
 
 /**
- * Sizes the text so the widest line of the script fits the text width
  * Lines break on the server, so a different font changes the size, never where lines break
  * A script of short lines is sized as if its lines held the characters per line
  */

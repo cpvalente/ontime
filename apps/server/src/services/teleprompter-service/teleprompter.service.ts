@@ -38,7 +38,6 @@ let sharedScript: TeleprompterScript = { revision: 0, charsPerLine: 0, events: [
 let layout: TeleprompterLayout = makeTeleprompterLayout([]);
 /** The script waits to be built until something reads it, so a project nobody prompts from never builds it */
 let isStale = true;
-/** the project the shared script was built from */
 let scriptProjectId: string | null = null;
 let hasBuilt = false;
 
@@ -55,12 +54,9 @@ let transport: TeleprompterTransport = {
   ended: null,
   blackout: 'off',
 };
-/** The reading position screens following the transport animate from, in rows of the shared script */
 let sync: TeleprompterSync = { ...runtimeStorePlaceholder.teleprompterSync };
-/** The teleprompter as last published */
 let state: TeleprompterState = { ...runtimeStorePlaceholder.teleprompter };
 
-/** The transport is timed on the server clock, which every Ontime client receives as its time of day */
 function now(): number {
   return timeCore.timeOfDayNow();
 }
@@ -69,16 +65,12 @@ function getSharedSettings(): TeleprompterSettings {
   return getDataProvider().getTeleprompterSettings();
 }
 
-/** The script every teleprompter view shows, built from the project's settings */
 export function getSharedScript(): TeleprompterScript {
   ensureScript();
   return sharedScript;
 }
 
-/**
- * The script a view reads: the shared one, or one built from another field for a view which plays on its own
- * Nothing follows a script from another field, so it is built on each read and has no revision to follow
- */
+/** Nothing follows a script from another field, so it is built on each read and has no revision to follow */
 export function getScript(source?: string): TeleprompterScript {
   const settings = getSharedSettings();
   if (!source || source === settings.script) return getSharedScript();
@@ -87,7 +79,6 @@ export function getScript(source?: string): TeleprompterScript {
   return { revision: 0, charsPerLine: settings.charsPerLine, events };
 }
 
-/** The teleprompter as last published, for the runtime store to start from */
 export function getTeleprompterState(): TeleprompterState {
   return state;
 }
@@ -96,12 +87,10 @@ export function getTeleprompterSync(): TeleprompterSync {
   return sync;
 }
 
-/** Marks the script out of date after the rundown or the settings changed, to rebuild when something next reads it */
 export function invalidateTeleprompterScript() {
   isStale = true;
 }
 
-/** The script is built from the loaded rundown, the custom fields and the teleprompter settings */
 function isScriptChange({ target, rundownId }: Change): boolean {
   if (target === RefetchKey.Rundown) return rundownId === undefined || rundownId === getCurrentRundownId();
   return target === RefetchKey.All || target === RefetchKey.CustomFields || target === RefetchKey.Teleprompter;
@@ -187,11 +176,7 @@ export async function applyTeleprompterSettings(input: unknown): Promise<Telepro
   return settings;
 }
 
-/**
- * Applies a command from the integration API
- * @returns the teleprompter after the command
- * @throws if the command names an event which is not in the script
- */
+/** @throws if the command names an event which is not in the script */
 export function handleTeleprompterCommand(request: TeleprompterCommand): TeleprompterState {
   ensureScript();
   const command = request.type === 'goto' ? { type: 'goto' as const, eventId: findEvent(request.target) } : request;
@@ -229,10 +214,7 @@ function goToLoadedEvent(eventId: EntryId | null) {
   publish(applyTransportCommand(transport, { type: 'goto', eventId }, layout, now()));
 }
 
-/**
- * Finds an event the way the script holds it: skipped events and events without text are not in it
- * An event which is not in the script is passed on by id, for the transport to refuse
- */
+/** An event which is not in the script is passed on by id, for the transport to refuse */
 function findEvent(target: TeleprompterGotoTarget): EntryId {
   const eventId = (() => {
     if (target === 'loaded') return getRuntimeState().eventNow?.id;
@@ -245,7 +227,6 @@ function findEvent(target: TeleprompterGotoTarget): EntryId {
   return eventId;
 }
 
-/** Publishes the transport and what it shows, together */
 function publish(next: TeleprompterTransport): TeleprompterState {
   const batch = eventStore.createBatch();
   const state = addToBatch(batch, next);
@@ -254,7 +235,6 @@ function publish(next: TeleprompterTransport): TeleprompterState {
 }
 
 /**
- * Adds the transport and what it shows to a batch, each only when it changed
  * Screens animate from the sync key, a position in rows of the shared script, which only changes with the transport
  * or the script, so a screen which connects or reconnects lands where the others are
  */

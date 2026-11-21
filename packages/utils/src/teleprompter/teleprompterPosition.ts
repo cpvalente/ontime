@@ -1,6 +1,5 @@
 import type { EntryId, TeleprompterAnchor, TeleprompterScriptEvent } from 'ontime-types';
 
-/** Where an event's lines sit in the script, by row */
 export type TeleprompterLayoutEvent = {
   id: EntryId;
   cue: string;
@@ -62,10 +61,7 @@ export function startOfEvent(eventId: EntryId): TeleprompterAnchor {
   return { eventId, charOffset: 0, lines: 0 };
 }
 
-/**
- * The row an anchor points at, as a fraction while between rows
- * @returns null if its event is not in the script
- */
+/** @returns null if its event is not in the script */
 export function rowOfAnchor(layout: TeleprompterLayout, anchor: TeleprompterAnchor): number | null {
   const event = layout.events.find((candidate) => candidate.id === anchor.eventId);
   if (!event) return null;
@@ -90,10 +86,7 @@ export function eventAtRow(layout: TeleprompterLayout, row: number): Teleprompte
   return owner;
 }
 
-/**
- * The anchor for a row, so the position survives edits
- * @returns null for an empty script
- */
+/** @returns null for an empty script */
 export function anchorAtRow(layout: TeleprompterLayout, row: number): TeleprompterAnchor | null {
   const event = eventAtRow(layout, row);
   if (!event) return null;

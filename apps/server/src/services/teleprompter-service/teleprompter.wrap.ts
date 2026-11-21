@@ -1,10 +1,7 @@
-/** A line of script, cut to fit a number of characters */
 export type WrappedLine = {
-  /** the characters on the line, without its indentation */
   text: string;
   /** position of the first character in the normalised text */
   start: number;
-  /** spaces shown before the text */
   indent: number;
 };
 
@@ -52,7 +49,6 @@ export function wrapText(text: string, charsPerLine: number): WrappedLine[] {
   return lines;
 }
 
-/** An unbreakable piece of a line: a word, part of a word, or the spaces between words, by position in the line */
 type Piece = { start: number; end: number; width: number; isSpace: boolean };
 /** Pieces which must stay on one line, with the spaces where a line may break before them */
 type Chunk = { pieces: Piece[]; spaceBefore: Piece | null; width: number };
@@ -125,7 +121,6 @@ function wrapTypedLine(typedLine: string, lineStart: number, charsPerLine: numbe
   if (current) pushLine(current.start, current.end);
 }
 
-/** Splits a text into words and the spaces between them, then words at the dashes and slashes inside them */
 function toPieces(content: string): Piece[] {
   const pieces: Piece[] = [];
   let wordStart = 0;
@@ -139,7 +134,6 @@ function toPieces(content: string): Piece[] {
   return pieces;
 }
 
-/** Adds a word, split after the dashes and slashes inside it */
 function addWord(content: string, start: number, end: number, pieces: Piece[]) {
   const word = content.slice(start, end);
   if (!hasBreakAfter.test(word)) {
@@ -164,7 +158,6 @@ function addWord(content: string, start: number, end: number, pieces: Piece[]) {
   pieces.push({ start: fromOffset, end, width: graphemes.length - from, isSpace: false });
 }
 
-/** Groups pieces between the places a line may break */
 function makeChunks(content: string, pieces: Piece[]): Chunk[] {
   const chunks: Chunk[] = [];
   let spaceBefore: Piece | null = null;
@@ -187,7 +180,6 @@ function makeChunks(content: string, pieces: Piece[]): Chunk[] {
   return chunks;
 }
 
-/** Undoes the grouping of a chunk, leaving every space in it a place to break */
 function splitChunk(pieces: Piece[]): Chunk[] {
   const chunks: Chunk[] = [];
   let spaceBefore: Piece | null = null;

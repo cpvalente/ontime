@@ -95,7 +95,6 @@ test('a screen which connects late, or reloads, lands on the line the others sho
   await expect(late.locator('.teleprompter__row').first()).toBeAttached();
   await expect.poll(() => readingRow(late)).toBeGreaterThan(start);
 
-  // both move with the shared clock
   await expect
     .poll(async () => {
       const [first, second] = await Promise.all([readingRow(page), readingRow(late)]);
@@ -103,7 +102,6 @@ test('a screen which connects late, or reloads, lands on the line the others sho
     })
     .toBeLessThan(0.05);
 
-  // a screen which had to reboot rejoins on the same line
   await late.reload();
   await expect(late.locator('.teleprompter__row').first()).toBeAttached();
   await expect
@@ -166,13 +164,11 @@ test('a controller drives every remote screen with its keys, wheel and buttons',
   await page.getByTestId('teleprompter-previous').click();
   await expect.poll(async () => (await transport()).event?.id).toBe(secondEvent);
 
-  // the mouse wheel scrolls every screen
   const beforeWheel = await settledRow(remote);
   await page.mouse.move(960, 500);
   await page.mouse.wheel(0, 400);
   await expect.poll(() => readingRow(remote)).toBeGreaterThan(beforeWheel + 1);
 
-  // back to the loaded event
   expect((await request.get('api/load/index/3')).ok()).toBe(true);
   const loaded = (await transport()).event?.id;
   await page.keyboard.press('Home');
@@ -209,7 +205,6 @@ test('a controller changes the shared playback mode', async ({ page, request }) 
   await page.keyboard.press('m');
   await expect.poll(async () => (await transport()).mode).toBe('script');
 
-  // reopening the controller leaves the mode as it is
   await page.reload();
   await expect(page.getByTestId('teleprompter-playback-mode')).toHaveText('Whole script');
   await page.keyboard.press('m');
@@ -266,7 +261,6 @@ test('a local view runs its own transport over the same script', async ({ page, 
   await expect(page.locator('.teleprompter__row--text').first()).toBeVisible();
   expect(await rowTexts(page)).toEqual(await rowTexts(remote));
 
-  // the keys act on the view itself, speed changes live and is not saved
   await page.keyboard.press('ArrowRight');
   await expect(page.getByTestId('teleprompter-speed')).toHaveText(`${startSpeed + 1}lpm`);
   await expect(page).not.toHaveURL(/speed=/);
@@ -274,7 +268,6 @@ test('a local view runs its own transport over the same script', async ({ page, 
   await page.keyboard.press('Shift+ArrowDown');
   await expect.poll(() => readingRow(page)).toBeGreaterThan(top);
 
-  // scrolling by hand moves its position, and playback carries on from there
   const beforeScroll = await readingRow(page);
   await page.mouse.move(960, 500);
   await page.mouse.wheel(0, 600);
@@ -287,7 +280,6 @@ test('a local view runs its own transport over the same script', async ({ page, 
   expect(await readingRow(page)).toBeLessThan(scrolledTo + 1);
   await page.keyboard.press('Space');
 
-  // none of it reaches the shared transport
   expect(await transport()).toMatchObject({ playback: 'pause', speed: startSpeed });
   await expect.poll(async () => (await transport()).playback).toBe('pause');
 });
@@ -402,7 +394,6 @@ test('scrolling a local view which shows only the loaded event keeps the reader 
   await page.mouse.wheel(0, 400);
   await expect.poll(() => readingRow(page)).toBeGreaterThan(start + 2);
   const scrolledTo = await readingRow(page);
-  // the reader stays where they scrolled to, rather than being put back at the start of the event
   await page.waitForTimeout(500);
   expect(await readingRow(page)).toBeCloseTo(scrolledTo, 1);
 

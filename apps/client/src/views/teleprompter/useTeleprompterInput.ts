@@ -5,16 +5,13 @@ import { createScrollBatcher, linesPerScreen, wheelToLines } from './teleprompte
 
 interface UseTeleprompterInputArgs {
   screen: HTMLElement | null;
-  /** where commands go, or nothing for a screen which only displays */
   onCommand?: (command: TeleprompterViewCommand) => void;
   rowHeight: number;
-  /** whether the mouse wheel sends scroll commands, rather than scroll the screen by hand */
   wheel: boolean;
 }
 
 const ignoredTags = new Set(['INPUT', 'TEXTAREA', 'SELECT']);
 
-/** Form fields and select menus own their keyboard input. */
 export function isTypingTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
   return (
@@ -24,12 +21,10 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** The params drawer, the navigation menu and the shortcut list are dialogs, which own the input while open */
 export function isDialogOpen(): boolean {
   return document.querySelector('[role="dialog"]') !== null;
 }
 
-/** Turns the keyboard and the mouse wheel into teleprompter commands */
 export function useTeleprompterInput(args: UseTeleprompterInputArgs) {
   const latest = useRef(args);
   // keeps the latest values for the listeners, which are registered once

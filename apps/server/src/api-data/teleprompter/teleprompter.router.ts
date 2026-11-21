@@ -16,10 +16,6 @@ router.post('/settings', validateTeleprompterSettings, async (req: Request, res:
   res.status(200).send(await applyTeleprompterSettings(req.body));
 });
 
-/**
- * The script a teleprompter view reads, built from the project's settings
- * A view which plays on its own can name another field as its source
- */
 router.get('/script', (req: Request, res: Response<TeleprompterScript>) => {
   const { source } = req.query;
   res.status(200).send(getScript(typeof source === 'string' ? source : undefined));

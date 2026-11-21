@@ -21,7 +21,6 @@ import { cx } from '../../../common/utils/styleUtils';
 import { speedStep, type TeleprompterViewCommand } from '../teleprompter.keymap';
 import { modeLabels } from '../teleprompter.options';
 
-/** The event Ontime has loaded, as the teleprompter script names it */
 export type LoadedEvent = { id: string; cue: string; title: string; inScript: boolean };
 
 interface ControlOverlayProps {
@@ -83,7 +82,6 @@ function ControlButton({
   );
 }
 
-/** Playback controls fade while idle and remain visible while hovered or focused. */
 export default function ControlOverlay({
   state,
   loadedEvent,

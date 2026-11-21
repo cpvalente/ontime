@@ -19,25 +19,19 @@ import { useTeleprompterScroll } from './useTeleprompterScroll';
 interface TeleprompterScreenProps {
   events: TeleprompterScriptEvent[];
   charsPerLine: number;
-  /** where the screen reads from, in rows of the whole script */
   sync: TeleprompterSync;
-  /** the rows of the whole script, which the sync counts */
   scriptLayout: TeleprompterLayout;
   /** the sync refers to a script the screen has not received yet, so the screen holds its place */
   isBehind: boolean;
-  /** where playback stopped of its own accord, shown on the reading line */
   ended: TeleprompterStop | null;
   options: TeleprompterOptions;
   loadedEventId: EntryId | null;
   /** where to rest while the position is outside the rows shown */
   fallbackRow?: number;
-  /** where the keyboard and the mouse wheel send commands, or nothing for a screen which only displays */
   onCommand?: (command: TeleprompterViewCommand) => void;
-  /** a local view scrolls by hand, which moves its position to a place in the rows shown */
   onUserScroll?: (anchor: TeleprompterAnchor) => void;
 }
 
-/** Renders the rows of the script, and scrolls them to the reading position */
 export default function TeleprompterScreen({
   events,
   charsPerLine,
@@ -90,7 +84,6 @@ export default function TeleprompterScreen({
           onCommand(command);
         }
       : onCommand;
-  // a local view scrolls by hand, which stays in the browser, a controller sends the wheel as scroll commands
   useTeleprompterInput({ screen, onCommand: handleCommand, rowHeight, wheel: !onUserScroll });
 
   const screenStyles = {
@@ -124,10 +117,7 @@ export default function TeleprompterScreen({
           data-testid='teleprompter-reading-line'
         >
           {!options.hideReadingLine && <span className='teleprompter__reading-marker' />}
-          {ended && (
-            // where the talent is looking, so the end is clear without the controls
-            <span className='teleprompter__end' data-testid='teleprompter-end' />
-          )}
+          {ended && <span className='teleprompter__end' data-testid='teleprompter-end' />}
         </div>
       )}
       {children}
@@ -135,7 +125,6 @@ export default function TeleprompterScreen({
   );
 }
 
-/** The rows change with the script, not the transport, which re-renders the screen on every command */
 const ScriptRows = memo(function ScriptRows({
   events,
   loadedEventId,
