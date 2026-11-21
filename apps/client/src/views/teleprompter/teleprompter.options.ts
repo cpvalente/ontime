@@ -104,7 +104,7 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'speed',
           title: 'Starting speed',
-          description: `Lines per minute, ${bounds.speed[0]}–${bounds.speed[1]}. ${resetOnReload}`,
+          description: `Lines per minute, ${bounds.speed[0]}-${bounds.speed[1]}. ${resetOnReload}`,
           type: 'number',
           defaultValue: defaults.speed,
         },
@@ -137,14 +137,14 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'textWidth',
           title: 'Text width',
-          description: `Width as a percentage of the screen, ${bounds.textWidth[0]}–${bounds.textWidth[1]}.`,
+          description: `Width as a percentage of the screen, ${bounds.textWidth[0]}-${bounds.textWidth[1]}.`,
           type: 'number',
           defaultValue: defaults.textWidth,
         },
         {
           id: 'lineHeight',
           title: 'Line spacing',
-          description: `Spacing as a multiple of text size, ${bounds.lineHeight[0]}–${bounds.lineHeight[1]}.`,
+          description: `Spacing as a multiple of text size, ${bounds.lineHeight[0]}-${bounds.lineHeight[1]}.`,
           type: 'number',
           defaultValue: defaults.lineHeight,
         },
@@ -158,7 +158,7 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'readingLinePos',
           title: 'Reading position',
-          description: `Position from the top of the screen, ${bounds.readingLinePos[0]}–${bounds.readingLinePos[1]}%.`,
+          description: `Position from the top of the screen, ${bounds.readingLinePos[0]}-${bounds.readingLinePos[1]}%.`,
           type: 'number',
           defaultValue: defaults.readingLinePos,
         },
