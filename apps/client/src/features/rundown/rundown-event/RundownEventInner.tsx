@@ -1,4 +1,4 @@
-import { Day, EndAction, Playback, TimeStrategy, TimerType } from 'ontime-types';
+import { Day, EndAction, Playback, TimeStrategy, TimerPhase, TimerType } from 'ontime-types';
 import { memo } from 'react';
 import {
   IoArrowDown,
@@ -12,6 +12,8 @@ import {
 } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
+import { getPlayState } from '../../../common/components/play-state/playState.utils';
+import PlayStateMark from '../../../common/components/play-state/PlayStateMark';
 import Tooltip from '../../../common/components/tooltip/Tooltip';
 import { cx } from '../../../common/utils/styleUtils';
 import { AppMode } from '../../../ontimeConfig';
@@ -81,6 +83,7 @@ function RundownEventInner({
 
   const eventIsPlaying = playback === Playback.Play;
   const eventIsPaused = playback === Playback.Pause;
+  const playState = getPlayState(playback ?? Playback.Stop, TimerPhase.Default);
   const automationTooltip = (() => {
     if (!hasTriggers) {
       return 'Event has no triggers';
@@ -121,6 +124,14 @@ function RundownEventInner({
         <TitleEditor title={title} entryId={eventId} placeholder='Event title' className={style.eventTitle} />
         {isNext && <span className={style.warningMeta}>UP NEXT</span>}
         {!isNext && countToEnd && <span className={style.warningMeta}>COUNT TO END</span>}
+        {loaded && playback && (
+          <Tooltip
+            text={playState.label}
+            render={
+              <PlayStateMark state={playState} className={style.playState} aria-label={playState.label} role='img' />
+            }
+          />
+        )}
       </div>
       <EventBlockPlayback
         eventId={eventId}

@@ -4,6 +4,8 @@ import { IoArrowDown, IoArrowUp, IoBan, IoTime } from 'react-icons/io5';
 import { LuArrowDownToLine } from 'react-icons/lu';
 
 import { CornerWithPip } from '../../../common/components/editor-utils/EditorUtils';
+import { getPlayState } from '../../../common/components/play-state/playState.utils';
+import PlayStateMark from '../../../common/components/play-state/PlayStateMark';
 import Tag from '../../../common/components/tag/Tag';
 import useViewSettings from '../../../common/hooks-query/useViewSettings';
 import { useMessagePreview } from '../../../common/hooks/useSocket';
@@ -42,6 +44,7 @@ const timerTypeLabel = {
 export default function TimerPreview() {
   const { countToEnd, timerType, playback, phase, blackout } = useMessagePreview();
   const stateTag = previewStateTag[getPreviewState(playback, phase, blackout)];
+  const playState = getPlayState(playback, phase);
   const { data } = useViewSettings();
 
   return (
@@ -51,6 +54,7 @@ export default function TimerPreview() {
         <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
         <div className={style.tags}>
           <Tag variant={stateTag.variant} className={cx([style.tag, style.state])}>
+            {!blackout && <PlayStateMark state={playState} aria-hidden />}
             {stateTag.label}
           </Tag>
           {timerType && (

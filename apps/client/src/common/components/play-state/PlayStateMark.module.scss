@@ -1,0 +1,31 @@
+.mark {
+  --tone: #{$black-10};
+  box-sizing: border-box;
+  flex: none;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: $black-10;
+
+  &[data-tone='play'] {
+    --tone: #{$playback-start};
+  }
+
+  &[data-tone='pause'] {
+    --tone: #{$ontime-paused};
+  }
+
+  &[data-tone='roll'] {
+    --tone: #{$ontime-roll};
+  }
+
+  &[data-shape='filled'] {
+    background-color: var(--tone);
+  }
+
+  &[data-shape='ring'] {
+    background-color: transparent;
+    border: 2px solid var(--tone);
+  }
+}
