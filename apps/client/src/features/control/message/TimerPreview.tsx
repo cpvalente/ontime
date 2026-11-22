@@ -43,7 +43,10 @@ const timerTypeLabel = {
 
 export default function TimerPreview() {
   const { countToEnd, timerType, playback, phase, blackout } = useMessagePreview();
-  const stateTag = previewStateTag[getPreviewState(playback, phase, blackout)];
+  const previewState = getPreviewState(playback, phase, blackout);
+  const stateTag = previewStateTag[previewState];
+  // only where the dot and the tag colour agree, an idle dot is too faint over the tag
+  const showMark = previewState === 'onAir' || previewState === 'paused' || previewState === 'waiting';
   const playState = getPlayState(playback, phase);
   const { data } = useViewSettings();
 
@@ -54,7 +57,7 @@ export default function TimerPreview() {
         <CornerWithPip onExtractClick={(event) => handleLinks('timer', event)} pipElement={<PipRoot />} />
         <div className={style.tags}>
           <Tag variant={stateTag.variant} className={cx([style.tag, style.state])}>
-            {!blackout && <PlayStateMark state={playState} aria-hidden />}
+            {showMark && <PlayStateMark state={playState} aria-hidden />}
             {stateTag.label}
           </Tag>
           {timerType && (

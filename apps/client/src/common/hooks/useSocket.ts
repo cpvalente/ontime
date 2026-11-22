@@ -55,6 +55,11 @@ export const useMessagePreview = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
 }));
 
+export const useTimerPlayState = createSelector((state: RuntimeStore) => ({
+  playback: state.timer.playback,
+  phase: state.timer.phase,
+}));
+
 export const setMessage = {
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
