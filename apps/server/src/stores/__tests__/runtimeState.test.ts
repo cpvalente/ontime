@@ -23,7 +23,6 @@ import {
 import { rundownCache } from '../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../api-data/rundown/rundown.service.js';
 import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
-import { parseRestorePoint } from '../../services/restore-service/restore.parser.js';
 import {
   type RuntimeState,
   addTime,
@@ -680,25 +679,26 @@ describe('mutation on runtimeState', () => {
     await initTestRundown(mockRundown);
 
     const { rundown, metadata } = rundownCache.get();
-    // an older restore point, it saved times of day and no start day
-    const restorePoint = parseRestorePoint({
-      runtime: {
-        projectId: 'project',
+    resume(
+      {
         rundownId: rundown.id,
         playback: Playback.Play,
         selectedEventId: 'event1',
-        startedAt: 60 * 1000,
-        addedTime: 0,
+        startedAt: startEpoch,
         pausedAt: null,
-        firstStart: 60 * 1000,
+        pausedDuration: 0 as Duration,
+        addedTime: 0 as Duration,
         startEpoch,
-        currentDay: 2,
+        startDayOffset: 0 as Day,
+        startEventStart: 0 as TimeOfDay,
+        startEventDay: 0 as Day,
+        groupStartedAt: null,
         offsetMode: OffsetMode.Absolute,
       },
-      savedAt: startEpoch,
-    });
-
-    resume(restorePoint!.runtime!, mockRundown.entries.event1 as PlayableEvent, rundown, metadata);
+      mockRundown.entries.event1 as PlayableEvent,
+      rundown,
+      metadata,
+    );
 
     const newState = getState();
     expect(newState.rundown.actualStart).toBe(60 * 1000);

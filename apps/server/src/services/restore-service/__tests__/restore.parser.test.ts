@@ -1,6 +1,5 @@
 import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
-import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 
 import { parseRestorePoint } from '../restore.parser.js';
 import type { RestorePoint, RuntimeRestore } from '../restore.types.js';
@@ -61,42 +60,6 @@ describe('parseRestorePoint()', () => {
     expect(parseRestorePoint({ ...restorePoint, runtime: stoppedRuntime })).not.toBeNull();
   });
 
-  it('reads the times of day of an older restore point as the latest instants before it was saved', () => {
-    // saved at 00:10, the timer started at 23:50 the day before and paused at 00:05
-    const savedAt = new Date(2026, 0, 2, 0, 10).getTime() as Instant;
-    const startEpoch = new Date(2026, 0, 1, 23, 50).getTime() as Instant;
-    const older = {
-      projectId: 'project',
-      rundownId: 'rundown',
-      playback: Playback.Pause,
-      selectedEventId: 'event',
-      startedAt: 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE,
-      addedTime: 0,
-      pausedAt: 5 * MILLIS_PER_MINUTE,
-      firstStart: 23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE,
-      startEpoch,
-      currentDay: 0,
-      offsetMode: OffsetMode.Absolute,
-    };
-
-    expect(parseRestorePoint({ runtime: older, savedAt })?.runtime).toStrictEqual({
-      projectId: 'project',
-      rundownId: 'rundown',
-      playback: Playback.Pause,
-      selectedEventId: 'event',
-      startedAt: startEpoch,
-      pausedAt: savedAt - 5 * MILLIS_PER_MINUTE,
-      pausedDuration: 0,
-      addedTime: 0,
-      startEpoch,
-      startDayOffset: null,
-      startEventStart: null,
-      startEventDay: null,
-      groupStartedAt: null,
-      offsetMode: OffsetMode.Absolute,
-    });
-  });
-
   it('accepts a paused aux timer', () => {
     const paused = { ...running, playback: SimplePlayback.Pause, startedAt: null };
     expect(parseRestorePoint({ ...restorePoint, auxTimers: [paused, stopped, stopped] })).not.toBeNull();
@@ -114,6 +77,7 @@ describe('parseRestorePoint()', () => {
     ['a malformed start event day', { runtime: { ...savedRuntime, startEventDay: '1' } }],
     ['a malformed start day', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
     ['a malformed group start', { runtime: { ...savedRuntime, groupStartedAt: '1' } }],
+    ['a point without the timer base', { runtime: { ...savedRuntime, startDayOffset: undefined } }],
     ['two aux timers', { auxTimers: [running, stopped] }],
     ['a running aux timer without a start', { auxTimers: [running, stopped, { ...running, startedAt: null }] }],
     ['a paused aux timer still counting', { auxTimers: [running, stopped, { ...running, playback: 'pause' }] }],
