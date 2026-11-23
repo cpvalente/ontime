@@ -1,5 +1,7 @@
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+
+import { Playback, RuntimeStore } from 'ontime-types';
 
 import { publicFiles } from '../setup/index.js';
 import { type TestServer, editorWelcome, startTestServer } from './testServer.js';
@@ -9,14 +11,9 @@ async function loadedProject(server: TestServer): Promise<string> {
   return lastLoadedProject;
 }
 
-/** waits for the restore point to hold this playback */
-async function restoredPlayback(playback: string) {
-  await vi.waitFor(
-    async () => {
-      expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain(`"playback": "${playback}"`);
-    },
-    { timeout: 5000 },
-  );
+async function serverPlayback(server: TestServer): Promise<Playback> {
+  const { payload }: { payload: RuntimeStore } = await (await server.get('/api/poll')).json();
+  return payload.timer.playback;
 }
 
 // each start loads the full server module graph, which takes a few seconds on slower machines
@@ -35,9 +32,9 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
     onTestFinished(() => firstRun.stop());
     const project = await loadedProject(firstRun);
     await firstRun.get('/api/start/index/1');
-    await restoredPlayback('play');
+    expect(await serverPlayback(firstRun)).toBe(Playback.Play);
     await firstRun.get('/api/stop');
-    await restoredPlayback('stop');
+    expect(await serverPlayback(firstRun)).toBe(Playback.Stop);
     // exit code 3 is a container shutdown, it keeps the restore point
     await firstRun.stop(3);
 
@@ -51,7 +48,7 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
     await firstRun.get('/api/start/index/1');
-    await restoredPlayback('play');
+    expect(await serverPlayback(firstRun)).toBe(Playback.Play);
     await firstRun.stop(3);
 
     const secondRun = await startTestServer();

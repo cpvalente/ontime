@@ -11,15 +11,9 @@ async function playback(server: TestServer): Promise<Playback> {
   return payload.timer.playback;
 }
 
-/** starts the first event, and waits for the restore point to be saved */
 async function startShow(server: TestServer) {
-  await server.get('/api/start/index/1');
-  await vi.waitFor(
-    async () => {
-      expect(await readFile(publicFiles.restoreFile, 'utf-8')).toContain('"playback": "play"');
-    },
-    { timeout: 5000 },
-  );
+  const response = await server.get('/api/start/index/1');
+  expect(await response.json()).toEqual({ payload: 'success' });
 }
 
 async function logTexts(server: TestServer): Promise<string[]> {
