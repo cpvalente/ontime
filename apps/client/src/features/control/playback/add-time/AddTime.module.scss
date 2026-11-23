@@ -5,6 +5,11 @@
   gap: $element-inner-spacing;
 }
 
+.addTime .amount {
+  width: 100% !important;
+  max-width: none;
+}
+
 .addButtons {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -13,4 +18,9 @@
 
 .tallButtons {
   height: 28px;
+}
+
+// the tooltip trigger wraps the button, which still fills its cell
+.tipTarget {
+  display: grid;
 }
