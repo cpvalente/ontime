@@ -26,6 +26,7 @@ export function timeOfDayNow(): TimeOfDay {
 /**
  * Converts a time of day to an instant anchored to the same day as the reference
  * - Uses the reference instant to determine which calendar day to anchor to
+ * - Not for past times of day: 23:50 anchored at 00:10 lands in the future
  */
 export function toInstant(clock: TimeOfDay, reference: Instant): Instant {
   const referenceClock = toTimeOfDay(reference);
