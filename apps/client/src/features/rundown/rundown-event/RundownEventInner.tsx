@@ -127,7 +127,6 @@ function RundownEventInner({
         skip={skip}
         isPlaying={eventIsPlaying}
         isPaused={eventIsPaused}
-        loaded={loaded}
         disablePlayback={skip || isRolling}
       />
       {!skip && (
