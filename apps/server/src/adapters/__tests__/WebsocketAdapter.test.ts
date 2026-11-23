@@ -81,6 +81,7 @@ vi.mock('../../api-integration/integration.controller.js', () => ({
 import { MessageTag } from 'ontime-types';
 
 import { now } from '../../lib/time-core/timeCore.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 import { socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
@@ -135,6 +136,20 @@ describe('WebsocketAdapter', () => {
     );
   });
 
+  it.each(['read', 'write'] as const)('tells a %s client its access and the server version on connect', (scope) => {
+    authenticationMocks.reject = false;
+    authenticationMocks.scope = scope;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    const init = JSON.parse(client.send.mock.calls[0][0]);
+    expect(init).toEqual({
+      tag: MessageTag.ClientInit,
+      payload: expect.objectContaining({ access: scope, version: ONTIME_VERSION }),
+    });
+  });
+
   it.each([
     ['read', 0],
     ['write', 1],
@@ -153,7 +168,7 @@ describe('WebsocketAdapter', () => {
 
   it.each([
     [
-      MessageTag.ClientSet,
+      MessageTag.ClientAck,
       {
         type: 'ontime',
         origin: 'http://ontime',
