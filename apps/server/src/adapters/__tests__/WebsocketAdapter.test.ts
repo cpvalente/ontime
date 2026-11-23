@@ -81,6 +81,7 @@ vi.mock('../../api-integration/integration.controller.js', () => ({
 import { MessageTag } from 'ontime-types';
 
 import { now } from '../../lib/time-core/timeCore.js';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION.js';
 import { socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
@@ -135,10 +136,24 @@ describe('WebsocketAdapter', () => {
     );
   });
 
+  it.each(['read', 'write'] as const)('tells a %s client its access and the server version on connect', (scope) => {
+    authenticationMocks.reject = false;
+    authenticationMocks.scope = scope;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    const init = JSON.parse(client.send.mock.calls[0][0]);
+    expect(init).toEqual({
+      tag: MessageTag.ClientInit,
+      payload: expect.objectContaining({ access: scope, version: ONTIME_VERSION }),
+    });
+  });
+
   it.each([
-    ['read', 0],
-    ['write', 1],
-  ] as const)('with %s scope, dispatches %i commands', async (scope, calls) => {
+    ['read', false],
+    ['write', true],
+  ] as const)('with %s scope, dispatches with write access %s', async (scope, hasWriteAccess) => {
     authenticationMocks.reject = false;
     authenticationMocks.scope = scope;
     socket.init({} as Server, null);
@@ -148,12 +163,12 @@ describe('WebsocketAdapter', () => {
     client.emit('message', JSON.stringify({ tag: 'start', payload: null }));
     await Promise.resolve();
 
-    expect(dispatchMock).toHaveBeenCalledTimes(calls);
+    expect(dispatchMock).toHaveBeenCalledWith('start', null, 'ws', expect.any(String), hasWriteAccess);
   });
 
   it.each([
     [
-      MessageTag.ClientSet,
+      MessageTag.ClientAck,
       {
         type: 'ontime',
         origin: 'http://ontime',

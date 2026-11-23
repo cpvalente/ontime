@@ -23,7 +23,7 @@ class OscServer implements IAdapter {
     logger.info(LogOrigin.Api, 'OSC input started', { port });
     this.udpSocket = dgram.createSocket('udp4');
     this.udpSocket.on('error', (error) => logger.error(LogOrigin.Api, 'OSC input failed', { error: error.message }));
-    this.udpSocket.on('message', async (buf) => {
+    this.udpSocket.on('message', async (buf, rinfo) => {
       // message should look like /ontime/{command}/{params?} {args} where
       // ontime: fixed message for app
       // command: command to be called
@@ -68,7 +68,8 @@ class OscServer implements IAdapter {
       }
 
       try {
-        await dispatchFromAdapter(command, transformedPayload, 'osc');
+        // OSC on upd port is assumed to be on privileged local network
+        await dispatchFromAdapter(command, transformedPayload, 'osc', rinfo.address, true);
       } catch (error) {
         logger.error(LogOrigin.Api, 'OSC message failed', { address, error: getErrorMessage(error) });
       }

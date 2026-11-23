@@ -1,4 +1,4 @@
-import { ClientList } from 'ontime-types';
+import { AccessScope, ClientList } from 'ontime-types';
 import { create } from 'zustand';
 
 import { makeStageKey } from '../utils/localStorage';
@@ -12,6 +12,9 @@ interface ClientStore {
 
   redirect: string;
   setRedirect: (newValue: string) => void;
+
+  access: AccessScope;
+  setAccess: (access: AccessScope) => void;
 
   clients: ClientList;
   setClients: (clients: ClientList) => void;
@@ -36,6 +39,9 @@ export const useClientStore = create<ClientStore>((set) => ({
 
   redirect: '',
   setRedirect: (redirect: string) => set({ redirect }),
+
+  access: 'read',
+  setAccess: (access: AccessScope) => set({ access }),
 
   clients: {},
   setClients: (clients: ClientList) => set({ clients }),
@@ -74,6 +80,13 @@ export function getClientId(): string | undefined {
  */
 export function setClientRedirect(path: string): void {
   useClientStore.getState().setRedirect(path);
+}
+
+/**
+ * Allows updating access (outside react)
+ */
+export function setClientAccess(access: AccessScope): void {
+  useClientStore.getState().setAccess(access);
 }
 
 /**

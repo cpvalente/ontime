@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { MessageTag } from 'ontime-types';
+import { Access, MessageTag } from 'ontime-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { getRundownQueryKey } from '../../api/constants';
@@ -102,9 +102,35 @@ describe('socket connection watchdog', () => {
       vi.advanceTimersByTime(PUBLISH_INTERVAL);
       socket.receive(MessageTag.RuntimeData, { clock: elapsed });
     }
-
-    expect(socket.sent.filter((packet) => JSON.parse(packet).tag === MessageTag.ClientSet)).toHaveLength(1);
+    socket.receive(MessageTag.ClientInit, {
+      clientId: '1234',
+      clientName: 'TEST',
+      version: '5.0.0',
+      access: Access.write,
+    });
+    expect(socket.sent.filter((packet) => JSON.parse(packet).tag === MessageTag.ClientAck)).toHaveLength(1);
     expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  it('keeps the access the server grants on init', async () => {
+    const { useClientStore } = await import('../../stores/clientStore');
+    const socket = openConnection();
+
+    socket.receive(MessageTag.ClientInit, {
+      clientId: '1234',
+      clientName: 'TEST',
+      version: '5.0.0',
+      access: Access.write,
+    });
+    expect(useClientStore.getState().access).toBe(Access.write);
+
+    socket.receive(MessageTag.ClientInit, {
+      clientId: '1234',
+      clientName: 'TEST',
+      version: '5.0.0',
+      access: Access.read,
+    });
+    expect(useClientStore.getState().access).toBe(Access.read);
   });
 
   it('samples the server clock quickly after connecting, then rarely once the offset is known', async () => {

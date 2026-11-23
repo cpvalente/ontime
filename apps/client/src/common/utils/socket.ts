@@ -10,6 +10,7 @@ import {
 } from 'ontime-types';
 
 import { isProduction, websocketUrl } from '../../externals';
+import { ONTIME_VERSION } from '../../ONTIME_VERSION';
 import {
   APP_SETTINGS,
   AUTOMATION,
@@ -34,6 +35,7 @@ import { ontimeQueryClient } from '../queryClient';
 import {
   getClientId,
   getClientName,
+  setClientAccess,
   setClientId,
   setClientName,
   setClientRedirect,
@@ -107,13 +109,6 @@ export const connectSocket = () => {
     reconnectAttempts = 0;
     registerContact();
 
-    sendSocket(MessageTag.ClientSet, {
-      type: 'ontime',
-      origin: window.location.origin,
-      path: window.location.pathname + window.location.search,
-      name: preferredClientName,
-    });
-
     if (isReconnect) {
       invalidateAllCaches();
     }
@@ -169,6 +164,16 @@ export const connectSocket = () => {
         }
         case MessageTag.ClientInit: {
           setClientId(payload.clientId);
+          setClientAccess(payload.access);
+
+          sendSocket(MessageTag.ClientAck, {
+            type: 'ontime',
+            origin: window.location.origin,
+            path: window.location.pathname + window.location.search,
+            name: preferredClientName ?? payload.clientName,
+            version: ONTIME_VERSION,
+          });
+
           if (!preferredClientName) {
             setClientName(payload.clientName);
           }

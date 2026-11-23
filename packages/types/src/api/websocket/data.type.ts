@@ -1,4 +1,4 @@
-import type { Client } from '../../definitions/Clients.type.js';
+import type { AccessScope, Client } from '../../definitions/Clients.type.js';
 import type { ProjectStartup } from '../../definitions/core/ProjectData.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type { MaybeNumber } from '../../utils/utils.type.js';
@@ -8,7 +8,7 @@ export enum MessageTag {
   Ping = 'ping',
   Pong = 'pong',
   ClientInit = 'client-init',
-  ClientSet = 'client-set',
+  ClientAck = 'client-ack',
   ClientSetPath = 'client-set-path',
   ClientRename = 'client-rename',
   ClientRedirect = 'client-redirect',
@@ -21,13 +21,16 @@ export enum MessageTag {
 // CLIENT TO SERVER
 // payload: the client send time, echoed back in the Pong
 type PingPacket = { tag: MessageTag.Ping; payload: number };
-type SetClientPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
+type AckClientPacket = { tag: MessageTag.ClientAck; payload: Omit<Client, 'identify'> & { version: string } };
 type SetClientPathPacket = { tag: MessageTag.ClientSetPath; payload: string };
 
 // SERVER TO CLIENT
 // epoch: server time at reply, in milliseconds since the Unix epoch
 type PongPacket = { tag: MessageTag.Pong; payload: number; epoch: number };
-type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
+type InitClientPacket = {
+  tag: MessageTag.ClientInit;
+  payload: { clientId: string; clientName: string; version: string; access: AccessScope };
+};
 type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
 type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };
 type DialogPacket = { tag: MessageTag.Dialog; payload: { dialog: 'welcome' } & ProjectStartup };
@@ -46,7 +49,7 @@ type RefetchPacket = {
   };
 };
 
-export type WsPacketToServer = PingPacket | SetClientPacket | SetClientPathPacket;
+export type WsPacketToServer = PingPacket | AckClientPacket | SetClientPathPacket;
 export type WsPacketToClient =
   | PongPacket
   | InitClientPacket

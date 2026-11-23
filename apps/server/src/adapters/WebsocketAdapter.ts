@@ -17,6 +17,7 @@
 import type { Server } from 'http';
 
 import {
+  Access,
   Client,
   LogOrigin,
   MaybeNumber,
@@ -32,8 +33,8 @@ import { WebSocket, WebSocketServer } from 'ws';
 import * as logger from '../api-data/logs/logs.service.js';
 import { dispatchFromAdapter } from '../api-integration/integration.controller.js';
 import { now } from '../lib/time-core/timeCore.js';
-import { Access } from '../middleware/access.js';
 import { authenticateSocket } from '../middleware/authenticate.js';
+import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 import { eventStore } from '../stores/EventStore.js';
 import getRandomName from '../utils/getRandomName.js';
 import { removeTokenFromPath } from '../utils/urlToken.js';
@@ -47,6 +48,7 @@ class SocketServer implements IAdapter {
 
   private wss: WebSocketServer | null;
   private readonly clients: Map<ClientId, Client>;
+  private readonly clientWriteAccess: Set<ClientId>;
   private lastConnection: Date | null = null;
   /** sent once, to the first editor which connects */
   private welcome: ProjectStartup | null = null;
@@ -59,6 +61,7 @@ class SocketServer implements IAdapter {
     // eslint-disable-next-line @typescript-eslint/no-this-alias -- this logic is used to ensure singleton
     instance = this;
     this.clients = new Map<ClientId, Client>();
+    this.clientWriteAccess = new Set();
     this.wss = null;
   }
 
@@ -78,6 +81,8 @@ class SocketServer implements IAdapter {
 
       const clientId = generateId();
       const clientName = getRandomName();
+      if (connectionScope === Access.write) this.clientWriteAccess.add(clientId);
+
       function sendPacket<T extends MessageTag>(
         tag: T,
         payload: Pick<WsPacketToClient & { tag: T }, 'payload'>['payload'],
@@ -96,7 +101,7 @@ class SocketServer implements IAdapter {
       this.lastConnection = new Date();
       logger.info(LogOrigin.Client, 'Client connected', { client: clientName, clients: this.clients.size });
 
-      sendPacket(MessageTag.ClientInit, { clientId, clientName });
+      sendPacket(MessageTag.ClientInit, { clientId, clientName, version: ONTIME_VERSION, access: connectionScope });
 
       this.sendClientList();
 
@@ -105,6 +110,7 @@ class SocketServer implements IAdapter {
 
       ws.on('close', () => {
         this.clients.delete(clientId);
+        this.clientWriteAccess.delete(clientId);
         logger.info(LogOrigin.Client, 'Client disconnected', { client: clientName, clients: this.clients.size });
         this.sendClientList();
       });
@@ -120,9 +126,11 @@ class SocketServer implements IAdapter {
               ws.send(JSON.stringify(pong));
               break;
             }
-            case MessageTag.ClientSet: {
+            case MessageTag.ClientAck: {
               const previousData = this.getOrCreateClient(clientId);
-              const updatedClient = { ...previousData, ...payload };
+              // we don't have anything to use the version for yet
+              const { version: _version, ...newClientData } = payload;
+              const updatedClient = { ...previousData, ...newClientData };
               updatedClient.path = removeTokenFromPath(updatedClient.path);
               this.clients.set(clientId, updatedClient);
               if (this.welcome && updatedClient.path?.toLowerCase().includes('editor')) {
@@ -146,16 +154,14 @@ class SocketServer implements IAdapter {
             default: {
               tag satisfies never;
               // Protocol specific stuff handled above
-              // commands change things, so read sockets may not send them
-              if (connectionScope !== Access.write) {
-                logger.warning(LogOrigin.Client, 'Command not allowed', {
-                  tag,
-                  client: this.clients.get(clientId)?.name,
-                });
-                break;
-              }
               try {
-                const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
+                const reply = await dispatchFromAdapter(
+                  tag,
+                  payload,
+                  'ws',
+                  this.clients.get(clientId)?.name ?? '',
+                  this.hasWriteAccess(clientId),
+                );
                 if (reply) {
                   ws.send(
                     JSON.stringify({
@@ -175,6 +181,10 @@ class SocketServer implements IAdapter {
         }
       });
     });
+  }
+
+  hasWriteAccess(clientId: ClientId): boolean {
+    return this.clientWriteAccess.has(clientId);
   }
 
   getStats() {
