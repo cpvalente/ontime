@@ -67,12 +67,28 @@ The server keeps sending derived timer values: automations, end actions, roll, `
 Done:
 
 - `runtimeState` keeps `_now` beside `clock`, and the base as instants: `_timer.startedAt`, `_timer.pausedAt`, `_startEpoch`, `_groupStartedAt`. The store's `timer.startedAt`, `rundown.actualStart` and `rundown.actualGroupStart` are their times of day, set only through the paired setters.
-- Timer calculations take durations measured between instants (`sinceStart`, `pausedTime`) instead of guessing midnight crossings from times of day. A pause longer than a day keeps all its time.
+- Timer calculations take durations measured between instants on the local wall clock (`sinceStart`, `pausedTime`, `timeCore.wallTimeSince`) instead of guessing midnight crossings from times of day. A pause longer than a day keeps all its time, and a DST change keeps the planned times.
 - The restore point saves the base: instants, `startDayOffset` and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. Resume rebuilds nothing; a point without the base is rejected as invalid.
 
 Still derived from times of day:
 
-- roll starts an event on its planned time of day, read as the latest instant at or before the clock;
+- roll starts an event on its planned time of day, read as the latest instant at or before the clock (`timeCore.lastInstantAt`);
 - `getRuntimeOffset` and `getExpectedFinish` take the event's start as a time of day, with the start day.
 
-Do not use `timeCore.toInstant` to turn a saved past time of day into an instant. It anchors to the reference's calendar day, so 23:50 saved at 00:10 lands in the future. Store instants, or use `timeCore.lastInstantAt`.
+## Required coverage
+
+- before, at, and after midnight;
+- overnight and multi-day rundowns;
+- local-day calculation across timezone/DST offset changes;
+- pause/resume, added time, elapsed/remaining duration;
+- roll secondary targets and expected finish;
+- absolute/relative offsets and day offsets.
+
+## Complete when
+
+- Runtime/timer boundaries use semantic temporal types or documented numeric transport fields.
+- Temporal conversions/arithmetic use `timeCore` or named pure helpers.
+- No unexplained temporal casts or ambiguous numeric fields remain in migrated scope.
+- Focused tests cover the required boundaries.
+
+After completion, remove this migration tracker. Keep durable rules in `docs/agent-guides/domain-invariants.md`.

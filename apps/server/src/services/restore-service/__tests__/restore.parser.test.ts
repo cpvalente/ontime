@@ -78,6 +78,7 @@ describe('parseRestorePoint()', () => {
     ['a malformed start day', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
     ['a malformed group start', { runtime: { ...savedRuntime, groupStartedAt: '1' } }],
     ['a point without the timer base', { runtime: { ...savedRuntime, startDayOffset: undefined } }],
+    ['a partial start anchor', { runtime: { ...savedRuntime, startDayOffset: null } }],
     ['two aux timers', { auxTimers: [running, stopped] }],
     ['a running aux timer without a start', { auxTimers: [running, stopped, { ...running, startedAt: null }] }],
     ['a paused aux timer still counting', { auxTimers: [running, stopped, { ...running, playback: 'pause' }] }],

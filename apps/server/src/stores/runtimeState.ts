@@ -475,7 +475,7 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
 
   // add paused time if it exists
   if (state._timer.pausedAt !== null) {
-    const timeToAdd = timeCore.timeSince(epoch, state._timer.pausedAt);
+    const timeToAdd = timeCore.wallTimeSince(epoch, state._timer.pausedAt);
     state.timer.addedTime += timeToAdd;
     state._timer.pausedDuration = (state._timer.pausedDuration + timeToAdd) as Duration;
     state._timer.pausedAt = null;
@@ -489,7 +489,7 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
   state.timer.expectedFinish = getExpectedFinish(expectedFinishInput(state));
   state.timer.elapsed = getElapsed(elapsedInput(state));
 
-  if (state.rundown.actualStart === null) {
+  if (state._startEpoch === null) {
     state._startDayOffset = (findDayOffset(getDelayedStart(state.eventNow) as TimeOfDay, state.clock) +
       state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
@@ -894,7 +894,7 @@ export function rollNext(rundown: Rundown, metadata: RundownMetadata, epoch: Ins
 function backdateShowStart(plannedStart: Instant) {
   const event = runtimeState.eventNow!;
   setStartEpoch(runtimeState, plannedStart);
-  runtimeState._startDayOffset = (findDayOffset(event.timeStart, runtimeState.rundown.actualStart!) +
+  runtimeState._startDayOffset = (findDayOffset(event.timeStart, timeCore.toTimeOfDay(plannedStart)) +
     event.dayOffset) as Day;
   runtimeState._startEventStart = event.timeStart as TimeOfDay;
   runtimeState._startEventDay = event.dayOffset;
@@ -976,17 +976,17 @@ function elapsedInput(state: RuntimeState): ElapsedInput {
   };
 }
 
-/** time from the start of the loaded event to the pause, or to now when running */
+/** wall clock time from the start of the loaded event to the pause, or to now when running */
 function sinceStart(state: RuntimeState): Maybe<Duration> {
   const { startedAt, pausedAt } = state._timer;
   if (startedAt === null) return null;
-  return timeCore.timeSince(pausedAt ?? state._now, startedAt);
+  return timeCore.wallTimeSince(pausedAt ?? state._now, startedAt);
 }
 
-/** time spent in the ongoing pause */
+/** wall clock time spent in the ongoing pause */
 function pausedTime(state: RuntimeState): Duration {
   const { pausedAt } = state._timer;
-  return pausedAt === null ? (0 as Duration) : timeCore.timeSince(state._now, pausedAt);
+  return pausedAt === null ? (0 as Duration) : timeCore.wallTimeSince(state._now, pausedAt);
 }
 
 function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
