@@ -89,6 +89,7 @@ export default defineConfig({
   test: {
     globals: true,
     dom: true,
+    isolate: false,
   },
   build: {
     outDir: './build',
