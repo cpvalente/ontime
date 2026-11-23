@@ -1,4 +1,12 @@
-import { OffsetMode, RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage, TimerType } from 'ontime-types';
+import {
+  Duration,
+  OffsetMode,
+  RuntimeStore,
+  SimpleDirection,
+  SimplePlayback,
+  TimerMessage,
+  TimerType,
+} from 'ontime-types';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { sendSocket } from '../utils/socket';
@@ -25,7 +33,8 @@ export const useRundownEditor = createSelector((state: RuntimeStore) => ({
 export const useTimerViewControl = createSelector((state: RuntimeStore) => ({
   blackout: state.message.timer.blackout,
   blink: state.message.timer.blink,
-  secondarySource: state.message.timer.secondarySource,
+  swap: state.message.timer.swap,
+  hasSecondary: state.message.timer.secondarySource !== null,
 }));
 
 export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
@@ -33,29 +42,31 @@ export const useTimerMessageInput = createSelector((state: RuntimeStore) => ({
   visible: state.message.timer.visible,
 }));
 
-export const useExternalMessageInput = createSelector((state: RuntimeStore) => ({
+export const useSecondaryInput = createSelector((state: RuntimeStore) => ({
   text: state.message.secondary,
-  visible: state.message.timer.secondarySource === 'secondary',
+  source: state.message.timer.secondarySource,
 }));
 
 export const useMessagePreview = createSelector((state: RuntimeStore) => ({
-  blink: state.message.timer.blink,
-  blackout: state.message.timer.blackout,
-  phase: state.timer.phase,
-  secondarySource: state.message.timer.secondarySource,
-  showTimerMessage: state.message.timer.visible && Boolean(state.message.timer.text),
   timerType: state.eventNow?.timerType ?? null,
   countToEnd: state.eventNow?.countToEnd ?? false,
+  playback: state.timer.playback,
+  phase: state.timer.phase,
+  blackout: state.message.timer.blackout,
 }));
 
 export const setMessage = {
-  timerText: (payload: string) => sendSocket('message', { timer: { text: payload } }),
   timerVisible: (payload: boolean) => sendSocket('message', { timer: { visible: payload } }),
-  secondaryMessage: (payload: string) => sendSocket('message', { secondary: payload }),
   timerBlink: (payload: boolean) => sendSocket('message', { timer: { blink: payload } }),
   timerBlackout: (payload: boolean) => sendSocket('message', { timer: { blackout: payload } }),
+  timerSwap: (payload: boolean) => sendSocket('message', { timer: { swap: payload } }),
   timerSecondarySource: (payload: TimerMessage['secondarySource']) =>
     sendSocket('message', { timer: { secondarySource: payload } }),
+  /** one patch, so a screen never shows the previous text */
+  showTimerMessage: (text: string) => sendSocket('message', { timer: { text, visible: true } }),
+  /** one patch, so a screen never shows the previous text */
+  showSecondary: (source: NonNullable<TimerMessage['secondarySource']>, text: string) =>
+    sendSocket('message', { secondary: text, timer: { secondarySource: source } }),
 };
 
 export const usePlaybackControl = createSelector((state: RuntimeStore) => ({
@@ -191,8 +202,7 @@ const selectExpectedScheduleData = (state: RuntimeStore) => ({
   offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
   mode: state.offset.mode,
   currentDay: state.rundown.currentDay ?? 0,
-  actualStart: state.rundown.actualStart,
-  plannedStart: state.rundown.plannedStart,
+  startShift: (state.offset.absolute - state.offset.relative) as Duration,
 });
 
 /** Expected schedule times change with the offset, independently of clock ticks. */
@@ -252,8 +262,7 @@ export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
 export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
   mode: state.offset.mode,
-  actualStart: state.rundown.actualStart,
-  plannedStart: state.rundown.plannedStart,
+  startShift: (state.offset.absolute - state.offset.relative) as Duration,
   currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
   phase: state.timer.phase,

@@ -13,7 +13,7 @@ vi.mock('../../api-data/rundown/rundown.dao.js', () => ({
     entries: {},
     revision: 0,
   })),
-  getProjectCustomFields: vi.fn(() => ({})),
+  getProjectCustomFields: vi.fn(() => []),
 }));
 
 vi.mock('../../api-data/assets/assets.service.js', () => ({
@@ -33,6 +33,12 @@ vi.mock('../../classes/data-provider/DataProvider.js', () => ({
   getDataProvider: vi.fn(() => ({ getProjectRundowns: () => ({}) })),
 }));
 
+vi.mock('../../api-data/rundown/rundown.service.js', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../../api-data/rundown/rundown.service.js')>()),
+  editCustomField: vi.fn<() => Promise<[]>>(async () => []),
+}));
+
+const { editCustomField } = await import('../../api-data/rundown/rundown.service.js');
 const { readCssFile, writeCssFile } = await import('../../api-data/assets/assets.service.js');
 const { setOverrideStyles } = await import('../../api-data/view-settings/viewSettings.dao.js');
 const { handleToolCall } = await import('../mcp.tools.js');
@@ -160,5 +166,24 @@ describe('MCP css override tool', () => {
 
     await handleToolCall('ontime_set_css_override', { css: 'a {}', force: true });
     expect(writeCssFile).toHaveBeenCalledWith('a {}');
+  });
+});
+
+describe('MCP custom field wiring', () => {
+  it('passes the options an edit started from, so a stale edit is refused', async () => {
+    const options = [{ label: 'Go', colour: '' }];
+    await handleToolCall('ontime_update_custom_field', {
+      key: 'Status',
+      options,
+      renamedOptions: { Ready: 'Go' },
+      previousOptions: ['Ready'],
+    });
+    expect(editCustomField).toHaveBeenCalledWith('Status', {
+      label: undefined,
+      colour: undefined,
+      options,
+      renamedOptions: { Ready: 'Go' },
+      previousOptions: ['Ready'],
+    });
   });
 });

@@ -16,6 +16,14 @@ export function getDb(filename: string): Promise<AxiosResponse<DatabaseModel>> {
 }
 
 /**
+ * HTTP request to read a project file in the current format
+ * Files saved by older versions are migrated, the file itself is left as it is
+ */
+export function readProject(filename: string): Promise<AxiosResponse<DatabaseModel>> {
+  return axios.post(`${dbPath}/read`, { filename }, { timeout: axiosConfig.longTimeout });
+}
+
+/**
  * Request download of the current project file
  * @param fileName
  */

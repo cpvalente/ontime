@@ -20,6 +20,12 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 - Explicit navigation (finder, keyboard, title list) reveals with the smallest scroll, opening a collapsed group first.
 - A collapsed group opens only when the selection, or in Run the live event, moves into it. Edits never re-open a group the user collapsed.
 
+## Custom fields
+
+- An option field's value is the option label. New writes take a listed label or empty; loading, importing and resending an entry's current value keep any string, and screens show values off the list rather than hide them.
+- Editing options renames values only through explicit old → new pairs and clears values of options which leave the list, in the loaded and background rundowns, like a field key rename.
+- An empty custom value is no value: clearing it deletes the entry's key, as removing an option and loading a project do.
+
 ## Persistence, realtime, cache
 
 - No partial commit on failure.
@@ -40,7 +46,20 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
 
+The runtime's timer base (when playback, the event and the group started, when it paused, time given) is kept and saved as instants; every value that changes each tick follows from it and the clock. Times of day in the store are derived from it, never the source. Measure time between instants on the local wall clock (`timeCore.wallTimeSince`), so a DST change keeps the planned times.
+
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
+
+### Delays
+
+A delay entry is an announced change to the plan, not an annotation. An event has three times: planned (published), delayed (planned plus the delay entries before it, what the crew was told) and expected (delayed plus the runtime offset, what will happen).
+
+- A delay moves every later event by its value, on top of any lateness already there, until a gap or a count-to-end event absorbs it.
+- The runtime offset is measured from the delayed times, so a delay is never counted twice once playback passes it. Applying a delay changes no expected time and no offset: it only makes the delayed times the planned ones.
+- A delay never moves a count-to-end deadline; only time given to the event (added time, pause) does.
+- Roll follows the delayed times.
+
+Use `getDelayedStart()` and `getDelayedEnd()` from `ontime-utils` for delayed times. Not yet enforced: roll starts events on their planned times, so while rolling the offset ignores delays.
 
 When relevant, cover interactions among:
 
@@ -55,6 +74,8 @@ When relevant, cover interactions among:
 Pass time/state explicitly to keep rules deterministic and unit-testable.
 
 Runtime state owns roll transitions: it decides what loads and starts, the runtime service only reports what happened.
+
+Pausing gives the running event time, the same as added time: a paused countdown holds and its end moves later. A count-to-end event aims at its planned end plus the time given to it.
 
 ## Lifecycle events
 

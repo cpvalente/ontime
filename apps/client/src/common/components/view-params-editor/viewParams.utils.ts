@@ -15,14 +15,14 @@ export function makeOptionsFromCustomFields(
   const options: SelectOption[] = [...additionalOptions];
 
   // Add custom fields first
-  for (const [key, value] of Object.entries(customFields)) {
-    if (filterImageType && value.type === 'image') {
+  for (const field of customFields) {
+    if (filterImageType && field.type === 'image') {
       continue;
     }
 
     options.push({
-      value: `custom-${key}`,
-      label: `Custom: ${value.label}`,
+      value: `custom-${field.key}`,
+      label: `Custom: ${field.label}`,
     });
   }
 
@@ -37,15 +37,15 @@ export function makeCustomFieldSelectOptions(customFields: CustomFields, filterI
   const options: MultiselectOption[] = [];
 
   // Add custom fields first
-  for (const [key, value] of Object.entries(customFields)) {
-    if (filterImageType && value.type === 'image') {
+  for (const field of customFields) {
+    if (filterImageType && field.type === 'image') {
       continue;
     }
 
     options.push({
-      value: key,
-      label: value.label,
-      colour: value.colour,
+      value: field.key,
+      label: field.label,
+      colour: field.colour,
     });
   }
 

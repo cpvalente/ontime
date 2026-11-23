@@ -1,7 +1,20 @@
-import type { MaybeNumber, OntimeEvent } from 'ontime-types';
+import type { Duration, OntimeEvent } from 'ontime-types';
 import { OffsetMode } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
+
+/**
+ * Delays are an announced change to the plan, see docs/agent-guides/domain-invariants.md#delays
+ * The delayed times are the ones the crew was told, and the runtime offset is measured from them
+ */
+export function getDelayedStart(event: Pick<OntimeEvent, 'timeStart' | 'delay'>): number {
+  return Math.max(0, event.timeStart + event.delay);
+}
+
+/** A delay moves the end of an event, but never the deadline of a count to end event */
+export function getDelayedEnd(event: Pick<OntimeEvent, 'timeEnd' | 'delay' | 'countToEnd'>): number {
+  return event.countToEnd ? event.timeEnd : event.timeEnd + event.delay;
+}
 
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
@@ -11,27 +24,24 @@ export function getExpectedStart(
     isLinkedToLoaded: boolean;
     offset: number;
     mode: OffsetMode;
-    actualStart: MaybeNumber;
-    plannedStart: MaybeNumber;
+    /** how late playback started compared to the event it started from, the absolute offset minus the relative */
+    /** how late playback started, compared to the event it started from */
+    startShift: Duration;
   },
 ): number {
-  const { timeStart, dayOffset, delay } = event;
-  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, actualStart, plannedStart } = state;
+  const { dayOffset } = event;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, startShift } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
 
-  const delayedStart = Math.max(0, timeStart + delay);
+  const delayedStart = getDelayedStart(event);
 
   //The normalised start time of this event relative to the currently running event
   const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
 
-  let relativeStartOffset = 0;
-
-  if (mode === OffsetMode.Relative) {
-    relativeStartOffset = (actualStart ?? 0) + currentDay * dayInMs - (plannedStart ?? 0);
-  }
-
+  // in relative mode, the schedule moves with the start of playback
+  const relativeStartOffset = mode === OffsetMode.Relative ? startShift : 0;
   const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
 
   const offsetStartTime = scheduledStartTime + offset;
@@ -53,13 +63,21 @@ export function getExpectedStart(
 }
 
 export function getExpectedEnd(
-  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd'>,
+  event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'duration' | 'countToEnd' | 'delay'>,
   expectedStart: number,
   currentRuntimeDay: number,
+  isLoaded: boolean,
 ): number {
   /**
-   * Count to end events are a special case
-   * - the end time is always the wall clock
+   * Count to end events end on their planned time, a delay does not move them
+   * the loaded one follows the runtime offset, which holds the time given to it
+   */
+  if (event.countToEnd && isLoaded) {
+    return expectedStart - event.delay + event.duration;
+  }
+
+  /**
+   * Count to end events after the loaded one also absorb the offset
    */
   if (event.countToEnd) {
     // account for day offset

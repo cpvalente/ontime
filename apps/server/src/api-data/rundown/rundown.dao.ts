@@ -13,31 +13,36 @@
 import {
   CustomField,
   CustomFieldKey,
+  CustomFieldPatch,
   CustomFields,
   EntryId,
   InsertOptions,
+  isOntimeEvent,
+  isOntimeGroup,
+  isPlayableEvent,
   OntimeDelay,
   OntimeEntry,
   OntimeEvent,
   OntimeGroup,
   PatchWithId,
   Rundown,
-  isOntimeEvent,
-  isOntimeGroup,
-  isPlayableEvent,
 } from 'ontime-types';
 import {
   addToRundown,
+  calculateDuration,
   createGroup,
   customFieldLabelToKey,
+  dayInMs,
   getInsertAfterId,
   insertAtIndex,
+  sortCustomFields,
   swapEventData,
 } from 'ontime-utils';
 import type { DeepReadonly } from 'ts-essentials';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { consoleError } from '../../utils/console.js';
+import { mergeCustomFieldList } from '../custom-fields/customFields.utils.js';
 import { EntryNotFoundError, InvalidEntryOperationError, RundownNotFoundError } from './rundown.errors.js';
 import { ProcessedRundownMetadata, makeRundownMetadata } from './rundown.parser.js';
 import type { RundownMetadata } from './rundown.types.js';
@@ -86,7 +91,7 @@ let rundownMetadata: RundownMetadata = {
  * The custom fields that are used in the project
  * Not unique to the loaded rundown
  */
-let projectCustomFields: CustomFields = {};
+let projectCustomFields: CustomFields = [];
 
 export const getCurrentRundown = (): Readonly<Rundown> => cachedRundown;
 export const getCurrentRundownId = (): string => cachedRundown.id;
@@ -155,6 +160,7 @@ export function createTransaction(
    *                        Some edit mutations, and custom field changes do not require processing
    */
   async function commit(shouldProcess: boolean = true) {
+    const writes: Promise<unknown>[] = [];
     let committedRundown: Readonly<Rundown> = isLoaded ? cachedRundown : rundown;
     let committedMetadata: RundownMetadata | null = isLoaded ? rundownMetadata : null;
     let committedRevision: number = sourceRundown.revision;
@@ -184,7 +190,7 @@ export function createTransaction(
         }
 
         // persist after all mutations are applied
-        await getDataProvider().setRundown(cachedRundown.id, cachedRundown);
+        writes.push(getDataProvider().setRundown(cachedRundown.id, cachedRundown));
         committedRundown = cachedRundown;
         committedMetadata = rundownMetadata;
         committedRevision = cachedRundown.revision;
@@ -197,7 +203,7 @@ export function createTransaction(
           rundown.order = processedData.order;
           rundown.flatOrder = processedData.flatEntryOrder;
         }
-        await getDataProvider().setRundown(targetId, rundown);
+        writes.push(getDataProvider().setRundown(targetId, rundown));
         committedRundown = rundown;
         committedRevision = rundown.revision;
       }
@@ -208,8 +214,11 @@ export function createTransaction(
       projectCustomFields = customFields;
 
       // persist after reassignment
-      await getDataProvider().setCustomFields(projectCustomFields);
+      writes.push(getDataProvider().setCustomFields(projectCustomFields));
     }
+
+    // Setters assign synchronously: publish the whole transaction before another mutation can start.
+    await Promise.all(writes);
 
     return {
       rundown: committedRundown,
@@ -416,6 +425,30 @@ function applyDelay(rundown: Rundown, delay: OntimeDelay) {
     if (shouldUnlink) {
       currentEntry.linkStart = false;
       shouldUnlink = false;
+    }
+
+    // a count to end event keeps its deadline: only its start moves, and it absorbs the delay
+    // a skipped event never plays, so like the parser we treat it as any other event
+    if (currentEntry.countToEnd && !currentEntry.skip) {
+      const consumesEvent = delayValue >= currentEntry.duration;
+      currentEntry.timeStart = consumesEvent
+        ? currentEntry.timeEnd
+        : Math.max(0, (currentEntry.timeStart + delayValue) % dayInMs);
+      currentEntry.duration = calculateDuration(currentEntry.timeStart, currentEntry.timeEnd);
+      // an event the delay consumed keeps its deadline, so it can no longer follow the end of the previous event
+      if (consumesEvent) {
+        currentEntry.linkStart = false;
+      }
+      currentEntry.revision += 1;
+
+      // only a delay longer than the event reaches the events after it
+      delayValue = Math.max(delayValue - lastEntry.duration, 0);
+      if (delayValue === 0) {
+        break;
+      }
+      // the next event moves past the deadline, so like the first event it can no longer follow it
+      isFirstEvent = true;
+      continue;
     }
 
     // event times move up by the delay value
@@ -643,41 +676,57 @@ export function getProcessedRundown(rundownId: string): Readonly<Rundown> {
 }
 
 /**
- * Adds a new custom field to the object and returns it
+ * Adds a new custom field at the end of the list
  */
-function customFieldAdd(customFields: CustomFields, key: CustomFieldKey, newCustomField: CustomField): CustomFields {
-  customFields[key] = {
-    label: newCustomField.label,
-    type: newCustomField.type,
-    colour: newCustomField.colour,
-  };
-
-  return { [key]: newCustomField };
+function customFieldAdd(customFields: CustomFields, newCustomField: CustomField) {
+  customFields.push(newCustomField);
 }
 
 /**
- * Edits an existing custom field
+ * Edits an existing custom field in place, keeping its position
+ * Properties left undefined keep their value, a field without a label would be dropped on the next load
  */
 function customFieldEdit(
   customFields: CustomFields,
   key: CustomFieldKey,
-  existingField: CustomField,
-  newField: Partial<CustomField>,
+  patch: CustomFieldPatch,
 ): { oldKey: CustomFieldKey; newKey: CustomFieldKey } {
-  // calculate the key in case it has changed
-  const newKey = newField?.label ? customFieldLabelToKey(newField.label ?? key) : key;
-
-  // patch the new field and replace the reference in the object
-  customFields[newKey] = { ...existingField, ...newField };
-
+  const index = customFields.findIndex((field) => field.key === key);
+  const field = customFields[index];
+  const label = patch.label || field.label;
+  const newKey = customFieldLabelToKey(label);
+  const edited = { ...field, key: newKey, label, colour: patch.colour ?? field.colour };
+  // only option fields hold options, the service refuses them for other types
+  if (edited.type === 'option' && patch.options) {
+    edited.options = patch.options;
+  }
+  customFields[index] = edited;
   return { oldKey: key, newKey };
 }
 
 /**
- * Removes a custom field from the object
+ * Removes a custom field from the list
  */
 function customFieldRemove(customFields: CustomFields, key: CustomFieldKey) {
-  delete customFields[key];
+  const index = customFields.findIndex((field) => field.key === key);
+  if (index !== -1) {
+    customFields.splice(index, 1);
+  }
+}
+
+/**
+ * Sorts the list by the given keys, fields left out keep their relative order at the end
+ * The list is changed in place, as the transaction commits this array
+ */
+function customFieldReorder(customFields: CustomFields, order: CustomFieldKey[]) {
+  customFields.splice(0, customFields.length, ...sortCustomFields(customFields, order));
+}
+
+/**
+ * Merges fields into the list, in place like reorder
+ */
+function customFieldMerge(customFields: CustomFields, incoming: Readonly<CustomFields>) {
+  customFields.splice(0, customFields.length, ...mergeCustomFieldList(customFields, incoming));
 }
 
 /**
@@ -686,10 +735,29 @@ function customFieldRemove(customFields: CustomFields, key: CustomFieldKey) {
 function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKey: CustomFieldKey) {
   Object.keys(rundown.entries).forEach((entryId) => {
     const entry = rundown.entries[entryId];
-    if ('custom' in entry && entry.custom[oldKey]) {
+    // an empty value is moved too, otherwise it stays under a key which no longer exists
+    if ('custom' in entry && Object.hasOwn(entry.custom, oldKey)) {
       // copy the data a new key and delete the old key
       entry.custom[newKey] = entry.custom[oldKey];
       delete entry.custom[oldKey];
+    }
+  });
+}
+
+/**
+ * Iterates through all entries of a rundown and changes the values of an option field
+ * @param changes old values with their new value, empty removes the value
+ */
+function customFieldChangeOptionUsages(rundown: Rundown, key: CustomFieldKey, changes: ReadonlyMap<string, string>) {
+  Object.keys(rundown.entries).forEach((entryId) => {
+    const entry = rundown.entries[entryId];
+    if (!('custom' in entry) || !Object.hasOwn(entry.custom, key)) return;
+    const newValue = changes.get(entry.custom[key]);
+    if (newValue === undefined) return;
+    if (newValue === '') {
+      delete entry.custom[key];
+    } else {
+      entry.custom[key] = newValue;
     }
   });
 }
@@ -700,7 +768,7 @@ function customFieldRenameUsages(rundown: Rundown, oldKey: CustomFieldKey, newKe
 function customFieldRemoveUsages(rundown: Rundown, key: CustomFieldKey) {
   Object.keys(rundown.entries).forEach((entryId) => {
     const entry = rundown.entries[entryId];
-    if ('custom' in entry && entry.custom[key]) {
+    if ('custom' in entry && Object.hasOwn(entry.custom, key)) {
       delete entry.custom[key];
     }
   });
@@ -710,7 +778,10 @@ export const customFieldMutation = {
   add: customFieldAdd,
   edit: customFieldEdit,
   remove: customFieldRemove,
+  reorder: customFieldReorder,
+  merge: customFieldMerge,
   renameUsages: customFieldRenameUsages,
+  changeOptionUsages: customFieldChangeOptionUsages,
   removeUsages: customFieldRemoveUsages,
 };
 
@@ -741,7 +812,7 @@ export async function replaceStoredRundown(parsedRundown: Readonly<Rundown>) {
  */
 export function init(initialRundown: Readonly<Rundown>, initialCustomFields: Readonly<CustomFields>) {
   const rundown = cloneRundown(initialRundown);
-  const customFields = structuredClone(initialCustomFields);
+  const customFields = structuredClone(initialCustomFields) as CustomFields;
   const processedData = processRundown(rundown, customFields, { mutate: true });
 
   projectCustomFields = customFields;

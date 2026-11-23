@@ -1,5 +1,5 @@
-import { EntryId } from 'ontime-types';
-import { PropsWithChildren, createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { EntryId, OntimeEntry } from 'ontime-types';
+import { PropsWithChildren, createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 import Button from '../components/buttons/Button';
 import Dialog from '../components/dialog/Dialog';
@@ -9,7 +9,22 @@ import { runtimeStore } from '../stores/runtime';
 type EntryActionsContextValue = EntryActions;
 const EntryActionsContext = createContext<EntryActionsContextValue | null>(null);
 
-type PendingDelete = { entryIds: EntryId[]; deleteEntry: EntryActions['deleteEntry'] };
+type PendingAction =
+  | { kind: 'delete'; entryIds: EntryId[]; deleteEntry: EntryActions['deleteEntry'] }
+  | { kind: 'skip'; entry: Partial<OntimeEntry>; updateEntry: EntryActions['updateEntry'] };
+
+const dialogCopy = {
+  delete: {
+    title: 'Delete running event?',
+    body: 'This includes the running event. Deleting it will stop the timer.',
+    confirm: 'Delete and stop',
+  },
+  skip: {
+    title: 'Skip running event?',
+    body: 'This is the running event. Skipping it will stop the timer.',
+    confirm: 'Skip and stop',
+  },
+} as const;
 
 interface EntryActionsProviderProps extends PropsWithChildren {
   actions: EntryActionsContextValue;
@@ -18,18 +33,18 @@ interface EntryActionsProviderProps extends PropsWithChildren {
 }
 
 export function EntryActionsProvider({ children, actions, isLoaded }: EntryActionsProviderProps) {
-  // keeps the delete of the rundown it was asked in, so a confirm cannot reach another rundown
-  const [pending, setPending] = useState<PendingDelete | null>(null);
-  const { deleteEntry } = actions;
+  // keeps the action of the rundown it was asked in, so a confirm cannot reach another rundown
+  const [pending, setPending] = useState<PendingAction | null>(null);
+  const { deleteEntry, updateEntry } = actions;
 
-  // deleting the running entry stops playback, so we ask first
+  // deleting or skipping the running entry affects playback, so we ask first
   // the running entry is read on call, so playback changes do not re-render consumers
   const deleteOrConfirm = useCallback(
     async (entryIds: EntryId[]) => {
       const { eventNow, groupNow } = runtimeStore.getState();
       if (isLoaded && entryIds.some((id) => id === eventNow?.id || id === groupNow?.id)) {
         // a request made while the dialog is open is ignored
-        setPending((current) => current ?? { entryIds, deleteEntry });
+        setPending((current) => current ?? { kind: 'delete', entryIds, deleteEntry });
         return;
       }
       return deleteEntry(entryIds);
@@ -37,13 +52,37 @@ export function EntryActionsProvider({ children, actions, isLoaded }: EntryActio
     [deleteEntry, isLoaded],
   );
 
-  const value = useMemo(() => ({ ...actions, deleteEntry: deleteOrConfirm }), [actions, deleteOrConfirm]);
+  const updateOrConfirm = useCallback(
+    async (entry: Partial<OntimeEntry>) => {
+      const { eventNow } = runtimeStore.getState();
+      if (isLoaded && 'skip' in entry && entry.skip === true && entry.id === eventNow?.id) {
+        setPending((current) => current ?? { kind: 'skip', entry, updateEntry });
+        return;
+      }
+      return updateEntry(entry);
+    },
+    [updateEntry, isLoaded],
+  );
+
+  const value = useMemo(
+    () => ({ ...actions, deleteEntry: deleteOrConfirm, updateEntry: updateOrConfirm }),
+    [actions, deleteOrConfirm, updateOrConfirm],
+  );
 
   const close = () => setPending(null);
   const confirm = () => {
-    if (pending) void pending.deleteEntry(pending.entryIds);
+    if (pending?.kind === 'delete') {
+      void pending.deleteEntry(pending.entryIds);
+    } else if (pending?.kind === 'skip') {
+      void pending.updateEntry(pending.entry);
+    }
     close();
   };
+
+  // keep the last copy while the dialog fades out
+  const lastKind = useRef<PendingAction['kind']>('delete');
+  if (pending) lastKind.current = pending.kind;
+  const copy = dialogCopy[lastKind.current];
 
   return (
     <EntryActionsContext.Provider value={value}>
@@ -51,17 +90,17 @@ export function EntryActionsProvider({ children, actions, isLoaded }: EntryActio
       <Dialog
         isOpen={pending !== null}
         onClose={close}
-        title='Delete running event?'
+        title={copy.title}
         showBackdrop
         showCloseButton
-        bodyElements='This includes the running event. Deleting it will stop the timer.'
+        bodyElements={copy.body}
         footerElements={
           <>
             <Button variant='ghosted-white' size='large' onClick={close}>
               Cancel
             </Button>
             <Button variant='destructive' size='large' onClick={confirm}>
-              Delete and stop
+              {copy.confirm}
             </Button>
           </>
         }

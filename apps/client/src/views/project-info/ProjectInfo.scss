@@ -1,6 +1,6 @@
 @use '@/theme/viewerDefs' as *;
 
-$content-width: min(100%, 1100px);
+$content-width: min(100%, clamp(1100px, calc(1100 * var(--viewer-font-unit, 1px)), 2200px));
 
 .project {
   margin: 0;
@@ -33,7 +33,7 @@ $content-width: min(100%, 1100px);
   }
 
   .logo {
-    max-width: min(200px, 30vw);
+    max-width: min(clamp(200px, calc(200 * var(--viewer-font-unit, 1px)), 400px), 30vw);
   }
 
   .title {

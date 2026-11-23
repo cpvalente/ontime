@@ -25,8 +25,8 @@ type SetClientPacket = { tag: MessageTag.ClientSet; payload: Partial<Client> };
 type SetClientPathPacket = { tag: MessageTag.ClientSetPath; payload: string };
 
 // SERVER TO CLIENT
-// clock: server time of day at reply, in milliseconds since midnight in the server's timezone.
-type PongPacket = { tag: MessageTag.Pong; payload: number; clock: number };
+// epoch: server time at reply, in milliseconds since the Unix epoch
+type PongPacket = { tag: MessageTag.Pong; payload: number; epoch: number };
 type InitClientPacket = { tag: MessageTag.ClientInit; payload: { clientId: string; clientName: string } };
 type RenameClientPacket = { tag: MessageTag.ClientRename; payload: { target: string; name: string } };
 type RedirectClientPacket = { tag: MessageTag.ClientRedirect; payload: { target: string; path: string } };

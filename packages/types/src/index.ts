@@ -72,7 +72,11 @@ export type {
   CustomFields,
   CustomField,
   CustomFieldKey,
+  CustomFieldOption,
+  CustomFieldPatch,
+  CustomFieldType,
   EntryCustomFields,
+  NewCustomField,
 } from './definitions/core/CustomFields.type.js';
 
 // SERVER RESPONSES

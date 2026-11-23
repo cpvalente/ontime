@@ -1,6 +1,8 @@
 import { DatabaseModel, URLPreset } from 'ontime-types';
 
 import { ErrorEmitter } from '../../utils/parserUtils.js';
+import { removeTokenFromSearch } from '../../utils/urlToken.js';
+import { normaliseUrlPresets } from './urlPresets.utils.js';
 
 /**
  * Parse URL preset portion of a project file
@@ -14,7 +16,7 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
   const newPresets: URLPreset[] = [];
 
   for (const preset of data.urlPresets) {
-    if (!preset.alias || !preset.target) {
+    if (typeof preset.alias !== 'string' || !preset.alias || !preset.target) {
       emitError?.(`Invalid URL preset: ${JSON.stringify(preset)}`);
       continue;
     }
@@ -23,12 +25,13 @@ export function parseUrlPresets(data: Partial<DatabaseModel>, emitError?: ErrorE
       enabled: preset.enabled ?? false,
       alias: preset.alias,
       target: preset.target,
-      search: preset.search ?? '',
+      // presets are readable by everyone, they must not carry access tokens
+      search: removeTokenFromSearch(preset.search ?? ''),
       displayInNav: preset.displayInNav ?? false,
       options: preset?.options,
     };
     newPresets.push(newPreset);
   }
 
-  return newPresets;
+  return normaliseUrlPresets(newPresets);
 }

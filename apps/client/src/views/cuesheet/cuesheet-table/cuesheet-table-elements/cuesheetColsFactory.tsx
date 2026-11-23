@@ -1,5 +1,13 @@
-import { CustomFields, OntimeEntry, TimeStrategy, URLPreset, isOntimeDelay, isOntimeEvent } from 'ontime-types';
-import { millisToString } from 'ontime-utils';
+import {
+  CustomFieldType,
+  CustomFields,
+  OntimeEntry,
+  TimeStrategy,
+  URLPreset,
+  isOntimeDelay,
+  isOntimeEvent,
+} from 'ontime-types';
+import { getDelayedEnd, millisToString } from 'ontime-utils';
 import { useCallback } from 'react';
 
 import DelayIndicator from '../../../../common/components/delay-indicator/DelayIndicator';
@@ -13,6 +21,7 @@ import FlagCell from './FlagCell';
 import GhostedText from './GhostedText';
 import MultiLineCell from './MultiLineCell';
 import MutedText from './MutedText';
+import OptionCell from './OptionCell';
 import SingleLineCell from './SingleLineCell';
 import TimeInput from './TimeInput';
 
@@ -74,23 +83,25 @@ function MakeEnd({ getValue, row, table, column }: CuesheetCellContext) {
 
   const endTime = getValue() as number;
   const isEndLocked = event.timeStrategy === TimeStrategy.LockEnd;
-  const displayTime = showDelayedTimes ? endTime + event.delay : endTime;
+  const displayTime = showDelayedTimes ? getDelayedEnd({ ...event, timeEnd: endTime }) : endTime;
   const formattedTime = formatTime(displayTime, formatOpts);
+  // a delay never moves a count to end deadline, so the end has nothing to flag
+  const endDelay = event.countToEnd ? 0 : event.delay;
 
   const canWrite = column.columnDef.meta?.canWrite;
   if (!canWrite) {
     return (
       <MutedText numeric>
         {formattedTime}
-        <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+        <DelayIndicator delayValue={endDelay} tooltipPrefix={millisToString(endTime)} />
       </MutedText>
     );
   }
 
   return (
-    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={event.delay !== 0}>
+    <TimeInput initialValue={endTime} onSubmit={update} lockedValue={isEndLocked} delayed={endDelay !== 0}>
       {formattedTime}
-      <DelayIndicator delayValue={event.delay} tooltipPrefix={millisToString(endTime)} />
+      <DelayIndicator delayValue={endDelay} tooltipPrefix={millisToString(endTime)} />
     </TimeInput>
   );
 }
@@ -240,6 +251,41 @@ function MakeCustomField({ row, column, table }: CuesheetCellContext) {
   );
 }
 
+function MakeOptionField({ row, column, table }: CuesheetCellContext) {
+  const update = useCallback(
+    (newValue: string) => {
+      table.options.meta?.handleUpdate(row.original.id, column.id, newValue, true);
+    },
+    [column.id, row.original.id, table],
+  );
+
+  const event = row.original;
+  const field = column.columnDef.meta?.customField;
+  if (isOntimeDelay(event) || field?.type !== 'option') {
+    return null;
+  }
+
+  return (
+    <OptionCell
+      field={field}
+      value={event.custom[column.id] ?? ''}
+      readOnly={!column.columnDef.meta?.canWrite}
+      handleUpdate={update}
+    />
+  );
+}
+
+function getCustomFieldCell(type: CustomFieldType) {
+  switch (type) {
+    case 'text':
+      return MakeCustomField;
+    case 'image':
+      return LazyImage;
+    case 'option':
+      return MakeOptionField;
+  }
+}
+
 /**
  * we cant use the createColumnHelper() because we have custom logic for rendering the cells
  * This means that the display columns: index and action are added inline by the row components
@@ -336,23 +382,21 @@ export function makeCuesheetColumns(
     });
   }
 
-  // custom fields at the end
-  const customFieldKeys = Object.keys(customFields);
-
-  for (let i = 0; i < customFieldKeys.length; i++) {
-    const key = customFieldKeys[i];
-    const permissionKey = `custom-${key}`;
+  // custom fields at the end, in the project order
+  for (const field of customFields) {
+    const permissionKey = `custom-${field.key}`;
     if (!canRead(permissionKey)) continue;
     columnsDef.push({
-      accessorKey: key,
-      id: key,
-      header: customFields[key].label,
-      cell: customFields[key].type === 'text' ? MakeCustomField : LazyImage,
+      accessorKey: field.key,
+      id: field.key,
+      header: field.label,
+      cell: getCustomFieldCell(field.type),
       size: 250,
       minSize: 75,
       meta: {
-        colour: customFields[key].colour,
+        colour: field.colour,
         canWrite: canWrite(permissionKey),
+        customField: field,
       },
     });
   }

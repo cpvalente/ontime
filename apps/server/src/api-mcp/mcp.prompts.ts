@@ -47,7 +47,7 @@ export const PROMPT_DEFINITIONS: ListPromptsResult['prompts'] = [
   },
   {
     name: 'manage_custom_fields',
-    description: 'List, create, rename, recolour, or delete project-level custom field definitions',
+    description: 'List, create, rename, recolour, reorder, or delete project-level custom field definitions',
     arguments: [
       {
         name: 'instruction',
@@ -267,7 +267,7 @@ Then:
 
   if (name === 'manage_custom_fields') {
     return userPrompt(
-      'List, create, rename, recolour, or delete custom field definitions',
+      'List, create, rename, recolour, reorder, or delete custom field definitions',
       `Manage the project-level custom field definitions for this Ontime project: "${args.instruction}"
 
 Custom fields are project-scoped. They appear as columns in the cuesheet and can be set on any event, milestone, or group. Changes apply to all rundowns in the project.
@@ -277,22 +277,27 @@ Steps:
 2. Carry out the instruction using the tools below. Creating a field is non-destructive — do it directly. Confirm destructive changes (rename, delete) with the user before calling.
 
 Creating a field:
-- Call ontime_create_custom_field with { label, type, colour }.
+- Call ontime_create_custom_field with { label, type, colour, options? }.
 - label: human-readable name (letters, numbers and spaces). The key is auto-derived: spaces → underscores (e.g. "Camera Angle" → "Camera_Angle").
-- type: "text" for short string values, "image" for image URLs. Cannot be changed after creation.
+- type: "text" for short string values, "image" for image URLs, "option" for a value picked from a fixed list (eg: a status), given as options: [{ label, colour }]. Cannot be changed after creation.
 - colour: hex colour (#RRGGBB) used to visually identify this column in the cuesheet. If unspecified, pick one from the default Ontime palette matching the department.
-- Returns: { key, customFields } — use the returned key when setting values on entries.
+- Returns the updated field list — use the new field's key when setting values on entries.
 
 Renaming or recolouring a field:
-- Call ontime_update_custom_field with { key, label?, colour? }.
+- Call ontime_update_custom_field with { key, label?, colour?, options?, renamedOptions? }.
 - Warning: changing the label changes the derived key and cascades to all entry references in all rundowns. Confirm with the user before renaming.
+- options replaces an option field's whole list. List renamed options in renamedOptions ({ old: new }) so entries follow; entries holding a removed option are cleared. Confirm removals with the user.
+- Renaming an option does not update automation filters or external senders using the old label; mention this when renaming.
 - The field type cannot be changed.
+
+Reordering fields:
+- Call ontime_reorder_custom_fields with { order }, the keys in the new display order. Non-destructive.
 
 Deleting a field:
 - Call ontime_delete_custom_field with { key }.
 - Warning: this permanently removes the field definition and its values from every entry in all rundowns. Confirm with the user before deleting.
 
-After any mutation, call ontime_get_custom_fields again to confirm the result and show the user the updated field list with their keys.
+After any mutation, show the user the returned field list with their keys.
 
 When a field was created for a department (camera, graphics, audio…), read ontime://views and offer the views that surface it: the cuesheet shows the field as a column for cross-department editing, and the operator view can display or highlight it for that department, e.g. /op?main=title&secondary-src=custom-<key>&subscribe=<key>.`,
     );

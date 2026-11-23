@@ -2,6 +2,7 @@ import { body, param } from 'express-validator';
 import { OntimeView } from 'ontime-types';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
+import { removeTokenFromSearch } from '../../utils/urlToken.js';
 
 /**
  * validate array of URL preset objects
@@ -9,9 +10,9 @@ import { requestValidationFunction } from '../../middleware/validation.js';
 export const validateNewPreset = [
   body().isObject().withMessage('No data found in request'),
   body('enabled').isBoolean(),
-  body('alias').isString().trim().notEmpty(),
+  body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
-  body('search').isString().trim(),
+  body('search').isString().trim().customSanitizer(removeTokenFromSearch),
   body('displayInNav').isBoolean(),
 
   // options are currently only provided for cuesheet presets
@@ -22,12 +23,12 @@ export const validateNewPreset = [
 ];
 
 export const validateUpdatePreset = [
-  param('alias').isString().trim().notEmpty(),
+  param('alias').isString().trim().notEmpty().toLowerCase(),
   body().isObject().withMessage('No data found in request'),
   body('enabled').isBoolean(),
-  body('alias').isString().trim().notEmpty(),
+  body('alias').isString().trim().notEmpty().toLowerCase(),
   body('target').isString().trim().notEmpty().isIn(Object.values(OntimeView)),
-  body('search').isString().trim(),
+  body('search').isString().trim().customSanitizer(removeTokenFromSearch),
   body('displayInNav').isBoolean(),
 
   // options are currently only provided for cuesheet presets
@@ -37,4 +38,7 @@ export const validateUpdatePreset = [
   requestValidationFunction,
 ];
 
-export const validatePresetParam = [param('alias').isString().trim().notEmpty(), requestValidationFunction];
+export const validatePresetParam = [
+  param('alias').isString().trim().notEmpty().toLowerCase(),
+  requestValidationFunction,
+];

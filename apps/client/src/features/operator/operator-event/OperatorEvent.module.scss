@@ -167,6 +167,15 @@
     white-space: pre-line;
   }
 
+  .optionMarker {
+    flex-shrink: 0;
+    align-self: center;
+    width: 0.75em;
+    height: 0.75em;
+    margin-right: 0.35em;
+    border-radius: 99px;
+  }
+
   &.fieldsWithContent {
     margin-top: 0.25rem;
     padding-block: 0.5rem;

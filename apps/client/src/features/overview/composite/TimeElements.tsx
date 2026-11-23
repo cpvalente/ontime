@@ -264,7 +264,7 @@ function GroupTimes() {
 }
 
 function FlagTimes() {
-  const { clock, mode, actualStart, plannedStart, playback, currentDay, phase } = useFlagTimerOverView();
+  const { clock, mode, startShift, playback, currentDay, phase } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useLoadedEntry(id) as OntimeEvent | null;
 
@@ -278,8 +278,7 @@ function FlagTimes() {
     if (mode === OffsetMode.Absolute) {
       return normalizedTimeStart - normalizedClock;
     }
-    if (actualStart === null || plannedStart === null) return null;
-    return normalizedTimeStart + actualStart - plannedStart - normalizedClock;
+    return normalizedTimeStart + startShift - normalizedClock;
   })();
 
   const plannedTimeUntilDisplay = formatDueTime(plannedFlagStart, 3, TimerType.CountDown);

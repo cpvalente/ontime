@@ -1,5 +1,6 @@
 import { deepEqual } from 'fast-equals';
 import {
+  Duration,
   EndAction,
   EntryId,
   Instant,
@@ -835,13 +836,15 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           rundownId: getCurrentRundownId(),
           playback: state.timer.playback,
           selectedEventId: state.eventNow?.id ?? null,
-          startedAt: state.timer.startedAt,
-          addedTime: state.timer.addedTime,
+          startedAt: state._timer.startedAt,
           pausedAt: state._timer.pausedAt,
           pausedDuration: state._timer.pausedDuration,
-          firstStart: state.rundown.actualStart,
+          addedTime: state.timer.addedTime as Duration,
           startEpoch: state._startEpoch,
-          currentDay: state.rundown.currentDay,
+          startDayOffset: state._startDayOffset,
+          startEventStart: state._startEventStart,
+          startEventDay: state._startEventDay,
+          groupStartedAt: state._groupStartedAt,
           offsetMode: state.offset.mode,
         })
         .catch((_e) => {

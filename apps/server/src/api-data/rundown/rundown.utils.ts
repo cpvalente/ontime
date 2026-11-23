@@ -1,5 +1,6 @@
 import {
-  CustomFields,
+  CustomField,
+  CustomFieldKey,
   EntryCustomFields,
   EntryId,
   ImportedFields,
@@ -575,7 +576,7 @@ export function calculateDayOffset(
     return 0;
   }
 
-  // if the previous events duration is zero it will push the current event to next day
+  // a previous event with no duration does not push the current event to the next day
   if (previous.duration === 0) {
     return 0;
   }
@@ -599,9 +600,12 @@ export function calculateDayOffset(
  * - if the value is empty string
  * Mutates the entryCustomFields object
  */
-export function cleanupCustomFields(entryCustomFields: EntryCustomFields, projectCustomFields: CustomFields) {
+export function cleanupCustomFields(
+  entryCustomFields: EntryCustomFields,
+  knownFields: ReadonlyMap<CustomFieldKey, CustomField>,
+) {
   for (const field in entryCustomFields) {
-    if (!Object.hasOwn(projectCustomFields, field)) {
+    if (!knownFields.has(field)) {
       delete entryCustomFields[field];
     } else if (entryCustomFields[field] === '') {
       delete entryCustomFields[field];

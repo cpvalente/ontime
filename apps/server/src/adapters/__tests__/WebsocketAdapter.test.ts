@@ -59,7 +59,11 @@ const websocketMocks = vi.hoisted(() => {
   };
 });
 
-const authenticationMocks = vi.hoisted(() => ({ reject: true }));
+const authenticationMocks = vi.hoisted(() => ({
+  reject: true,
+  scope: 'write' as 'read' | 'write',
+}));
+const dispatchMock = vi.hoisted(() => vi.fn());
 
 vi.mock('ws', () => ({
   WebSocket: websocketMocks.FakeWebSocket,
@@ -67,19 +71,23 @@ vi.mock('ws', () => ({
 }));
 
 vi.mock('../../middleware/authenticate.js', () => ({
-  authenticateSocket: (_socket: unknown, _request: unknown, next: (error?: Error) => void) => {
-    next(authenticationMocks.reject ? new Error('Unauthorized') : undefined);
-  },
+  authenticateSocket: () => (authenticationMocks.reject ? undefined : authenticationMocks.scope),
+}));
+
+vi.mock('../../api-integration/integration.controller.js', () => ({
+  dispatchFromAdapter: dispatchMock,
 }));
 
 import { MessageTag } from 'ontime-types';
 
-import { timeOfDayNow } from '../../lib/time-core/timeCore.js';
+import { now } from '../../lib/time-core/timeCore.js';
 import { socket } from '../WebsocketAdapter.js';
 
 describe('WebsocketAdapter', () => {
   beforeEach(() => {
     authenticationMocks.reject = true;
+    authenticationMocks.scope = 'write';
+    dispatchMock.mockReset();
   });
 
   afterEach(async () => {
@@ -113,7 +121,7 @@ describe('WebsocketAdapter', () => {
     expect(client.close).not.toHaveBeenCalled();
   });
 
-  it('replies to a Ping by echoing its payload with the server time of day', () => {
+  it('replies to a Ping by echoing its payload with the server epoch', () => {
     vi.useFakeTimers({ now: new Date(2026, 0, 1, 12, 30) });
     authenticationMocks.reject = false;
     socket.init({} as Server, null);
@@ -123,7 +131,66 @@ describe('WebsocketAdapter', () => {
     client.emit('message', JSON.stringify({ tag: MessageTag.Ping, payload: 1234.5 }));
 
     expect(client.send).toHaveBeenLastCalledWith(
-      JSON.stringify({ tag: MessageTag.Pong, payload: 1234.5, clock: timeOfDayNow() }),
+      JSON.stringify({ tag: MessageTag.Pong, payload: 1234.5, epoch: now() }),
+    );
+  });
+
+  it.each([
+    ['read', 0],
+    ['write', 1],
+  ] as const)('with %s scope, dispatches %i commands', async (scope, calls) => {
+    authenticationMocks.reject = false;
+    authenticationMocks.scope = scope;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    client.emit('message', JSON.stringify({ tag: 'start', payload: null }));
+    await Promise.resolve();
+
+    expect(dispatchMock).toHaveBeenCalledTimes(calls);
+  });
+
+  it.each([
+    [
+      MessageTag.ClientSet,
+      {
+        type: 'ontime',
+        origin: 'http://ontime',
+        path: '/timer?token=secret&n=1',
+      },
+    ],
+    [MessageTag.ClientSetPath, '/timer?token=secret&n=1'],
+  ] as const)('does not share access tokens in client paths from %s', (tag, payload) => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(client);
+    websocketMocks.getConnectionHandler()?.(client, {});
+
+    client.emit('message', JSON.stringify({ tag, payload }));
+
+    const clientList = JSON.parse(client.send.mock.lastCall?.[0]);
+    expect(clientList.tag).toBe(MessageTag.ClientList);
+    expect(Object.values(clientList.payload)).toContainEqual(expect.objectContaining({ path: '/timer?n=1' }));
+    expect(client.send.mock.lastCall?.[0]).not.toContain('secret');
+  });
+
+  it('does not share access tokens in redirects', () => {
+    authenticationMocks.reject = false;
+    socket.init({} as Server, null);
+    const client = new websocketMocks.FakeWebSocket();
+    websocketMocks.getLatestServer()?.clients.add(client);
+    websocketMocks.getConnectionHandler()?.(client, {});
+    const target = socket.getClientList().at(-1) as string;
+
+    socket.redirectClient(target, '/timer?token=secret');
+
+    expect(client.send).toHaveBeenLastCalledWith(
+      JSON.stringify({
+        tag: MessageTag.ClientRedirect,
+        payload: { target, path: '/timer' },
+      }),
     );
   });
 });

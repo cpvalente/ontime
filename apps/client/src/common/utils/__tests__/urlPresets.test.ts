@@ -5,7 +5,8 @@ import {
   arePathsEquivalent,
   generatePathFromPreset,
   generateUrlPresetOptions,
-  getCurrentPath,
+  parseUrlPresetPath,
+  parseUrlPresetAlias,
   getRouteFromPreset,
   validateUrlPresetPath,
 } from '../urlPresets';
@@ -56,6 +57,16 @@ describe('getRouteFromPreset()', () => {
     const location = resolvePath('demopage');
     expect(getRouteFromPreset(location, presets)).toStrictEqual('timer?user=guest&alias=demopage');
   });
+
+  it.each(['/DEMOpage', '/client-hash/DEMOpage'])(
+    'resolves mixed-case aliases at %s without changing feature params',
+    (pathname) => {
+      const location = resolvePath(`${pathname}?n=1&token=CaseSensitiveToken`);
+      expect(getRouteFromPreset(location, presets)).toBe(
+        'timer?user=guest&alias=demopage&n=1&token=CaseSensitiveToken',
+      );
+    },
+  );
 
   it('checks if the current location matches an enabled preset target', () => {
     const location = resolvePath('/timer');
@@ -263,6 +274,18 @@ describe('generateUrlPresetOptions', () => {
         displayInNav: false,
       },
     ],
+    [
+      'URL with an access token',
+      'test',
+      'https://cloud.getontime.no/timer?token=secret&param1=value1',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1',
+        enabled: true,
+        displayInNav: false,
+      },
+    ],
   ])('should generate URL preset options for %s', (_description, alias, url, expected) => {
     expect(generateUrlPresetOptions(alias, url)).toStrictEqual(expected);
   });
@@ -276,7 +299,7 @@ describe('generateUrlPresetOptions', () => {
   });
 });
 
-describe('getCurrentPath()', () => {
+describe('parseUrlPresetPath()', () => {
   test.each([
     [resolvePath('http://localhost:4001/timer'), 'timer'],
     [resolvePath('http://192.168.0.1:654321/minimal'), 'minimal'],
@@ -285,6 +308,20 @@ describe('getCurrentPath()', () => {
     [resolvePath('https://cloud.getontime.no/team-hash/backstage/?params-with-slash=true'), 'backstage'],
     [resolvePath('https://cloud.getontime.no/team-hash/timeline?params-are-ignored=true'), 'timeline'],
   ])('resolves the current: %s', (location, expected) => {
-    expect(getCurrentPath(location as Path)).toEqual(expected);
+    expect(parseUrlPresetPath((location as Path).pathname).path).toEqual(expected);
   });
 });
+
+it.each(['/preset/STAGE', '/PRESET/STAGE', '/preset/%53TAGE'])(
+  'parses canonical aliases at %s while preserving other URL values',
+  (pathname) => {
+    const location = resolvePath(`${pathname}?alias=STAGE&token=SecretToken&title=MainStage`);
+    const parsed = parseUrlPresetPath(location.pathname);
+
+    expect(parsed.path).toBe('stage');
+    expect(parsed.isPresetPath).toBe(true);
+    expect(parseUrlPresetAlias(new URLSearchParams(location.search).get('alias'))).toBe('stage');
+    expect(location.pathname).toBe(pathname);
+    expect(location.search).toBe('?alias=STAGE&token=SecretToken&title=MainStage');
+  },
+);

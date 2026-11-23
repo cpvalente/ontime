@@ -1,4 +1,12 @@
-import { AutomationSettings, CustomField, DatabaseModel, Settings, TimerLifeCycle, URLPreset } from 'ontime-types';
+import {
+  AutomationSettings,
+  CustomField,
+  DatabaseModel,
+  OntimeView,
+  Settings,
+  TimerLifeCycle,
+  URLPreset,
+} from 'ontime-types';
 
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { makeNewProject } from '../../../models/dataModel.js';
@@ -103,52 +111,67 @@ describe('safeMerge', () => {
     expect(mergedData.urlPresets).toStrictEqual([...baseDb.urlPresets, ...newData.urlPresets]);
   });
 
-  it('merges customFields into existing object', () => {
-    const existing = {
-      ...baseDb,
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' },
-        sound: { type: 'text', colour: 'red', label: 'sound' },
-      },
+  it('normalises imported preset aliases and preserves existing presets when names collide', () => {
+    const preset: URLPreset = {
+      alias: 'stage',
+      target: OntimeView.Timer,
+      enabled: true,
+      displayInNav: false,
+      search: 'title=MainStage',
     };
+    const existing = { ...baseDb, urlPresets: [preset] };
+    const imported = { ...preset, alias: 'STAGE', search: 'title=OtherStage' };
 
-    const newData = {
-      customFields: {
-        switcher: { type: 'text', label: 'switcher' },
-        vfx: { type: 'text', label: 'vfx' },
-      },
-    };
+    const merged = safeMerge(existing, { urlPresets: [imported] });
 
-    const expected = {
-      lighting: { type: 'text', colour: 'red', label: 'lighting' },
-      sound: { type: 'text', colour: 'red', label: 'sound' },
-      switcher: { type: 'text', label: 'switcher' },
-      vfx: { type: 'text', label: 'vfx' },
-    };
-
-    //@ts-expect-error -- testing partial merge
-    const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual(expected);
+    expect(merged.urlPresets).toEqual([preset, { ...imported, alias: 'stage-2' }]);
+    expect(existing.urlPresets).toEqual([preset]);
+    expect(imported.alias).toBe('STAGE');
   });
 
-  it('overwrites matching customFields keys when merging', () => {
+  it('merges customFields into existing list, appending new fields', () => {
     const existing = {
       ...baseDb,
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'lighting' } satisfies CustomField,
-      },
+      customFields: [
+        { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+        { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      ] satisfies CustomField[],
     };
 
     const newData = {
-      customFields: {
-        lighting: { type: 'text', colour: 'red', label: 'updated lighting' } satisfies CustomField,
-      },
+      customFields: [
+        { key: 'switcher', type: 'text', colour: '', label: 'switcher' },
+        { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+      ] satisfies CustomField[],
     };
 
     const result = safeMerge(existing, newData);
-    expect(result.customFields).toEqual({
-      lighting: { type: 'text', colour: 'red', label: 'updated lighting' },
-    });
+    expect(result.customFields).toEqual([...existing.customFields, ...newData.customFields]);
+  });
+
+  it('overwrites fields with matching keys in their position', () => {
+    const existing = {
+      ...baseDb,
+      customFields: [
+        { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+        { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      ] satisfies CustomField[],
+    };
+
+    const newData = {
+      customFields: [
+        { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+        { key: 'lighting', type: 'text', colour: 'blue', label: 'lighting' },
+      ] satisfies CustomField[],
+    };
+
+    const result = safeMerge(existing, newData);
+    expect(result.customFields).toEqual([
+      { key: 'lighting', type: 'text', colour: 'blue', label: 'lighting' },
+      { key: 'sound', type: 'text', colour: 'red', label: 'sound' },
+      { key: 'vfx', type: 'text', colour: '', label: 'vfx' },
+    ]);
+    expect(existing.customFields[0].colour).toBe('red');
   });
 
   it('replaces automation settings when provided', () => {

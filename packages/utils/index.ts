@@ -60,7 +60,18 @@ export { checkRegex, regex } from './src/regex-utils/checkRegex.js';
 export { isColourHex } from './src/regex-utils/isColourHex.js';
 export { splitWhitespace } from './src/regex-utils/splitWhitespace.js';
 
-export { customFieldLabelToKey, customKeyFromLabel } from './src/customField-utils/customFieldUtils.js';
+export {
+  customFieldLabelToKey,
+  customFieldTypes,
+  findCustomField,
+  findCustomFieldOption,
+  getCustomFieldsByKey,
+  maxCustomFieldOptionLength,
+  sanitiseCustomFieldOptions,
+  sortCustomFields,
+  validateCustomFieldLabel,
+  validateCustomFieldOptions,
+} from './src/customField-utils/customFieldUtils.js';
 
 // helpers from externals
 export { deepmerge } from './src/externals/deepmerge.js';
@@ -80,7 +91,7 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-export { getExpectedStart, getExpectedEnd } from './src/date-utils/getExpected.js';
+export { getDelayedEnd, getDelayedStart, getExpectedStart, getExpectedEnd } from './src/date-utils/getExpected.js';
 export { getLinksToLoaded, type LinkToLoaded } from './src/date-utils/getLinksToLoaded.js';
 
 // feature business logic - rundown

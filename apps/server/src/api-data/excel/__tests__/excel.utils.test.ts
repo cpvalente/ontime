@@ -31,24 +31,12 @@ describe('getCustomFieldData()', () => {
       id: 'id',
     };
 
-    const result = getCustomFieldData(importMap, {});
-    expect(result.mergedCustomFields).toStrictEqual({
-      lighting: {
-        type: 'text',
-        colour: '',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: '',
-        label: 'sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
-    });
+    const result = getCustomFieldData(importMap, []);
+    expect(result.mergedCustomFields).toStrictEqual([
+      { key: 'lighting', type: 'text', colour: '', label: 'lighting' },
+      { key: 'sound', type: 'text', colour: '', label: 'sound' },
+      { key: 'video', type: 'text', colour: '', label: 'video' },
+    ]);
 
     // it is an inverted record of <importKey, ontimeKey>
     expect(result.customFieldImportKeys).toStrictEqual({
@@ -85,35 +73,19 @@ describe('getCustomFieldData()', () => {
       id: 'id',
     };
 
-    const existingCustomFields: CustomFields = {
-      lighting: { label: 'lighting', type: 'text', colour: 'red' },
-      sound: { label: 'sound', type: 'text', colour: 'green' },
-      ontime_key: { label: 'ontime key', type: 'text', colour: 'blue' },
-    };
+    const existingCustomFields: CustomFields = [
+      { key: 'lighting', label: 'lighting', type: 'text', colour: 'red' },
+      { key: 'sound', label: 'sound', type: 'text', colour: 'green' },
+      { key: 'ontime_key', label: 'ontime key', type: 'text', colour: 'blue' },
+    ];
 
     const result = getCustomFieldData(importMap, existingCustomFields);
-    expect(result.mergedCustomFields).toStrictEqual({
-      lighting: {
-        type: 'text',
-        colour: 'red',
-        label: 'lighting',
-      },
-      sound: {
-        type: 'text',
-        colour: 'green',
-        label: 'sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
-      ontime_key: {
-        type: 'text',
-        colour: 'blue',
-        label: 'ontime key',
-      },
-    });
+    expect(result.mergedCustomFields).toStrictEqual([
+      { key: 'lighting', type: 'text', colour: 'red', label: 'lighting' },
+      { key: 'sound', type: 'text', colour: 'green', label: 'sound' },
+      { key: 'video', type: 'text', colour: '', label: 'video' },
+      { key: 'ontime_key', type: 'text', colour: 'blue', label: 'ontime key' },
+    ]);
 
     // it is an inverted record of <importKey, ontimeKey>
     expect(result.customFieldImportKeys).toStrictEqual({
@@ -134,24 +106,12 @@ describe('getCustomFieldData()', () => {
       },
     };
 
-    const result = getCustomFieldData(importMap, {});
-    expect(result.mergedCustomFields).toStrictEqual({
-      Lighting: {
-        type: 'text',
-        colour: '',
-        label: 'Lighting',
-      },
-      Sound: {
-        type: 'text',
-        colour: '',
-        label: 'Sound',
-      },
-      video: {
-        type: 'text',
-        colour: '',
-        label: 'video',
-      },
-    });
+    const result = getCustomFieldData(importMap, []);
+    expect(result.mergedCustomFields).toStrictEqual([
+      { key: 'Lighting', type: 'text', colour: '', label: 'Lighting' },
+      { key: 'Sound', type: 'text', colour: '', label: 'Sound' },
+      { key: 'video', type: 'text', colour: '', label: 'video' },
+    ]);
 
     // notice that the keys excel keys are lowercased
     expect(result.customFieldImportKeys).toStrictEqual({
@@ -165,9 +125,18 @@ describe('getCustomFieldData()', () => {
 describe('rundownToTabular()', () => {
   it('returns an array of arrays describing a rundown', () => {
     const testRundown = demoDb.rundowns['default'];
-    const testCustomFields = demoDb.customFields;
-
-    const result = rundownToTabular(testRundown, testCustomFields);
+    const result = rundownToTabular(testRundown, demoDb.customFields);
     expect(result).toMatchSnapshot();
+  });
+
+  it('writes the custom field columns in the project order, numeric keys included', () => {
+    const testRundown = demoDb.rundowns['default'];
+    const customFields: CustomFields = [
+      { key: 'Notes', label: 'Notes', type: 'text', colour: '' },
+      { key: '2', label: '2', type: 'text', colour: '' },
+    ];
+
+    const [header] = rundownToTabular(testRundown, customFields);
+    expect(header.slice(-2)).toEqual(['Notes', '2']);
   });
 });

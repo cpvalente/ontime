@@ -42,7 +42,7 @@ $skip-opacity: 0.2;
   }
 
   &.roll {
-    background-color: $blue-700;
+    background-color: rgba($ontime-roll, 0.6);
     @include declare-overrides;
   }
 
@@ -62,7 +62,7 @@ $skip-opacity: 0.2;
   }
 
   &.copyTarget {
-    outline: 2px dashed $block-cursor-color;
+    outline: 2px dashed $blue-500;
     outline-offset: -2px;
   }
 

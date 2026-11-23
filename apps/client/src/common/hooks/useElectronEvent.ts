@@ -22,21 +22,19 @@ export function useElectronListener() {
 
   // listen to requests to change the editor location
   useEffect(() => {
+    const onLocation = (_event: unknown, location: string) => navigate(location, { relative: 'route' });
+    const onDialog = (_event: unknown, dialog: string) => {
+      if (dialog === 'welcome') addDialog('welcome');
+    };
     if (isElectron) {
-      ipcRenderer.on('request-editor-location', (_event: unknown, location: string) => {
-        navigate(location, { relative: 'route' });
-      });
-
-      ipcRenderer.on('dialog', (_event: unknown, dialog: string) => {
-        if (dialog === 'welcome') {
-          addDialog('welcome');
-        }
-      });
+      ipcRenderer.on('request-editor-location', onLocation);
+      ipcRenderer.on('dialog', onDialog);
     }
 
     // Clean the listener after the component is dismounted
     return () => {
-      ipcRenderer?.removeAllListeners();
+      ipcRenderer?.removeListener('request-editor-location', onLocation);
+      ipcRenderer?.removeListener('dialog', onDialog);
     };
   }, [isElectron, navigate]);
 }

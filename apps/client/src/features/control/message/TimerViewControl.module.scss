@@ -1,11 +1,15 @@
 .previewContainer {
-  display: grid;
-  gap: $element-spacing;
-  grid-template-columns: 3fr 2fr;
-}
-
-.options {
+  // room for a full width picture and the toggles; shrinks only down to the picture's minimum
+  flex: 0 1 auto;
+  flex: 0 1 calc(100cqw * 9 / 16 + #{$element-spacing} + 2rem);
   display: flex;
   flex-direction: column;
+  gap: $element-spacing;
+}
+
+.toggles {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: $element-spacing;
 }

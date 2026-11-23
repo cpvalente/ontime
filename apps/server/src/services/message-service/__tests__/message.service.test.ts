@@ -21,7 +21,7 @@ describe('MessageService', () => {
     });
 
     expect(newState).toMatchObject({
-      timer: { text: 'new text', visible: true, blackout: false, blink: false, secondarySource: null },
+      timer: { text: 'new text', visible: true, blackout: false, blink: false, secondarySource: null, swap: false },
       secondary: 'secondary',
     });
   });
@@ -32,7 +32,7 @@ describe('MessageService', () => {
     });
 
     expect(newState).toMatchObject({
-      timer: { text: 'initial text', visible: true, blackout: false, blink: false, secondarySource: null },
+      timer: { text: 'initial text', visible: true, blackout: false, blink: false, secondarySource: null, swap: false },
       secondary: '',
     });
   });

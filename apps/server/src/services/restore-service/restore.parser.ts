@@ -26,6 +26,8 @@ export function parseRestorePoint(value: unknown): RestorePoint | null {
   return { runtime, auxTimers, savedAt: value.savedAt as Instant };
 }
 
+const isMaybeNumber = (value: unknown): value is number | null => value === null || is.number(value);
+
 function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
   if (
     !is.object(point) ||
@@ -35,11 +37,14 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
       'playback',
       'selectedEventId',
       'startedAt',
-      'addedTime',
       'pausedAt',
-      'firstStart',
+      'pausedDuration',
+      'addedTime',
       'startEpoch',
-      'currentDay',
+      'startDayOffset',
+      'startEventStart',
+      'startEventDay',
+      'groupStartedAt',
       'offsetMode',
     ])
   ) {
@@ -58,39 +63,21 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
-  if (!is.number(point.startedAt) && point.startedAt !== null) {
-    return false;
-  }
-
-  if (!is.number(point.addedTime)) {
-    return false;
-  }
-
-  if (!is.number(point.pausedAt) && point.pausedAt !== null) {
-    return false;
-  }
-
-  if ('pausedDuration' in point && !is.number(point.pausedDuration)) {
-    return false;
-  }
-
-  if (!is.number(point.firstStart) && point.firstStart !== null) {
-    return false;
-  }
-
-  if (!is.number(point.startEpoch) && point.startEpoch !== null) {
-    return false;
-  }
-
-  if (!is.number(point.currentDay) && point.currentDay !== null) {
-    return false;
-  }
-
   if (!Object.values(OffsetMode).includes(point.offsetMode as OffsetMode)) {
     return false;
   }
 
-  return true;
+  if (!is.number(point.pausedDuration) || !is.number(point.addedTime)) {
+    return false;
+  }
+
+  if (![point.startedAt, point.pausedAt, point.groupStartedAt].every(isMaybeNumber)) {
+    return false;
+  }
+
+  // the start anchor is saved whole or not at all
+  const anchor = [point.startEpoch, point.startDayOffset, point.startEventStart, point.startEventDay];
+  return anchor.every(is.number) || anchor.every((value) => value === null);
 }
 
 function isAuxTimers(timers: unknown): timers is AuxTimers {

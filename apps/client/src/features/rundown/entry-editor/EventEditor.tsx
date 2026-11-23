@@ -68,7 +68,7 @@ export default function EventEditor({ event }: EventEditorProps) {
           Custom Fields
           {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
-        <EntryEditorCustomFields fields={customFields} handleSubmit={handleSubmit} entry={event} />
+        <EntryEditorCustomFields customFields={customFields} handleSubmit={handleSubmit} entry={event} />
       </div>
       <div className={style.column}>
         <Editor.Title>

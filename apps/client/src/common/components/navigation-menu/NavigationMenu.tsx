@@ -3,7 +3,7 @@ import { useDisclosure, useFullscreenDocument } from '@mantine/hooks';
 import { memo, PropsWithChildren, useRef } from 'react';
 import { IoArrowBack, IoClose, IoExpand, IoLockClosedOutline, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
-import { useLocation } from 'react-router';
+import { useLocation, useMatch } from 'react-router';
 
 import { dashboardUrl, isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
@@ -12,6 +12,7 @@ import useUrlPresets from '../../hooks-query/useUrlPresets';
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen';
 import { useClientStore } from '../../stores/clientStore';
 import { useViewOptionsStore } from '../../stores/viewOptions';
+import { parseUrlPresetAlias } from '../../utils/urlPresets';
 import IconButton from '../buttons/IconButton';
 import { RenameClientModal } from '../client-modal/RenameClientModal';
 import Eyebrow from '../eyebrow/Eyebrow';
@@ -157,7 +158,7 @@ function MenuGroup({ label, children }: PropsWithChildren<{ label: string }>) {
 }
 
 function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; onClose: () => void }) {
-  const location = useLocation();
+  const alias = parseUrlPresetAlias(useMatch('/preset/:alias')?.params.alias);
   const { data: urlPresets } = useUrlPresets();
   const navPresets = urlPresets.filter((preset) => preset.enabled && preset.displayInNav);
 
@@ -169,7 +170,7 @@ function PresetNavigation({ isSmallScreen, onClose }: { isSmallScreen: boolean; 
         <ClientLink
           key={preset.alias}
           to={`preset/${preset.alias}`}
-          current={location.pathname === `/preset/${preset.alias}`}
+          current={alias === preset.alias}
           postAction={isSmallScreen ? onClose : undefined}
         >
           {preset.alias}

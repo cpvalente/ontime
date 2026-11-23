@@ -1,5 +1,5 @@
 import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import type { Instant } from 'ontime-types';
+import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
 
 import { parseRestorePoint } from '../restore.parser.js';
 import type { RestorePoint, RuntimeRestore } from '../restore.types.js';
@@ -8,12 +8,15 @@ const runtime: RuntimeRestore = {
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
-  startedAt: 1,
-  addedTime: 0,
+  startedAt: 1 as Instant,
   pausedAt: null,
-  firstStart: 1,
+  pausedDuration: 0 as Duration,
+  addedTime: 0 as Duration,
   startEpoch: 1 as Instant,
-  currentDay: 0,
+  startDayOffset: 0 as Day,
+  startEventStart: 0 as TimeOfDay,
+  startEventDay: 0 as Day,
+  groupStartedAt: null,
   offsetMode: OffsetMode.Relative,
 };
 
@@ -42,15 +45,16 @@ describe('parseRestorePoint()', () => {
     expect(parseRestorePoint({ savedAt: 1 })).toMatchObject({ savedAt: 1 });
   });
 
-  it('accepts nullable stopped fields and a paused duration', () => {
+  it('accepts nullable stopped fields, a paused duration and a start anchor', () => {
     const stoppedRuntime = {
       ...savedRuntime,
       playback: Playback.Stop,
       selectedEventId: null,
       startedAt: null,
-      firstStart: null,
       startEpoch: null,
-      currentDay: null,
+      startDayOffset: null,
+      startEventStart: null,
+      startEventDay: null,
       pausedDuration: 3000,
     };
     expect(parseRestorePoint({ ...restorePoint, runtime: stoppedRuntime })).not.toBeNull();
@@ -69,6 +73,12 @@ describe('parseRestorePoint()', () => {
     ['an unknown offset mode', { runtime: { ...savedRuntime, offsetMode: 'unknown' } }],
     ['an invalid timer value', { runtime: { ...savedRuntime, startedAt: 'invalid' } }],
     ['a malformed paused duration', { runtime: { ...savedRuntime, pausedDuration: '3000' } }],
+    ['a malformed start event', { runtime: { ...savedRuntime, startEventStart: '1' } }],
+    ['a malformed start event day', { runtime: { ...savedRuntime, startEventDay: '1' } }],
+    ['a malformed start day', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
+    ['a malformed group start', { runtime: { ...savedRuntime, groupStartedAt: '1' } }],
+    ['a point without the timer base', { runtime: { ...savedRuntime, startDayOffset: undefined } }],
+    ['a partial start anchor', { runtime: { ...savedRuntime, startDayOffset: null } }],
     ['two aux timers', { auxTimers: [running, stopped] }],
     ['a running aux timer without a start', { auxTimers: [running, stopped, { ...running, startedAt: null }] }],
     ['a paused aux timer still counting', { auxTimers: [running, stopped, { ...running, playback: 'pause' }] }],

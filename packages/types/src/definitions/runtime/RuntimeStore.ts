@@ -30,6 +30,7 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
       blink: false,
       blackout: false,
       secondarySource: null,
+      swap: false,
     },
     secondary: '',
   },

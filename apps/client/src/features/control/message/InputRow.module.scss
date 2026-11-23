@@ -1,15 +1,76 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: $element-inner-spacing;
+}
+
 .inputItems {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: $element-spacing;
-  margin-top: $element-inner-spacing;
+}
+
+.field {
+  display: flex;
+  min-width: 0;
+  border-radius: $component-border-radius-md;
+
+  // joins the secondary source and its text
+  > :first-child:not(:last-child) {
+    flex-shrink: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: 1px solid $ui-black;
+  }
+
+  > :last-child:not(:first-child) {
+    min-width: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+// changed here, not on screen yet
+.pending {
+  outline: 1px dashed $blue-500;
+  outline-offset: 2px;
+}
+
+.labelRow {
+  display: flex;
+  gap: $element-spacing;
+  min-width: 0;
+  font-size: $inner-section-text-size;
+  white-space: nowrap;
 }
 
 .label {
-  font-size: $inner-section-text-size;
+  flex-shrink: 0;
   color: $label-gray;
 
   &.active {
     color: $action-text-color;
+  }
+}
+
+.pendingHint {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: $blue-500;
+}
+
+// touch screens have no Enter or Esc to point to
+.touchHint {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .keyHint {
+    display: none;
+  }
+
+  .touchHint {
+    display: inline;
   }
 }

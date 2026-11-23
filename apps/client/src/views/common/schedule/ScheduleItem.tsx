@@ -1,4 +1,5 @@
 import { OntimeEvent } from 'ontime-types';
+import { getDelayedEnd } from 'ontime-utils';
 
 import { useExpectedScheduleData } from '../../../common/hooks/useSocket';
 import { getOffsetState } from '../../../common/utils/offset';
@@ -22,6 +23,7 @@ type ScheduleItemProps = Pick<
   | 'delay'
   | 'totalGap'
   | 'isLinkedToLoaded'
+  | 'isLoaded'
   | 'countToEnd'
   | 'duration'
   | 'colour'
@@ -37,6 +39,7 @@ export default function ScheduleItem({
   delay,
   totalGap,
   isLinkedToLoaded,
+  isLoaded,
   countToEnd,
   colour,
   duration,
@@ -57,12 +60,19 @@ export default function ScheduleItem({
             delay={delay}
             totalGap={totalGap}
             isLinkedToLoaded={isLinkedToLoaded}
+            isLoaded={isLoaded}
             countToEnd={countToEnd}
             duration={duration}
             colour={colour}
           />
         ) : delay > 0 ? (
-          <DelayedScheduleItem timeStart={timeStart} delay={delay} colour={colour} timeEnd={timeEnd} />
+          <DelayedScheduleItem
+            timeStart={timeStart}
+            delay={delay}
+            colour={colour}
+            timeEnd={timeEnd}
+            countToEnd={countToEnd}
+          />
         ) : (
           <PlannedScheduleItem timeStart={timeStart} timeEnd={timeEnd} colour={colour} />
         )}
@@ -95,11 +105,12 @@ function DelayedScheduleItem({
   timeEnd,
   colour,
   delay,
-}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay'>) {
+  countToEnd,
+}: Pick<ScheduleItemProps, 'timeStart' | 'timeEnd' | 'colour' | 'delay' | 'countToEnd'>) {
   const start = formatTime(timeStart, formatOptions);
   const end = formatTime(timeEnd, formatOptions);
   const delayedStart = formatTime(timeStart + delay, formatOptions);
-  const delayedEnd = formatTime(timeEnd + delay, formatOptions);
+  const delayedEnd = formatTime(getDelayedEnd({ timeEnd, delay, countToEnd }), formatOptions);
 
   return (
     <>
@@ -124,6 +135,7 @@ function ExpectedScheduleItem({
   delay,
   totalGap,
   isLinkedToLoaded,
+  isLoaded,
   countToEnd,
   colour,
   duration,
@@ -136,6 +148,7 @@ function ExpectedScheduleItem({
       delay,
       totalGap,
       isLinkedToLoaded,
+      isLoaded,
       countToEnd,
       duration,
     },

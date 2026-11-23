@@ -1,6 +1,6 @@
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, createGroup } from 'ontime-utils';
 
-import { formatDelay, getGroupDurationFit } from '../rundownEvent.utils';
+import { formatDelay, formatGap, getGroupDurationFit } from '../rundownEvent.utils';
 
 describe('formatDelay()', () => {
   it('adds a given delay to the start time', () => {
@@ -29,6 +29,16 @@ describe('formatDelay()', () => {
     const delay = 1 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE; // 01:30
     const result = formatDelay(timeStart, delay);
     expect(result).toEqual('New start 02:30');
+  });
+});
+
+describe('formatGap()', () => {
+  it.each([
+    { name: 'no gap', gap: 0, expected: undefined },
+    { name: 'a gap', gap: MILLIS_PER_HOUR, expected: 'Gap 1h' },
+    { name: 'an overlap', gap: -MILLIS_PER_HOUR, expected: 'Overlap 1h' },
+  ])('labels $name', ({ gap, expected }) => {
+    expect(formatGap(gap)).toBe(expected);
   });
 });
 
