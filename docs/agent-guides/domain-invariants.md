@@ -46,6 +46,8 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
 
+The runtime's timer base (when playback, the event and the group started, when it paused, time given) is kept and saved as instants; every value that changes each tick follows from it and the clock. Times of day in the store are derived from it, never the source. Measure time between instants, not between times of day.
+
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
 
 ### Delays

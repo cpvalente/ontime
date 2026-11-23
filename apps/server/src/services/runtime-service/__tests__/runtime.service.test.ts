@@ -1,4 +1,4 @@
-import { EndAction, Instant, OffsetMode, Playback, RefetchKey } from 'ontime-types';
+import { Duration, EndAction, Instant, OffsetMode, Playback, RefetchKey } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -296,12 +296,15 @@ describe('resume()', () => {
     rundownId: 'rundown',
     playback: Playback.Play,
     selectedEventId: 'resume-event',
-    startedAt: 0,
-    addedTime: 0,
+    startedAt: 0 as Instant,
     pausedAt: null,
-    firstStart: 0,
+    pausedDuration: 0 as Duration,
+    addedTime: 0 as Duration,
     startEpoch: null,
-    currentDay: 0,
+    startDayOffset: null,
+    startEventStart: null,
+    startEventDay: null,
+    groupStartedAt: null,
     offsetMode: OffsetMode.Relative,
   };
 

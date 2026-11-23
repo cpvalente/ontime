@@ -1,10 +1,11 @@
-import { OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
+import { type Duration, type Instant, OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 import type { RuntimeState } from '../runtimeState.js';
 
 const baseState: RuntimeState = {
   clock: 0 as TimeOfDay,
+  _now: 0 as Instant,
   eventNow: null,
   eventNext: null,
   eventFlag: null,
@@ -39,8 +40,9 @@ const baseState: RuntimeState = {
   },
   _timer: {
     forceFinish: null,
+    startedAt: null,
     pausedAt: null,
-    pausedDuration: 0,
+    pausedDuration: 0 as Duration,
     secondaryTarget: null,
     hasFinished: false,
   },
@@ -54,6 +56,7 @@ const baseState: RuntimeState = {
   _startEpoch: null,
   _startEventStart: null,
   _startEventDay: null,
+  _groupStartedAt: null,
 };
 
 export function makeRuntimeStateData(patch?: Partial<RuntimeState> | Record<string, unknown>): RuntimeState {
