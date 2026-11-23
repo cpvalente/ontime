@@ -449,6 +449,74 @@ describe('mutation on runtimeState', () => {
       expect(state.timer.elapsed).toBe(10 * MILLIS_PER_MINUTE);
     });
 
+    test('a timer playing across a DST change counts to its planned end', async () => {
+      clearState();
+      // Europe/Copenhagen springs forward at 02:00 on 2026-03-29
+      const event = {
+        ...mockEvent,
+        id: 'dst-play',
+        timeStart: MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        timeEnd: 3 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        duration: 2 * MILLIS_PER_HOUR,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      vi.setSystemTime(new Date(2026, 2, 29, 1, 30));
+      load(event, rundown, metadata);
+      start();
+      vi.setSystemTime(new Date(2026, 2, 29, 3, 30));
+      update();
+
+      const state = getState();
+      expect(state.timer.current).toBe(0);
+      expect(state.timer.expectedFinish).toBe(event.timeEnd);
+      expect(state.offset.absolute).toBe(0);
+    });
+
+    test('resume keeps a paused timer paused, with the time it was paused', async () => {
+      clearState();
+      const event = { ...mockEvent, id: 'paused', timeStart: 0, timeEnd: MILLIS_PER_HOUR, duration: MILLIS_PER_HOUR };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { metadata, rundown } = rundownCache.get();
+
+      // started at 10:00, paused 10:05 to 10:07, paused again since 10:20
+      const startedAt = new Date('jan 1 10:00').getTime() as Instant;
+      vi.setSystemTime('jan 1 10:30');
+      resume(
+        {
+          rundownId: rundown.id,
+          playback: Playback.Pause,
+          selectedEventId: event.id,
+          startedAt,
+          pausedAt: new Date('jan 1 10:20').getTime() as Instant,
+          pausedDuration: (2 * MILLIS_PER_MINUTE) as Duration,
+          addedTime: (2 * MILLIS_PER_MINUTE) as Duration,
+          startEpoch: startedAt,
+          startDayOffset: 0 as Day,
+          startEventStart: 0 as TimeOfDay,
+          startEventDay: 0 as Day,
+          groupStartedAt: null,
+          offsetMode: OffsetMode.Absolute,
+        },
+        event,
+        rundown,
+        metadata,
+      );
+
+      let state = getState();
+      expect(state.timer.playback).toBe(Playback.Pause);
+      expect(state.timer.elapsed).toBe(18 * MILLIS_PER_MINUTE);
+      expect(state.timer.current).toBe(42 * MILLIS_PER_MINUTE);
+
+      start();
+      state = getState();
+      expect(state.timer.addedTime).toBe(12 * MILLIS_PER_MINUTE);
+      expect(state._timer.pausedDuration).toBe(12 * MILLIS_PER_MINUTE);
+      expect(state.timer.current).toBe(42 * MILLIS_PER_MINUTE);
+      expect(state.timer.elapsed).toBe(18 * MILLIS_PER_MINUTE);
+    });
+
     test('resume keeps the group start and the start day it was saved with', async () => {
       clearState();
       const group = makeOntimeGroup({ id: 'group', entries: ['in-group'] });
@@ -664,7 +732,7 @@ describe('mutation on runtimeState', () => {
     expect(newState.offset.expectedRundownEnd).toBeNull();
   });
 
-  test('resume restores currentDay from restore point', async () => {
+  test('resume counts the current day from the saved start day', async () => {
     clearState();
     const mockRundown = makeRundown({
       entries: {
@@ -1165,6 +1233,33 @@ describe('roll mode', () => {
 
       // Verify actualStart is backdated to planned start
       expect(state.rundown.actualStart).toBe(eventStart);
+      // the group started at the planned start, on the day before
+      expect(state._groupStartedAt).toBe(new Date('jan 1 23:50').getTime());
+      expect(state.rundown.actualGroupStart).toBe(eventStart);
+    });
+
+    test('rolling into an event across a DST change keeps its planned times', async () => {
+      // Europe/Copenhagen springs forward at 02:00 on 2026-03-29, the 01:30 to 04:00 event runs 1.5 real hours
+      const event = {
+        ...mockEvent,
+        id: 'dst',
+        timeStart: MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+        timeEnd: 4 * MILLIS_PER_HOUR,
+        duration: 2 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE,
+      };
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { rundown, metadata } = rundownCache.get();
+
+      vi.setSystemTime(new Date(2026, 2, 29, 3, 30));
+      roll(rundown, metadata);
+      update();
+
+      const state = getState();
+      expect(state.timer.startedAt).toBe(event.timeStart);
+      expect(state.rundown.actualStart).toBe(event.timeStart);
+      expect(state.timer.current).toBe(30 * MILLIS_PER_MINUTE);
+      expect(state.timer.expectedFinish).toBe(event.timeEnd);
+      expect(state.offset.absolute).toBe(0);
     });
 
     test('rundown loops back after finishing and resets currentDay when first event starts again', async () => {

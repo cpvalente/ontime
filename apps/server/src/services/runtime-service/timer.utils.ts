@@ -115,7 +115,7 @@ export type CurrentInput = {
   event: { countToEnd: boolean; timeStart: TimeOfDay; dayOffset: Day };
   /** day of the rundown we are in, null before the rundown starts */
   currentDay: Maybe<Day>;
-  /** time from the start to the ongoing pause, or to now when running; null before the start */
+  /** wall clock time from the start to the ongoing pause, or to now when running; null before the start */
   sinceStart: Maybe<Duration>;
   duration: Duration;
   addedTime: Duration;
@@ -147,7 +147,7 @@ export function getCurrent(input: CurrentInput): Duration {
 }
 
 export type ElapsedInput = {
-  /** time from the start to the ongoing pause, or to now when running; null before the start */
+  /** wall clock time from the start to the ongoing pause, or to now when running; null before the start */
   sinceStart: Maybe<Duration>;
   /** time spent in pauses which have been resumed */
   pausedDuration: Duration;

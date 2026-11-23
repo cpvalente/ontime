@@ -216,7 +216,7 @@ describe('roll timer phases', () => {
   });
 });
 
-// Characterizations of current behaviour: a jump forward finishes the running event before the time skip check runs.
+// Characterizations of current behaviour
 describe('roll after the clock jumps', () => {
   test('a clock moved back is a time skip: roll waits for the event again', async () => {
     prepare([event('now', hour, 2 * hour)], hour + 5 * minute);
@@ -233,6 +233,7 @@ describe('roll after the clock jumps', () => {
     });
   });
 
+  // a jump forward finishes the running event before the time skip check runs
   test('a clock moved past the end counts the skipped time as delay: the running event waits', async () => {
     prepare([event('first', hour, 2 * hour), event('later', 3 * hour, 4 * hour)], hour + 5 * minute);
     runtimeService.roll();

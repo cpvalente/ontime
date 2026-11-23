@@ -96,6 +96,43 @@ describe('lastInstantAt() recovers when a past time of day happened', () => {
     expect(timeCore.lastInstantAt(clock, reference)).toBe(new Date(2026, 0, 1, 23, 50).getTime());
     expect(timeCore.toInstant(clock, reference)).toBeGreaterThan(reference);
   });
+
+  // Europe/Copenhagen springs forward at 02:00 on 2026-03-29 and falls back at 03:00 on 2026-10-25
+  it('keeps the time of day across spring forward', () => {
+    const reference = new Date(2026, 2, 29, 3, 30).getTime() as Instant;
+    const instant = timeCore.lastInstantAt((MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE) as TimeOfDay, reference);
+    expect(instant).toBe(new Date(2026, 2, 29, 1, 30).getTime());
+    expect(timeCore.toTimeOfDay(instant)).toBe(MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+  });
+
+  it('keeps the time of day across fall back', () => {
+    const reference = new Date(2026, 9, 25, 3, 30).getTime() as Instant;
+    const instant = timeCore.lastInstantAt((MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE) as TimeOfDay, reference);
+    expect(instant).toBe(new Date(2026, 9, 25, 1, 30).getTime());
+    expect(timeCore.toTimeOfDay(instant)).toBe(MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE);
+  });
+});
+
+describe('wallTimeSince() measures on the local wall clock', () => {
+  it('is the real time between instants without a DST change', () => {
+    const since = new Date(2026, 0, 1, 23, 50).getTime() as Instant;
+    const now = new Date(2026, 0, 3, 0, 10).getTime() as Instant;
+    expect(timeCore.wallTimeSince(now, since)).toBe(now - since);
+  });
+
+  it('counts the hour skipped by spring forward', () => {
+    const since = new Date(2026, 2, 29, 1, 30).getTime() as Instant;
+    const now = new Date(2026, 2, 29, 3, 30).getTime() as Instant;
+    expect(now - since).toBe(MILLIS_PER_HOUR);
+    expect(timeCore.wallTimeSince(now, since)).toBe(2 * MILLIS_PER_HOUR);
+  });
+
+  it('does not count the hour repeated by fall back', () => {
+    const since = new Date(2026, 9, 25, 1, 30).getTime() as Instant;
+    const now = new Date(2026, 9, 25, 3, 30).getTime() as Instant;
+    expect(now - since).toBe(3 * MILLIS_PER_HOUR);
+    expect(timeCore.wallTimeSince(now, since)).toBe(2 * MILLIS_PER_HOUR);
+  });
 });
 
 describe('toInstant() converts a time of day back to an instant anchored to a reference day', () => {
