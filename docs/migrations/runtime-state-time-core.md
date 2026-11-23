@@ -19,7 +19,8 @@ Completed foundation:
 
 - temporal brands in `ontime-types`;
 - `timeCore` helpers for now, conversion, duration arithmetic, midnight crossing, calendar-day distance;
-- partial `runtimeState` adoption of `Instant`, `TimeOfDay`, `Day`, and `timeCore`.
+- partial `runtimeState` adoption of `Instant`, `TimeOfDay`, `Day`, and `timeCore`;
+- the timer base (T15): `runtimeState` keeps the timer's starts and pauses as instants and the restore point saves them, see below.
 
 Remaining ambiguity:
 
@@ -30,9 +31,9 @@ Remaining ambiguity:
 
 Before the pure timer calculations can move to `ontime-utils` for client use:
 
-- `timeCore.elapsedTime` is environment-independent but lives in the server; it moves with them;
+- they take durations measured between instants by `runtimeState` (`sinceStart`, `pausedTime`), clients would measure them the same way;
 - `getRuntimeOffset` asserts its inputs in `DEV` blocks, which only the server build strips;
-- clients do not receive `pausedAt`, `pausedDuration`, `_startDayOffset`, `hasFinished`, `triggerAhead` or the expected-time lookahead.
+- clients do not receive the timer base instants, `pausedDuration`, `_startDayOffset`, `hasFinished`, `triggerAhead` or the expected-time lookahead.
 
 Candidate brand, to decide during the inventory slice:
 
@@ -59,50 +60,19 @@ Candidate brand, to decide during the inventory slice:
 
 Each slice must leave old/new boundaries explicit, compile cleanly, and preserve behaviour.
 
-### Later: timer base block (T15)
+### Timer base (T15)
 
-The server keeps sending derived timer values: automations, end actions, roll, `/api/poll`, MCP and Companion read them, and automation templates accept any store path. So the derived values stay, but each one should follow from the clock plus a small base state. The rundown is needed only once per load or edit.
+The server keeps sending derived timer values: automations, end actions, roll, `/api/poll`, MCP and Companion read them, and automation templates accept any store path. So the derived values stay, but each one follows from the clock plus a small base state. The rundown is needed only once per load or edit.
 
-Target shape, saved as is in the restore point instead of being rebuilt on resume:
+Done:
 
-```ts
-type TimerBase = {
-  playback: Playback;
-  selectedEventId: MaybeString;
-  startedAt: Maybe<Instant>;
-  pausedAt: Maybe<Instant>;
-  pausedDuration: Duration;
-  addedTime: Duration;
-  startEpoch: Maybe<Instant>; // replaces firstStart
-  startDayOffset: Maybe<Day>; // saved, not rebuilt
-  startEventStart: Maybe<TimeOfDay>; // already saved (#2334)
-  startEventDay: Maybe<Day>; // already saved (#2334)
-  groupStartedAt: Maybe<Instant>; // not saved today
-};
-```
+- `runtimeState` keeps `_now` beside `clock`, and the base as instants: `_timer.startedAt`, `_timer.pausedAt`, `_startEpoch`, `_groupStartedAt`. The store's `timer.startedAt`, `rundown.actualStart` and `rundown.actualGroupStart` are their times of day, set only through the paired setters.
+- Timer calculations take durations measured between instants (`sinceStart`, `pausedTime`) instead of guessing midnight crossings from times of day. A pause longer than a day keeps all its time.
+- The restore point saves the base: instants, `startDayOffset` and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. The parser reads an older point's times of day as the latest instants before it was saved (`timeCore.lastInstantAt`); its start day is rebuilt from the start event, as before.
 
-Gaps it closes, in today's code:
+Still derived from times of day:
 
-- `startedAt`, `pausedAt` and `firstStart` (`rundown.actualStart`) are `TimeOfDay`, so elapsed and pause time rely on `elapsedTime` guessing at midnight crossings. Instants remove the guess.
-- `load()` rebuilds `_startDayOffset` from `findDayOffset(startEventStart, firstStart)` on resume, instead of reading it back.
-- `rundown.actualGroupStart` is not in `RuntimeRestore`, so a resume loses the group start.
+- roll starts an event on its planned time of day, read as the latest instant at or before the clock;
+- `getRuntimeOffset` and `getExpectedFinish` take the event's start as a time of day, with the start day.
 
-Do not use `timeCore.toInstant` to turn a saved past time of day into an instant. It anchors to the reference's calendar day, so 23:50 saved at 00:10 lands in the future. Store instants, or derive them from `startEpoch`.
-
-## Required coverage
-
-- before, at, and after midnight;
-- overnight and multi-day rundowns;
-- local-day calculation across timezone/DST offset changes;
-- pause/resume, added time, elapsed/remaining duration;
-- roll secondary targets and expected finish;
-- absolute/relative offsets and day offsets.
-
-## Complete when
-
-- Runtime/timer boundaries use semantic temporal types or documented numeric transport fields.
-- Temporal conversions/arithmetic use `timeCore` or named pure helpers.
-- No unexplained temporal casts or ambiguous numeric fields remain in migrated scope.
-- Focused tests cover the required boundaries.
-
-After completion, remove this migration tracker. Keep durable rules in `docs/agent-guides/domain-invariants.md`.
+Do not use `timeCore.toInstant` to turn a saved past time of day into an instant. It anchors to the reference's calendar day, so 23:50 saved at 00:10 lands in the future. Store instants, or use `timeCore.lastInstantAt`.

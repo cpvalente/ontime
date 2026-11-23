@@ -1,23 +1,28 @@
-import { Instant, Maybe, MaybeNumber, MaybeString, OffsetMode, Playback } from 'ontime-types';
+import { Day, Duration, Instant, Maybe, MaybeString, OffsetMode, Playback, TimeOfDay } from 'ontime-types';
 
 import type { AuxTimers } from '../aux-timer-service/auxTimer.utils.js';
 
-/** what the runtime saves to resume playback */
+/**
+ * What the runtime saves to resume playback: the timer base
+ * every other timer value follows from it and the clock
+ */
 export type RuntimeRestore = {
   rundownId: string;
   playback: Playback;
   selectedEventId: MaybeString;
-  startedAt: MaybeNumber;
-  addedTime: number;
-  pausedAt: MaybeNumber;
-  pausedDuration?: number;
-  firstStart: MaybeNumber;
+  startedAt: Maybe<Instant>;
+  pausedAt: Maybe<Instant>;
+  /** time spent in pauses which have been resumed */
+  pausedDuration: Duration;
+  addedTime: Duration;
   startEpoch: Maybe<Instant>;
-  /** planned start of the event playback started from, missing in older restore points */
-  startEventStart?: MaybeNumber;
-  /** rundown day of the event playback started from, missing in older restore points */
-  startEventDay?: MaybeNumber;
-  currentDay: MaybeNumber;
+  /** rundown day playback started on, null in older restore points */
+  startDayOffset: Maybe<Day>;
+  /** planned start of the event playback started from, null in older restore points */
+  startEventStart: Maybe<TimeOfDay>;
+  /** rundown day of the event playback started from, null in older restore points */
+  startEventDay: Maybe<Day>;
+  groupStartedAt: Maybe<Instant>;
   offsetMode: OffsetMode;
 };
 

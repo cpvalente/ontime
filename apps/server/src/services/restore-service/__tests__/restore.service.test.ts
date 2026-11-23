@@ -1,5 +1,5 @@
 import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import type { Instant } from 'ontime-types';
+import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import * as logger from '../../../api-data/logs/logs.service.js';
@@ -46,12 +46,15 @@ const runtime: RuntimeRestore = {
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
-  startedAt: 1234,
-  addedTime: 0,
+  startedAt: 1234 as Instant,
   pausedAt: null,
-  firstStart: 1234,
+  pausedDuration: 0 as Duration,
+  addedTime: 0 as Duration,
   startEpoch: 1234 as Instant,
-  currentDay: 0,
+  startDayOffset: 0 as Day,
+  startEventStart: 0 as TimeOfDay,
+  startEventDay: 0 as Day,
+  groupStartedAt: null,
   offsetMode: OffsetMode.Relative,
 };
 

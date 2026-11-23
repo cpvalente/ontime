@@ -1,7 +1,8 @@
-import { Day, Duration, OffsetMode, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
+import { Day, Duration, Maybe, OffsetMode, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, MILLIS_PER_SECOND, dayInMs, millisToString } from 'ontime-utils';
 
 import { makeOntimeEvent } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import * as timeCore from '../../../lib/time-core/timeCore.js';
 import type { RuntimeState } from '../../../stores/runtimeState.js';
 import {
   type CurrentInput,
@@ -28,14 +29,27 @@ const asTimeOfDay = (value: number): RuntimeState['clock'] => value as RuntimeSt
 const tod = (value: number) => value as TimeOfDay;
 const dur = (value: number) => value as Duration;
 
+/**
+ * Scenarios are told on a wall clock, each time within a day of the next
+ * the runtime measures these durations between instants
+ */
+type WallClock = { clock?: TimeOfDay; startedAt?: Maybe<TimeOfDay>; pausedAt?: Maybe<TimeOfDay> };
+function onWallClock<T extends WallClock>(patch: T) {
+  const { clock = tod(0), startedAt = null, pausedAt = null, ...rest } = patch;
+  return {
+    rest,
+    clock,
+    startedAt,
+    sinceStart: startedAt === null ? null : timeCore.elapsedTime(pausedAt ?? clock, startedAt),
+    pausedTime: pausedAt === null ? dur(0) : timeCore.elapsedTime(clock, pausedAt),
+  };
+}
+
 describe('getElapsed()', () => {
-  const makeInput = (patch: Partial<ElapsedInput>): ElapsedInput => ({
-    clock: tod(0),
-    startedAt: null,
-    pausedAt: null,
-    pausedDuration: dur(0),
-    ...patch,
-  });
+  const makeInput = (patch: Partial<ElapsedInput> & WallClock): ElapsedInput => {
+    const { rest, sinceStart } = onWallClock(patch);
+    return { pausedDuration: dur(0), ...rest, sinceStart };
+  };
 
   it('is null if the timer has not started', () => {
     expect(getElapsed(makeInput({ clock: tod(5 * MILLIS_PER_MINUTE) }))).toBeNull();
@@ -84,15 +98,17 @@ describe('getElapsed()', () => {
 });
 
 describe('getExpectedFinish()', () => {
-  const makeInput = (patch: Partial<ExpectedFinishInput>): ExpectedFinishInput => ({
-    clock: tod(0),
-    event: { countToEnd: false, timeEnd: tod(0) },
-    startedAt: null,
-    duration: null,
-    addedTime: dur(0),
-    pausedAt: null,
-    ...patch,
-  });
+  const makeInput = (patch: Partial<ExpectedFinishInput> & WallClock): ExpectedFinishInput => {
+    const { rest, startedAt, pausedTime } = onWallClock(patch);
+    return {
+      event: { countToEnd: false, timeEnd: tod(0) },
+      duration: null,
+      addedTime: dur(0),
+      ...rest,
+      startedAt,
+      pausedTime,
+    };
+  };
 
   it('is null if there is no event loaded', () => {
     expect(getExpectedFinish(makeInput({ event: null, startedAt: tod(10), duration: dur(10) }))).toBeNull();
@@ -188,16 +204,19 @@ describe('getExpectedFinish()', () => {
 });
 
 describe('getCurrent()', () => {
-  const makeInput = (patch: Partial<CurrentInput>): CurrentInput => ({
-    clock: tod(0),
-    event: { countToEnd: false, timeStart: tod(0), dayOffset: 0 as Day },
-    currentDay: 0 as Day,
-    startedAt: null,
-    duration: dur(0),
-    addedTime: dur(0),
-    pausedAt: null,
-    ...patch,
-  });
+  const makeInput = (patch: Partial<CurrentInput> & WallClock): CurrentInput => {
+    const { rest, clock, sinceStart, pausedTime } = onWallClock(patch);
+    return {
+      event: { countToEnd: false, timeStart: tod(0), dayOffset: 0 as Day },
+      currentDay: 0 as Day,
+      duration: dur(0),
+      addedTime: dur(0),
+      ...rest,
+      clock,
+      sinceStart,
+      pausedTime,
+    };
+  };
 
   it('is duration if it hasnt started', () => {
     const current = getCurrent(makeInput({ addedTime: dur(10), duration: dur(111) }));
@@ -369,15 +388,16 @@ describe('getCurrent()', () => {
 });
 
 describe('getExpectedFinish() and getCurrentTime() combined', () => {
-  const makeInput = (clock: number, addedTime: number): CurrentInput & ExpectedFinishInput => ({
-    clock: tod(clock),
-    event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(10), dayOffset: 0 as Day },
-    currentDay: 0 as Day,
-    startedAt: tod(0),
-    duration: dur(10),
-    addedTime: dur(addedTime),
-    pausedAt: null,
-  });
+  const makeInput = (clock: number, addedTime: number): CurrentInput & ExpectedFinishInput => {
+    const { rest: _, ...wall } = onWallClock({ clock: tod(clock), startedAt: tod(0) });
+    return {
+      ...wall,
+      event: { countToEnd: false, timeStart: tod(0), timeEnd: tod(10), dayOffset: 0 as Day },
+      currentDay: 0 as Day,
+      duration: dur(10),
+      addedTime: dur(addedTime),
+    };
+  };
 
   it('without added times, they combine to be duration', () => {
     const duration = 10;
@@ -677,19 +697,21 @@ test('normaliseEndTime()', () => {
   expect(normaliseEndTime(t3.start, t3.end)).toBe(t3_expected);
 });
 
-const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput>): RuntimeOffsetInput => ({
-  clock: tod(0),
-  event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(0) },
-  startedAt: null,
-  current: dur(0),
-  addedTime: dur(0),
-  pausedAt: null,
-  startDayOffset: 0 as Day,
-  startEventStart: tod(100),
-  startEventDay: 0 as Day,
-  actualStart: tod(100),
-  ...patch,
-});
+const makeRuntimeOffsetInput = (patch: Partial<RuntimeOffsetInput> & WallClock): RuntimeOffsetInput => {
+  const { rest, startedAt, pausedTime } = onWallClock(patch);
+  return {
+    event: { countToEnd: false, timeStart: tod(100), dayOffset: 0 as Day, delay: dur(0) },
+    current: dur(0),
+    addedTime: dur(0),
+    startDayOffset: 0 as Day,
+    startEventStart: tod(100),
+    startEventDay: 0 as Day,
+    actualStart: tod(100),
+    ...rest,
+    startedAt,
+    pausedTime,
+  };
+};
 
 describe('getRuntimeOffset()', () => {
   it('is the difference between scheduled and when we actually started', () => {
@@ -840,10 +862,10 @@ describe('getRuntimeOffset()', () => {
       clock,
       event,
       currentDay: 0 as Day,
-      startedAt,
+      sinceStart: dur(0),
       duration: dur(3600000),
       addedTime: dur(0),
-      pausedAt: null,
+      pausedTime: dur(0),
     });
     const { absolute } = getRuntimeOffset(
       makeRuntimeOffsetInput({
