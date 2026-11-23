@@ -59,6 +59,9 @@ export default function AddTime(props: AddTimeProps) {
           </TapButton>
         </Tooltip>
       </div>
+      <TapButton onClick={() => undefined} disabled={!canAddTime} className={style.reset}>
+        Reset offset
+      </TapButton>
     </div>
   );
 }
