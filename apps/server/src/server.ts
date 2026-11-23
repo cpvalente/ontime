@@ -116,7 +116,7 @@ app.get(`${prefix}/ready`, (_req, res) => {
 // Implement route endpoints
 app.use(`${prefix}/login`, loginRouter); // router for login flow
 app.use(`${prefix}/data`, authenticate, scopedAccess(Access.read), compressData, appRouter); // router for application data
-app.use(`${prefix}/api`, authenticate, scopedAccess(Access.write), integrationRouter); // router for integrations
+app.use(`${prefix}/api`, authenticate, scopedAccess(Access.read), integrationRouter); // router for integrations
 app.use(`${prefix}/mcp`, authenticate, scopedAccess(Access.write), async (req, res, next) => {
   const { mcpRouter } = await import('./api-mcp/mcp.router.js');
   mcpRouter(req, res, next);

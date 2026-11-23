@@ -6,7 +6,7 @@
  */
 
 import express, { Router, type Request, type Response } from 'express';
-import { ErrorResponse, LogOrigin } from 'ontime-types';
+import { Access, ErrorResponse, LogOrigin } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 
 import { integrationPayloadFromPath } from '../adapters/utils/parse.js';
@@ -32,6 +32,9 @@ integrationRouter.get('/*splat', async (req: Request, res: Response<ErrorRespons
     return;
   }
 
+  const hasWriteAccess = res.locals.scope === Access.write;
+  const remoteIp = req.ip ?? '- unknown ip -';
+
   try {
     const actionArray = action.split('/');
     const query = isEmptyObject(req.query) ? undefined : (req.query as object);
@@ -43,7 +46,7 @@ integrationRouter.get('/*splat', async (req: Request, res: Response<ErrorRespons
     } else {
       payload = query;
     }
-    const reply = await dispatchFromAdapter(action, payload, 'http');
+    const reply = await dispatchFromAdapter(action, payload, 'http', remoteIp, hasWriteAccess);
     res.status(202).json(reply);
   } catch (error) {
     const errorMessage = getErrorMessage(error);

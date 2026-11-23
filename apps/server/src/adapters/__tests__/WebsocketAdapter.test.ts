@@ -151,9 +151,9 @@ describe('WebsocketAdapter', () => {
   });
 
   it.each([
-    ['read', 0],
-    ['write', 1],
-  ] as const)('with %s scope, dispatches %i commands', async (scope, calls) => {
+    ['read', false],
+    ['write', true],
+  ] as const)('with %s scope, dispatches with write access %s', async (scope, hasWriteAccess) => {
     authenticationMocks.reject = false;
     authenticationMocks.scope = scope;
     socket.init({} as Server, null);
@@ -163,7 +163,7 @@ describe('WebsocketAdapter', () => {
     client.emit('message', JSON.stringify({ tag: 'start', payload: null }));
     await Promise.resolve();
 
-    expect(dispatchMock).toHaveBeenCalledTimes(calls);
+    expect(dispatchMock).toHaveBeenCalledWith('start', null, 'ws', expect.any(String), hasWriteAccess);
   });
 
   it.each([

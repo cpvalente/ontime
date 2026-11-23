@@ -154,16 +154,14 @@ class SocketServer implements IAdapter {
             default: {
               tag satisfies never;
               // Protocol specific stuff handled above
-              // commands change things, so read sockets may not send them
-              if (!this.hasWriteAccess(clientId)) {
-                logger.warning(LogOrigin.Client, 'Command not allowed', {
-                  tag,
-                  client: this.clients.get(clientId)?.name,
-                });
-                break;
-              }
               try {
-                const reply = await dispatchFromAdapter(tag, payload, 'ws', this.clients.get(clientId)?.name);
+                const reply = await dispatchFromAdapter(
+                  tag,
+                  payload,
+                  'ws',
+                  this.clients.get(clientId)?.name ?? '',
+                  this.hasWriteAccess(clientId),
+                );
                 if (reply) {
                   ws.send(
                     JSON.stringify({

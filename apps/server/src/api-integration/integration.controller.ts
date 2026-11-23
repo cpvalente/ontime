@@ -42,21 +42,32 @@ const attributedActions = new Set<ApiActionTag>([
   'offsetmode',
 ]);
 
+const readActions = new Set<ApiActionTag>(['version', 'poll']);
+
 /**
  * @param client - name of the websocket client which sent the action
  */
-export function dispatchFromAdapter(tag: string, payload: unknown, source: 'osc' | 'ws' | 'http', client?: string) {
-  const action = tag.toLowerCase();
-  const handler = actionHandlers[action as ApiActionTag];
+export function dispatchFromAdapter(
+  tag: string,
+  payload: unknown,
+  source: 'osc' | 'ws' | 'http',
+  client: string,
+  hasWriteAccess: boolean,
+) {
+  const action = tag.toLowerCase() as ApiActionTag;
+  const handler = actionHandlers[action];
   lastRequest = new Date();
 
   if (handler) {
-    if (attributedActions.has(action as ApiActionTag)) {
+    if (attributedActions.has(action)) {
       logger.info(LogOrigin.Api, 'Action received', { action, source, client });
+    }
+    if (!hasWriteAccess && !readActions.has(action)) {
+      throw new Error(`Command not allowed with read access level ${action}`);
     }
     return handler(payload);
   } else {
-    throw new Error(`Unhandled message ${tag}`);
+    throw new Error(`Unhandled message ${action}`);
   }
 }
 
