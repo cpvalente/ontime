@@ -1,5 +1,5 @@
-import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
+import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import type { Day, Duration, Instant } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import * as logger from '../../../api-data/logs/logs.service.js';
@@ -52,10 +52,8 @@ const runtime: RuntimeRestore = {
   addedTime: 0 as Duration,
   startEpoch: 1234 as Instant,
   startDayOffset: 0 as Day,
-  startEventStart: 0 as TimeOfDay,
-  startEventDay: 0 as Day,
+  offsetBaseline: null,
   groupStartedAt: null,
-  offsetMode: OffsetMode.Relative,
 };
 
 const savedRuntime = { ...runtime, projectId: 'project' };

@@ -8,7 +8,7 @@ export type { SessionStats } from 'ontime-types';
 
 // stores
 export type { RuntimeStore, TimerState, MessageState, RundownState, Offset } from 'ontime-types';
-export { TimerPhase, Playback, runtimeStorePlaceholder, OffsetMode } from 'ontime-types';
+export { TimerPhase, Playback, runtimeStorePlaceholder } from 'ontime-types';
 
 // aux timer
 export type { SimpleTimerState } from 'ontime-types';

@@ -1,4 +1,4 @@
-import { Offset, OffsetMode, Playback, TimerPhase, TimerState, TimerType } from 'ontime-types';
+import { Offset, Playback, TimerPhase, TimerState, TimerType } from 'ontime-types';
 
 import { makeOntimeEvent, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
 import {
@@ -99,7 +99,6 @@ describe('getShouldOffsetUpdate()', () => {
   const baseOffset: Offset = {
     absolute: 0,
     relative: 0,
-    mode: OffsetMode.Absolute,
     expectedGroupEnd: null,
     expectedRundownEnd: null,
     expectedFlagStart: null,
@@ -107,10 +106,6 @@ describe('getShouldOffsetUpdate()', () => {
 
   it('always updates when there is no previous state', () => {
     expect(getShouldOffsetUpdate(undefined, baseOffset, false)).toBe(true);
-  });
-
-  it('updates on a mode change even when no dependency ticked', () => {
-    expect(getShouldOffsetUpdate(baseOffset, { ...baseOffset, mode: OffsetMode.Relative }, false)).toBe(true);
   });
 
   it('holds back value changes until a dependency ticks', () => {

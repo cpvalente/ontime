@@ -1,12 +1,5 @@
-import {
-  Duration,
-  OffsetMode,
-  RuntimeStore,
-  SimpleDirection,
-  SimplePlayback,
-  TimerMessage,
-  TimerType,
-} from 'ontime-types';
+import { RuntimeStore, SimpleDirection, SimplePlayback, TimerMessage, TimerType } from 'ontime-types';
+import { getScheduleShift } from 'ontime-utils';
 
 import { useRuntimeStore } from '../stores/runtime';
 import { sendSocket } from '../utils/socket';
@@ -199,10 +192,9 @@ export const useProgressData = createSelector((state: RuntimeStore) => ({
 }));
 
 const selectExpectedScheduleData = (state: RuntimeStore) => ({
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
-  mode: state.offset.mode,
+  offset: state.offset.relative,
   currentDay: state.rundown.currentDay ?? 0,
-  startShift: (state.offset.absolute - state.offset.relative) as Duration,
+  scheduleShift: getScheduleShift(state.offset),
 });
 
 /** Expected schedule times change with the offset, independently of clock ticks. */
@@ -223,9 +215,11 @@ export const usePing = createSelector((state: RuntimeStore) => state.ping);
 /** convert ping into a derived value which changes less often */
 export const useIsOnline = createSelector((state: RuntimeStore) => state.ping > 0);
 
-export const useOffsetMode = createSelector((state: RuntimeStore) => state.offset.mode);
+/** measures the offset from now */
+export const resetOffset = () => sendSocket('offset', 'reset');
 
-export const setOffsetMode = (payload: OffsetMode) => sendSocket('offsetmode', payload);
+/** measures the offset from the plan again */
+export const clearOffsetReset = () => sendSocket('offset', 'plan');
 
 export const usePlayback = createSelector((state: RuntimeStore) => state.timer.playback);
 
@@ -245,15 +239,16 @@ export const useProgressOverview = createSelector((state: RuntimeStore) => ({
 }));
 
 export const useOffsetOverview = createSelector((state: RuntimeStore) => ({
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  offset: state.offset.relative,
+  /** the offset counts from a reset, not from the plan */
+  isReset: getScheduleShift(state.offset) !== 0,
   playback: state.timer.playback,
 }));
 
 export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  mode: state.offset.mode,
+  scheduleShift: getScheduleShift(state.offset),
   groupExpectedEnd: state.offset.expectedGroupEnd,
-  actualGroupStart: state.rundown.actualGroupStart,
   currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
   phase: state.timer.phase,
@@ -261,8 +256,7 @@ export const useGroupTimerOverView = createSelector((state: RuntimeStore) => ({
 
 export const useFlagTimerOverView = createSelector((state: RuntimeStore) => ({
   clock: state.clock,
-  mode: state.offset.mode,
-  startShift: (state.offset.absolute - state.offset.relative) as Duration,
+  scheduleShift: getScheduleShift(state.offset),
   currentDay: state.rundown.currentDay ?? 0,
   playback: state.timer.playback,
   phase: state.timer.phase,
@@ -308,7 +302,7 @@ export const useStudioTimersSocket = createSelector((state: RuntimeStore) => ({
   eventNow: state.eventNow,
   message: state.message,
   time: state.timer,
-  offset: state.offset.mode === OffsetMode.Absolute ? state.offset.absolute : state.offset.relative,
+  offset: state.offset.relative,
   rundown: state.rundown,
   expectedRundownEnd: state.offset.expectedRundownEnd,
 }));

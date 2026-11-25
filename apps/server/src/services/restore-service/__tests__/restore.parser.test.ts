@@ -1,5 +1,5 @@
-import { OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
-import type { Day, Duration, Instant, TimeOfDay } from 'ontime-types';
+import { Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import type { Day, Duration, Instant } from 'ontime-types';
 
 import { parseRestorePoint } from '../restore.parser.js';
 import type { RestorePoint, RuntimeRestore } from '../restore.types.js';
@@ -14,10 +14,8 @@ const runtime: RuntimeRestore = {
   addedTime: 0 as Duration,
   startEpoch: 1 as Instant,
   startDayOffset: 0 as Day,
-  startEventStart: 0 as TimeOfDay,
-  startEventDay: 0 as Day,
+  offsetBaseline: 1000 as Duration,
   groupStartedAt: null,
-  offsetMode: OffsetMode.Relative,
 };
 
 const running = {
@@ -53,8 +51,7 @@ describe('parseRestorePoint()', () => {
       startedAt: null,
       startEpoch: null,
       startDayOffset: null,
-      startEventStart: null,
-      startEventDay: null,
+      offsetBaseline: null,
       pausedDuration: 3000,
     };
     expect(parseRestorePoint({ ...restorePoint, runtime: stoppedRuntime })).not.toBeNull();
@@ -70,11 +67,9 @@ describe('parseRestorePoint()', () => {
     ['a runtime without a project id', { runtime }],
     ['an invalid project id', { runtime: { ...savedRuntime, projectId: 1 } }],
     ['an unknown playback', { runtime: { ...savedRuntime, playback: 'unknown' } }],
-    ['an unknown offset mode', { runtime: { ...savedRuntime, offsetMode: 'unknown' } }],
     ['an invalid timer value', { runtime: { ...savedRuntime, startedAt: 'invalid' } }],
     ['a malformed paused duration', { runtime: { ...savedRuntime, pausedDuration: '3000' } }],
-    ['a malformed start event', { runtime: { ...savedRuntime, startEventStart: '1' } }],
-    ['a malformed start event day', { runtime: { ...savedRuntime, startEventDay: '1' } }],
+    ['a malformed offset baseline', { runtime: { ...savedRuntime, offsetBaseline: '1' } }],
     ['a malformed start day', { runtime: { ...savedRuntime, startDayOffset: '1' } }],
     ['a malformed group start', { runtime: { ...savedRuntime, groupStartedAt: '1' } }],
     ['a point without the timer base', { runtime: { ...savedRuntime, startDayOffset: undefined } }],

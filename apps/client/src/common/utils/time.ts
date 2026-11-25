@@ -160,10 +160,10 @@ export function useTimeUntilExpectedStart(
     isLinkedToLoaded: boolean;
   },
 ): number {
-  const { offset, currentDay, mode, startShift, clock } = useExpectedStartData();
+  const { offset, currentDay, scheduleShift, clock } = useExpectedStartData();
   if (event === null) return 0;
 
-  const expectedStart = getExpectedStart({ ...event }, { ...state, currentDay, offset, mode, startShift });
+  const expectedStart = getExpectedStart({ ...event }, { ...state, currentDay, offset, scheduleShift });
   return expectedStart - clock;
 }
 

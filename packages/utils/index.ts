@@ -91,7 +91,13 @@ export { validateEndAction, validateTimerType } from './src/validate-events/vali
 
 // feature business logic
 
-export { getDelayedEnd, getDelayedStart, getExpectedStart, getExpectedEnd } from './src/date-utils/getExpected.js';
+export {
+  getDelayedEnd,
+  getDelayedStart,
+  getExpectedStart,
+  getExpectedEnd,
+  getScheduleShift,
+} from './src/date-utils/getExpected.js';
 export { getLinksToLoaded, type LinkToLoaded } from './src/date-utils/getLinksToLoaded.js';
 
 // feature business logic - rundown

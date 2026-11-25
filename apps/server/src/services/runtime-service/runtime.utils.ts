@@ -56,7 +56,6 @@ export function getShouldTimerUpdate(previousValue: TimerState | undefined, curr
 
 /**
  * Checks whether we should update the offset values
- * - `mode` triggers update
  * - `absolute`, `relative`, `expected**End` are ticked with `didDependencyUpdate`
  */
 export function getShouldOffsetUpdate(
@@ -65,7 +64,6 @@ export function getShouldOffsetUpdate(
   didDependencyUpdate: boolean,
 ): boolean {
   if (previousValue === undefined) return true;
-  if (previousValue.mode !== currentValue.mode) return true;
   return didDependencyUpdate && !deepEqual(previousValue, currentValue);
 }
 

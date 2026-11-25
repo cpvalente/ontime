@@ -1,4 +1,4 @@
-import { OffsetMode, OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
+import { OntimeEvent, OntimeGroup, TimerPhase, TimerType } from 'ontime-types';
 import { dayInMs, isPlaybackActive, millisToString } from 'ontime-utils';
 import { useMemo } from 'react';
 import {
@@ -208,7 +208,7 @@ export function MetadataTimes() {
 }
 
 function GroupTimes() {
-  const { clock, mode, groupExpectedEnd, actualGroupStart, currentDay, playback, phase } = useGroupTimerOverView();
+  const { clock, scheduleShift, groupExpectedEnd, currentDay, playback, phase } = useGroupTimerOverView();
   const currentGroupId = useCurrentGroupId();
   const group = useLoadedEntry(currentGroupId) as OntimeGroup | null;
 
@@ -219,12 +219,8 @@ function GroupTimes() {
     if (!hasRunningTimer) return null;
     if (!group || group.timeStart === null) return null;
     const normalizedClock = clock + currentDay * dayInMs;
-
-    if (mode === OffsetMode.Absolute) {
-      return group.timeStart + group.duration - normalizedClock;
-    }
-    if (actualGroupStart === null) return null;
-    return actualGroupStart + group.duration - normalizedClock;
+    // a reset moves the schedule
+    return group.timeStart + scheduleShift + group.duration - normalizedClock;
   })();
 
   const plannedTimeUntilGroupEnd = formatDueTime(plannedGroupEnd, 3, TimerType.CountDown);
@@ -264,7 +260,7 @@ function GroupTimes() {
 }
 
 function FlagTimes() {
-  const { clock, mode, startShift, playback, currentDay, phase } = useFlagTimerOverView();
+  const { clock, scheduleShift, playback, currentDay, phase } = useFlagTimerOverView();
   const { id, expectedStart } = useNextFlag();
   const entry = useLoadedEntry(id) as OntimeEvent | null;
 
@@ -275,10 +271,8 @@ function FlagTimes() {
     if (!entry) return null;
     const normalizedTimeStart = entry.timeStart + entry.dayOffset * dayInMs;
     const normalizedClock = clock + currentDay * dayInMs;
-    if (mode === OffsetMode.Absolute) {
-      return normalizedTimeStart - normalizedClock;
-    }
-    return normalizedTimeStart + startShift - normalizedClock;
+    // a reset moves the schedule
+    return normalizedTimeStart + scheduleShift - normalizedClock;
   })();
 
   const plannedTimeUntilDisplay = formatDueTime(plannedFlagStart, 3, TimerType.CountDown);

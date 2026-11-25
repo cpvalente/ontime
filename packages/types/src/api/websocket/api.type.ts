@@ -3,7 +3,6 @@ import type { DeepPartial } from 'ts-essentials';
 import type { OntimeEvent } from '../../definitions/core/OntimeEntry.js';
 import type { SimpleDirection, SimplePlayback } from '../../definitions/runtime/AuxTimer.type.js';
 import type { MessageState } from '../../definitions/runtime/MessageControl.type.js';
-import type { OffsetMode } from '../../definitions/runtime/Offset.type.js';
 import type { RuntimeStore } from '../../definitions/runtime/RuntimeStore.type.js';
 import type {
   TeleprompterBlackout,
@@ -167,12 +166,13 @@ export type ClientResponse = {
   payload: 'success';
 };
 
-export type OffsetmodeAction = {
-  tag: 'offsetmode';
-  payload: OffsetMode;
+export type OffsetAction = {
+  tag: 'offset';
+  /** reset measures the offset from now, plan measures it from the plan again */
+  payload: 'reset' | 'plan';
 };
-export type OffsetmodeResponse = {
-  tag: 'offsetmode';
+export type OffsetResponse = {
+  tag: 'offset';
   payload: 'success';
 };
 
@@ -190,7 +190,7 @@ export type ApiAction =
   | AddtimeAction
   | AuxtimerAction
   | ClientAction
-  | OffsetmodeAction
+  | OffsetAction
   | TeleprompterAction;
 
 export type ApiResponse =
@@ -207,7 +207,7 @@ export type ApiResponse =
   | AddtimeResponse
   | AuxtimerResponse
   | ClientResponse
-  | OffsetmodeResponse
+  | OffsetResponse
   | TeleprompterResponse;
 
 export type ApiActionTag = ApiAction['tag'];

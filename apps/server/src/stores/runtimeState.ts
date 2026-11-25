@@ -6,7 +6,6 @@ import {
   MaybeNumber,
   MaybeString,
   Offset,
-  OffsetMode,
   OntimeEvent,
   OntimeGroup,
   PlayableEvent,
@@ -85,10 +84,8 @@ export type RuntimeState = {
   _startEpoch: Maybe<Instant>;
   /** rundown day playback started on */
   _startDayOffset: Maybe<Day>;
-  /** planned start of the event playback started from, the relative offset counts from it */
-  _startEventStart: Maybe<TimeOfDay>;
-  /** rundown day of the event playback started from */
-  _startEventDay: Maybe<Day>;
+  /** the absolute offset when the offset was last reset, null measures from the plan */
+  _offsetBaseline: Maybe<Duration>;
   /** when the loaded group started, rundown.actualGroupStart is its time of day */
   _groupStartedAt: Maybe<Instant>;
 };
@@ -121,8 +118,7 @@ const runtimeState: RuntimeState = {
   _end: null,
   _startEpoch: null,
   _startDayOffset: null,
-  _startEventStart: null,
-  _startEventDay: null,
+  _offsetBaseline: null,
   _groupStartedAt: null,
 };
 
@@ -179,6 +175,7 @@ export function clearState() {
 
   runtimeState.groupNow = null;
   runtimeState._group = null;
+  setGroupStartedAt(runtimeState, null);
 
   runtimeState.rundown.selectedEventIndex = null;
 
@@ -210,8 +207,7 @@ function clearStartAnchor(state = runtimeState) {
   setStartEpoch(state, null);
   state.rundown.currentDay = null;
   state._startDayOffset = null;
-  state._startEventStart = null;
-  state._startEventDay = null;
+  state._offsetBaseline = null;
 }
 
 /**
@@ -252,12 +248,11 @@ function applyRestore(state: RuntimeState, restore: RuntimeRestore) {
     setGroupStartedAt(state, restore.groupStartedAt);
   }
 
-  const { startEpoch, startDayOffset, startEventStart, startEventDay } = restore;
-  if (startEpoch !== null && startDayOffset !== null && startEventStart !== null && startEventDay !== null) {
+  const { startEpoch, startDayOffset } = restore;
+  if (startEpoch !== null && startDayOffset !== null) {
     setStartEpoch(state, startEpoch);
     state._startDayOffset = startDayOffset;
-    state._startEventStart = startEventStart;
-    state._startEventDay = startEventDay;
+    state._offsetBaseline = restore.offsetBaseline;
     state.rundown.currentDay = (startDayOffset + timeCore.daysSinceStart(startEpoch, state._now)) as Day;
   }
 
@@ -294,6 +289,10 @@ export function load(
   metadata: RundownMetadata,
   restore?: RuntimeRestore,
 ): boolean {
+  // each rundown day starts measured from the plan
+  if (runtimeState.eventNow !== null && runtimeState.eventNow.dayOffset !== event.dayOffset) {
+    runtimeState._offsetBaseline = null;
+  }
   clearEventData();
 
   const { timedEventOrder } = metadata;
@@ -494,9 +493,6 @@ export function start(state: RuntimeState = runtimeState, epoch: Instant = timeC
       state.eventNow.dayOffset) as Day;
     state.rundown.currentDay = state._startDayOffset;
     setStartEpoch(state, epoch);
-    // the relative offset discounts lateness against the delayed start, as the absolute offset does
-    state._startEventStart = getDelayedStart(state.eventNow) as TimeOfDay;
-    state._startEventDay = state.eventNow.dayOffset;
   }
 
   if (state.groupNow !== null && state._groupStartedAt === null) {
@@ -737,6 +733,7 @@ export function roll(
 
     if (offset) {
       runtimeState.offset = { ...offset };
+      followOffsetBaseline(runtimeState);
     }
     runtimeState.timer.playback = Playback.Roll;
 
@@ -771,6 +768,10 @@ export function roll(
         setGroupStartedAt(runtimeState, plannedStart);
       }
 
+      // the event starts on plan, so a reset has nothing left to measure from
+      runtimeState._offsetBaseline = null;
+      followOffsetBaseline(runtimeState);
+
       if (runtimeState._startEpoch === null) {
         backdateShowStart(plannedStart);
       }
@@ -799,6 +800,7 @@ export function roll(
   // account for offset but we only keep it if passed to us
   if (offset) {
     runtimeState.offset = { ...offset };
+    followOffsetBaseline(runtimeState);
   }
   const offsetClock = runtimeState.clock - runtimeState.offset.absolute;
 
@@ -893,11 +895,12 @@ export function rollNext(rundown: Rundown, metadata: RundownMetadata, epoch: Ins
  */
 function backdateShowStart(plannedStart: Instant) {
   const event = runtimeState.eventNow!;
+  // a new show start is measured from the plan
+  runtimeState._offsetBaseline = null;
+  followOffsetBaseline(runtimeState);
   setStartEpoch(runtimeState, plannedStart);
   runtimeState._startDayOffset = (findDayOffset(event.timeStart, timeCore.toTimeOfDay(plannedStart)) +
     event.dayOffset) as Day;
-  runtimeState._startEventStart = event.timeStart as TimeOfDay;
-  runtimeState._startEventDay = event.dayOffset;
   runtimeState.rundown.currentDay = (runtimeState._startDayOffset +
     timeCore.daysSinceStart(plannedStart, runtimeState._now)) as Day;
 }
@@ -919,7 +922,6 @@ function updateExpectedTimes(state = runtimeState) {
   }
 
   const expectedTimes = getExpectedTimes({
-    mode: offset.mode,
     offset: { absolute: offset.absolute as Duration, relative: offset.relative as Duration },
     currentDay: rundown.currentDay! as Day,
     group: state.groupNow ? state._group : null,
@@ -990,7 +992,7 @@ function pausedTime(state: RuntimeState): Duration {
 }
 
 function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
-  const { eventNow, timer, rundown } = state;
+  const { eventNow, timer } = state;
   return {
     event: eventNow && {
       countToEnd: eventNow.countToEnd,
@@ -1004,9 +1006,7 @@ function runtimeOffsetInput(state: RuntimeState): RuntimeOffsetInput {
     addedTime: timer.addedTime as Duration,
     pausedTime: pausedTime(state),
     startDayOffset: state._startDayOffset,
-    startEventStart: state._startEventStart,
-    startEventDay: state._startEventDay,
-    actualStart: rundown.actualStart as Maybe<TimeOfDay>,
+    offsetBaseline: state._offsetBaseline,
   };
 }
 
@@ -1085,7 +1085,37 @@ export function loadGroupFlagAndEnd(
   }
 }
 
-export function setOffsetMode(mode: OffsetMode) {
-  runtimeState.offset.mode = mode;
-  if (isPlaybackActive(runtimeState.timer.playback)) updateExpectedTimes();
+/**
+ * Measures the offset from now: what is running stays, the schedule after it moves by the current offset
+ * The absolute offset, which roll and the hard outs follow, is unchanged
+ */
+export function resetOffset(): boolean {
+  const { timer, offset } = runtimeState;
+  if (!isPlaybackActive(timer.playback) || runtimeState._startEpoch === null || offset.relative === 0) {
+    return false;
+  }
+  // a reset which lands on the plan stores no baseline
+  setOffsetBaseline(runtimeState, offset.absolute === 0 ? null : (offset.absolute as Duration));
+  return true;
+}
+
+/** Measures the offset from the plan again, undoing a reset */
+export function clearOffsetReset(): boolean {
+  if (runtimeState._offsetBaseline === null) {
+    return false;
+  }
+  setOffsetBaseline(runtimeState, null);
+  return true;
+}
+
+/** A reset only moves the relative offset, the absolute offset stays as it is */
+function setOffsetBaseline(state: RuntimeState, baseline: Maybe<Duration>) {
+  state._offsetBaseline = baseline;
+  followOffsetBaseline(state);
+  updateExpectedTimes(state);
+}
+
+/** Keeps the relative offset counting from the baseline when the absolute offset is set directly */
+function followOffsetBaseline(state: RuntimeState) {
+  state.offset.relative = state.offset.absolute - (state._offsetBaseline ?? 0);
 }

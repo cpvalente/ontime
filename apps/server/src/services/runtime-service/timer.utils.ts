@@ -1,15 +1,4 @@
-import {
-  Day,
-  Duration,
-  Maybe,
-  MaybeNumber,
-  Offset,
-  OffsetMode,
-  OntimeEvent,
-  Playback,
-  TimeOfDay,
-  TimerPhase,
-} from 'ontime-types';
+import { Day, Duration, Maybe, MaybeNumber, Offset, OntimeEvent, Playback, TimeOfDay, TimerPhase } from 'ontime-types';
 import {
   MILLIS_PER_HOUR,
   checkIsNow,
@@ -17,6 +6,7 @@ import {
   getDelayedStart,
   getExpectedEnd,
   getExpectedStart,
+  getScheduleShift,
   isPlaybackActive,
 } from 'ontime-utils';
 
@@ -205,11 +195,8 @@ export type RuntimeOffsetInput = {
   pausedTime: Duration;
   /** day playback started on, relative to the rundown's first event */
   startDayOffset: Maybe<Day>;
-  /** delayed start of the event playback started from */
-  startEventStart: Maybe<TimeOfDay>;
-  /** rundown day of the event playback started from */
-  startEventDay: Maybe<Day>;
-  actualStart: Maybe<TimeOfDay>;
+  /** the absolute offset when the offset was last reset, null measures from the plan */
+  offsetBaseline: Maybe<Duration>;
 };
 
 /**
@@ -219,17 +206,7 @@ export type RuntimeOffsetInput = {
  * Negative offset is under time / ahead of schedule
  */
 export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duration; relative: Duration } {
-  const {
-    event,
-    startedAt,
-    current,
-    addedTime,
-    pausedTime,
-    startDayOffset,
-    startEventStart,
-    startEventDay,
-    actualStart,
-  } = input;
+  const { event, startedAt, current, addedTime, pausedTime, startDayOffset, offsetBaseline } = input;
   // nothing to calculate if there are no loaded events or if we havent started
   if (event === null || startedAt === null || startDayOffset === null) {
     return { absolute: 0 as Duration, relative: 0 as Duration };
@@ -241,9 +218,6 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
   DEV: {
     // we know current exists as long as eventNow exists
     if (current === null) throw new Error('timerUtils.getRuntimeOffset: current must be set');
-    if (startEventStart === null || startEventDay === null)
-      throw new Error('timerUtils.getRuntimeOffset: the start event must be set');
-    if (actualStart === null) throw new Error('timerUtils.getRuntimeOffset: actualStart must be set');
   }
 
   // difference between delayed event start and actual event start (will be positive if we started behind)
@@ -259,9 +233,8 @@ export function getRuntimeOffset(input: RuntimeOffsetInput): { absolute: Duratio
     ? overtime + pausedTime + addedTime
     : eventStartOffset + overtime + pausedTime + addedTime;
 
-  // the relative offset discounts how late or early playback started, compared to the event it started from
-  const startShift = (actualStart + startDayOffset * dayInMs - (startEventStart + startEventDay * dayInMs)) as Duration;
-  const relative = absolute - startShift;
+  // the relative offset counts from the last reset, the absolute offset when there is none
+  const relative = absolute - (offsetBaseline ?? 0);
 
   return { absolute: absolute as Duration, relative: relative as Duration };
 }
@@ -311,7 +284,6 @@ export type ExpectedMetadata = {
 };
 
 export type ExpectedTimesInput = {
-  mode: OffsetMode;
   offset: { absolute: Duration; relative: Duration };
   currentDay: Day;
   group: Maybe<ExpectedMetadata>;
@@ -325,14 +297,13 @@ export type ExpectedTimesInput = {
 export function getExpectedTimes(
   input: ExpectedTimesInput,
 ): Pick<Offset, 'expectedGroupEnd' | 'expectedFlagStart' | 'expectedRundownEnd'> {
-  const { mode, offset, currentDay, group, flag, end } = input;
+  const { offset, currentDay, group, flag, end } = input;
 
   const getLookaheadStart = ({ event, accumulatedGap, isLinkedToLoaded }: ExpectedMetadata) =>
     getExpectedStart(event, {
       currentDay,
-      mode,
-      offset: mode === OffsetMode.Absolute ? offset.absolute : offset.relative,
-      startShift: (offset.absolute - offset.relative) as Duration,
+      offset: offset.relative,
+      scheduleShift: getScheduleShift(offset),
       totalGap: accumulatedGap,
       isLinkedToLoaded,
     });

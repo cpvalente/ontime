@@ -2,7 +2,6 @@ import {
   Duration,
   EntryId,
   MaybeNumber,
-  OffsetMode,
   OntimeEntry,
   OntimeEvent,
   OntimeGroup,
@@ -282,9 +281,8 @@ export function groupSubscriptionTargets(targets: CountdownTarget[]): CountdownS
 export function extendEventData(
   event: CountdownTarget,
   currentDay: number,
-  startShift: Duration,
+  scheduleShift: Duration,
   offset: number,
-  mode: OffsetMode,
   reportData: OntimeReport,
 ): CountdownEvent {
   if (event.skip) {
@@ -295,10 +293,9 @@ export function extendEventData(
   const expectedStart = getExpectedStart(event, {
     currentDay,
     totalGap,
-    startShift,
+    scheduleShift,
     isLinkedToLoaded,
     offset,
-    mode,
   });
   const expectedEnd = getExpectedEnd(event, expectedStart, currentDay, event.isLoaded);
   const { endedAt } = reportData[event.reportId ?? event.id] ?? { endedAt: null };

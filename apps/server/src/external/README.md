@@ -132,12 +132,10 @@ Note: all timer values are in milliseconds.
    * aka behind schedule
    */
   "offset": {
-    /** Current absolute offset: accounts for planned times */
+    /** Current absolute offset: accounts for planned times, roll and hard outs follow it */
     "absolute": 40394840,
-    /** Current relative offset: only counts for generated offset since start */
-    "relative": -35997119,
-    /** Currently selected offset mode */
-    "mode": "absolute",
+    /** Offset since the last reset, the absolute offset when there is none */
+    "relative": 4394840,
     /** Timestamp of the expected start of the next flag */
     "expectedFlagStart": 80594840,
     /** Timestamp of the expected end of the current group */

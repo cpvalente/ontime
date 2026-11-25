@@ -1,4 +1,4 @@
-import { Day, Duration, Instant, Maybe, MaybeString, OffsetMode, Playback, TimeOfDay } from 'ontime-types';
+import { Day, Duration, Instant, Maybe, MaybeString, Playback } from 'ontime-types';
 
 import type { AuxTimers } from '../aux-timer-service/auxTimer.utils.js';
 
@@ -18,12 +18,9 @@ export type RuntimeRestore = {
   startEpoch: Maybe<Instant>;
   /** rundown day playback started on */
   startDayOffset: Maybe<Day>;
-  /** planned start of the event playback started from */
-  startEventStart: Maybe<TimeOfDay>;
-  /** rundown day of the event playback started from */
-  startEventDay: Maybe<Day>;
+  /** the absolute offset when the offset was last reset, null measures from the plan */
+  offsetBaseline: Maybe<Duration>;
   groupStartedAt: Maybe<Instant>;
-  offsetMode: OffsetMode;
 };
 
 /** each part is missing until it is saved */
