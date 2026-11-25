@@ -71,6 +71,7 @@ export function makeFieldList(customFields: CustomFields): SelectableField[] {
       value: `eventNext.custom.${key}`,
       label: `Next custom: ${label}`,
     })),
+    { value: 'rundown.selectedEventIndex', label: 'Event index (from 0)' },
   ];
 }
 

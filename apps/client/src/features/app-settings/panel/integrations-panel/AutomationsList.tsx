@@ -1,5 +1,5 @@
-import { AutomationDTO, NormalisedAutomation, Trigger } from 'ontime-types';
-import { Fragment, useState } from 'react';
+import { Automation, AutomationDTO, NormalisedAutomation, TimerLifeCycle, Trigger } from 'ontime-types';
+import { Fragment, type ReactElement, useState } from 'react';
 import { IoAdd, IoPencil, IoTrash } from 'react-icons/io5';
 
 import { deleteAutomation } from '../../../../common/api/automation';
@@ -7,12 +7,14 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
 import Dialog from '../../../../common/components/dialog/Dialog';
+import { DropdownMenu } from '../../../../common/components/dropdown-menu/DropdownMenu';
 import Info from '../../../../common/components/info/Info';
 import Tag from '../../../../common/components/tag/Tag';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import { summariseOutputs } from '../../../../common/utils/automationOutputs';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationForm from './AutomationForm';
+import RecipePicker from './RecipePicker';
 
 import style from './AutomationsList.module.scss';
 
@@ -21,6 +23,11 @@ const automationPlaceholder: AutomationDTO = {
   filterRule: 'all',
   filters: [],
   outputs: [],
+};
+
+type FormState = {
+  automation: Automation | AutomationDTO;
+  trigger?: TimerLifeCycle;
 };
 
 interface AutomationsListProps {
@@ -37,7 +44,8 @@ export default function AutomationsList({
   isLoading,
 }: AutomationsListProps) {
   const { refetch } = useAutomationSettings();
-  const [automationFormData, setAutomationFormData] = useState<AutomationDTO | null>(null);
+  const [formState, setFormState] = useState<FormState | null>(null);
+  const [isPickingRecipe, setIsPickingRecipe] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -57,17 +65,40 @@ export default function AutomationsList({
 
   const arrayAutomations = Object.keys(automations);
 
+  const newAutomationMenu = (trigger: ReactElement, label = 'New') => (
+    <DropdownMenu
+      render={trigger}
+      items={[
+        { type: 'item', label: 'Blank', onClick: () => setFormState({ automation: automationPlaceholder }) },
+        { type: 'item', label: 'From a recipe', onClick: () => setIsPickingRecipe(true) },
+      ]}
+    >
+      {label} <IoAdd />
+    </DropdownMenu>
+  );
+
   return (
     <Panel.Section>
       <Panel.Card>
-        {automationFormData !== null && (
-          <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
+        {formState !== null && (
+          <AutomationForm
+            automation={formState.automation}
+            trigger={formState.trigger}
+            onClose={() => setFormState(null)}
+          />
+        )}
+        {isPickingRecipe && (
+          <RecipePicker
+            onPick={(recipe) => {
+              setIsPickingRecipe(false);
+              setFormState(recipe);
+            }}
+            onClose={() => setIsPickingRecipe(false)}
+          />
         )}
         <Panel.SubHeader>
           Automations
-          <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
-            New <IoAdd />
-          </Button>
+          {newAutomationMenu(<Button />)}
         </Panel.SubHeader>
 
         <Panel.Divider />
@@ -94,11 +125,7 @@ export default function AutomationsList({
                 <Panel.TableEmpty
                   title='No automations yet'
                   description='Create a reusable definition, then attach it to a global or an event trigger.'
-                  action={
-                    <Button variant='primary' onClick={() => setAutomationFormData(automationPlaceholder)}>
-                      Create automation <IoAdd />
-                    </Button>
-                  }
+                  action={newAutomationMenu(<Button variant='primary' />, 'Create automation')}
                 />
               )}
               {arrayAutomations.map((automationId) => {
@@ -126,7 +153,7 @@ export default function AutomationsList({
                         <IconButton
                           variant='ghosted-white'
                           aria-label='Edit entry'
-                          onClick={() => setAutomationFormData(automations[automationId])}
+                          onClick={() => setFormState({ automation: automations[automationId] })}
                         >
                           <IoPencil />
                         </IconButton>
