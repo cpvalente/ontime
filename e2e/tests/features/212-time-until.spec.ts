@@ -1,6 +1,6 @@
 import { expect, test } from '../fixtures/override';
 
-test('time until absolute', async ({ context }) => {
+test('time until follows the plan', async ({ context }) => {
   const editor = await context.newPage();
   const op = await context.newPage();
   const timeline = await context.newPage();
@@ -59,7 +59,6 @@ test('time until absolute', async ({ context }) => {
     countdownItem: countdown.getByTestId('4'),
   };
 
-  await editor.getByRole('button', { name: 'Absolute' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
   // the new events are scheduled from 00:00, so starting now is off schedule unless the test runs at midnight
@@ -134,7 +133,7 @@ test('time until absolute', async ({ context }) => {
   await expect(entry4.countdownItem).toContainText('20m');
 });
 
-test('time until relative', async ({ context }) => {
+test('time until after an offset reset', async ({ context }) => {
   const editor = await context.newPage();
   await editor.goto('editor');
 
@@ -153,10 +152,10 @@ test('time until relative', async ({ context }) => {
   await editor.getByRole('button', { name: 'Event', exact: true }).nth(1).click();
   await expect(editor.getByTestId('rundown-event')).toHaveCount(4);
 
-  await editor.getByRole('button', { name: 'Relative' }).click();
   await editor.getByTestId('entry-1').getByLabel('Start event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Pause event')).toBeVisible();
-  // starting on schedule gives no offset, allowing for a second to pass before we read it
+  // a reset measures from now, so the schedule moves to where playback is, allowing for a second to pass
+  await editor.getByRole('button', { name: 'Reset offset' }).click();
   await expect(editor.getByTestId('offset')).toHaveText(/^[+-]?0:0[01]$/);
   await editor.getByTestId('entry-1').getByLabel('Pause event').click();
   await expect(editor.getByTestId('entry-1').getByLabel('Start event')).toBeVisible();
@@ -180,6 +179,4 @@ test('time until relative', async ({ context }) => {
   await expect(editor.getByTestId('entry-2').getByTestId('rundown-event')).toContainText('30s');
   await expect(editor.getByTestId('entry-3').getByTestId('rundown-event')).toContainText('10m');
   await expect(editor.getByTestId('entry-4').getByTestId('rundown-event')).toContainText('20m');
-
-  await editor.getByRole('button', { name: 'Absolute' }).click();
 });

@@ -129,6 +129,16 @@
   color: $playback-over;
 }
 
+.resetDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 0.25rem;
+  border-radius: 50%;
+  background-color: $blue-500;
+  vertical-align: middle;
+}
+
 .time {
   color: $section-white;
   font-size: $text-body-size;

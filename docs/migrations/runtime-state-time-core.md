@@ -37,7 +37,7 @@ Before the pure timer calculations can move to `ontime-utils` for client use:
 
 Candidate brand, to decide during the inventory slice:
 
-- `TimelinePosition`: milliseconds from midnight of the rundown's first day, `timeStart + dayOffset * dayInMs`. None of the four brands fits it: it can pass `dayInMs`, so it is not a `TimeOfDay`, it has no calendar date, so it is not an `Instant`, and it is a position, not a `Duration`. It is rebuilt by hand in `report.utils.ts` (`getPlannedShowDuration`), `getTimeFrom.ts`, and `getRuntimeOffset` for the event and the start event. A brand would come with one `timeCore` helper that builds it from a `TimeOfDay` and a `Day`. Until then, store the parts separately, as the runtime does for the start event (`_startEventStart`, `_startEventDay`).
+- `TimelinePosition`: milliseconds from midnight of the rundown's first day, `timeStart + dayOffset * dayInMs`. None of the four brands fits it: it can pass `dayInMs`, so it is not a `TimeOfDay`, it has no calendar date, so it is not an `Instant`, and it is a position, not a `Duration`. It is rebuilt by hand in `report.utils.ts` (`getPlannedShowDuration`), `getTimeFrom.ts`, and `getRuntimeOffset` for the event. A brand would come with one `timeCore` helper that builds it from a `TimeOfDay` and a `Day`. Until then, store the parts separately, as events do (`timeStart`, `dayOffset`).
 
 ## Migration rules
 
@@ -68,7 +68,7 @@ Done:
 
 - `runtimeState` keeps `_now` beside `clock`, and the base as instants: `_timer.startedAt`, `_timer.pausedAt`, `_startEpoch`, `_groupStartedAt`. The store's `timer.startedAt`, `rundown.actualStart` and `rundown.actualGroupStart` are their times of day, set only through the paired setters.
 - Timer calculations take durations measured between instants on the local wall clock (`sinceStart`, `pausedTime`, `timeCore.wallTimeSince`) instead of guessing midnight crossings from times of day. A pause longer than a day keeps all its time, and a DST change keeps the planned times.
-- The restore point saves the base: instants, `startDayOffset` and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. Resume rebuilds nothing; a point without the base is rejected as invalid.
+- The restore point saves the base: instants, `startDayOffset`, the offset reset baseline and `groupStartedAt`; `firstStart` and `currentDay` follow from `startEpoch`. Resume rebuilds nothing; a point without the base is rejected as invalid.
 
 Still derived from times of day:
 
@@ -82,7 +82,7 @@ Still derived from times of day:
 - local-day calculation across timezone/DST offset changes;
 - pause/resume, added time, elapsed/remaining duration;
 - roll secondary targets and expected finish;
-- absolute/relative offsets and day offsets.
+- offset resets and day offsets.
 
 ## Complete when
 

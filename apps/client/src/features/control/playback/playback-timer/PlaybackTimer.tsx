@@ -28,7 +28,7 @@ function resolveAddedTimeLabel(addedTime: number) {
 export default function PlaybackTimer({ children }: PropsWithChildren) {
   'use memo';
   const timer = useTimerProgress();
-  const { offset } = useOffsetOverview();
+  const { offset, isReset } = useOffsetOverview();
 
   const isRolling = timer.playback === Playback.Roll;
   const isWaiting = timer.phase === TimerPhase.Pending;
@@ -62,6 +62,7 @@ export default function PlaybackTimer({ children }: PropsWithChildren) {
             startedAt={timer.startedAt}
             expectedFinish={timer.expectedFinish}
             offset={offset}
+            isReset={isReset}
             isStopped={timer.playback === Playback.Stop}
             isCountToEnd={timer.isCountToEnd}
             isOvertime={isOvertime}
@@ -78,6 +79,7 @@ interface RunningStatusProps {
   startedAt: MaybeNumber;
   expectedFinish: MaybeNumber;
   offset: number;
+  isReset: boolean;
   isStopped: boolean;
   isCountToEnd: boolean;
   isOvertime: boolean;
@@ -88,6 +90,7 @@ function RunningStatus({
   startedAt,
   expectedFinish,
   offset,
+  isReset,
   isStopped,
   isCountToEnd,
   isOvertime,
@@ -125,7 +128,10 @@ function RunningStatus({
         </span>
       </div>
       <div className={cx([style.cell, style.cellOffset])} data-covered={isCovered || undefined}>
-        <span className={style.tag}>Offset</span>
+        <span className={style.tag}>
+          Offset
+          {isReset && <span className={style.resetDot} />}
+        </span>
         <span className={style.time} data-state={getOffsetState(offsetValue)}>
           {offsetText}
         </span>

@@ -68,7 +68,14 @@ const ontimeAuxTriggerAction = [
 
 const ontimeAuxSetAction = ['aux1-set', 'aux2-set', 'aux3-set'] as const;
 
-const ontimePlaybackAction = ['playback-start', 'playback-stop', 'playback-pause', 'playback-roll'] as const;
+const ontimePlaybackAction = [
+  'playback-start',
+  'playback-stop',
+  'playback-pause',
+  'playback-roll',
+  'offset-reset',
+  'offset-plan',
+] as const;
 
 type OntimeAuxTriggerAction = (typeof ontimeAuxTriggerAction)[number];
 type OntimeAuxSetAction = (typeof ontimeAuxSetAction)[number];

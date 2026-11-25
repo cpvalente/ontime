@@ -28,7 +28,10 @@
   white-space: nowrap;
 }
 
-// the tooltip trigger wraps the button, which still fills its cell
-.tipTarget {
+// after a reset, Plan sits beside it
+.resetRow {
   display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: $element-inner-spacing;
 }

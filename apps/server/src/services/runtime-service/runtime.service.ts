@@ -5,7 +5,6 @@ import {
   EntryId,
   Instant,
   LogOrigin,
-  OffsetMode,
   OntimeEvent,
   Playback,
   RefetchKey,
@@ -71,9 +70,24 @@ class RuntimeService {
     RuntimeService.previousState = {} as RuntimeState;
   }
 
+  /** Measures the offset from now, the schedule after the running event moves with it */
   @broadcastResult
-  setOffsetMode(mode: OffsetMode) {
-    runtimeState.setOffsetMode(mode);
+  public resetOffset(): boolean {
+    const didReset = runtimeState.resetOffset();
+    if (didReset) {
+      logger.info(LogOrigin.Playback, 'Offset reset');
+    }
+    return didReset;
+  }
+
+  /** Measures the offset from the plan again */
+  @broadcastResult
+  public clearOffsetReset(): boolean {
+    const didClear = runtimeState.clearOffsetReset();
+    if (didClear) {
+      logger.info(LogOrigin.Playback, 'Offset back to plan');
+    }
+    return didClear;
   }
 
   /**
@@ -641,8 +655,6 @@ class RuntimeService {
       return;
     }
 
-    runtimeState.setOffsetMode(restorePoint.offsetMode);
-
     const { selectedEventId, playback } = restorePoint;
     if (playback === Playback.Roll) {
       this.handleRoll();
@@ -755,8 +767,9 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
     // for the very fist run there will be nothing in the previousState so we force an update
     const justStarted = !RuntimeService.previousState?.timer;
 
-    // offset mode has been changed
-    const offsetModeChanged = RuntimeService.previousState?.offset?.mode !== state.offset.mode;
+    // the offset was reset or went back to plan
+    const offsetBaselineChanged = RuntimeService.previousState._offsetBaseline !== state._offsetBaseline;
+    RuntimeService.previousState._offsetBaseline = state._offsetBaseline;
 
     // if playback changes most things should update
     const hasChangedPlayback = RuntimeService.previousState.timer?.playback !== state.timer.playback;
@@ -765,7 +778,7 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
 
     // combine all big changes
     const hasImmediateChanges =
-      entryChanged || justStarted || hasChangedPlayback || offsetModeChanged || addedTimeChanged;
+      entryChanged || justStarted || hasChangedPlayback || offsetBaselineChanged || addedTimeChanged;
 
     /**
      * if any values have changed.
@@ -842,10 +855,8 @@ function broadcastResult(_target: any, _propertyKey: string, descriptor: Propert
           addedTime: state.timer.addedTime as Duration,
           startEpoch: state._startEpoch,
           startDayOffset: state._startDayOffset,
-          startEventStart: state._startEventStart,
-          startEventDay: state._startEventDay,
+          offsetBaseline: state._offsetBaseline,
           groupStartedAt: state._groupStartedAt,
-          offsetMode: state.offset.mode,
         })
         .catch((_e) => {
           //we don't do anything with the error here

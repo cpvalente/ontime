@@ -45,7 +45,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
   const showFab = useFadeOutOnInactivity(true);
 
   const { data: reportData } = useReport();
-  const { offset, currentDay, startShift, mode } = useExpectedScheduleData();
+  const { offset, currentDay, scheduleShift } = useExpectedScheduleData();
 
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [lockAutoScroll, setLockAutoScroll] = useState(false);
@@ -133,7 +133,7 @@ export default function CountdownSubscriptions({ subscribedEvents, goToEditMode 
               // only ever hand the ref to a single row, sharing it would null it out on the next commit
               const isAnchor = isLive && (anchorId === null || event.id === anchorId);
               const rowRef = isAnchor ? selectedRef : event.isGroup && anchorId ? stickyHeaderRef : undefined;
-              const countdownEvent = extendEventData(event, currentDay, startShift, offset, mode, reportData);
+              const countdownEvent = extendEventData(event, currentDay, scheduleShift, offset, reportData);
               const displayTitle = getPropertyValue(event, mainSource ?? 'title');
 
               return (
@@ -181,7 +181,6 @@ type ScheduleTimeProps = {
   event: CountdownEvent;
   showExpected: boolean;
 };
-//TODO: consider relative mode
 export function ScheduleTime(props: ScheduleTimeProps) {
   const { event, showExpected } = props;
   const { timeStart, duration, delay, expectedStart, expectedEnd } = event;

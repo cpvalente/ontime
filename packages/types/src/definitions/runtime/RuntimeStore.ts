@@ -1,5 +1,4 @@
 import { SimpleDirection, SimplePlayback } from './AuxTimer.type.js';
-import { OffsetMode } from './Offset.type.js';
 import { Playback } from './Playback.type.js';
 import type { RuntimeStore } from './RuntimeStore.type.js';
 import { TimerPhase } from './TimerState.type.js';
@@ -46,7 +45,6 @@ export const runtimeStorePlaceholder: Readonly<RuntimeStore> = {
   offset: {
     absolute: 0, // changes at runtime
     relative: 0, // changes at runtime
-    mode: OffsetMode.Absolute,
     expectedFlagStart: null,
     expectedGroupEnd: null,
     expectedRundownEnd: null,

@@ -1,4 +1,4 @@
-import { Instant, OffsetMode, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
+import { Instant, Playback, SimpleDirection, SimplePlayback } from 'ontime-types';
 
 import { is } from '../../utils/is.js';
 import type { AuxTimer, AuxTimers } from '../aux-timer-service/auxTimer.utils.js';
@@ -42,10 +42,8 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
       'addedTime',
       'startEpoch',
       'startDayOffset',
-      'startEventStart',
-      'startEventDay',
+      'offsetBaseline',
       'groupStartedAt',
-      'offsetMode',
     ])
   ) {
     return false;
@@ -63,20 +61,16 @@ function isSavedRuntime(point: unknown): point is RestorePoint['runtime'] {
     return false;
   }
 
-  if (!Object.values(OffsetMode).includes(point.offsetMode as OffsetMode)) {
-    return false;
-  }
-
   if (!is.number(point.pausedDuration) || !is.number(point.addedTime)) {
     return false;
   }
 
-  if (![point.startedAt, point.pausedAt, point.groupStartedAt].every(isMaybeNumber)) {
+  if (![point.startedAt, point.pausedAt, point.groupStartedAt, point.offsetBaseline].every(isMaybeNumber)) {
     return false;
   }
 
   // the start anchor is saved whole or not at all
-  const anchor = [point.startEpoch, point.startDayOffset, point.startEventStart, point.startEventDay];
+  const anchor = [point.startEpoch, point.startDayOffset];
   return anchor.every(is.number) || anchor.every((value) => value === null);
 }
 

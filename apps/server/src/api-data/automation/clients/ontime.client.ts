@@ -52,6 +52,10 @@ export function toOntimeAction(action: OntimeAction, store: DeepReadonly<Runtime
       return runtimeService.pause();
     case 'playback-roll':
       return runtimeService.roll();
+    case 'offset-reset':
+      return runtimeService.resetOffset();
+    case 'offset-plan':
+      return runtimeService.clearOffsetReset();
 
     // Message actions
     case 'message-set': {

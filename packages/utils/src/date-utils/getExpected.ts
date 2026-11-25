@@ -1,5 +1,4 @@
-import type { Duration, OntimeEvent } from 'ontime-types';
-import { OffsetMode } from 'ontime-types';
+import type { Duration, Offset, OntimeEvent } from 'ontime-types';
 
 import { dayInMs } from './conversionUtils.js';
 
@@ -16,21 +15,28 @@ export function getDelayedEnd(event: Pick<OntimeEvent, 'timeEnd' | 'delay' | 'co
   return event.countToEnd ? event.timeEnd : event.timeEnd + event.delay;
 }
 
+/**
+ * How far an offset reset moved the schedule, the baseline the runtime keeps
+ * 0 when the offset is measured from the plan
+ */
+export function getScheduleShift(offset: Pick<Offset, 'absolute' | 'relative'>): Duration {
+  return (offset.absolute - offset.relative) as Duration;
+}
+
 export function getExpectedStart(
   event: Pick<OntimeEvent, 'timeStart' | 'dayOffset' | 'delay'>,
   state: {
     currentDay: number; // the current day from the rundown
     totalGap: number;
     isLinkedToLoaded: boolean;
+    /** the offset since the last reset, or from the plan when there is none */
     offset: number;
-    mode: OffsetMode;
-    /** how late playback started compared to the event it started from, the absolute offset minus the relative */
-    /** how late playback started, compared to the event it started from */
-    startShift: Duration;
+    /** how far the last reset moved the schedule, the absolute offset minus the relative */
+    scheduleShift: Duration;
   },
 ): number {
   const { dayOffset } = event;
-  const { currentDay, totalGap, isLinkedToLoaded, offset, mode, startShift } = state;
+  const { currentDay, totalGap, isLinkedToLoaded, offset, scheduleShift } = state;
 
   //How many days from the currently running event to this one
   const relativeDayOffset = dayOffset - currentDay;
@@ -40,9 +46,8 @@ export function getExpectedStart(
   //The normalised start time of this event relative to the currently running event
   const normalisedTimeStart = delayedStart + relativeDayOffset * dayInMs;
 
-  // in relative mode, the schedule moves with the start of playback
-  const relativeStartOffset = mode === OffsetMode.Relative ? startShift : 0;
-  const scheduledStartTime = normalisedTimeStart + relativeStartOffset;
+  // a reset moves the schedule to where playback was
+  const scheduledStartTime = normalisedTimeStart + scheduleShift;
 
   const offsetStartTime = scheduledStartTime + offset;
 

@@ -1,12 +1,4 @@
-import {
-  OffsetMode,
-  OntimeEntry,
-  OntimeEvent,
-  OntimeGroup,
-  OntimeReport,
-  Playback,
-  SupportedEntry,
-} from 'ontime-types';
+import { OntimeEntry, OntimeEvent, OntimeGroup, OntimeReport, Playback, SupportedEntry } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -313,7 +305,7 @@ describe('extendEventData()', () => {
       scheduledDuration: hour,
     },
   };
-  const extend = (event: CountdownTarget) => extendEventData(event, 0, 0, 0, OffsetMode.Absolute, report);
+  const extend = (event: CountdownTarget) => extendEventData(event, 0, 0, 0, report);
 
   it('reports when the event ended, according to the report', () => {
     const event = makeEvent({ id: 'a', timeStart: start, timeEnd: start + hour, duration: hour });
@@ -338,8 +330,7 @@ describe('extendEventData()', () => {
   it('moves the end of a loaded count to end event by the time given to it', () => {
     const timeGiven = 5 * MILLIS_PER_MINUTE;
     const countToEnd = { id: 'a', timeStart: start, timeEnd: start + hour, duration: hour, countToEnd: true };
-    const extendWithOffset = (event: CountdownTarget) =>
-      extendEventData(event, 0, 0, timeGiven, OffsetMode.Absolute, report);
+    const extendWithOffset = (event: CountdownTarget) => extendEventData(event, 0, 0, timeGiven, report);
 
     expect(extendWithOffset(makeEvent({ ...countToEnd, isLoaded: true })).expectedEnd).toBe(start + hour + timeGiven);
     // an event which is not loaded keeps its planned end

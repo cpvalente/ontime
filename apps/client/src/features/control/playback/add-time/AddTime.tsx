@@ -4,9 +4,7 @@ import { MILLIS_PER_HOUR, parseUserTime } from 'ontime-utils';
 import { IoAdd, IoRemove } from 'react-icons/io5';
 
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
-import Tooltip from '../../../../common/components/tooltip/Tooltip';
-import { setPlayback } from '../../../../common/hooks/useSocket';
-import { formatDuration } from '../../../../common/utils/time';
+import { clearOffsetReset, resetOffset, setPlayback, useOffsetOverview } from '../../../../common/hooks/useSocket';
 import TapButton from '../tap-button/TapButton';
 
 import style from './AddTime.module.scss';
@@ -36,7 +34,6 @@ export default function AddTime(props: AddTimeProps) {
 
   const canAddTime = playback === Playback.Play || playback === Playback.Pause;
   const doDisableButtons = !canAddTime || timeInMs === 0;
-  const amount = formatDuration(timeInMs, false);
 
   return (
     <div className={style.addTime}>
@@ -48,20 +45,32 @@ export default function AddTime(props: AddTimeProps) {
         className={style.amount}
       />
       <div className={style.addButtons}>
-        <Tooltip text={`Remove ${amount} from the running timer`} render={<div className={style.tipTarget} />}>
-          <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
-            <IoRemove />
-          </TapButton>
-        </Tooltip>
-        <Tooltip text={`Add ${amount} to the running timer`} render={<div className={style.tipTarget} />}>
-          <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
-            <IoAdd />
-          </TapButton>
-        </Tooltip>
+        <TapButton onClick={() => handleAddTime('remove')} disabled={doDisableButtons} className={style.tallButtons}>
+          <IoRemove />
+        </TapButton>
+        <TapButton onClick={() => handleAddTime('add')} disabled={doDisableButtons} className={style.tallButtons}>
+          <IoAdd />
+        </TapButton>
       </div>
-      <TapButton onClick={() => undefined} disabled={!canAddTime} className={style.reset}>
-        Reset offset
+      <ResetOffset canReset={canAddTime} />
+    </div>
+  );
+}
+
+/** A reset measures the offset from now, Plan measures it from the plan again */
+function ResetOffset({ canReset }: { canReset: boolean }) {
+  const { offset, isReset } = useOffsetOverview();
+
+  return (
+    <div className={style.resetRow}>
+      <TapButton onClick={resetOffset} disabled={!canReset || offset === 0} className={style.reset}>
+        {isReset ? 'Reset' : 'Reset offset'}
       </TapButton>
+      {isReset && (
+        <TapButton onClick={clearOffsetReset} className={style.reset}>
+          Plan
+        </TapButton>
+      )}
     </div>
   );
 }

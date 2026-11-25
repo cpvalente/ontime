@@ -2,13 +2,11 @@ import {
   type Day,
   type Duration,
   Instant,
-  OffsetMode,
   OntimeEvent,
   PlayableEvent,
   Playback,
   type Rundown,
   SupportedEntry,
-  type TimeOfDay,
   TimerPhase,
 } from 'ontime-types';
 import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE } from 'ontime-utils';
@@ -26,13 +24,16 @@ import { RundownMetadata } from '../../api-data/rundown/rundown.types.js';
 import {
   type RuntimeState,
   addTime,
+  clearOffsetReset,
   clearState,
   getState,
   load,
   loadGroupFlagAndEnd,
   pause,
+  resetOffset,
   resume,
   roll,
+  rollNext,
   start,
   stop,
   update,
@@ -494,10 +495,8 @@ describe('mutation on runtimeState', () => {
           addedTime: (2 * MILLIS_PER_MINUTE) as Duration,
           startEpoch: startedAt,
           startDayOffset: 0 as Day,
-          startEventStart: 0 as TimeOfDay,
-          startEventDay: 0 as Day,
+          offsetBaseline: null,
           groupStartedAt: null,
-          offsetMode: OffsetMode.Absolute,
         },
         event,
         rundown,
@@ -545,10 +544,8 @@ describe('mutation on runtimeState', () => {
           addedTime: 0 as Duration,
           startEpoch: groupStartedAt,
           startDayOffset: 1 as Day,
-          startEventStart: (10 * MILLIS_PER_HOUR) as TimeOfDay,
-          startEventDay: 0 as Day,
+          offsetBaseline: null,
           groupStartedAt,
-          offsetMode: OffsetMode.Absolute,
         },
         event,
         rundown,
@@ -758,10 +755,8 @@ describe('mutation on runtimeState', () => {
         addedTime: 0 as Duration,
         startEpoch,
         startDayOffset: 0 as Day,
-        startEventStart: 0 as TimeOfDay,
-        startEventDay: 0 as Day,
+        offsetBaseline: null,
         groupStartedAt: null,
-        offsetMode: OffsetMode.Absolute,
       },
       mockRundown.entries.event1 as PlayableEvent,
       rundown,
@@ -798,7 +793,7 @@ describe('mutation on runtimeState', () => {
       return rundownCache.get();
     }
 
-    test('starting from a later day counts the relative offset from that event', async () => {
+    test('starting from a later day measures the offset from that day', async () => {
       const { rundown, metadata } = await initThreeDays();
 
       load(rundown.entries.day2 as PlayableEvent, rundown, metadata);
@@ -807,7 +802,8 @@ describe('mutation on runtimeState', () => {
       const state = getState();
       expect(state.rundown.currentDay).toBe(2);
       expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
-      expect(state.offset.relative).toBe(0);
+      // with no reset, the relative offset is the absolute one
+      expect(state.offset.relative).toBe(state.offset.absolute);
     });
 
     test('a show running past midnight keeps its run', async () => {
@@ -835,10 +831,10 @@ describe('mutation on runtimeState', () => {
       expect(state.rundown.actualStart).toBe(23 * MILLIS_PER_HOUR + 35 * MILLIS_PER_MINUTE);
       expect(state.rundown.currentDay).toBe(0);
       expect(state.offset.absolute).toBe(-20 * MILLIS_PER_MINUTE);
-      expect(state.offset.relative).toBe(-25 * MILLIS_PER_MINUTE);
+      expect(state.offset.relative).toBe(state.offset.absolute);
     });
 
-    test('resume keeps a run started from a later day', async () => {
+    test('resume keeps a run started from a later day and its offset reset', async () => {
       const { rundown, metadata } = await initThreeDays();
       const startEpoch = at('jan 1 09:05');
       at('jan 1 09:10');
@@ -854,10 +850,8 @@ describe('mutation on runtimeState', () => {
           addedTime: 0 as Duration,
           startEpoch,
           startDayOffset: 2 as Day,
-          startEventStart: (9 * MILLIS_PER_HOUR) as TimeOfDay,
-          startEventDay: 2 as Day,
+          offsetBaseline: (5 * MILLIS_PER_MINUTE) as Duration,
           groupStartedAt: null,
-          offsetMode: OffsetMode.Relative,
         },
         rundown.entries.day2 as PlayableEvent,
         rundown,
@@ -867,6 +861,118 @@ describe('mutation on runtimeState', () => {
       const state = getState();
       expect(state.offset.absolute).toBe(5 * MILLIS_PER_MINUTE);
       expect(state.offset.relative).toBe(0);
+    });
+
+    test('a new rundown day is measured from the plan again', async () => {
+      const { rundown, metadata } = await initThreeDays();
+      load(rundown.entries.day0 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 1 09:05'));
+      expect(resetOffset()).toBe(true);
+
+      load(rundown.entries.day1 as PlayableEvent, rundown, metadata);
+      start(undefined, at('jan 2 09:05'));
+      const state = getState();
+      expect(state.offset.relative).toBe(state.offset.absolute);
+    });
+  });
+
+  describe('offset reset', () => {
+    async function startLate() {
+      clearState();
+      const group = makeOntimeGroup({ id: 'group', entries: ['first', 'last'] });
+      const entries = {
+        [group.id]: group,
+        first: { ...mockEvent, id: 'first', timeStart: 0, timeEnd: 60_000, duration: 60_000, parent: group.id },
+        last: { ...mockEvent, id: 'last', timeStart: 60_000, timeEnd: 120_000, duration: 60_000, parent: group.id },
+      };
+      await initTestRundown(makeRundown({ entries, order: [group.id] }));
+      const { rundown, metadata } = rundownCache.get();
+      load(rundown.entries.first as PlayableEvent, rundown, metadata);
+      // ten seconds behind the plan
+      vi.setSystemTime('jan 1 00:00:10');
+      start();
+    }
+
+    test('measures the offset from the reset, the absolute offset and roll keep the plan', async () => {
+      await startLate();
+      expect(getState().offset.expectedRundownEnd).toBe(130_000);
+
+      expect(resetOffset()).toBe(true);
+      let state = getState();
+      expect(state.offset.absolute).toBe(10_000);
+      expect(state.offset.relative).toBe(0);
+      expect(state.offset.expectedRundownEnd).toBe(130_000);
+
+      // five more seconds lost after the reset
+      vi.setSystemTime('jan 1 00:00:20');
+      pause();
+      vi.setSystemTime('jan 1 00:00:25');
+      update();
+      state = getState();
+      expect(state.offset.absolute).toBe(15_000);
+      expect(state.offset.relative).toBe(5_000);
+      expect(state.offset.expectedRundownEnd).toBe(135_000);
+    });
+
+    test('a reset while waiting to roll keeps the offset roll follows', async () => {
+      clearState();
+      const entries = {
+        first: { ...mockEvent, id: 'first', timeStart: 0, timeEnd: 60_000, duration: 60_000 },
+        later: { ...mockEvent, id: 'later', timeStart: 120_000, timeEnd: 180_000, duration: 60_000 },
+      };
+      await initTestRundown(makeRundown({ entries, order: ['first', 'later'] }));
+      const { rundown, metadata } = rundownCache.get();
+      load(rundown.entries.first as PlayableEvent, rundown, metadata);
+      vi.setSystemTime('jan 1 00:00:10');
+      start();
+      roll(rundown, metadata);
+      // the first event ends ten seconds late, roll waits for the second one
+      vi.setSystemTime('jan 1 00:01:10');
+      update();
+      rollNext(rundown, metadata);
+      expect(getState().timer.secondaryTimer).toBe(60_000);
+
+      // the roll countdown follows the absolute offset, which a reset keeps
+      expect(resetOffset()).toBe(true);
+      const state = getState();
+      expect(state.offset.absolute).toBe(10_000);
+      expect(state.offset.relative).toBe(0);
+
+      // roll starts the next event on plan, which drops the reset
+      vi.setSystemTime('jan 1 00:02:11');
+      update();
+      roll(rundown, metadata);
+      update();
+      const started = getState();
+      expect(started.eventNow?.id).toBe('later');
+      expect(started.offset.absolute).toBe(0);
+      expect(started.offset.relative).toBe(0);
+    });
+
+    test('back to plan measures from the published times again', async () => {
+      await startLate();
+      resetOffset();
+
+      expect(clearOffsetReset()).toBe(true);
+      expect(getState().offset.relative).toBe(10_000);
+      expect(clearOffsetReset()).toBe(false);
+    });
+
+    test('a stop forgets the reset and the group start', async () => {
+      await startLate();
+      resetOffset();
+      expect(getState().rundown.actualGroupStart).not.toBeNull();
+      stop();
+      expect(getState().rundown.actualGroupStart).toBeNull();
+
+      // a new start is measured from the plan, in a group which starts again
+      vi.setSystemTime('jan 1 00:00:20');
+      const { rundown, metadata } = rundownCache.get();
+      load(rundown.entries.first as PlayableEvent, rundown, metadata);
+      const state = getState();
+      expect(state.rundown.actualGroupStart).toBeNull();
+      start();
+      expect(getState().offset.relative).toBe(getState().offset.absolute);
     });
   });
 });

@@ -1,4 +1,4 @@
-import { Duration, EndAction, Instant, OffsetMode, Playback, RefetchKey } from 'ontime-types';
+import { Duration, EndAction, Instant, Playback, RefetchKey } from 'ontime-types';
 import { MILLIS_PER_HOUR } from 'ontime-utils';
 
 import { makeOntimeEvent, makeOntimeGroup, makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
@@ -40,7 +40,7 @@ vi.mock('../../../stores/EventStore.js', () => ({
 
 vi.mock('../../../stores/runtimeState.js', () => ({
   getState: () => stateRef.current,
-  setOffsetMode: vi.fn(),
+  clearOffsetReset: vi.fn(() => false),
   stop: vi.fn(() => true),
   updateAll: vi.fn(),
   updateRundownData: vi.fn(),
@@ -112,7 +112,7 @@ function makeRundownMetadata(patch?: Partial<RundownMetadata>): RundownMetadata 
 function broadcastWith(state: RuntimeState): string[] {
   stateRef.current = state;
   store.batched = [];
-  runtimeService.setOffsetMode(OffsetMode.Absolute);
+  runtimeService.clearOffsetReset();
   return store.batched.map(([key]) => key);
 }
 
@@ -126,11 +126,11 @@ beforeEach(() => {
  * each test uses its own entry IDs so that a change is unambiguous
  */
 describe('broadcastResult()', () => {
-  it('saves playback with its rundown and offset mode', () => {
+  it('saves playback with its rundown and offset baseline', () => {
     broadcastWith(
       makeRuntimeStateData({
         eventNow: makeOntimeEvent({ id: 'saved-event' }),
-        offset: { mode: OffsetMode.Relative },
+        _offsetBaseline: 5000 as Duration,
       }),
     );
 
@@ -138,7 +138,7 @@ describe('broadcastResult()', () => {
       expect.objectContaining({
         rundownId: 'rundown',
         selectedEventId: 'saved-event',
-        offsetMode: OffsetMode.Relative,
+        offsetBaseline: 5000,
       }),
     );
   });
@@ -302,10 +302,8 @@ describe('resume()', () => {
     addedTime: 0 as Duration,
     startEpoch: null,
     startDayOffset: null,
-    startEventStart: null,
-    startEventDay: null,
+    offsetBaseline: null,
     groupStartedAt: null,
-    offsetMode: OffsetMode.Relative,
   };
 
   beforeEach(() => {
@@ -316,7 +314,6 @@ describe('resume()', () => {
   it('ignores a restore point saved from another rundown', () => {
     runtimeService.resume({ ...restorePoint, rundownId: 'another-rundown' });
 
-    expect(runtimeState.setOffsetMode).not.toHaveBeenCalled();
     expect(runtimeState.resume).not.toHaveBeenCalled();
     expect(logger.warning).toHaveBeenCalledWith('SERVER', 'Restore skipped', {
       reason: 'other-rundown',
@@ -336,10 +333,9 @@ describe('resume()', () => {
     });
   });
 
-  it('restores the offset mode and playback of the loaded rundown', () => {
+  it('restores playback of the loaded rundown', () => {
     runtimeService.resume(restorePoint);
 
-    expect(runtimeState.setOffsetMode).toHaveBeenCalledWith(OffsetMode.Relative);
     expect(runtimeState.resume).toHaveBeenCalledWith(
       restorePoint,
       expect.objectContaining({ id: 'resume-event' }),

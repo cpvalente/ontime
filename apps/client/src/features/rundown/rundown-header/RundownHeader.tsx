@@ -1,11 +1,9 @@
 import { Toggle } from '@base-ui/react/toggle';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { OffsetMode } from 'ontime-types';
 import { memo } from 'react';
 
 import Tooltip from '../../../common/components/tooltip/Tooltip';
-import { setOffsetMode, useOffsetMode } from '../../../common/hooks/useSocket';
 import { AppMode } from '../../../ontimeConfig';
 import { EditorLayoutMode, useEditorLayout } from '../../../views/editor/useEditorLayout';
 import { RundownViewMode } from '../rundown.options';
@@ -22,24 +20,20 @@ interface RundownHeaderProps {
 
 interface HeaderControlsConfig {
   showRunEditToggle: boolean;
-  showOffsetToggle: boolean;
   showOverflowMenu: boolean;
 }
 
 export const HEADER_CONTROLS_CONFIG: Record<EditorLayoutMode, HeaderControlsConfig> = {
   [EditorLayoutMode.CONTROL]: {
     showRunEditToggle: true,
-    showOffsetToggle: true,
     showOverflowMenu: true,
   },
   [EditorLayoutMode.PLANNING]: {
     showRunEditToggle: false,
-    showOffsetToggle: false,
     showOverflowMenu: true,
   },
   [EditorLayoutMode.TRACKING]: {
     showRunEditToggle: false,
-    showOffsetToggle: true,
     showOverflowMenu: false,
   },
 } as const;
@@ -47,10 +41,9 @@ export const HEADER_CONTROLS_CONFIG: Record<EditorLayoutMode, HeaderControlsConf
 export default memo(RundownHeader);
 function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProps) {
   const { editorMode, setEditorMode } = useEditorFollowMode();
-  const offsetMode = useOffsetMode();
   const { layoutMode } = useEditorLayout();
 
-  const { showRunEditToggle, showOffsetToggle, showOverflowMenu } = HEADER_CONTROLS_CONFIG[layoutMode];
+  const { showRunEditToggle, showOverflowMenu } = HEADER_CONTROLS_CONFIG[layoutMode];
 
   const toggleAppMode = (mode: AppMode[]) => {
     // we need to stop user from deselecting a mode
@@ -63,12 +56,6 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
     const newValue = mode.at(0);
     if (!newValue) return;
     setViewMode(newValue);
-  };
-
-  const toggleOffsetMode = (mode: OffsetMode[]) => {
-    const newValue = mode.at(0);
-    if (!newValue) return;
-    setOffsetMode(newValue);
   };
 
   return (
@@ -104,23 +91,6 @@ function RundownHeader({ isExtracted, viewMode, setViewMode }: RundownHeaderProp
           Table
         </Tooltip>
       </ToggleGroup>
-
-      {showOffsetToggle && (
-        <ToggleGroup value={[offsetMode]} onValueChange={toggleOffsetMode} className={style.group}>
-          <Tooltip
-            text='Offsets use fixed clock time'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Absolute} className={style.radioButton} />}
-          >
-            Absolute
-          </Tooltip>
-          <Tooltip
-            text='Offsets follow the rundown relative start'
-            render={<Toolbar.Button render={<Toggle />} value={OffsetMode.Relative} className={style.radioButton} />}
-          >
-            Relative
-          </Tooltip>
-        </ToggleGroup>
-      )}
 
       {showOverflowMenu && <RundownMenu allowNavigation={!isExtracted} />}
     </Toolbar.Root>

@@ -65,6 +65,8 @@ export default function OntimeActionForm({
             { value: 'playback-stop', label: 'Playback: stop' },
             { value: 'playback-pause', label: 'Playback: pause' },
             { value: 'playback-roll', label: 'Playback: roll' },
+            { value: 'offset-reset', label: 'Offset: reset' },
+            { value: 'offset-plan', label: 'Offset: back to plan' },
 
             { value: 'message-set', label: 'Primary Message' },
             { value: 'message-secondary', label: 'Secondary Message' },

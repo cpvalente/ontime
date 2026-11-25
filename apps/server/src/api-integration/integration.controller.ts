@@ -2,7 +2,6 @@ import {
   ApiActionTag,
   LogOrigin,
   MessageState,
-  OffsetMode,
   OntimeEvent,
   PatchWithId,
   SimpleDirection,
@@ -23,7 +22,6 @@ import { runtimeService } from '../services/runtime-service/runtime.service.js';
 import { handleTeleprompterCommand } from '../services/teleprompter-service/teleprompter.service.js';
 import { eventStore } from '../stores/EventStore.js';
 import * as assert from '../utils/assert.js';
-import { coerceEnum } from '../utils/coerceType.js';
 import { parseTeleprompterCommand } from './integration.teleprompter.js';
 import { isValidChangeProperty, parseProperty } from './integration.utils.js';
 
@@ -39,7 +37,7 @@ const attributedActions = new Set<ApiActionTag>([
   'load',
   'addtime',
   'auxtimer',
-  'offsetmode',
+  'offset',
 ]);
 
 /**
@@ -320,10 +318,14 @@ const actionHandlers: Record<ApiActionTag, ActionHandler> = {
 
     throw new Error('No matching method provided');
   },
-  offsetmode: (payload) => {
-    const mode = coerceEnum<OffsetMode>(payload, OffsetMode);
-    runtimeService.setOffsetMode(mode);
-    return { payload: 'success' };
+  offset: (payload) => {
+    if (payload === 'reset') {
+      return successPayloadOrError(runtimeService.resetOffset(), 'Unable to reset offset');
+    }
+    if (payload === 'plan') {
+      return successPayloadOrError(runtimeService.clearOffsetReset(), 'Offset already follows the plan');
+    }
+    throw new Error('No matching method provided');
   },
   /* Teleprompter */
   teleprompter: (payload) => {

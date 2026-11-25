@@ -1,4 +1,4 @@
-import { type Duration, type Instant, OffsetMode, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
+import { type Duration, type Instant, Playback, type TimeOfDay, TimerPhase } from 'ontime-types';
 import { deepmerge } from 'ontime-utils';
 
 import type { RuntimeState } from '../runtimeState.js';
@@ -22,7 +22,6 @@ const baseState: RuntimeState = {
   offset: {
     absolute: 0,
     relative: 0,
-    mode: OffsetMode.Absolute,
     expectedRundownEnd: null,
     expectedGroupEnd: null,
     expectedFlagStart: null,
@@ -54,8 +53,7 @@ const baseState: RuntimeState = {
   _flag: null,
   _startDayOffset: null,
   _startEpoch: null,
-  _startEventStart: null,
-  _startEventDay: null,
+  _offsetBaseline: null,
   _groupStartedAt: null,
 };
 

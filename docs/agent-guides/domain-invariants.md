@@ -46,7 +46,7 @@ Load only for touched domains. Add only stable, recurring invariants; not one-of
 
 Use temporal values by meaning: `Instant` for epoch time, `TimeOfDay` for local time since midnight, `Duration` for elapsed time, `Day` for calendar offsets. Convert through `timeCore`; never interchange as raw numbers.
 
-The runtime's timer base (when playback, the event and the group started, when it paused, time given) is kept and saved as instants; every value that changes each tick follows from it and the clock. Times of day in the store are derived from it, never the source. Measure time between instants on the local wall clock (`timeCore.wallTimeSince`), so a DST change keeps the planned times.
+The runtime's timer base (when playback, the event and the group started, when it paused, time given) is kept and saved as instants, with the offset reset baseline beside it; every value that changes each tick follows from it and the clock. Times of day in the store are derived from it, never the source. Measure time between instants on the local wall clock (`timeCore.wallTimeSince`), so a DST change keeps the planned times.
 
 Active work: [runtimeState time-core migration](../migrations/runtime-state-time-core.md).
 
@@ -61,13 +61,22 @@ A delay entry is an announced change to the plan, not an annotation. An event ha
 
 Use `getDelayedStart()` and `getDelayedEnd()` from `ontime-utils` for delayed times. Not yet enforced: roll starts events on their planned times, so while rolling the offset ignores delays.
 
+### Offset reset
+
+The absolute offset always measures from the plan. Roll, hard outs and count-to-end deadlines follow it, and a reset never moves them.
+
+- A reset keeps the absolute offset at that moment as a baseline: the relative offset counts from it, and the schedule after the running event moves by it. With no reset, the relative offset equals the absolute offset.
+- A reset changes only the relative offset. Gaps absorb only the offset since the reset: the baseline moves the schedule as a whole.
+- Back to plan drops the baseline. A stop, loading an event on another rundown day, or roll finding its place again drops it too.
+- The baseline is part of the timer base, so the restore point saves it.
+
 When relevant, cover interactions among:
 
 - midnight/day offsets;
 - linked events/gaps;
 - delays/skipped entries;
 - count-to-end;
-- absolute/relative offsets;
+- offset resets (absolute and relative offsets);
 - warning, danger, finish, roll, end-action transitions;
 - loaded/next-event state.
 
