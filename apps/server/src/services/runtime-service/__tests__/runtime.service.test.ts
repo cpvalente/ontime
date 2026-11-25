@@ -296,7 +296,7 @@ describe('resume()', () => {
     rundownId: 'rundown',
     playback: Playback.Play,
     selectedEventId: 'resume-event',
-    startedAt: 0,
+    startedAt: null,
     addedTime: 0,
     pausedAt: null,
     firstStart: 0,

@@ -131,6 +131,50 @@ describe('toInstant() converts a time of day back to an instant anchored to a re
   });
 });
 
+describe('toNearestInstant() converts a time of day to its closest instant to the reference', () => {
+  const at = (date: string) => new Date(date).getTime() as Instant;
+  const clock = (hours: number, minutes = 0) => (hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE) as TimeOfDay;
+
+  test.each([
+    { label: 'same day, in the past', time: clock(9), reference: '2025-01-15T10:00', expected: '2025-01-15T09:00' },
+    { label: 'same day, in the future', time: clock(11), reference: '2025-01-15T10:00', expected: '2025-01-15T11:00' },
+    { label: 'previous day', time: clock(23, 50), reference: '2025-01-15T00:20', expected: '2025-01-14T23:50' },
+    { label: 'next day', time: clock(0, 10), reference: '2025-01-15T23:50', expected: '2025-01-16T00:10' },
+  ])('resolves to the $label', ({ time, reference, expected }) => {
+    expect(timeCore.toNearestInstant(time, at(reference))).toBe(at(expected));
+  });
+
+  it('resolves to the previous day across the spring DST change', () => {
+    // Europe/Copenhagen skips 02:00 -> 03:00 on Mar 30 2025
+    expect(timeCore.toNearestInstant(clock(23, 50), at('2025-03-31T00:20'))).toBe(at('2025-03-30T23:50'));
+  });
+
+  // toInstant() applies the reference's UTC offset to the whole day,
+  // so times before the DST change resolve an hour off when the reference is after it
+  it.fails('resolves to the next day across the autumn DST change', () => {
+    // Europe/Copenhagen repeats 02:00 -> 03:00 on Oct 26 2025
+    expect(timeCore.toNearestInstant(clock(0, 10), at('2025-10-25T23:50'))).toBe(at('2025-10-26T00:10'));
+  });
+});
+
+describe('toNextInstant() converts a time of day to its next instant at or after the reference', () => {
+  const at = (date: string) => new Date(date).getTime() as Instant;
+  const clock = (hours: number, minutes = 0) => (hours * MILLIS_PER_HOUR + minutes * MILLIS_PER_MINUTE) as TimeOfDay;
+
+  test.each([
+    { label: 'later the same day', time: clock(11), reference: '2025-01-15T10:00', expected: '2025-01-15T11:00' },
+    { label: 'reference itself', time: clock(10), reference: '2025-01-15T10:00', expected: '2025-01-15T10:00' },
+    { label: 'next day once passed', time: clock(9), reference: '2025-01-15T10:00', expected: '2025-01-16T09:00' },
+  ])('resolves to the $label', ({ time, reference, expected }) => {
+    expect(timeCore.toNextInstant(time, at(reference))).toBe(at(expected));
+  });
+
+  it('resolves to the next day across the spring DST change', () => {
+    // Europe/Copenhagen skips 02:00 -> 03:00 on Mar 30 2025
+    expect(timeCore.toNextInstant(clock(23, 30), at('2025-03-29T23:50'))).toBe(at('2025-03-30T23:30'));
+  });
+});
+
 describe('timeSince() returns the duration elapsed since a past point', () => {
   it('measures elapsed time between two instants', () => {
     const start = 1000 as Instant;
@@ -181,33 +225,6 @@ describe('addDuration() moves a point in time by a duration', () => {
   it('keeps the instant unchanged with an empty duration list', () => {
     const instant = 1000 as Instant;
     expect(timeCore.addDuration(instant, [])).toBe(1000);
-  });
-});
-
-describe('elapsedTime() calculates duration between two times of day', () => {
-  it('calculates elapsed time on the same day', () => {
-    const start = (10 * MILLIS_PER_HOUR) as TimeOfDay; // 10:00
-    const clock = (10 * MILLIS_PER_HOUR + 30 * MILLIS_PER_MINUTE) as TimeOfDay; // 10:30
-    expect(timeCore.elapsedTime(clock, start)).toBe(30 * MILLIS_PER_MINUTE);
-  });
-
-  it('calculates elapsed time when crossing midnight (overnight)', () => {
-    const start = (23 * MILLIS_PER_HOUR + 50 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:50
-    const clock = (21 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:21
-    // From 23:50 to 00:21 = 31 minutes
-    expect(timeCore.elapsedTime(clock, start)).toBe(31 * MILLIS_PER_MINUTE);
-  });
-
-  it('returns 0 when start and clock are the same', () => {
-    const time = (15 * MILLIS_PER_HOUR) as TimeOfDay; // 15:00
-    expect(timeCore.elapsedTime(time, time)).toBe(0);
-  });
-
-  it('calculates correctly for just after midnight', () => {
-    const start = (23 * MILLIS_PER_HOUR + 59 * MILLIS_PER_MINUTE) as TimeOfDay; // 23:59
-    const clock = (1 * MILLIS_PER_MINUTE) as TimeOfDay; // 00:01
-    // From 23:59 to 00:01 = 2 minutes
-    expect(timeCore.elapsedTime(clock, start)).toBe(2 * MILLIS_PER_MINUTE);
   });
 });
 

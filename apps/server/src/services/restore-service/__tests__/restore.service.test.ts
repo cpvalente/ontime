@@ -46,7 +46,7 @@ const runtime: RuntimeRestore = {
   rundownId: 'rundown',
   playback: Playback.Play,
   selectedEventId: 'event',
-  startedAt: 1234,
+  startedAt: 1794870000000 as Instant,
   addedTime: 0,
   pausedAt: null,
   firstStart: 1234,

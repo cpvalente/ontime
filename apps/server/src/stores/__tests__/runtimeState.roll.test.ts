@@ -3,7 +3,7 @@ import { MILLIS_PER_HOUR, MILLIS_PER_MINUTE, createEvent, dayInMs } from 'ontime
 
 import { makeOntimeDelay, makeRundown } from '../../api-data/rundown/__mocks__/rundown.mocks.js';
 import { processRundown } from '../../api-data/rundown/rundown.dao.js';
-import { clearState, getState, load, roll, update, updateRundownData } from '../runtimeState.js';
+import { clearState, getState, load, roll, update, updateAll, updateRundownData } from '../runtimeState.js';
 
 const minute = MILLIS_PER_MINUTE;
 const hour = MILLIS_PER_HOUR;
@@ -97,7 +97,7 @@ describe('roll across midnight (edge cases for overnight shows)', () => {
     });
   });
 
-  test.fails('a late update just after midnight still marks the midnight cue as due', () => {
+  test('a late update just after midnight still marks the midnight cue as due', () => {
     const next = event('midnight', 0, hour);
     const { rundown, metadata } = prepare([next]);
     at(dayInMs - 100);
@@ -107,7 +107,7 @@ describe('roll across midnight (edge cases for overnight shows)', () => {
     expect(update(at(dayInMs + 32))).toMatchObject({ hasSecondaryTimerFinished: true });
   });
 
-  test.fails('joining a count-to-end event after midnight counts down to its end today', () => {
+  test('joining a count-to-end event after midnight counts down to its end today', () => {
     const overnight = { ...event('overnight', 23 * hour, hour), countToEnd: true };
     const { rundown, metadata } = prepare([overnight]);
     at(30 * minute);
@@ -117,10 +117,23 @@ describe('roll across midnight (edge cases for overnight shows)', () => {
 
     expect(getState().timer.current).toBe(30 * minute);
   });
+
+  test('editing the awaited event to span midnight starts it', () => {
+    const { rundown, metadata } = prepare([event('next', 40 * minute, hour)]);
+    at(20 * minute);
+    roll(rundown, metadata);
+    expect(getState().timer).toMatchObject({ phase: TimerPhase.Pending, secondaryTimer: 20 * minute });
+
+    const edited = prepare([event('next', 23 * hour + 30 * minute, hour)]);
+    updateAll(edited.rundown, edited.metadata);
+
+    expect(getState().timer.secondaryTimer).toBe(-50 * minute);
+    expect(update()).toMatchObject({ hasSecondaryTimerFinished: true });
+  });
 });
 
 describe('roll carrying a runtime delay', () => {
-  test.fails('a five-minute delay stays in the pre-roll countdown as time passes', () => {
+  test('a five-minute delay stays in the pre-roll countdown as time passes', () => {
     const next = event('next', hour, 2 * hour);
     const { rundown, metadata } = prepare([next]);
     at(50 * minute);
@@ -133,7 +146,7 @@ describe('roll carrying a runtime delay', () => {
     expect(getState().timer.secondaryTimer).toBe(14 * minute);
   });
 
-  test.fails('starting a delayed cue preserves its shifted finish time', () => {
+  test('starting a delayed cue preserves its shifted finish time', () => {
     const next = event('next', hour, 2 * hour);
     const { rundown, metadata } = prepare([next]);
     at(hour + 10 * minute);

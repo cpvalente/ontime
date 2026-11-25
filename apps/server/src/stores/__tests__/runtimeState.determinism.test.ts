@@ -101,7 +101,9 @@ describe('runtime driven by the instant things happened', () => {
       return getState();
     };
 
-    const onTime = rollAt(0);
-    expect(rollAt(250)).toStrictEqual(onTime);
+    // TODO: this is a bit messy
+    const atTime_0 = rollAt(0);
+    const atTime_250 = rollAt(250);
+    expect(atTime_250).toStrictEqual({ ...atTime_0, _epoch: atTime_250._epoch });
   });
 });

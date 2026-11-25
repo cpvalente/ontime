@@ -2,6 +2,8 @@
 
 Make the smallest maintainable change. Keep scope narrow. Inspect nearby code first. Reuse helpers and boundaries when semantics match.
 
+Use `pnpm`/`pnpx`, never `npm`/`npx`. Run unit tests with `pnpm vitest` (see [workflow](docs/agent-guides/workflow.md)).
+
 ## Load only relevant guides
 
 - Commands, validation, formatting, imports, PRs: [workflow](docs/agent-guides/workflow.md).

@@ -15,22 +15,23 @@ Use `apps/server/src/lib/time-core/timeCore.ts` for conversions and temporal ari
 
 ## Current state
 
-Completed foundation:
+Completed:
 
 - temporal brands in `ontime-types`;
-- `timeCore` helpers for now, conversion, duration arithmetic, midnight crossing, calendar-day distance;
-- partial `runtimeState` adoption of `Instant`, `TimeOfDay`, `Day`, and `timeCore`.
+- `timeCore` helpers for now, conversion, duration arithmetic, calendar-day distance, and resolving a time of day to its nearest or next instant;
+- timer calculations (`getCurrent`, `getExpectedFinish`, `getElapsed`, `getRuntimeOffset`, `skippedOutOfEvent`) run on `_epoch` and private `Instant` fields (`_timer.startedAt`, `_timer.pausedAt`, `_startEpoch`); count-to-end and offsets anchor to the rundown day;
+- roll waits on an `Instant` target and starts events on the schedule shifted by the offset;
+- the restore point saves start and pause as instants and rejects older time-of-day values.
 
 Remaining ambiguity:
 
-- `TimerState`, `RundownState`, and `Offset` expose temporal fields as `number`/`MaybeNumber`;
-- `timerUtils` timer calculations take typed inputs, and `runtimeState` brands their fields when building them; `skippedOutOfEvent`, `findDayOffset` and `normaliseEndTime` still take raw numbers or `RuntimeState`;
-- `runtimeState` retains raw duration fields, manual arithmetic, and `as TimeOfDay`/`as Duration` casts.
-- `getExpectedFinish` returns `MaybeNumber`: the count-to-end finish is not wrapped to a time of day.
+- `TimerState`, `RundownState`, and `Offset` expose temporal fields as `number`/`MaybeNumber`; public `TimeOfDay` fields (`timer.startedAt`, `rundown.actualStart`, `actualGroupStart`) are still assigned beside their instants rather than derived from them;
+- `loadRoll` selects the roll event by time of day with its own day counting (`normaliseEndTime`, `checkIsNow`); moving it to instants needs a rule for anchoring rundown day 0 before the show starts;
+- `_startDayOffset` comes from `findDayOffset` on times of day;
+- `timeCore.toInstant` applies the reference's UTC offset to the whole day, so times across a DST change on that day are an hour off (pinned by an `it.fails` test).
 
 Before the pure timer calculations can move to `ontime-utils` for client use:
 
-- `timeCore.elapsedTime` is environment-independent but lives in the server; it moves with them;
 - `getRuntimeOffset` asserts its inputs in `DEV` blocks, which only the server build strips;
 - clients do not receive `pausedAt`, `pausedDuration`, `_startDayOffset`, `hasFinished`, `triggerAhead` or the expected-time lookahead.
 

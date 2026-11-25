@@ -18,6 +18,8 @@ Confirm names from `package.json`.
 
 Run from repo root: `pnpm --filter <workspace-name> <script>`. Add/install workspaces only when required.
 
+Use `pnpm`/`pnpx`, never `npm`/`npx`. For a quick unit test run, use `pnpm vitest run <path-to-test>` from the package directory.
+
 ## Verification
 
 Start narrow; expand with risk:
