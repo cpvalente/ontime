@@ -11,7 +11,7 @@ The command starts a separate server on a free port with a temporary data direct
 built-in demo project, stages playback, and captures the navigation views and two feature examples at 1920 × 1080.
 The server and temporary data directory are cleaned up when the command finishes.
 
-Outputs go to `automated-screenshots/demo/` (ignored by Git): thirteen numbered PNGs, an HTML gallery,
+Outputs go to `automated-screenshots/demo/` (ignored by Git): fourteen numbered PNGs, an HTML gallery,
 an overview image, and a JSON report. Editor Control, Planning, and Tracking each have a capture.
 On failure, the last browser screen is saved as `failure.png`.
 
@@ -28,6 +28,7 @@ leaves those unchanged. Only runtime controls and supported view options are con
 - Each editor capture reveals the current event through the app's navigation and checks it sits near the top.
 - Operator shows notes and the Video Notes custom field; Countdown subscribes to the upcoming demo events.
 - Every table hides the Script custom field, whose presenter scripts would stretch its rows; the teleprompter reads it.
+- The shared teleprompter script is built while staging, so its reading position sits at the loaded event before the runtime baseline is taken. Teleprompter uses the default local role, paused on the Session 1 script.
 - The secondary message asks the speaker to slow down for the interpreters.
 - The main timer message is empty and disabled; only the secondary message is enabled, using the default Timer view.
 - Timeline uses fixed-size mode to show the whole rundown, with event notes as secondary text.
@@ -42,15 +43,16 @@ state before and after the set, including restoration after the delayed scenario
 
 ## Website and documentation coverage
 
-The default run produces **13 captures**: the eleven standard views above and two supplemental
-feature examples. Use the standard captures for both the website and the documentation's plain
-view screenshots; no second set is needed for documentation. Keep existing filenames 01–11 stable.
+The default run produces **14 captures**: the eleven standard views above, two supplemental
+feature examples and the Teleprompter view. Use the standard captures for both the website and the documentation's plain
+view screenshots; no second set is needed for documentation. Keep existing filenames 01–13 stable; new captures are appended.
 
 | Capture                         | Intended use                                                  | Staged state                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | 01–11: standard views           | Website view gallery and unannotated documentation view pages | Approved on-time demo profile                                                                                      |
 | 12: Cuesheet — Video department | Website collaboration example                                 | Edit mode; schedule, notes and Video Notes visible; Audio Notes and PowerPoint fields hidden through table options |
 | 13: Editor — Tracking delayed   | Website delay-management example                              | Tracking Table with Show delayed times enabled and five minutes added to Session 1                                 |
+| 14: Teleprompter                | Documentation view page                                       | Local role reading the Session 1 script, paused with the reading marker on its first line                          |
 
 The department example configures visible columns only; it does not represent a restricted-access
 sharing preset. Widen Title and Note by 200px each and Video Notes by 300px using the table
