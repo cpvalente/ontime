@@ -11,6 +11,8 @@ The command starts a separate server on a free port with a temporary data direct
 built-in demo project, stages playback, and captures the navigation views and two feature examples at 1920 × 1080.
 The server and temporary data directory are cleaned up when the command finishes.
 
+Set `CAPTURE_SCALE=2` for 3840 × 2160 images, the size of the documentation view screenshots.
+
 Outputs go to `automated-screenshots/demo/` (ignored by Git): fourteen numbered PNGs, an HTML gallery,
 an overview image, and a JSON report. Editor Control, Planning, and Tracking each have a capture.
 On failure, the last browser screen is saved as `failure.png`.
