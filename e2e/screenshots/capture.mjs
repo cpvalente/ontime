@@ -139,6 +139,8 @@ try {
   await setClock(frozen);
   await expect.poll(async () => (await poll()).clock).toBe(41565000);
   await expect.poll(async () => (await poll()).auxtimer1.current).toBe(435000);
+  // The shared teleprompter reader starts at the loaded event once the script is first built: build it here
+  await request('/data/teleprompter/script');
   const before = await poll();
   assert.equal(before.eventFlag?.id, upcoming.find((event) => event.flag).id);
   assert.deepEqual(
@@ -164,6 +166,7 @@ try {
     ['Project Info', '/info'],
     ['Cuesheet — Video department', '/cuesheet'],
     ['Editor — Tracking delayed', '/editor?layout=tracking'],
+    ['Teleprompter', '/teleprompter'],
   ];
   browser = await chromium.launch();
   const context = await browser.newContext({
@@ -197,6 +200,11 @@ try {
       await expect(page.getByText(demo.rundowns.default.title, { exact: true }).first()).toBeVisible();
     } else if (!path.startsWith('/editor')) {
       await expect(page.locator('body')).toContainText(current.title);
+    }
+    if (label === 'Teleprompter') {
+      // the script comes from the demo's Script field, set as the project's teleprompter source
+      await expect(page.getByTestId('teleprompter-view')).toBeVisible();
+      await expect(page.getByTestId('teleprompter-view')).toContainText(current.title);
     }
     if (label === 'Backstage') await expect(page.locator('.info-card svg')).toBeVisible();
     if (label === 'Timeline') await expect(page.getByText(current.note, { exact: true }).first()).toBeVisible();
@@ -300,10 +308,12 @@ try {
     // Refresh the baseline before capture: the client extrapolates stale server clocks.
     await setClock(frozen + 1000);
     await expect.poll(async () => (await poll()).clock).toBe(41566000);
-    if (label !== 'Project Info') await expect(page.getByText('11:32:46', { exact: true }).first()).toBeVisible();
+    if (!['Project Info', 'Teleprompter'].includes(label))
+      await expect(page.getByText('11:32:46', { exact: true }).first()).toBeVisible();
     await setClock(frozen);
     await expect.poll(async () => (await poll()).clock).toBe(41565000);
-    if (label !== 'Project Info') await expect(page.getByText('11:32:45', { exact: true }).first()).toBeVisible();
+    if (!['Project Info', 'Teleprompter'].includes(label))
+      await expect(page.getByText('11:32:45', { exact: true }).first()).toBeVisible();
     await expect.poll(async () => (await poll()).auxtimer1.current).toBe(before.auxtimer1.current);
     if (['Editor — Control', 'Editor — Tracking', 'Studio Clock'].includes(label)) {
       await expect(page.getByText('00:07:15', { exact: true }).first()).toBeVisible();
