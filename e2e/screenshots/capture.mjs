@@ -171,7 +171,7 @@ try {
   browser = await chromium.launch();
   const context = await browser.newContext({
     viewport,
-    deviceScaleFactor: 1,
+    deviceScaleFactor: Number(process.env.CAPTURE_SCALE || 1),
     timezoneId: 'Europe/Oslo',
     locale: 'en-GB',
     colorScheme: 'dark',
