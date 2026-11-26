@@ -17,6 +17,7 @@ const viewport = {
   width: Number(process.env.CAPTURE_WIDTH || 1920),
   height: Number(process.env.CAPTURE_HEIGHT || 1080),
 };
+const scale = Number(process.env.CAPTURE_SCALE || 1);
 const data = await mkdtemp(join(tmpdir(), 'ontime-screenshots-'));
 const clockPath = join(data, 'clock.txt');
 const frozen = Date.parse('2026-10-17T11:32:45+02:00');
@@ -150,6 +151,8 @@ try {
   assert.equal(before.message.timer.visible, false);
   assert.equal(before.message.timer.text, '');
 
+  const lunch = events.find((event) => event.cue === '2.1');
+  assert.ok(lunch, 'Demo must include the Lunch event at cue 2.1');
   const countdown = new URLSearchParams({ 'secondary-src': 'note' });
   for (const event of upcoming) countdown.append('sub', event.id);
   const views = [
@@ -166,12 +169,13 @@ try {
     ['Project Info', '/info'],
     ['Cuesheet — Video department', '/cuesheet'],
     ['Editor — Tracking delayed', '/editor?layout=tracking'],
-    ['Teleprompter', '/teleprompter'],
+    ['Teleprompter', '/teleprompter?onlyLoaded=true'],
+    ['Countdown — single event', `/countdown?sub=${lunch.id}`],
   ];
   browser = await chromium.launch();
   const context = await browser.newContext({
     viewport,
-    deviceScaleFactor: Number(process.env.CAPTURE_SCALE || 1),
+    deviceScaleFactor: scale,
     timezoneId: 'Europe/Oslo',
     locale: 'en-GB',
     colorScheme: 'dark',
@@ -190,12 +194,26 @@ try {
     page.setDefaultTimeout(10000);
     page.on('pageerror', (error) => errors.push({ label, message: error.message }));
     await page.clock.setFixedTime(frozen);
+    // The client shows the server clock as a measured offset plus performance.now(), which keeps running
+    // while setFixedTime only fixes Date. Freeze it for the app, so the clock and animated progress never drift.
+    // React's scheduler lives in the entry chunk and needs real time: a frozen one stalls Suspense, such as the
+    // Backstage QR code. Register after setFixedTime and per page: an earlier or context-level script freezes
+    // the page clock's own timers too, and the app never leaves its loading spinner.
+    await page.addInitScript(() => {
+      const realNow = performance.now.bind(performance);
+      const frozenNow = realNow();
+      Object.defineProperty(performance, 'now', {
+        configurable: true,
+        value: () =>
+          /\/assets\/index-[^/]*\.js/.test(new Error().stack?.split('\n')[2] ?? '') ? realNow() : frozenNow,
+      });
+    });
     await page.goto(base + path);
     if (label === 'Project Info') {
       await expect(page.getByTestId('project-view')).toContainText(demo.project.description);
       await expect(page.locator('.info__image')).toBeVisible();
-    } else if (label === 'Countdown') {
-      await expect(page.getByText(upcoming[0].title, { exact: true }).first()).toBeVisible();
+    } else if (label.startsWith('Countdown')) {
+      await expect(page.getByText(lunch.title).first()).toBeVisible();
     } else if (label.startsWith('Cuesheet')) {
       await expect(page.getByText(demo.rundowns.default.title, { exact: true }).first()).toBeVisible();
     } else if (!path.startsWith('/editor')) {
@@ -305,12 +323,6 @@ try {
         ),
       )
       .toBe(true);
-    // Refresh the baseline before capture: the client extrapolates stale server clocks.
-    await setClock(frozen + 1000);
-    await expect.poll(async () => (await poll()).clock).toBe(41566000);
-    if (!['Project Info', 'Teleprompter'].includes(label))
-      await expect(page.getByText('11:32:46', { exact: true }).first()).toBeVisible();
-    await setClock(frozen);
     await expect.poll(async () => (await poll()).clock).toBe(41565000);
     if (!['Project Info', 'Teleprompter'].includes(label))
       await expect(page.getByText('11:32:45', { exact: true }).first()).toBeVisible();
@@ -382,6 +394,7 @@ try {
     JSON.stringify(
       {
         viewport: `${viewport.width}x${viewport.height}`,
+        scale,
         frozen: '2026-10-17 11:32:45 Europe/Oslo',
         before,
         after,

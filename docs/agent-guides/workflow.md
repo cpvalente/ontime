@@ -53,7 +53,7 @@ Build the client, then run `node e2e/screenshots/capture.mjs`; see [capture inst
 Use the built-in demo project as the source. Improve its models when content is missing, rather than patching a separate
 screenshot rundown. The capture command stages runtime controls on an isolated server and captures every navigation view,
 including all three editor layouts. The standard views serve the website and unannotated documentation
-view pages; supplemental captures show a department Cuesheet and a delayed show.
+view pages; supplemental captures show a department Cuesheet, a delayed show, the Teleprompter and a single-event Countdown.
 
 ## TypeScript and imports
 
