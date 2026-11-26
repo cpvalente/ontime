@@ -302,6 +302,19 @@ try {
         ? page.getByTestId('rundown-event').filter({ has: page.locator(`input[value="${current.title}"]`) })
         : page.locator(`[data-testid="cuesheet-event"][data-entry-id="${current.id}"]`);
       await expect.poll(async () => (await currentRow.boundingBox())?.y ?? Infinity).toBeLessThan(320);
+      // The scroll is animated: wait until the row stops moving, not just until it passes the threshold
+      let previousY;
+      await expect
+        .poll(
+          async () => {
+            const y = (await currentRow.boundingBox())?.y;
+            const settled = y === previousY;
+            previousY = y;
+            return settled;
+          },
+          { intervals: [150] },
+        )
+        .toBe(true);
     }
     await page.evaluate(() => {
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
