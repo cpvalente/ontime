@@ -8,12 +8,12 @@ node e2e/screenshots/capture.mjs
 ```
 
 The command starts a separate server on a free port with a temporary data directory, loads the
-built-in demo project, stages playback, and captures the navigation views and two feature examples at 1920 × 1080.
+built-in demo project, stages playback, and captures the navigation views and supplemental examples at 1920 × 1080.
 The server and temporary data directory are cleaned up when the command finishes.
 
 Set `CAPTURE_SCALE=2` for 3840 × 2160 images, the size of the documentation view screenshots.
 
-Outputs go to `automated-screenshots/demo/` (ignored by Git): fourteen numbered PNGs, an HTML gallery,
+Outputs go to `automated-screenshots/demo/` (ignored by Git): fifteen numbered PNGs, an HTML gallery,
 an overview image, and a JSON report. Editor Control, Planning, and Tracking each have a capture.
 On failure, the last browser screen is saved as `failure.png`.
 
@@ -28,7 +28,7 @@ leaves those unchanged. Only runtime controls and supported view options are con
 - Auxiliary timers use short names: Q&A, Break and Reset. Only Q&A runs; Break and Reset are ready but stopped.
 - Planning and Tracking use Table view; Control uses List view.
 - Each editor capture reveals the current event through the app's navigation and checks it sits near the top.
-- Operator shows notes and the Video Notes custom field; Countdown subscribes to the upcoming demo events.
+- Operator shows notes and the Video Notes custom field; Countdown subscribes to the upcoming demo events, and the single-event capture only to Lunch.
 - Every table hides the Script custom field, whose presenter scripts would stretch its rows; the teleprompter reads it.
 - The shared teleprompter script is built while staging, so its reading position sits at the loaded event before the runtime baseline is taken. Teleprompter uses the default local role, paused on the Session 1 script.
 - The secondary message asks the speaker to slow down for the interpreters.
@@ -38,23 +38,25 @@ leaves those unchanged. Only runtime controls and supported view options are con
 
 The clock is fixed at **17 October 2026, 11:32:45 Europe/Oslo**, with **27:15** remaining in Session 1.
 `clock.mjs` overrides Date only in the spawned screenshot server, leaving normal server behaviour
-unchanged. Before each capture the clock briefly advances one second and returns to the fixed time:
-this refreshes the client's clock baseline so its stale-clock fallback does not drift. Capture
+unchanged. In the browser, Playwright fixes `Date` and an init script freezes `performance.now()`,
+which the client adds to the server's clock to tick locally: the displayed clock and animated progress
+stay exactly where the server published them, however long a capture takes. Capture
 checks the displayed clock, the upcoming flag, image loading, browser errors, and identical runtime
 state before and after the set, including restoration after the delayed scenario.
 
 ## Website and documentation coverage
 
-The default run produces **14 captures**: the eleven standard views above, two supplemental
-feature examples and the Teleprompter view. Use the standard captures for both the website and the documentation's plain
-view screenshots; no second set is needed for documentation. Keep existing filenames 01–13 stable; new captures are appended.
+The default run produces **15 captures**: the eleven standard views above, two supplemental
+feature examples, the Teleprompter view and a single-event Countdown. Use the standard captures for both the website and the documentation's plain
+view screenshots; no second set is needed for documentation. Keep existing filenames 01–14 stable; new captures are appended.
 
 | Capture                         | Intended use                                                  | Staged state                                                                                                       |
 | ------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
 | 01–11: standard views           | Website view gallery and unannotated documentation view pages | Approved on-time demo profile                                                                                      |
 | 12: Cuesheet — Video department | Website collaboration example                                 | Edit mode; schedule, notes and Video Notes visible; Audio Notes and PowerPoint fields hidden through table options |
 | 13: Editor — Tracking delayed   | Website delay-management example                              | Tracking Table with Show delayed times enabled and five minutes added to Session 1                                 |
-| 14: Teleprompter                | Documentation view page                                       | Local role reading the Session 1 script, paused with the reading marker on its first line                          |
+| 14: Teleprompter                | Documentation view page                                       | Local role showing only the loaded event, the Session 1 script paused with the reading marker on its first line    |
+| 15: Countdown — single event    | Documentation view page                                       | Countdown subscribed to Lunch only, with no secondary text                                                         |
 
 The department example configures visible columns only; it does not represent a restricted-access
 sharing preset. Widen Title and Note by 200px each and Video Notes by 300px using the table
