@@ -25,7 +25,7 @@ import * as Panel from '../../panel-utils/PanelUtils';
 import RundownRenameForm from './composite/RundownRenameForm';
 import { ManageRundownForm } from './ManageRundownForm';
 
-import style from './ManagePanel.module.scss';
+import style from './RundownPanel.module.scss';
 
 export default function ManageRundowns() {
   const { data } = useProjectRundowns();

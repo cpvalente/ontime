@@ -8,7 +8,7 @@ import Swatch from '../../../../../common/components/input/colour-input/Swatch';
 import Tag from '../../../../../common/components/tag/Tag';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
-import style from '../ManagePanel.module.scss';
+import style from '../RundownPanel.module.scss';
 
 interface CustomFieldEntryProps {
   colour: string;

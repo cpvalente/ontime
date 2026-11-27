@@ -110,7 +110,7 @@ export default function GroupEditor({ group }: GroupEditorProps) {
       <div className={style.column}>
         <Editor.Title>
           Custom Fields
-          {isEditor && <AppLink search='settings=manage__custom'>Manage Custom Fields</AppLink>}
+          {isEditor && <AppLink search='settings=rundown__custom'>Manage Custom Fields</AppLink>}
         </Editor.Title>
         <EntryEditorCustomFields customFields={customFields} handleSubmit={handleSubmit} entry={group} />
       </div>
