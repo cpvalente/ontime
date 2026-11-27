@@ -2,6 +2,7 @@ import {
   type Day,
   type Duration,
   Instant,
+  type Maybe,
   OntimeEvent,
   PlayableEvent,
   Playback,
@@ -840,6 +841,68 @@ describe('mutation on runtimeState', () => {
     vi.setSystemTime('jan 4 00:00:01');
     update();
     expect(getState().rundown.currentDay).toBe(3);
+  });
+
+  describe('resume and the timer end', () => {
+    const event = {
+      ...mockEvent,
+      id: 'resumed',
+      timeStart: 10 * MILLIS_PER_HOUR,
+      timeEnd: 11 * MILLIS_PER_HOUR,
+      duration: MILLIS_PER_HOUR,
+    };
+
+    /** resumes a timer started at 10:00 for an event planned 10:00 to 11:00 */
+    async function resumeAt(time: string, playback: Playback, pausedAt: Maybe<Instant> = null) {
+      clearState();
+      vi.setSystemTime(time);
+      await initTestRundown(makeRundown({ entries: { [event.id]: event }, order: [event.id] }));
+      const { rundown, metadata } = rundownCache.get();
+      const startedAt = new Date('jan 1 10:00').getTime() as Instant;
+      resume(
+        {
+          rundownId: rundown.id,
+          playback,
+          selectedEventId: event.id,
+          startedAt,
+          pausedAt,
+          pausedDuration: 0 as Duration,
+          addedTime: 0 as Duration,
+          startEpoch: startedAt,
+          startDayOffset: 0 as Day,
+          offsetBaseline: null,
+          groupStartedAt: null,
+        },
+        event,
+        rundown,
+        metadata,
+      );
+    }
+
+    test('a timer resumed past its end does not finish again', async () => {
+      await resumeAt('jan 1 11:10', Playback.Play);
+
+      expect(update().hasTimerFinished).toBe(false);
+    });
+
+    test('a timer paused past its end does not finish again when started', async () => {
+      await resumeAt('jan 1 11:20', Playback.Pause, new Date('jan 1 11:10').getTime() as Instant);
+
+      start();
+      expect(update().hasTimerFinished).toBe(false);
+      expect(getState().timer.current).toBe(-10 * MILLIS_PER_MINUTE);
+    });
+
+    test('a timer resumed before its end finishes once when its end comes', async () => {
+      await resumeAt('jan 1 10:30', Playback.Play);
+      expect(update().hasTimerFinished).toBe(false);
+
+      vi.setSystemTime('jan 1 11:00');
+      expect(update().hasTimerFinished).toBe(true);
+
+      vi.setSystemTime('jan 1 11:01');
+      expect(update().hasTimerFinished).toBe(false);
+    });
   });
 
   describe('multi-day rundown', () => {
