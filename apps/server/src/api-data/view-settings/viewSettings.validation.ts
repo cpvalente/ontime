@@ -1,12 +1,10 @@
-import { body } from 'express-validator';
+import type { ViewSettings } from 'ontime-types';
+import { z } from 'zod';
 
-import { requestValidationFunction } from '../../middleware/validation.js';
+import { validateBody } from '../../middleware/validation.js';
 
-/**
- * @description Validates object for POST /ontime/views
- */
-export const validateViewSettings = [
-  body('overrideStyles').isBoolean().withMessage('overrideStyles value must be boolean'),
+const viewSettingsSchema = z.object({
+  overrideStyles: z.boolean(),
+}) satisfies z.ZodType<ViewSettings>;
 
-  requestValidationFunction,
-];
+export const validateViewSettings = validateBody(viewSettingsSchema);
