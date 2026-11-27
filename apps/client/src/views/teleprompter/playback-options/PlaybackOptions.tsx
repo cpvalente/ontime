@@ -17,7 +17,7 @@ import style from './PlaybackOptions.module.scss';
 const settingsPath = 'Settings › Teleprompter';
 // a new tab, so the screen keeps its unapplied options
 const settingsLink = (
-  <Link to='/editor?settings=settings__teleprompter' target='_blank' rel='noreferrer' className={linkStyle.link}>
+  <Link to='/editor?settings=views__teleprompter' target='_blank' rel='noreferrer' className={linkStyle.link}>
     {settingsPath}
   </Link>
 );

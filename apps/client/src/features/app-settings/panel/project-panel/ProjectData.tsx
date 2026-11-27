@@ -15,7 +15,7 @@ import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
-import style from './SettingsPanel.module.scss';
+import style from './ProjectData.module.scss';
 
 type PendingLogo = {
   file: File;

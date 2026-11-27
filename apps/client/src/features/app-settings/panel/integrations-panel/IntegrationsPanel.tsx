@@ -4,12 +4,12 @@ import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import AutomationSettingsForm from './AutomationSettingsForm';
 import AutomationsList from './AutomationsList';
+import McpSection from './McpSection';
 import TriggersList from './TriggersList';
 
-export default function AutomationPanel({ location }: PanelBaseProps) {
+export default function IntegrationsPanel({ location }: PanelBaseProps) {
   const { data, status } = useAutomationSettings();
-  const settingsRef = useScrollIntoView<HTMLDivElement>('settings', location);
-  const triggersRef = useScrollIntoView<HTMLDivElement>('triggers', location);
+  const mcpRef = useScrollIntoView<HTMLDivElement>('mcp', location);
   const automationsRef = useScrollIntoView<HTMLDivElement>('automations', location);
 
   const isLoading = status === 'pending';
@@ -18,8 +18,8 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
 
   return (
     <>
-      <Panel.Header>Automation</Panel.Header>
-      <div ref={settingsRef}>
+      <Panel.Header>Integrations</Panel.Header>
+      <div ref={automationsRef}>
         <AutomationSettingsForm
           enabledAutomations={data.enabledAutomations}
           enabledOscIn={data.enabledOscIn}
@@ -29,7 +29,7 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
           isLoading={isLoading}
         />
       </div>
-      <div ref={automationsRef}>
+      <div>
         <AutomationsList
           automations={data.automations}
           triggers={data.triggers}
@@ -37,13 +37,16 @@ export default function AutomationPanel({ location }: PanelBaseProps) {
           isLoading={isLoading}
         />
       </div>
-      <div ref={triggersRef}>
+      <div>
         <TriggersList
           triggers={data.triggers}
           automations={data.automations}
           enabledAutomations={automationState}
           isLoading={isLoading}
         />
+      </div>
+      <div ref={mcpRef}>
+        <McpSection />
       </div>
     </>
   );

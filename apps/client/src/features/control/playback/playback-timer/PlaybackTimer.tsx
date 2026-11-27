@@ -118,7 +118,7 @@ function RunningStatus({
       )}
       {showReportLink && (
         <span className={style.overlay}>
-          <AppLink search='settings=sharing__report'>Go to report management</AppLink>
+          <AppLink search='settings=rundown__report'>Go to report management</AppLink>
         </span>
       )}
       <div className={style.cell} data-covered={isCovered || undefined}>

@@ -10,16 +10,14 @@ import Select from '../../../../common/components/select/Select';
 import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
-import GeneralPinInput from './composite/GeneralPinInput';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
 
-export default function GeneralSettings() {
+export default function DisplaySettings() {
   const { data, status } = useSettings();
   const { updateSettings } = useUpdateSettings();
   const {
     handleSubmit,
-    register,
     reset,
     setError,
     watch,
@@ -67,19 +65,19 @@ export default function GeneralSettings() {
         as='form'
         onSubmit={handleSubmit(onSubmit)}
         onKeyDown={(event) => preventEscape(event, onReset)}
-        id='app-settings'
+        id='display-settings'
       >
         <Panel.Card>
           <Panel.SubHeader>
-            General settings
+            Display
             <Panel.InlineElements>
               <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
                 Revert to saved
               </Button>
               <Button
                 type='submit'
-                form='app-settings'
-                name='general-settings-submit'
+                form='display-settings'
+                name='display-settings-submit'
                 loading={isSubmitting}
                 disabled={disableSubmit}
                 variant='primary'
@@ -94,22 +92,6 @@ export default function GeneralSettings() {
             <Info>Changes to the views language does not affect the editor view</Info>
             <Panel.Loader isLoading={isLoading} />
             <Panel.ListGroup>
-              <Panel.ListItem>
-                <Panel.Field
-                  title='Editor pin code'
-                  description='Protect the editor view with a pin code'
-                  error={errors.editorKey?.message}
-                />
-                <GeneralPinInput register={register} formName='editorKey' disabled={disableInputs} />
-              </Panel.ListItem>
-              <Panel.ListItem>
-                <Panel.Field
-                  title='Operator pin code'
-                  description='Protect the operator and cuesheet views with a pin code'
-                  error={errors.operatorKey?.message}
-                />
-                <GeneralPinInput register={register} formName='operatorKey' disabled={disableInputs} />
-              </Panel.ListItem>
               <Panel.ListItem>
                 <Panel.Field
                   title='Time format'

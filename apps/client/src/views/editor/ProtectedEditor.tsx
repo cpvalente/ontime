@@ -37,7 +37,7 @@ export default function ProtectedEditor() {
     if (isSettingsOpen) {
       close();
     } else {
-      setLocation('settings');
+      setLocation('project');
     }
   }, [close, isSettingsOpen, setLocation]);
 

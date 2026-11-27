@@ -4,7 +4,7 @@ test('redirect', async ({ context }) => {
   const controllerPage = await context.newPage();
   const remotePage = await context.newPage();
 
-  await controllerPage.goto('editor?settings=network__clients');
+  await controllerPage.goto('editor?settings=server__clients');
   await remotePage.goto('timer');
 
   const remoteClient = controllerPage.getByRole('row').filter({ hasText: /\/timer/ });
@@ -20,7 +20,7 @@ test('identify', async ({ context }) => {
   const controllerPage = await context.newPage();
   const remotePage = await context.newPage();
 
-  await controllerPage.goto('editor?settings=network__clients');
+  await controllerPage.goto('editor?settings=server__clients');
   await remotePage.goto('timer');
 
   await controllerPage
@@ -36,7 +36,7 @@ test('rename', async ({ context }) => {
   const controllerPage = await context.newPage();
   const remotePage = await context.newPage();
 
-  await controllerPage.goto('editor?settings=network__clients');
+  await controllerPage.goto('editor?settings=server__clients');
   await remotePage.goto('timer');
 
   await controllerPage

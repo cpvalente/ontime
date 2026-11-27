@@ -118,7 +118,7 @@ export default function CustomFieldSettings() {
             </span>
             <span>
               To use custom fields as a data source in an{' '}
-              <AppLink search='settings=automation__automations'>Automation</AppLink>, please note the generated key.
+              <AppLink search='settings=integrations__automations'>Automation</AppLink>, please note the generated key.
             </span>
             <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
           </Info>

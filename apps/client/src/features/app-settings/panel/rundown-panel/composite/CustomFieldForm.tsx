@@ -20,7 +20,7 @@ import { cx } from '../../../../../common/utils/styleUtils';
 import * as Panel from '../../../panel-utils/PanelUtils';
 
 import swatchStyle from '../../../../../common/components/input/colour-input/SwatchSelect.module.scss';
-import style from '../ManagePanel.module.scss';
+import style from '../RundownPanel.module.scss';
 
 const formId = 'custom-field-form';
 

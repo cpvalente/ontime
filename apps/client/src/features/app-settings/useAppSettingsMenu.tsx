@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 
 import useAppVersion from '../../common/hooks-query/useAppVersion';
-import { isDocker } from '../../externals';
 
 type SettingsOptionBase = {
   id: string;
@@ -13,34 +12,16 @@ export type SettingsOption =
   | (SettingsOptionBase & { secondary: Readonly<SettingsOption[]>; keywords?: never })
   | (SettingsOptionBase & { secondary?: never; keywords: Readonly<string[]> });
 
-const staticOptions = [
-  {
-    id: 'settings',
-    label: 'Settings',
-    secondary: [
-      { id: 'settings__data', label: 'Project data', keywords: ['title', 'description', 'logo', 'url', 'info'] },
-      {
-        id: 'settings__general',
-        label: 'General settings',
-        keywords: ['pin', 'password', 'lock', 'language', 'time format', 'timezone'],
-      },
-      { id: 'settings__aux-timers', label: 'Aux timers', keywords: ['aux', 'auxiliary'] },
-      {
-        id: 'settings__view',
-        label: 'View settings',
-        keywords: ['css', 'style', 'theme', 'translation', 'freeze', 'overtime'],
-      },
-      { id: 'settings__teleprompter', label: 'Teleprompter', keywords: ['prompter', 'script', 'autocue'] },
-      { id: 'settings__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
-      { id: 'settings__mcp', label: 'MCP Server', keywords: ['ai', 'agent', 'model'] },
-      ...(isDocker ? [] : [{ id: 'settings__port', label: 'Server port', keywords: ['http', 'network', 'address'] }]),
-    ],
-  },
+export const staticOptions = [
   {
     id: 'project',
     label: 'Project',
     secondary: [
-      { id: 'project__create', label: 'Create...', keywords: ['new project', 'quick start', 'wizard'] },
+      {
+        id: 'project__data',
+        label: 'Project data',
+        keywords: ['title', 'description', 'logo', 'url', 'info', 'name', 'show name', 'rename show'],
+      },
       {
         id: 'project__list',
         label: 'Manage projects',
@@ -49,78 +30,134 @@ const staticOptions = [
     ],
   },
   {
-    id: 'manage',
-    label: 'Project settings',
+    id: 'rundown',
+    label: 'Rundown',
     secondary: [
       {
-        id: 'manage__defaults',
-        label: 'Rundown defaults',
-        keywords: ['duration', 'warning', 'danger', 'defaults'],
-      },
-      {
-        id: 'manage__custom',
-        label: 'Custom fields',
-        keywords: ['metadata', 'columns', 'extra data', 'image field'],
-      },
-      {
-        id: 'manage__rundowns',
+        id: 'rundown__rundowns',
         label: 'Manage rundowns',
-        keywords: ['rundown', 'xlsx', 'excel', 'load', 'export'],
+        keywords: ['rundown', 'xlsx', 'load', 'export'],
       },
       {
-        id: 'manage__sheets',
-        label: 'Import spreadsheet',
-        keywords: ['google sheet', 'sync', 'spreadsheet', 'xlsx', 'excel', 'csv', 'export'],
+        id: 'rundown__custom',
+        label: 'Custom fields',
+        keywords: ['metadata', 'columns', 'column', 'cuesheet', 'extra data', 'image field'],
+      },
+      {
+        id: 'rundown__defaults',
+        label: 'Defaults and aux timers',
+        keywords: ['duration', 'warning', 'danger', 'defaults', 'colour', 'color', 'timer', 'aux', 'auxiliary'],
+      },
+      {
+        id: 'rundown__report',
+        label: 'Runtime report',
+        keywords: ['actual times', 'csv', 'export', 'history'],
       },
     ],
   },
   {
-    id: 'automation',
-    label: 'Automation',
+    id: 'import',
+    label: 'Import',
+    keywords: ['spreadsheet', 'google sheet', 'sync', 'xlsx', 'excel', 'csv', 'export'],
+  },
+  {
+    id: 'views',
+    label: 'Views',
     secondary: [
       {
-        id: 'automation__settings',
-        label: 'Automation settings',
-        keywords: ['osc input', 'port', 'enable', 'remote control'],
+        id: 'views__display',
+        label: 'Display',
+        keywords: ['language', 'translation', 'custom translation', 'time format', '12 hour', '24 hour', 'clock'],
       },
       {
-        id: 'automation__automations',
-        label: 'Manage automations',
-        keywords: ['osc', 'http', 'webhook', 'integration', 'api', 'output', 'action'],
+        id: 'views__view',
+        label: 'View settings',
+        keywords: ['css', 'style', 'theme', 'colour', 'color'],
       },
-      {
-        id: 'automation__triggers',
-        label: 'Manage triggers',
-        keywords: ['lifecycle', 'on load', 'on start', 'on finish', 'on update'],
-      },
+      { id: 'views__teleprompter', label: 'Teleprompter', keywords: ['prompter', 'script', 'autocue'] },
+      { id: 'views__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
     ],
   },
   {
     id: 'sharing',
-    label: 'Sharing and reporting',
+    label: 'Sharing and access',
     secondary: [
-      { id: 'sharing__presets', label: 'URL Presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
+      { id: 'sharing__presets', label: 'URL presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
       {
         id: 'sharing__link',
         label: 'Share link',
-        keywords: ['qr code', 'guest', 'cuesheet link', 'permissions', 'read only'],
+        keywords: ['qr code', 'guest', 'cuesheet link', 'permissions', 'read only', 'ip'],
       },
-      { id: 'sharing__report', label: 'Runtime report', keywords: ['actual times', 'csv', 'export', 'history'] },
+      {
+        id: 'sharing__access',
+        label: 'Access',
+        keywords: ['pin', 'editor pin', 'operator pin', 'password', 'lock'],
+      },
     ],
   },
   {
-    id: 'network',
-    label: 'Network',
+    id: 'integrations',
+    label: 'Integrations',
     secondary: [
       {
-        id: 'network__log',
-        label: 'Event log',
-        keywords: ['debug', 'errors', 'console', 'export log'],
+        id: 'integrations__automations',
+        label: 'Automations',
+        keywords: [
+          'osc input',
+          'osc',
+          'port',
+          'enable',
+          'remote control',
+          'api',
+          'http',
+          'webhook',
+          'output',
+          'action',
+          'companion',
+          'stream deck',
+          'lighting',
+          'qlab',
+          'triggers',
+          'lifecycle',
+          'on load',
+          'on start',
+          'on finish',
+          'on update',
+        ],
       },
       {
-        id: 'network__clients',
+        id: 'integrations__mcp',
+        label: 'MCP Server',
+        keywords: ['ai', 'agent', 'model', 'llm'],
+      },
+    ],
+  },
+  {
+    id: 'server',
+    label: 'Server',
+    secondary: [
+      {
+        id: 'server__clients',
         label: 'Manage clients',
-        keywords: ['redirect', 'identify', 'rename client', 'connected'],
+        keywords: [
+          'redirect',
+          'identify',
+          'rename client',
+          'connected',
+          'screen',
+          'display',
+          'device',
+          'server port',
+          'port',
+          'network',
+          'address',
+          'ip',
+        ],
+      },
+      {
+        id: 'server__log',
+        label: 'Event log',
+        keywords: ['debug', 'errors', 'console', 'export log', 'log'],
       },
     ],
   },
@@ -137,7 +174,9 @@ const staticOptions = [
 ] as const;
 
 // a child of navigation or a child of secondary navigation
+// project__create is not listed: it opens the quick start from the New button and the welcome modal
 export type SettingsOptionId =
+  | 'project__create'
   | (typeof staticOptions)[number]['id']
   | Extract<(typeof staticOptions)[number], { secondary: object }>['secondary'][number]['id'];
 

@@ -125,7 +125,7 @@ function makeFileMenu(askToQuit, serverUrl, redirectWindow, showDialog, download
       { type: 'separator' },
       {
         label: 'Edit Project Data…',
-        click: () => redirectWindow('/editor?settings=settings__data'),
+        click: () => redirectWindow('/editor?settings=project__data'),
       },
       {
         label: 'Export Project…',
@@ -195,81 +195,77 @@ function makeSettingsMenu(redirectWindow) {
       {
         label: 'Open Settings',
         accelerator: 'CommandOrControl+,',
-        click: () => redirectWindow('/editor?settings=settings'),
+        click: () => redirectWindow('/editor?settings=project'),
       },
       {
-        label: 'App Settings',
+        label: 'Project',
         submenu: [
           {
             label: 'Project data',
-            click: () => redirectWindow('/editor?settings=settings__data'),
+            click: () => redirectWindow('/editor?settings=project__data'),
           },
           {
-            label: 'General settings',
-            click: () => redirectWindow('/editor?settings=settings__general'),
-          },
-          {
-            label: 'View settings',
-            click: () => redirectWindow('/editor?settings=settings__view'),
-          },
-          {
-            label: 'Custom views',
-            click: () => redirectWindow('/editor?settings=settings__custom-views'),
-          },
-          {
-            label: 'MCP Server',
-            click: () => redirectWindow('/editor?settings=settings__mcp'),
-          },
-          {
-            label: 'Server port',
-            click: () => redirectWindow('/editor?settings=settings__port'),
+            label: 'Manage projects',
+            click: () => redirectWindow('/editor?settings=project__list'),
           },
         ],
       },
       {
-        label: 'Project settings',
+        label: 'Rundown',
         submenu: [
           {
-            label: 'Rundown defaults',
-            click: () => redirectWindow('/editor?settings=manage__defaults'),
+            label: 'Manage rundowns',
+            click: () => redirectWindow('/editor?settings=rundown__rundowns'),
           },
           {
             label: 'Custom fields',
-            click: () => redirectWindow('/editor?settings=manage__custom'),
+            click: () => redirectWindow('/editor?settings=rundown__custom'),
           },
           {
-            label: 'Manage rundowns',
-            click: () => redirectWindow('/editor?settings=manage__rundowns'),
+            label: 'Rundown defaults',
+            click: () => redirectWindow('/editor?settings=rundown__defaults'),
           },
           {
-            label: 'Import spreadsheet',
-            click: () => redirectWindow('/editor?settings=manage__sheets'),
+            label: 'Aux timers',
+            click: () => redirectWindow('/editor?settings=rundown__defaults'),
           },
           {
-            label: 'Sync with Google Sheet',
-            click: () => redirectWindow('/editor?settings=manage__sheets'),
+            label: 'Runtime report',
+            click: () => redirectWindow('/editor?settings=rundown__report'),
           },
         ],
       },
       {
-        label: 'Automation',
+        label: 'Import spreadsheet',
+        click: () => redirectWindow('/editor?settings=import'),
+      },
+      {
+        label: 'Sync with Google Sheet',
+        click: () => redirectWindow('/editor?settings=import'),
+      },
+      {
+        label: 'Views',
         submenu: [
           {
-            label: 'Automation settings',
-            click: () => redirectWindow('/editor?settings=automation__settings'),
+            label: 'Display (time format and language)',
+            click: () => redirectWindow('/editor?settings=views__display'),
           },
           {
-            label: 'Manage automations',
-            click: () => redirectWindow('/editor?settings=automation__automations'),
+            label: 'View settings',
+            click: () => redirectWindow('/editor?settings=views__view'),
           },
           {
-            label: 'Manage triggers',
-            click: () => redirectWindow('/editor?settings=automation__triggers'),
+            label: 'Teleprompter',
+            click: () => redirectWindow('/editor?settings=views__teleprompter'),
+          },
+          {
+            label: 'Custom views',
+            click: () => redirectWindow('/editor?settings=views__custom-views'),
           },
         ],
       },
       {
-        label: 'Sharing and reporting',
+        label: 'Sharing and access',
         submenu: [
           {
             label: 'URL presets',
@@ -280,21 +276,38 @@ function makeSettingsMenu(redirectWindow) {
             click: () => redirectWindow('/editor?settings=sharing__link'),
           },
           {
-            label: 'Runtime report',
-            click: () => redirectWindow('/editor?settings=sharing__report'),
+            label: 'Access (pin codes)',
+            click: () => redirectWindow('/editor?settings=sharing__access'),
           },
         ],
       },
       {
-        label: 'Network',
+        label: 'Integrations',
         submenu: [
           {
-            label: 'Event log',
-            click: () => redirectWindow('/editor?settings=network__log'),
+            label: 'Automations',
+            click: () => redirectWindow('/editor?settings=integrations__automations'),
           },
           {
+            label: 'MCP Server',
+            click: () => redirectWindow('/editor?settings=integrations__mcp'),
+          },
+        ],
+      },
+      {
+        label: 'Server',
+        submenu: [
+          {
             label: 'Manage clients',
-            click: () => redirectWindow('/editor?settings=network__clients'),
+            click: () => redirectWindow('/editor?settings=server__clients'),
+          },
+          {
+            label: 'Event log',
+            click: () => redirectWindow('/editor?settings=server__log'),
+          },
+          {
+            label: 'Server port',
+            click: () => redirectWindow('/editor?settings=server'),
           },
         ],
       },
