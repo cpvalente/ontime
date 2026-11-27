@@ -264,6 +264,8 @@ function applyRestore(state: RuntimeState, restore: RuntimeRestore) {
 
   if (state._timer.startedAt !== null) {
     state.timer.current = getCurrent(currentInput(state));
+    // a timer restored past its end counts as finished, whether its end passed before or during the downtime
+    state._timer.hasFinished = state.timer.current <= timerConfig.triggerAhead;
     state.timer.elapsed = getElapsed(elapsedInput(state));
     state.timer.expectedFinish = getExpectedFinish(expectedFinishInput(state));
   }

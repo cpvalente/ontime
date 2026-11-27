@@ -1,6 +1,7 @@
-import { EndAction, Playback, type PlayableEvent } from 'ontime-types';
+import { type Day, type Duration, EndAction, type Instant, Playback, type PlayableEvent } from 'ontime-types';
 
 import { makeRundown } from '../../../api-data/rundown/__mocks__/rundown.mocks.js';
+import { getCurrentRundownId } from '../../../api-data/rundown/rundown.dao.js';
 import { initRundown } from '../../../api-data/rundown/rundown.service.js';
 import { timerConfig } from '../../../setup/config.js';
 import * as runtimeState from '../../../stores/runtimeState.js';
@@ -163,6 +164,31 @@ describe('runtime service playback', () => {
 
     const { eventNow, timer } = runtimeState.getState();
     expect(eventNow?.id).toBe('second');
+    expect(timer.playback).toBe(Playback.Play);
+  });
+
+  it('does not finish again or run the end action when resuming a timer past its end', async () => {
+    await loadRundown(makeEvent('overtime', EndAction.PlayNext), makeEvent('next'));
+    const startedAt = (Date.now() - 2 * duration) as Instant;
+    runtimeService.resume({
+      rundownId: getCurrentRundownId(),
+      playback: Playback.Play,
+      selectedEventId: 'overtime',
+      startedAt,
+      pausedAt: null,
+      pausedDuration: 0 as Duration,
+      addedTime: 0 as Duration,
+      startEpoch: startedAt,
+      startDayOffset: 0 as Day,
+      offsetBaseline: null,
+      groupStartedAt: null,
+    });
+
+    vi.advanceTimersByTime(4 * interval);
+
+    expect(finished.at).toBeNull();
+    const { eventNow, timer } = runtimeState.getState();
+    expect(eventNow?.id).toBe('overtime');
     expect(timer.playback).toBe(Playback.Play);
   });
 });
