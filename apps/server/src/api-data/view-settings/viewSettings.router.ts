@@ -1,6 +1,5 @@
 import express from 'express';
 import type { Request, Response, Router } from 'express';
-import { matchedData } from 'express-validator';
 import type { ViewSettings } from 'ontime-types';
 
 import * as viewSettingsDao from './viewSettings.dao.js';
@@ -13,7 +12,11 @@ router.get('/', (_req: Request, res: Response<ViewSettings>) => {
   res.status(200).json(views);
 });
 
-router.post('/', validateViewSettings, async (req: Request, res: Response<ViewSettings>) => {
-  const newData = await viewSettingsDao.editViewSettings(matchedData<ViewSettings>(req));
-  res.status(200).json(newData);
-});
+router.post(
+  '/',
+  validateViewSettings,
+  async (req: Request<unknown, ViewSettings, ViewSettings>, res: Response<ViewSettings>) => {
+    const newData = await viewSettingsDao.editViewSettings(req.body);
+    res.status(200).json(newData);
+  },
+);

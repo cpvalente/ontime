@@ -1,8 +1,25 @@
 import type { NextFunction, Request, Response } from 'express';
 import { param, validationResult } from 'express-validator';
+import { z } from 'zod';
 
 export const paramsWithId = [param('id').isString().trim().notEmpty(), requestValidationFunction];
 type RequestWithFile = Request & { file?: unknown };
+
+/**
+ * Validates req.body against a zod schema, replacing it with the parsed value
+ * Any errors are sent with status 422
+ */
+export function validateBody(schema: z.ZodType) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+    if (!result.success) {
+      res.status(422).json({ message: z.prettifyError(result.error) });
+      return;
+    }
+    req.body = result.data;
+    next();
+  };
+}
 
 // #region operations on project rundowns =========================
 
