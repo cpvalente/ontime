@@ -1,47 +1,43 @@
-import { body } from 'express-validator';
+import type { SettingsPatch } from 'ontime-types';
 import { parsePhaseThresholds, regex, sanitiseAuxTimerNames } from 'ontime-utils';
+import { z } from 'zod';
 
-import { requestValidationFunction } from '../../middleware/validation.js';
+import { validateBody } from '../../middleware/validation.js';
 
-/**
- * @description Validates object for POST /ontime/settings/welcomedialog
- */
-export const validateWelcomeDialog = [body('show').isBoolean(), requestValidationFunction];
+/** A pin is up to 4 alphanumeric characters, an empty pin is stored as null */
+const pinSchema = z
+  .string()
+  .max(4)
+  .regex(regex.isAlphanumericOrEmpty, 'pin can only contain alphanumeric characters')
+  .nullable()
+  .transform((pin) => pin || null);
 
-const pinValidator = (key: string) => {
-  return body(key)
-    .optional()
-    .custom((input) => input === null || typeof input === 'string')
-    .withMessage(`${key} must be a string or null`)
-    .isLength({ min: 0, max: 4 })
-    .matches(regex.isAlphanumericOrEmpty)
-    .withMessage(`${key} can only contain alphanumeric characters`)
-    .customSanitizer((input) => {
-      if (input === null || input.length === 0) {
-        return null;
-      }
-      return input;
-    });
-};
+const phaseThresholdsSchema = z.unknown().transform((input, context) => {
+  const thresholds = parsePhaseThresholds(input);
+  if (!thresholds) {
+    context.addIssue({ code: 'custom', message: 'phaseThresholds must hold a warning and a danger threshold' });
+    return z.NEVER;
+  }
+  return thresholds;
+});
 
 /**
- * @description Validates object for POST /ontime/settings
+ * Any subset of the settings, each field replaces the stored one
+ * Unknown keys, including version, are stripped
  */
-export const validateSettings = [
-  pinValidator('editorKey'),
-  pinValidator('operatorKey'),
-  body('timeFormat').isString().isIn(['12', '24']).withMessage('Time format can only be "12" or "24"'),
-  body('language').isString().trim().notEmpty(),
-  body('auxTimerNames').isArray().withMessage('auxTimerNames must be an array').customSanitizer(sanitiseAuxTimerNames),
-  body('phaseThresholds')
-    .custom((input) => parsePhaseThresholds(input) !== null)
-    .withMessage('phaseThresholds must hold a warning and a danger threshold')
-    .customSanitizer(parsePhaseThresholds),
+const settingsPatchSchema = z
+  .object({
+    editorKey: pinSchema,
+    operatorKey: pinSchema,
+    timeFormat: z.enum(['12', '24']),
+    language: z.string().trim().min(1),
+    auxTimerNames: z.array(z.unknown()).transform(sanitiseAuxTimerNames),
+    phaseThresholds: phaseThresholdsSchema,
+  })
+  .partial() satisfies z.ZodType<SettingsPatch>;
 
-  requestValidationFunction,
-];
+export const validateSettingsPatch = validateBody(settingsPatchSchema);
 
-export const validateServerPort = [
-  body('serverPort').isPort().withMessage('Invalid value found for server port').toInt(),
-  requestValidationFunction,
-];
+export const validateWelcomeDialog = validateBody(z.object({ show: z.boolean() }));
+
+export const validateServerPort = validateBody(z.object({ serverPort: z.number().int().min(0).max(65535) }));

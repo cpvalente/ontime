@@ -8,7 +8,6 @@ import Input from '../../../../common/components/input/input/Input';
 import Tag from '../../../../common/components/tag/Tag';
 import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
-import { isOnlyNumbers } from '../../../../common/utils/regex';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 interface ServerPortForm {
@@ -107,13 +106,11 @@ export default function ServerPortSettings() {
                 maxLength={5}
                 style={{ width: '75px' }}
                 {...register('serverPort', {
+                  valueAsNumber: true,
                   required: { value: true, message: 'Required field' },
                   max: { value: 65535, message: 'Port must be within range 1024 - 65535' },
                   min: { value: 1024, message: 'Port must be within range 1024 - 65535' },
-                  pattern: {
-                    value: isOnlyNumbers,
-                    message: 'Value should be numeric',
-                  },
+                  validate: (value) => Number.isInteger(value) || 'Value should be numeric',
                 })}
               />
             </Panel.ListItem>

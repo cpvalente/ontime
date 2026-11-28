@@ -1,5 +1,5 @@
 import { deepEqual } from 'fast-equals';
-import { RefetchKey, type Settings } from 'ontime-types';
+import { RefetchKey, type Settings, type SettingsPatch } from 'ontime-types';
 
 import { getDataProvider } from '../../classes/data-provider/DataProvider.js';
 import { auxTimerService } from '../../services/aux-timer-service/auxTimer.service.js';
@@ -13,14 +13,15 @@ export function getSettings(): Readonly<Settings> {
 }
 
 /**
- * Replaces the stored settings, keeping the stored app version
+ * Applies a partial change to the stored settings: each given field replaces the stored one
+ * The stored version is always kept
  */
-export async function editSettings(newData: Settings): Promise<Settings> {
+export async function editSettings(patch: SettingsPatch): Promise<Readonly<Settings>> {
   const settings = getDataProvider().getSettings();
-  const data = { ...newData, version: settings.version };
+  const data: Settings = { ...settings, ...patch, version: settings.version };
 
   if (deepEqual(data, settings)) {
-    return data;
+    return settings;
   }
 
   await getDataProvider().setSettings(data);

@@ -15,3 +15,6 @@ export type Settings = {
   /** When timers enter warning and danger, events can override them */
   phaseThresholds: PhaseThresholds;
 };
+
+/** The fields a client can change; version belongs to the project file */
+export type SettingsPatch = Partial<Omit<Settings, 'version'>>;

@@ -36,7 +36,7 @@ export default function RundownDefaultSettings() {
   const submitThreshold = async (phase: keyof PhaseThresholds, threshold: PhaseThreshold) => {
     try {
       setError(null);
-      await updateSettings({ ...settings, phaseThresholds: { ...settings.phaseThresholds, [phase]: threshold } });
+      await updateSettings({ phaseThresholds: { ...settings.phaseThresholds, [phase]: threshold } });
     } catch (submitError) {
       setError(maybeAxiosError(submitError));
     }

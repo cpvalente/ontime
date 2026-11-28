@@ -13,6 +13,12 @@ import * as Panel from '../../panel-utils/PanelUtils';
 
 const TranslationModal = lazy(() => import('./composite/CustomTranslationModal'));
 
+type DisplayFields = Pick<Settings, 'timeFormat' | 'language'>;
+
+function toDisplayFields(settings: Settings): DisplayFields {
+  return { timeFormat: settings.timeFormat, language: settings.language };
+}
+
 export default function DisplaySettings() {
   const { data, status } = useSettings();
   const { updateSettings } = useUpdateSettings();
@@ -23,9 +29,9 @@ export default function DisplaySettings() {
     watch,
     setValue,
     formState: { isSubmitting, isDirty, isValid, errors },
-  } = useForm<Settings>({
+  } = useForm<DisplayFields>({
     mode: 'onChange',
-    defaultValues: data,
+    defaultValues: toDisplayFields(data),
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -36,11 +42,11 @@ export default function DisplaySettings() {
   // update form if we get new data from server
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset(toDisplayFields(data));
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Settings) => {
+  const onSubmit = async (formData: DisplayFields) => {
     try {
       await updateSettings(formData);
     } catch (error) {
@@ -53,7 +59,7 @@ export default function DisplaySettings() {
   const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   const onReset = () => {
-    reset(data);
+    reset(toDisplayFields(data));
   };
 
   const isLoading = status === 'pending';

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { PortInfo, Settings } from 'ontime-types';
+import type { PortInfo, Settings, SettingsPatch } from 'ontime-types';
 
 import { apiEntryUrl } from './constants';
 import type { RequestOptions } from './requestOptions';
@@ -15,10 +15,10 @@ export async function getSettings(options?: RequestOptions): Promise<Settings> {
 }
 
 /**
- * HTTP request to mutate application settings
+ * HTTP request to change some of the application settings, returns all settings
  */
-export async function postSettings(data: Settings): Promise<Settings> {
-  const res = await axios.post<Settings>(settingsPath, data);
+export async function patchSettings(patch: SettingsPatch): Promise<Settings> {
+  const res = await axios.patch<Settings>(settingsPath, patch);
   return res.data;
 }
 

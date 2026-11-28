@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 
 import useAppVersion from '../../common/hooks-query/useAppVersion';
+import { isDocker } from '../../externals';
 
 type SettingsOptionBase = {
   id: string;
@@ -25,7 +26,19 @@ export const staticOptions = [
       {
         id: 'project__list',
         label: 'Manage projects',
-        keywords: ['load', 'open', 'rename', 'duplicate', 'delete', 'download', 'import', 'backup', 'merge'],
+        keywords: [
+          'load',
+          'open',
+          'rename',
+          'duplicate',
+          'delete',
+          'download',
+          'import',
+          'backup',
+          'merge',
+          'new project',
+          'quick start',
+        ],
       },
     ],
   },
@@ -58,7 +71,7 @@ export const staticOptions = [
   {
     id: 'import',
     label: 'Import',
-    keywords: ['spreadsheet', 'google sheet', 'sync', 'xlsx', 'excel', 'csv', 'export'],
+    keywords: ['spreadsheet', 'google sheet', 'sync', 'xlsx', 'excel', 'csv'],
   },
   {
     id: 'views',
@@ -72,7 +85,7 @@ export const staticOptions = [
       {
         id: 'views__view',
         label: 'View settings',
-        keywords: ['css', 'style', 'theme', 'colour', 'color'],
+        keywords: ['css', 'style', 'theme', 'colour', 'color', 'freeze', 'overtime'],
       },
       { id: 'views__teleprompter', label: 'Teleprompter', keywords: ['prompter', 'script', 'autocue'] },
       { id: 'views__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
@@ -145,13 +158,9 @@ export const staticOptions = [
           'rename client',
           'connected',
           'screen',
-          'display',
           'device',
-          'server port',
-          'port',
-          'network',
-          'address',
-          'ip',
+          // the server port card sits above the clients, it is hidden in docker
+          ...(isDocker ? [] : ['server port', 'network', 'address']),
         ],
       },
       {
