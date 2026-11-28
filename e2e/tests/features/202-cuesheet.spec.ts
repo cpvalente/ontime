@@ -129,7 +129,7 @@ test('cuesheet background edit from empty state', async ({ page }) => {
   await page.goto('editor');
   await page.getByRole('button', { name: 'Toggle settings' }).click();
   await page.getByRole('button', { name: 'Manage rundowns' }).click();
-  await page.getByRole('button', { name: 'New' }).nth(1).click();
+  await page.getByRole('button', { name: 'New' }).first().click();
   const emptyName = `empty-${Date.now()}`;
   await page.getByRole('textbox', { name: 'Rundown title' }).fill(emptyName);
   await page.getByRole('button', { name: 'Create rundown' }).click();
