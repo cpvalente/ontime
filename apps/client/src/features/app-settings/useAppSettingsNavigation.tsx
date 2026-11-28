@@ -1,9 +1,10 @@
 import { useCallback, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import { SettingsOptionId } from './useAppSettingsMenu';
+import { type SettingsOptionId, staticOptions } from './useAppSettingsMenu';
 
 const settingsKey = 'settings';
+const panelIds = new Set<string>(staticOptions.map((option) => option.id));
 
 export default function useAppSettingsNavigation() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -13,7 +14,11 @@ export default function useAppSettingsNavigation() {
     [searchParams],
   );
   const isOpen = useMemo(() => Boolean(searchParams.get(settingsKey)), [searchParams]);
-  const [panel, location] = selectedPanel.split('__');
+  const [requestedPanel, requestedLocation] = selectedPanel.split('__');
+  // an unknown id, such as a link from an older version, opens the first panel
+  const isKnownPanel = panelIds.has(requestedPanel);
+  const panel = isKnownPanel ? requestedPanel : 'project';
+  const location = isKnownPanel ? requestedLocation : undefined;
 
   const close = useCallback(() => {
     searchParams.delete(settingsKey);

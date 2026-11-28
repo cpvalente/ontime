@@ -2,7 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { unobfuscate } from 'ontime-utils';
 
 import { APP_SETTINGS } from '../api/constants';
-import { getSettings, postSettings } from '../api/settings';
+import { getSettings, patchSettings } from '../api/settings';
 import { ontimePlaceholderSettings } from '../models/OntimeSettings';
 import { ontimeQueryClient } from '../queryClient';
 
@@ -28,7 +28,7 @@ export default function useSettings() {
 
 export function useUpdateSettings() {
   const { mutateAsync } = useMutation({
-    mutationFn: postSettings,
+    mutationFn: patchSettings,
     onMutate: () => ontimeQueryClient.cancelQueries({ queryKey: APP_SETTINGS }),
     onError: () => ontimeQueryClient.invalidateQueries({ queryKey: APP_SETTINGS }),
     onSuccess: (newSettings) => {

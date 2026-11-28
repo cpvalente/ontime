@@ -11,6 +11,12 @@ import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/u
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+type AuxTimerFields = Pick<Settings, 'auxTimerNames'>;
+
+function toAuxTimerFields(settings: Settings): AuxTimerFields {
+  return { auxTimerNames: settings.auxTimerNames };
+}
+
 export default function AuxTimerSettings() {
   const { data, status } = useSettings();
   const { updateSettings } = useUpdateSettings();
@@ -20,8 +26,8 @@ export default function AuxTimerSettings() {
     reset,
     setError,
     formState: { isSubmitting, isDirty, errors },
-  } = useForm<Settings>({
-    defaultValues: data,
+  } = useForm<AuxTimerFields>({
+    defaultValues: toAuxTimerFields(data),
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -29,11 +35,11 @@ export default function AuxTimerSettings() {
 
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset(toAuxTimerFields(data));
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Settings) => {
+  const onSubmit = async (formData: AuxTimerFields) => {
     try {
       await updateSettings(formData);
     } catch (error) {
@@ -43,7 +49,7 @@ export default function AuxTimerSettings() {
   };
 
   const onReset = () => {
-    reset(data);
+    reset(toAuxTimerFields(data));
   };
 
   const isLoading = status === 'pending';

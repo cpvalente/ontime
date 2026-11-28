@@ -9,6 +9,12 @@ import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 import GeneralPinInput from './composite/GeneralPinInput';
 
+type AccessFields = Pick<Settings, 'editorKey' | 'operatorKey'>;
+
+function toAccessFields(settings: Settings): AccessFields {
+  return { editorKey: settings.editorKey, operatorKey: settings.operatorKey };
+}
+
 export default function AccessSettings() {
   const { data, status } = useSettings();
   const { updateSettings } = useUpdateSettings();
@@ -18,9 +24,9 @@ export default function AccessSettings() {
     reset,
     setError,
     formState: { isSubmitting, isDirty, isValid, errors },
-  } = useForm<Settings>({
+  } = useForm<AccessFields>({
     mode: 'onChange',
-    defaultValues: data,
+    defaultValues: toAccessFields(data),
     resetOptions: {
       keepDirtyValues: true,
     },
@@ -29,11 +35,11 @@ export default function AccessSettings() {
   // update form if we get new data from server
   useEffect(() => {
     if (data) {
-      reset(data);
+      reset(toAccessFields(data));
     }
   }, [data, reset]);
 
-  const onSubmit = async (formData: Settings) => {
+  const onSubmit = async (formData: AccessFields) => {
     try {
       await updateSettings(formData);
     } catch (error) {
@@ -46,7 +52,7 @@ export default function AccessSettings() {
   const disableSubmit = isSubmitting || !isDirty || !isValid;
 
   const onReset = () => {
-    reset(data);
+    reset(toAccessFields(data));
   };
 
   const isLoading = status === 'pending';

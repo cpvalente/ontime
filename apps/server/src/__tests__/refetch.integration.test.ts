@@ -1,4 +1,4 @@
-import { type ProjectRundownsList, RefetchKey, type Rundown, type Settings } from 'ontime-types';
+import { type ProjectRundownsList, RefetchKey, type Rundown } from 'ontime-types';
 
 import { startTestServer, type TestServer } from './testServer.js';
 
@@ -42,9 +42,8 @@ describe('clients are told to refetch after every write', { timeout: 15_000 }, (
     onTestFinished(() => server.stop());
     const client = await connectClient(server);
 
-    const settings: Settings = await (await server.get('/data/settings')).json();
     await client.expectRefetch(
-      () => server.send('POST', '/data/settings', { ...settings, language: 'de' }),
+      () => server.send('PATCH', '/data/settings', { language: 'de' }),
       [{ target: RefetchKey.Settings }],
     );
 

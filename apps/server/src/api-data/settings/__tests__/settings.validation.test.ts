@@ -1,55 +1,75 @@
-import type { Request } from 'express';
-import type { ValidationChain } from 'express-validator';
-import { matchedData, validationResult } from 'express-validator';
+import type { Request, Response } from 'express';
 
-import { validateSettings } from '../settings.validation.js';
+import { validateServerPort, validateSettingsPatch } from '../settings.validation.js';
 
-async function validate(body: object) {
+function validate(middleware: typeof validateSettingsPatch, body: unknown) {
   const req = { body } as Request;
-  const chains = validateSettings.slice(0, -1) as ValidationChain[];
-  for (const chain of chains) {
-    await chain.run(req);
-  }
-  const errors = validationResult(req)
-    .array()
-    .map((error) => (error.type === 'field' ? error.path : error.type));
-  return { errors, data: matchedData(req) };
+  const res = { status: vi.fn().mockReturnThis(), json: vi.fn() };
+  const next = vi.fn();
+  middleware(req, res as unknown as Response, next);
+  return { req, res, next };
 }
 
-const baseSettings = {
-  timeFormat: '24',
-  language: 'en',
-  auxTimerNames: ['', '', ''],
-  phaseThresholds: {
-    warning: { unit: 'percent', value: 20 },
-    danger: { unit: 'time', value: 60000 },
-  },
-};
-
-describe('validateSettings', () => {
-  it.each(['1234', 'aB9', '', null])('accepts pin %j', async (pin) => {
-    const { errors } = await validate({ ...baseSettings, editorKey: pin, operatorKey: pin });
-    expect(errors).toEqual([]);
+describe('validateSettingsPatch', () => {
+  it('accepts a patch with any subset of fields and strips unknown keys and the version', () => {
+    const { req, next } = validate(validateSettingsPatch, { timeFormat: '12', version: '9.9.9', extra: true });
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ timeFormat: '12' });
   });
 
-  it('rejects pins with non alphanumeric characters', async () => {
-    const { errors } = await validate({ ...baseSettings, editorKey: '_abc', operatorKey: '1 2' });
-    expect(errors).toEqual(['editorKey', 'operatorKey']);
+  it.each(['1234', 'aB9'])('accepts pin %j', (pin) => {
+    const { req, next } = validate(validateSettingsPatch, { editorKey: pin, operatorKey: pin });
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ editorKey: pin, operatorKey: pin });
   });
 
-  it.each([1234, true])('rejects non-string pin %j', async (pin) => {
-    const { errors } = await validate({ ...baseSettings, editorKey: pin });
-    expect(errors).toContain('editorKey');
+  it.each([null, ''])('stores a cleared pin %j as null', (pin) => {
+    const { req, next } = validate(validateSettingsPatch, { editorKey: pin });
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ editorKey: null });
   });
 
-  it.each([null, ''])('preserves cleared pin %j for saving', async (pin) => {
-    const { errors, data } = await validate({ ...baseSettings, editorKey: pin });
-    expect(errors).toEqual([]);
-    expect(data.editorKey).toBeNull();
+  it.each(['_abc', '1 2', '12345', 1234, true])('rejects pin %j with a 422', (pin) => {
+    const { res, next } = validate(validateSettingsPatch, { editorKey: pin });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+    expect(res.json).toHaveBeenCalledWith({ message: expect.stringContaining('editorKey') });
   });
 
-  it('rejects settings without phase thresholds, which replace the stored ones', async () => {
-    const { errors } = await validate({ ...baseSettings, phaseThresholds: undefined });
-    expect(errors).toContain('phaseThresholds');
+  it('pads aux timer names to three', () => {
+    const { req } = validate(validateSettingsPatch, { auxTimerNames: ['Speaker'] });
+    expect(req.body).toEqual({ auxTimerNames: ['Speaker', '', ''] });
+  });
+
+  it.each([{ warning: { unit: 'percent', value: 20 } }, null, 'none'])('rejects phase thresholds %j', (thresholds) => {
+    const { res, next } = validate(validateSettingsPatch, { phaseThresholds: thresholds });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+  });
+
+  it.each([{ timeFormat: '13' }, { language: '  ' }])('rejects %j', (patch) => {
+    const { res, next } = validate(validateSettingsPatch, patch);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+  });
+
+  it('rejects a missing body', () => {
+    const { res, next } = validate(validateSettingsPatch, undefined);
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+  });
+});
+
+describe('validateServerPort', () => {
+  it('accepts a port number', () => {
+    const { req, next } = validate(validateServerPort, { serverPort: 4001 });
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ serverPort: 4001 });
+  });
+
+  it.each([70000, -1, 4001.5, 'abc'])('rejects %j', (serverPort) => {
+    const { res, next } = validate(validateServerPort, { serverPort });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
   });
 });

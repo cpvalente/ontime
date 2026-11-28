@@ -9,9 +9,11 @@ import Input from '../../../../../common/components/input/input/Input';
 
 import style from './GeneralPinInput.module.scss';
 
+type PinFields = Pick<Settings, 'editorKey' | 'operatorKey'>;
+
 interface GeneralPinInputProps {
-  register: UseFormRegister<Settings>;
-  formName: keyof Settings;
+  register: UseFormRegister<PinFields>;
+  formName: keyof PinFields;
   disabled?: boolean;
 }
 
