@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import useAppVersion from '../../common/hooks-query/useAppVersion';
-import { isDocker } from '../../externals';
+import { capabilities } from '../../externals';
 
 type SettingsOptionBase = {
   id: string;
@@ -165,8 +165,8 @@ export const staticOptions = [
           'connected',
           'screen',
           'device',
-          // the server port card sits above the clients, it is hidden in docker
-          ...(isDocker ? [] : ['server port', 'network', 'address']),
+          // the server port card sits above the clients, where the port can be changed
+          ...(capabilities.canChangePort ? ['server port', 'network', 'address'] : []),
         ],
       },
       {

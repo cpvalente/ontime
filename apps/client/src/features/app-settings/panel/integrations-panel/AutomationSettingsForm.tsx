@@ -10,7 +10,7 @@ import Switch from '../../../../common/components/switch/Switch';
 import Tag from '../../../../common/components/tag/Tag';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import { isOnlyNumbers } from '../../../../common/utils/regex';
-import { isOntimeCloud } from '../../../../externals';
+import { capabilities } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 
 const oscApiDocsUrl = 'https://docs.getontime.no/api/protocols/osc/';
@@ -138,7 +138,7 @@ export default function AutomationSettingsForm({
           <Panel.Title>OSC Input</Panel.Title>
 
           <Panel.ListGroup>
-            {isOntimeCloud && (
+            {!capabilities.canUseOsc && (
               <Info>For security reasons OSC integrations are not available in the cloud service.</Info>
             )}
             <Panel.ListItem>

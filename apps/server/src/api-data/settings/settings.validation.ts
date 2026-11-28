@@ -48,7 +48,3 @@ const settingsPatchSchema = z
   .partial() satisfies z.ZodType<SettingsPatch>;
 
 export const validateSettingsPatch = validateBody(settingsPatchSchema);
-
-export const validateWelcomeDialog = validateBody(z.object({ show: z.boolean() }));
-
-export const validateServerPort = validateBody(z.object({ serverPort: z.number().int().min(0).max(65535) }));

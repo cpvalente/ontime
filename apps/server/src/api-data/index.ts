@@ -1,6 +1,7 @@
 import express, { Router } from 'express';
 
 import { errorHandler } from '../middleware/errorHandler.js';
+import { router as appStateRouter } from './app-state/appState.router.js';
 import { router as assetsRouter } from './assets/assets.router.js';
 import { router as automationsRouter } from './automation/automation.router.js';
 import { router as customFieldsRouter } from './custom-fields/customFields.router.js';
@@ -10,6 +11,7 @@ import { router as logsRouter } from './logs/logs.router.js';
 import { router as projectRouter } from './project-data/projectData.router.js';
 import { router as reportRouter } from './report/report.router.js';
 import { router as rundownsRouter } from './rundown/rundown.router.js';
+import { router as serverPortRouter } from './server-port/serverPort.router.js';
 import { router as sessionRouter } from './session/session.router.js';
 import { router as settingsRouter } from './settings/settings.router.js';
 import { router as teleprompterRouter } from './teleprompter/teleprompter.router.js';
@@ -19,12 +21,14 @@ import { router as viewSettingsRouter } from './view-settings/viewSettings.route
 export const appRouter: Router = express.Router();
 
 // read tokens may GET from every router, anything that changes data needs write (see scopedAccess in server.ts)
+appRouter.use('/app-state', appStateRouter);
 appRouter.use('/automations', automationsRouter);
 appRouter.use('/custom-fields', customFieldsRouter);
 appRouter.use('/custom-views', customViewsRouter);
 appRouter.use('/db', dbRouter);
 appRouter.use('/project', projectRouter);
 appRouter.use('/rundowns', rundownsRouter);
+appRouter.use('/server-port', serverPortRouter);
 appRouter.use('/settings', settingsRouter);
 appRouter.use('/sheets', async (req, res, next) => {
   const { router } = await import('./sheets/sheets.router.js');

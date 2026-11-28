@@ -46,6 +46,7 @@ a VPN, or a different network; do not assume it is reachable by recipients or au
 ## Cloud capabilities
 
 Gate unavailable local-network integrations in cloud, including OSC output. Keep server behaviour and UI availability aligned.
+The client reads these from the `capabilities` flags in `apps/client/src/externals.ts`, not from `isOntimeCloud` or `isDocker`.
 
 ## Verification
 

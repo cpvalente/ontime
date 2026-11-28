@@ -16,7 +16,7 @@ import RadioGroup from '../../../../common/components/radio-group/RadioGroup';
 import Select from '../../../../common/components/select/Select';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
-import { isOntimeCloud } from '../../../../externals';
+import { capabilities } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
 import HttpOutputForm from './HttpOutputForm';
@@ -164,7 +164,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
     <DropdownMenu
       render={<Button />}
       items={[
-        ...(isOntimeCloud
+        ...(!capabilities.canUseOsc
           ? []
           : [
               {
@@ -345,7 +345,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                     label='OSC'
                     kindClass={style.tagOsc}
                     summary={watch(`outputs.${index}.address`)}
-                    unavailableReason={isOntimeCloud ? 'Unavailable in Ontime Cloud' : undefined}
+                    unavailableReason={capabilities.canUseOsc ? undefined : 'Unavailable in Ontime Cloud'}
                     {...cardProps}
                   >
                     <OscOutputForm index={index} output={output} register={register} rowErrors={rowErrors} />
