@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from 'react';
 import ProgressBar from '../../common/components/progress-bar/ProgressBar';
 import QRCode from '../../common/components/qr-code/QrCode';
 import Empty from '../../common/components/state/Empty';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -16,18 +15,18 @@ import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx, timerPlaceholderMin } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import ScheduleExport from '../common/schedule/ScheduleExport';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getBackstageOptions, useBackstageOptions } from './backstage.options';
 import { getCardData, getIsPendingStart, getShowProgressBar, isOvertime } from './backstage.utils';
-import { BackstageData, useBackstageData } from './useBackstageData';
 
 import './Backstage.scss';
+import { BackstageData, useBackstageData } from './useBackstageData';
 
 export default function BackstageLoader() {
   const { data, status } = useBackstageData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Backstage');
 
@@ -36,7 +35,7 @@ export default function BackstageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <Backstage {...data} />;

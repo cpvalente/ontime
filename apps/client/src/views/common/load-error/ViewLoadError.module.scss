@@ -1,0 +1,36 @@
+@use '@/theme/viewerDefs' as *;
+
+.actions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.details {
+  color: var(--secondary-color-override, $viewer-secondary-color);
+  font-size: 0.875rem;
+
+  summary {
+    cursor: pointer;
+  }
+
+  // sits outside the flow so opening it does not move the message
+  pre {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(90vw, 40rem);
+    max-height: 30dvh;
+    overflow: auto;
+    margin: 0.5rem 0 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    text-align: left;
+    user-select: text;
+  }
+}

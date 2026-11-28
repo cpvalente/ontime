@@ -21,6 +21,7 @@ import { useViewOptionsStore } from '../../common/stores/viewOptions';
 import { sendSocket } from '../../common/utils/socket';
 import { cx } from '../../common/utils/styleUtils';
 import { getScriptSourceLabel } from '../../common/utils/teleprompterScriptSource';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import ControlOverlay, { type LoadedEvent } from './control-overlay/ControlOverlay';
 import HelpOverlay from './help-overlay/HelpOverlay';
@@ -36,9 +37,9 @@ import {
 import { composeFlip, filterToLoadedEvent, toTeleprompterPayload } from './teleprompter.utils';
 import TeleprompterScreen from './TeleprompterScreen';
 import { useLocalTransport } from './useLocalTransport';
-import { isDialogOpen, isTypingTarget, useTeleprompterInput } from './useTeleprompterInput';
 
 import './Teleprompter.scss';
+import { isDialogOpen, isTypingTarget, useTeleprompterInput } from './useTeleprompterInput';
 
 const helpNotes: Record<TeleprompterRole, string> = {
   remote: 'Following shared playback. Use a controller screen or Companion to move the script.',
@@ -232,7 +233,7 @@ function ScriptContent({
 
   if (!script || !shown) {
     if (status === 'error') {
-      return <EmptyPage variant='error' text='There was an error fetching data, please refresh the page.' />;
+      return <ViewLoadError />;
     }
     return <Loader />;
   }

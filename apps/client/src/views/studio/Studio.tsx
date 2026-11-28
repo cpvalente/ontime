@@ -1,24 +1,22 @@
 import { OntimeView } from 'ontime-types';
 import { useMemo } from 'react';
 
-import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { cx } from '../../common/utils/styleUtils';
 import { getDefaultFormat } from '../../common/utils/time';
-import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import { getStudioOptions, useStudioOptions } from './studio.options';
 import StudioClock from './StudioClock';
 import StudioTimers from './StudioTimers';
-import { StudioData, useStudioData } from './useStudioData';
 
 import './Studio.scss';
+import { StudioData, useStudioData } from './useStudioData';
 
 export default function StudioLoader() {
   const { data, status } = useStudioData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Studio Clock');
 
@@ -27,7 +25,7 @@ export default function StudioLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <Studio {...data} />;

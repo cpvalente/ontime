@@ -2,7 +2,6 @@ import { OntimeView } from 'ontime-types';
 import { useMemo } from 'react';
 
 import EmptyFill from '../../common/components/state/EmptyFill';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
@@ -11,19 +10,19 @@ import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import Timeline from './Timeline';
 import { getTimelineOptions, useTimelineOptions } from './timeline.options';
 import { getUpcomingEvents, useScopedRundown } from './timeline.utils';
 import TimelineSections from './TimelineSections';
-import { TimelineData, useTimelineData } from './useTimelineData';
 
 import './TimelinePage.scss';
+import { TimelineData, useTimelineData } from './useTimelineData';
 
 export default function TimelinePageLoader() {
   const { data, status } = useTimelineData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Timeline');
 
@@ -32,7 +31,7 @@ export default function TimelinePageLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <TimelinePage {...data} />;

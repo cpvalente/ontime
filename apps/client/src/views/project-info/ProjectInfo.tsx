@@ -5,14 +5,14 @@ import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
-import { ProjectInfoData, useProjectInfoData } from './useProjectInfoData';
 
 import './ProjectInfo.scss';
+import { ProjectInfoData, useProjectInfoData } from './useProjectInfoData';
 
 export default function ProjectInfoLoader() {
   const { data, status } = useProjectInfoData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Project info');
 
@@ -21,7 +21,7 @@ export default function ProjectInfoLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <ProjectInfo {...data} />;

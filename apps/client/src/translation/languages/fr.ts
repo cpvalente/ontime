@@ -16,7 +16,9 @@ export const langFr: TranslationObject = {
   'common.started_at': 'Commencé à',
   'common.time_now': 'Heure',
   'common.no_data': 'Aucune donnée',
-  'common.data_error': 'Impossible de charger cette vue. Actualisez la page.',
+  'common.data_error': 'Impossible de charger cette vue',
+  'common.try_again': 'Réessayer',
+  'common.details': 'Détails',
   'countdown.skipped': 'Ignoré',
   'countdown.no_events_description':
     'Ajoutez des événements dans l’éditeur, puis choisissez ce qu’il faut afficher ici.',

@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, PropsWithChildren } from 'react';
 import { IoWarningOutline } from 'react-icons/io5';
 
 import EmptyImage from '../../../assets/images/empty.svg?react';
@@ -13,7 +13,7 @@ interface EmptyProps {
   variant?: 'error';
 }
 
-export default function Empty({ text, className, injectedStyles, variant }: EmptyProps) {
+export default function Empty({ text, className, injectedStyles, variant, children }: PropsWithChildren<EmptyProps>) {
   return (
     <div
       className={cx([style.emptyContainer, variant === 'error' && style.error, className])}
@@ -23,6 +23,7 @@ export default function Empty({ text, className, injectedStyles, variant }: Empt
       <EmptyImage className={style.empty} />
       {variant === 'error' && <IoWarningOutline className={style.errorIcon} aria-hidden />}
       {text && <span className={style.text}>{text}</span>}
+      {children}
     </div>
   );
 }
