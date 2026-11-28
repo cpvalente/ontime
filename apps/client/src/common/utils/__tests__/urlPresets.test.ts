@@ -275,6 +275,18 @@ describe('generateUrlPresetOptions', () => {
       },
     ],
     [
+      'URL copied from another preset',
+      'test',
+      'http://localhost:4001/timer?alias=other&param1=value1',
+      {
+        alias: 'test',
+        target: 'timer',
+        search: 'param1=value1',
+        enabled: true,
+        displayInNav: false,
+      },
+    ],
+    [
       'URL with an access token',
       'test',
       'https://cloud.getontime.no/timer?token=secret&param1=value1',

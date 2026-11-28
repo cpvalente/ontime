@@ -2,16 +2,13 @@ import { CustomFields, OntimeEvent, ProjectData } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import {
-  getTimeOption,
-  getTimeOptionsFromParams,
-  TimeOptions,
-} from '../../common/components/view-params-editor/common.options';
+import { getTimeOption, TimeOptions } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
 import {
   makeOptionsFromCustomFields,
   makeProjectDataOptions,
+  makeViewParamsReader,
 } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { getScheduleOptions } from '../common/schedule/schedule.options';
@@ -38,36 +35,29 @@ export const getBackstageOptions = (
         {
           id: 'main',
           title: 'Main text',
-          description: 'Select the data source for the main text',
           type: 'option',
           values: mainOptions,
           defaultValue: 'title',
         },
         {
           id: 'secondary-src',
-          title: 'Event secondary text',
-          description: 'Select the data source for auxiliary text shown in now and next cards',
+          title: 'Secondary text',
+          description: 'Shown in the now and next cards',
           type: 'option',
           values: secondaryOptions,
           defaultValue: 'none',
         },
-      ],
-    },
-    getScheduleOptions(customFieldOptions),
-    {
-      title: OptionTitle.ElementVisibility,
-      collapsible: true,
-      options: [
         {
           id: 'extra-info',
           title: 'Extra info',
-          description: 'Select a project data source to show in the view',
+          description: 'Project data shown in the view',
           type: 'option',
           values: projectDataOptions,
           defaultValue: 'none',
         },
       ],
     },
+    getScheduleOptions(customFieldOptions),
   ];
 };
 
@@ -82,14 +72,13 @@ type BackstageOptions = {
  * the names and fallback are manually matched with timerOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): BackstageOptions {
-  // Helper to get value from either source, prioritizing defaultValues
-  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+  const params = makeViewParamsReader(searchParams, defaultValues);
 
   return {
-    mainSource: getValue('main') as keyof OntimeEvent | null,
-    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
-    extraInfo: getValue('extra-info'),
-    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
+    mainSource: params.get('main') as keyof OntimeEvent | null,
+    secondarySource: params.get('secondary-src') as keyof OntimeEvent | null,
+    extraInfo: params.get('extra-info'),
+    timeformat: params.get('timeformat'),
   };
 }
 

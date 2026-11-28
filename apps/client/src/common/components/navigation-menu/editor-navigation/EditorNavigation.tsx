@@ -1,17 +1,18 @@
-import { IoLockClosedOutline } from 'react-icons/io5';
-import { useNavigate } from 'react-router';
+import { matchPath, useLocation, useNavigate } from 'react-router';
 
 import { useIsSmallDevice } from '../../../hooks/useIsSmallDevice';
 import NavigationMenuItem from '../navigation-menu-item/NavigationMenuItem';
 
 export default function EditorNavigation() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const isSmallDevice = useIsSmallDevice();
+
+  const isCurrent = (path: string) => matchPath(path, pathname) !== null;
 
   if (!isSmallDevice) {
     return (
-      <NavigationMenuItem active={location.pathname === '/editor'} onClick={() => navigate('/editor')}>
-        <IoLockClosedOutline />
+      <NavigationMenuItem active={isCurrent('/editor')} isProtected onClick={() => navigate('/editor')}>
         Editor
       </NavigationMenuItem>
     );
@@ -19,18 +20,15 @@ export default function EditorNavigation() {
 
   return (
     <>
-      <NavigationMenuItem active={location.pathname === '/timercontrol'} onClick={() => navigate('/timercontrol')}>
-        <IoLockClosedOutline />
+      <NavigationMenuItem active={isCurrent('/timercontrol')} isProtected onClick={() => navigate('/timercontrol')}>
         Timer Controls
       </NavigationMenuItem>
 
-      <NavigationMenuItem active={location.pathname === '/messagecontrol'} onClick={() => navigate('/messagecontrol')}>
-        <IoLockClosedOutline />
+      <NavigationMenuItem active={isCurrent('/messagecontrol')} isProtected onClick={() => navigate('/messagecontrol')}>
         Message Controls
       </NavigationMenuItem>
 
-      <NavigationMenuItem active={location.pathname === '/rundown'} onClick={() => navigate('/rundown')}>
-        <IoLockClosedOutline />
+      <NavigationMenuItem active={isCurrent('/rundown')} isProtected onClick={() => navigate('/rundown')}>
         Rundown
       </NavigationMenuItem>
     </>

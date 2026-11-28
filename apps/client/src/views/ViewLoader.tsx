@@ -1,8 +1,12 @@
-import { PropsWithChildren, Suspense } from 'react';
+import { PropsWithChildren, Suspense, use } from 'react';
+import { useSearchParams } from 'react-router';
 
+import { makeViewParamsReader } from '../common/components/view-params-editor/viewParams.utils';
+import { PresetContext } from '../common/context/PresetContext';
 import useCssOverride from '../common/hooks-query/useCssOverride';
 import useViewSettings from '../common/hooks-query/useViewSettings';
 import Loader from './common/loader/Loader';
+import { makeColourString } from './common/viewUtils';
 
 const scriptTagId = 'ontime-stylesheet-override';
 
@@ -20,8 +24,11 @@ function OverrideStyles() {
 export default function ViewLoader({ children }: PropsWithChildren) {
   'use memo';
   // we need to be able to override the background colour with the key param
-  const searchParams = new URLSearchParams(window.location.search);
-  const colourFromParams = searchParams.get('keyColour') ?? '#101010';
+  const [searchParams] = useSearchParams();
+  const maybePreset = use(PresetContext);
+  const presetParams = maybePreset ? new URLSearchParams(maybePreset.search) : undefined;
+  const colourFromParams =
+    makeColourString(makeViewParamsReader(searchParams, presetParams).get('keyColour')) ?? '#101010';
 
   return (
     <>

@@ -19,44 +19,45 @@ import style from './ClientLink.module.scss';
 interface ClientLinkProps {
   current: boolean;
   to: string;
+  isProtected?: boolean;
   postAction?: () => void;
 }
 
-export default function ClientLink({ current, to, postAction, children }: PropsWithChildren<ClientLinkProps>) {
+export default function ClientLink(props: PropsWithChildren<ClientLinkProps>) {
   const { isElectron } = useElectronEvent();
 
   if (isElectron) {
-    return (
-      <ElectronNavigationItem current={current} to={to} postAction={postAction}>
-        {children}
-      </ElectronNavigationItem>
-    );
+    return <ElectronNavigationItem {...props} />;
   }
 
-  return (
-    <BrowserNavigationItem current={current} to={to} postAction={postAction}>
-      {children}
-    </BrowserNavigationItem>
-  );
+  return <BrowserNavigationItem {...props} />;
 }
 
-function ElectronNavigationItem({ current, to, postAction, children }: PropsWithChildren<ClientLinkProps>) {
+function ElectronNavigationItem({
+  current,
+  to,
+  isProtected,
+  postAction,
+  children,
+}: PropsWithChildren<ClientLinkProps>) {
   const navigateToLink = () => {
     handleLinks(to);
     postAction?.();
   };
 
   return (
-    <NavigationMenuItem active={current} onClick={navigateToLink}>
+    <NavigationMenuItem
+      active={current}
+      isProtected={isProtected}
+      onClick={navigateToLink}
+      trailing={<IoArrowUp className={style.linkIcon} />}
+    >
       {children}
-      <span className={style.trailing}>
-        <IoArrowUp className={style.linkIcon} />
-      </span>
     </NavigationMenuItem>
   );
 }
 
-function BrowserNavigationItem({ current, to, postAction, children }: PropsWithChildren<ClientLinkProps>) {
+function BrowserNavigationItem({ current, to, isProtected, postAction, children }: PropsWithChildren<ClientLinkProps>) {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -101,27 +102,33 @@ function BrowserNavigationItem({ current, to, postAction, children }: PropsWithC
   };
 
   return (
-    <NavigationMenuItem active={current} onClick={navigateToLink}>
+    <NavigationMenuItem
+      active={current}
+      isProtected={isProtected}
+      onClick={navigateToLink}
+      trailing={
+        isCustomised && (
+          <>
+            <span className={style.indicator} aria-hidden data-testid='client-link__saved-indicator' />
+            <Tooltip
+              text='Reset to default'
+              render={
+                <IconButton
+                  variant='ghosted-white'
+                  size='small'
+                  className={style.clear}
+                  aria-label='Reset to default'
+                  onClick={clearViewSettings}
+                />
+              }
+            >
+              <IoCloseOutline />
+            </Tooltip>
+          </>
+        )
+      }
+    >
       {children}
-      {isCustomised && (
-        <span className={style.trailing}>
-          <span className={style.indicator} aria-hidden data-testid='client-link__saved-indicator' />
-          <Tooltip
-            text='Reset to default'
-            render={
-              <IconButton
-                variant='ghosted-white'
-                size='small'
-                className={style.clear}
-                aria-label='Reset to default'
-                onClick={clearViewSettings}
-              />
-            }
-          >
-            <IoCloseOutline />
-          </Tooltip>
-        </span>
-      )}
     </NavigationMenuItem>
   );
 }

@@ -1,9 +1,9 @@
 import { Dialog } from '@base-ui/react/dialog';
 import { useDisclosure, useFullscreenDocument } from '@mantine/hooks';
 import { memo, PropsWithChildren, useRef } from 'react';
-import { IoArrowBack, IoClose, IoExpand, IoLockClosedOutline, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
+import { IoArrowBack, IoClose, IoExpand, IoPencilOutline, IoSwapVertical } from 'react-icons/io5';
 import { LuCoffee } from 'react-icons/lu';
-import { useLocation, useMatch } from 'react-router';
+import { matchPath, useLocation, useMatch } from 'react-router';
 
 import { dashboardUrl, isLocalhost, supportsFullscreen } from '../../../externals';
 import { canUseWakeLock, useKeepAwakeOptions } from '../../../features/keep-awake/useWakeLock';
@@ -40,6 +40,8 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
   const { mirror, toggleMirror } = useViewOptionsStore();
   const { keepAwake, toggleKeepAwake } = useKeepAwakeOptions();
   const location = useLocation();
+  // matchPath tolerates the trailing slash a direct load can leave in the URL
+  const isCurrent = (path: string) => matchPath(path, location.pathname) !== null;
   // keyboard focus opens on the close button, so a repeated Enter never follows a link out of the app
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -97,8 +99,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
                   onToggle={toggleKeepAwake}
                 />
               )}
-              <NavigationMenuItem onClick={handlers.open}>
-                <IoPencilOutline />
+              <NavigationMenuItem icon={<IoPencilOutline />} onClick={handlers.open}>
                 Rename Client
               </NavigationMenuItem>
             </MenuGroup>
@@ -107,18 +108,18 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
               <EditorNavigation />
               <ClientLink
                 to='cuesheet'
-                current={location.pathname === '/cuesheet'}
+                current={isCurrent('/cuesheet')}
+                isProtected
                 postAction={isSmallScreen ? onClose : undefined}
               >
-                <IoLockClosedOutline />
                 Cuesheet
               </ClientLink>
               <ClientLink
                 to='op'
-                current={location.pathname === '/op'}
+                current={isCurrent('/op')}
+                isProtected
                 postAction={isSmallScreen ? onClose : undefined}
               >
-                <IoLockClosedOutline />
                 Operator
               </ClientLink>
             </MenuGroup>
@@ -128,7 +129,7 @@ function NavigationMenu({ isOpen, onClose }: NavigationMenuProps) {
                 <ClientLink
                   key={route.url}
                   to={route.url}
-                  current={location.pathname === `/${route.url}`}
+                  current={isCurrent(`/${route.url}`)}
                   postAction={isSmallScreen ? onClose : undefined}
                 >
                   {route.label}

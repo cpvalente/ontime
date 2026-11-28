@@ -15,7 +15,7 @@ interface NavigationMenuToggleProps {
 export default function NavigationMenuToggle({ checked, icon, label, onToggle }: NavigationMenuToggleProps) {
   return (
     <label className={style.link}>
-      {icon}
+      <span className={style.icon}>{icon}</span>
       <span className={style.label}>{label}</span>
       <Switch checked={checked} onCheckedChange={onToggle} />
     </label>

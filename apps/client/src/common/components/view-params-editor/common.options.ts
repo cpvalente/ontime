@@ -4,8 +4,8 @@ export const getTimeOption = (timeFormat: string): ParamField => {
   const placeholder = `${timeFormat} (default)`;
   return {
     id: 'timeformat',
-    title: 'Clock time format, defaults to value from the Settings',
-    description: 'Format for the Time Now field, eg. HH:mm:ss or hh:mm:ss a, see docs for help',
+    title: 'Time format',
+    description: 'Overrides the format from settings, e.g. HH:mm:ss or hh:mm:ss a',
     type: 'string',
     placeholder,
   };
@@ -14,7 +14,6 @@ export const getTimeOption = (timeFormat: string): ParamField => {
 export const hideTimerSeconds: ParamField = {
   id: 'hideTimerSeconds',
   title: 'Hide seconds in timer',
-  description: 'Whether to hide seconds in the running timer',
   type: 'boolean',
   defaultValue: false,
 };
@@ -22,7 +21,6 @@ export const hideTimerSeconds: ParamField = {
 export const showLeadingZeros: ParamField = {
   id: 'showLeadingZeros',
   title: 'Show leading zeros in timer',
-  description: 'Whether to show leading zeros in the running timer',
   type: 'boolean',
   defaultValue: false,
 };
@@ -30,10 +28,3 @@ export const showLeadingZeros: ParamField = {
 export type TimeOptions = {
   timeformat: string | null;
 };
-
-/**
- * Helper to get value of 'timeformat' from either source, prioritizing defaultValues
- */
-export function getTimeOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams) {
-  return defaultValues?.get('timeformat') ?? searchParams.get('timeformat');
-}

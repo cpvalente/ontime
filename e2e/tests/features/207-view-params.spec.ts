@@ -7,7 +7,7 @@ test('View params configures timer view', async ({ page }) => {
 
   await page.mouse.move(Math.random() * 100, Math.random() * 100);
   await page.getByTestId('navigation__toggle-settings').click();
-  await page.locator('label').filter({ hasText: 'Hide Time NowHides the Time' }).locator('span').nth(2).click();
+  await page.getByRole('switch', { name: 'Hide time now' }).click();
   await page.getByTestId('apply-view-params').click();
 
   await expect(page.getByText('TIME NOW', { exact: true })).not.toBeInViewport();

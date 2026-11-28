@@ -3,7 +3,6 @@ import { IoChevronDown } from 'react-icons/io5';
 import { useSearchParams } from 'react-router';
 
 import { cx } from '../../utils/styleUtils';
-import Eyebrow from '../eyebrow/Eyebrow';
 import { OptionTitle } from './constants';
 import ParamInput from './ParamInput';
 import type { ParamField, ViewOption } from './viewParams.types';
@@ -54,7 +53,7 @@ export function ParamRows({ options }: { options: ParamField[] }) {
   return options.map((option) => (
     <label key={option.title} className={cx([style.label, isInlineField(option) && style.inline])}>
       <span className={style.title}>{option.title}</span>
-      <span className={style.description}>{option.description}</span>
+      {option.description && <span className={style.description}>{option.description}</span>}
       <ParamInput paramField={option} />
     </label>
   ));
@@ -68,12 +67,12 @@ interface SectionHeaderProps {
   onToggle?: () => void;
 }
 
-function SectionHeader({ title, isCustomised, collapsed, onToggle }: SectionHeaderProps) {
+export function SectionHeader({ title, isCustomised, collapsed, onToggle }: SectionHeaderProps) {
   const label = (
-    <Eyebrow className={style.sectionTitle}>
+    <span className={style.sectionTitle}>
       {title}
       {isCustomised && <span className={style.customised} title='Contains custom values' />}
-    </Eyebrow>
+    </span>
   );
 
   if (!onToggle) {

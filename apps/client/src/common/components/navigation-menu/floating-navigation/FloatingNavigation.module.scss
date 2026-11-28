@@ -13,7 +13,7 @@
 .buttonContainer {
   display: flex;
   flex-direction: column;
-  row-gap: 1rem;
+  row-gap: 0.5rem;
   padding-top: calc(0.75rem + var(--pwa-safe-area-top));
   padding-left: calc(0.5em + var(--pwa-safe-area-left));
 

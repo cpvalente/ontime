@@ -5,7 +5,7 @@ import { OptionTitle } from './constants';
 type BaseField = {
   id: string;
   title: string;
-  description: string;
+  description?: string;
 };
 
 type OptionsField = {

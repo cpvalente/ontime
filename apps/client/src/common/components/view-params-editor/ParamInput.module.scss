@@ -2,7 +2,6 @@
   overflow-y: auto;
   max-height: 12rem;
   background: $gray-1200;
-  border: 1px solid $gray-1100;
   border-radius: $component-border-radius-md;
 }
 
@@ -20,7 +19,6 @@
   cursor: pointer;
   transition:
     background-color $transition-time-action,
-    border-color $transition-time-action,
     color $transition-time-action;
 
   &:hover {
@@ -41,10 +39,6 @@
     background: $bg-active;
     box-shadow: inset 3px 0 $blue-400;
     color: $ui-white;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid $white-7;
   }
 
   > [role='checkbox'] {

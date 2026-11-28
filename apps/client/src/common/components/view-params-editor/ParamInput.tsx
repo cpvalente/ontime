@@ -145,7 +145,8 @@ function ControlledSwitch({ id, initialValue }: ControlledSwitchProps) {
     setChecked(initialValue);
   }, [initialValue]);
 
-  return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} />;
+  // an unchecked switch submits nothing by default, so a field defaulting to true could not be turned off
+  return <Switch size='large' name={id} checked={checked} onCheckedChange={setChecked} uncheckedValue='false' />;
 }
 
 interface ControlledSelectProps {
