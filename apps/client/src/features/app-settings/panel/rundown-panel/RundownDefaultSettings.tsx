@@ -1,53 +1,86 @@
-import { EndAction, PhaseThreshold, PhaseThresholds, TimeStrategy, TimerType } from 'ontime-types';
-import { parseUserTime } from 'ontime-utils';
-import { useState } from 'react';
+import { EndAction, Settings, TimeStrategy, TimerType } from 'ontime-types';
+import { defaultRundownDefaults, millisToString, parseUserTime } from 'ontime-utils';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
+import Button from '../../../../common/components/buttons/Button';
 import PhaseThresholdInput from '../../../../common/components/input/phase-threshold-input/PhaseThresholdInput';
 import TimeInput from '../../../../common/components/input/time-input/TimeInput';
 import Select from '../../../../common/components/select/Select';
 import Switch from '../../../../common/components/switch/Switch';
 import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
-import { editorSettingsDefaults, useEditorSettings } from '../../../../common/stores/editorSettings';
+import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
 
+type RundownDefaultFields = Pick<Settings, 'rundownDefaults' | 'phaseThresholds'>;
+
+function toRundownDefaultFields(settings: Settings): RundownDefaultFields {
+  return { rundownDefaults: settings.rundownDefaults, phaseThresholds: settings.phaseThresholds };
+}
+
 export default function RundownDefaultSettings() {
-  const {
-    defaultDuration,
-    linkPrevious,
-    defaultTimeStrategy,
-    defaultTimerType,
-    defaultEndAction,
-    inheritGroupColour,
-    setDefaultDuration,
-    setLinkPrevious,
-    setTimeStrategy,
-    setDefaultTimerType,
-    setDefaultEndAction,
-    setInheritGroupColour,
-  } = useEditorSettings((state) => state);
-
-  const { data: settings, status } = useSettings();
+  const { data, status } = useSettings();
   const { updateSettings } = useUpdateSettings();
-  const [error, setError] = useState<string | null>(null);
+  const {
+    handleSubmit,
+    reset,
+    setError,
+    setValue,
+    watch,
+    formState: { isSubmitting, isDirty, errors },
+  } = useForm<RundownDefaultFields>({
+    defaultValues: toRundownDefaultFields(data),
+    resetOptions: {
+      keepDirtyValues: true,
+    },
+  });
 
-  const durationInMs = parseUserTime(defaultDuration);
+  // keep the form in sync with the project settings
+  useEffect(() => {
+    if (data) {
+      reset(toRundownDefaultFields(data));
+    }
+  }, [data, reset]);
 
-  const submitThreshold = async (phase: keyof PhaseThresholds, threshold: PhaseThreshold) => {
+  const onSubmit = async (formData: RundownDefaultFields) => {
     try {
-      setError(null);
-      await updateSettings({ phaseThresholds: { ...settings.phaseThresholds, [phase]: threshold } });
-    } catch (submitError) {
-      setError(maybeAxiosError(submitError));
+      await updateSettings(formData);
+    } catch (error) {
+      setError('root', { message: maybeAxiosError(error) });
     }
   };
 
+  const onReset = () => {
+    reset(toRundownDefaultFields(data));
+  };
+
+  const { rundownDefaults, phaseThresholds } = watch();
+  const isLoading = status === 'pending';
+
   return (
-    <Panel.Section>
+    <Panel.Section
+      as='form'
+      onSubmit={handleSubmit(onSubmit)}
+      onKeyDown={(event) => preventEscape(event, onReset)}
+      id='rundown-default-settings'
+    >
       <Panel.Card>
-        <Panel.SubHeader>Rundown defaults</Panel.SubHeader>
+        <Panel.SubHeader>
+          Rundown defaults
+          <Panel.InlineElements>
+            <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
+              Revert to saved
+            </Button>
+            <Button type='submit' loading={isSubmitting} disabled={!isDirty} variant='primary'>
+              Save
+            </Button>
+          </Panel.InlineElements>
+        </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
+          <Panel.Loader isLoading={isLoading} />
+          <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.Title>Default settings for new events</Panel.Title>
           <Panel.ListGroup>
             <Panel.ListItem>
@@ -55,14 +88,26 @@ export default function RundownDefaultSettings() {
                 title='Link previous'
                 description='Whether the start time of new events should be linked to the previous event end time'
               />
-              <Switch size='large' checked={linkPrevious} onCheckedChange={setLinkPrevious} />
+              <Switch
+                size='large'
+                checked={rundownDefaults.linkPrevious}
+                onCheckedChange={(value: boolean) =>
+                  setValue('rundownDefaults.linkPrevious', value, { shouldDirty: true })
+                }
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
                 title='Inherit group colour'
                 description='Whether new events and milestones inherit the colour of their parent group'
               />
-              <Switch size='large' checked={inheritGroupColour} onCheckedChange={setInheritGroupColour} />
+              <Switch
+                size='large'
+                checked={rundownDefaults.inheritGroupColour}
+                onCheckedChange={(value: boolean) =>
+                  setValue('rundownDefaults.inheritGroupColour', value, { shouldDirty: true })
+                }
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -70,10 +115,10 @@ export default function RundownDefaultSettings() {
                 description='Which time should be maintained when event schedule is recalculated'
               />
               <Select
-                value={defaultTimeStrategy}
+                value={rundownDefaults.timeStrategy}
                 onValueChange={(value: TimeStrategy | null) => {
                   if (value === null) return;
-                  setTimeStrategy(value);
+                  setValue('rundownDefaults.timeStrategy', value, { shouldDirty: true });
                 }}
                 options={[
                   { value: TimeStrategy.LockDuration, label: 'Duration' },
@@ -85,20 +130,22 @@ export default function RundownDefaultSettings() {
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Default duration' description='Default duration for new events' />
-              <TimeInput<'defaultDuration'>
-                name='defaultDuration'
-                submitHandler={(_field, value) => setDefaultDuration(value)}
-                time={durationInMs}
-                placeholder={editorSettingsDefaults.duration}
+              <TimeInput<'duration'>
+                name='duration'
+                submitHandler={(_field, value) =>
+                  setValue('rundownDefaults.duration', parseUserTime(value), { shouldDirty: true })
+                }
+                time={rundownDefaults.duration}
+                placeholder={millisToString(defaultRundownDefaults.duration)}
               />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
               <Select
-                value={defaultTimerType}
+                value={rundownDefaults.timerType}
                 onValueChange={(value: TimerType | null) => {
                   if (value === null) return;
-                  setDefaultTimerType(value);
+                  setValue('rundownDefaults.timerType', value, { shouldDirty: true });
                 }}
                 options={[
                   { value: TimerType.CountDown, label: 'Count down' },
@@ -111,10 +158,10 @@ export default function RundownDefaultSettings() {
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
               <Select
-                value={defaultEndAction}
+                value={rundownDefaults.endAction}
                 onValueChange={(value: EndAction | null) => {
                   if (value === null) return;
-                  setDefaultEndAction(value);
+                  setValue('rundownDefaults.endAction', value, { shouldDirty: true });
                 }}
                 options={[
                   { value: EndAction.None, label: 'None' },
@@ -124,7 +171,6 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
           </Panel.ListGroup>
-          {error && <Panel.Error>{error}</Panel.Error>}
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Warning time' description='Time or % of duration left, eg: 2m or 20%' />
@@ -132,8 +178,8 @@ export default function RundownDefaultSettings() {
                 name='projectWarning'
                 label='Warning'
                 disabled={status !== 'success'}
-                value={settings.phaseThresholds.warning}
-                onChange={(threshold) => submitThreshold('warning', threshold)}
+                value={phaseThresholds.warning}
+                onChange={(threshold) => setValue('phaseThresholds.warning', threshold, { shouldDirty: true })}
               />
             </Panel.ListItem>
             <Panel.ListItem>
@@ -142,8 +188,8 @@ export default function RundownDefaultSettings() {
                 name='projectDanger'
                 label='Danger'
                 disabled={status !== 'success'}
-                value={settings.phaseThresholds.danger}
-                onChange={(threshold) => submitThreshold('danger', threshold)}
+                value={phaseThresholds.danger}
+                onChange={(threshold) => setValue('phaseThresholds.danger', threshold, { shouldDirty: true })}
               />
             </Panel.ListItem>
           </Panel.ListGroup>

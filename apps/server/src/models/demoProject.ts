@@ -1,5 +1,5 @@
 import { DatabaseModel, OntimeView } from 'ontime-types';
-import { defaultTeleprompterSettings, scriptSourceOfCustomField } from 'ontime-utils';
+import { defaultRundownDefaults, defaultTeleprompterSettings, scriptSourceOfCustomField } from 'ontime-utils';
 
 import { backstageRundown, broadcastRundown, stageRundown } from './demoRundowns.js';
 
@@ -41,6 +41,7 @@ export const demoDb: Omit<DatabaseModel, 'projectId'> = {
       warning: { unit: 'percent', value: 20 },
       danger: { unit: 'percent', value: 10 },
     },
+    rundownDefaults: { ...defaultRundownDefaults },
   },
   viewSettings: {
     overrideStyles: false,

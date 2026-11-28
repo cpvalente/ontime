@@ -1,3 +1,6 @@
+import type { EndAction } from '../EndAction.type.js';
+import type { TimerType } from '../TimerType.type.js';
+import type { TimeStrategy } from '../TimeStrategy.type.js';
 import type { PhaseThresholds } from './PhaseThresholds.type.js';
 import type { TimeFormat } from './TimeFormat.type.js';
 
@@ -14,6 +17,19 @@ export type Settings = {
   auxTimerNames: [string, string, string];
   /** When timers enter warning and danger, events can override them */
   phaseThresholds: PhaseThresholds;
+  /** Values given to new events created in the rundown editor */
+  rundownDefaults: RundownDefaults;
+};
+
+export type RundownDefaults = {
+  /** duration of a new event, in milliseconds */
+  duration: number;
+  linkPrevious: boolean;
+  timeStrategy: TimeStrategy;
+  timerType: TimerType;
+  endAction: EndAction;
+  /** new events and milestones take the colour of their parent group */
+  inheritGroupColour: boolean;
 };
 
 /** The fields a client can change; version belongs to the project file */

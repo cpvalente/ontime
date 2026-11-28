@@ -16,6 +16,11 @@ vi.mock('../../api/rundown', async (importOriginal) => ({
   requestFitGroupTarget: vi.fn<typeof requestFitGroupTarget>(),
 }));
 
+// new entries read the placeholder rundown defaults
+vi.mock('../../api/settings', () => ({
+  getSettings: vi.fn<() => Promise<never>>(() => new Promise(() => {})),
+}));
+
 function makeEvent(revision: number, title: string): OntimeEvent {
   return { id: 'event', type: SupportedEntry.Event, revision, title } as OntimeEvent;
 }
