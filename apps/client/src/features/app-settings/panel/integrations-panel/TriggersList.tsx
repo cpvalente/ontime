@@ -6,7 +6,6 @@ import { deleteTrigger } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Dialog from '../../../../common/components/dialog/Dialog';
-import Info from '../../../../common/components/info/Info';
 import useAutomationSettings from '../../../../common/hooks-query/useAutomationSettings';
 import * as Panel from '../../panel-utils/PanelUtils';
 import { checkDuplicates } from './automationUtils';
@@ -23,11 +22,10 @@ type FormState = {
 interface TriggersListProps {
   triggers: Trigger[];
   automations: NormalisedAutomation;
-  enabledAutomations?: boolean;
   isLoading: boolean;
 }
 
-export default function TriggersList({ triggers, automations, enabledAutomations, isLoading }: TriggersListProps) {
+export default function TriggersList({ triggers, automations, isLoading }: TriggersListProps) {
   const [formState, setFormState] = useState<FormState>({ isOpen: false, trigger: undefined });
   const { refetch } = useAutomationSettings();
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -82,12 +80,6 @@ export default function TriggersList({ triggers, automations, enabledAutomations
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          {enabledAutomations === false && (
-            <Info type='warning'>
-              Automations are disabled. You can still manage them, but they won&apos;t run until enabled.
-            </Info>
-          )}
-          <Info>Actions in this section affect the entire project runtime, not just a single event.</Info>
           {duplicates && (
             <Panel.Error>
               You have created multiple links between the same trigger and automation. Duplicate combinations will only

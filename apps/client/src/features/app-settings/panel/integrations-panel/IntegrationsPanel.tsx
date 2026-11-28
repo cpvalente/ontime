@@ -38,12 +38,7 @@ export default function IntegrationsPanel({ location }: PanelBaseProps) {
         />
       </div>
       <div>
-        <TriggersList
-          triggers={data.triggers}
-          automations={data.automations}
-          enabledAutomations={automationState}
-          isLoading={isLoading}
-        />
+        <TriggersList triggers={data.triggers} automations={data.automations} isLoading={isLoading} />
       </div>
       <div ref={mcpRef}>
         <McpSection />

@@ -93,10 +93,7 @@ export default function AutomationSettingsForm({
 
         <Panel.Section>
           <Info>
-            <span>Control Ontime and share its data with external systems in your workflow.</span>
-            <span>- An automation is what to send: OSC and HTTP messages, or an action inside Ontime.</span>
-            <span>- A trigger is when to send it. Triggers for a single event live in the event editor.</span>
-            <span>- OSC Input tells Ontime to listen to messages on the specific port.</span>
+            <span>An automation is what to send, a trigger is when to send it.</span>
             <ExternalLink href={oscApiDocsUrl}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>
@@ -120,7 +117,7 @@ export default function AutomationSettingsForm({
                 description={
                   automationState === false
                     ? 'Automations are OFF. Triggers stay configured, but Ontime will not send messages.'
-                    : 'Allow Ontime to send messages on lifecycle triggers'
+                    : undefined
                 }
                 descriptionTone={automationState === false ? 'warning' : 'default'}
                 error={errors.enabledAutomations?.message}

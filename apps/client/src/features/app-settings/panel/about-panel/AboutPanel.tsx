@@ -1,4 +1,3 @@
-import Info from '../../../../common/components/info/Info';
 import {
   buyMeACoffeeUrl,
   discordUrl,
@@ -22,19 +21,10 @@ export default function AboutPanel() {
         <Panel.Card>
           <Panel.SubHeader>Ontime</Panel.SubHeader>
           <Panel.Divider />
-          <Info>Free, open-source software for managing rundowns and event timers.</Info>
           <Panel.ListGroup>
-            <ExternalLinkRow href={websiteUrl} title='www.getontime.no' description='App site and downloads' />
-            <ExternalLinkRow
-              href={githubSponsorUrl}
-              title='GitHub Sponsors'
-              description='Support development through GitHub'
-            />
-            <ExternalLinkRow
-              href={buyMeACoffeeUrl}
-              title='Buy Me a Coffee'
-              description='Make a one-time contribution'
-            />
+            <ExternalLinkRow href={websiteUrl} title='www.getontime.no' />
+            <ExternalLinkRow href={githubSponsorUrl} title='GitHub Sponsors' />
+            <ExternalLinkRow href={buyMeACoffeeUrl} title='Buy Me a Coffee' />
           </Panel.ListGroup>
         </Panel.Card>
       </Panel.Section>
@@ -53,15 +43,11 @@ export default function AboutPanel() {
           <Panel.SubHeader>Helpful links</Panel.SubHeader>
           <Panel.Divider />
           <Panel.ListGroup>
-            <ExternalLinkRow
-              href={documentationUrl}
-              title='Read the docs'
-              description='Setup guides and feature documentation'
-            />
-            <ExternalLinkRow href={githubUrl} title='GitHub' description='Report issues or contribute to Ontime' />
-            <ExternalLinkRow href={youtubeUrl} title='YouTube' description='Watch tutorials and feature walkthroughs' />
-            <ExternalLinkRow href={discordUrl} title='Discord' description='Get help and share suggestions' />
-            <ExternalLinkRow href={subredditUrl} title='Reddit' description='Join the Ontime community discussion' />
+            <ExternalLinkRow href={documentationUrl} title='Read the docs' />
+            <ExternalLinkRow href={githubUrl} title='GitHub' />
+            <ExternalLinkRow href={youtubeUrl} title='YouTube' />
+            <ExternalLinkRow href={discordUrl} title='Discord' />
+            <ExternalLinkRow href={subredditUrl} title='Reddit' />
           </Panel.ListGroup>
         </Panel.Card>
       </Panel.Section>

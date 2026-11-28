@@ -101,7 +101,7 @@ export default function DisplaySettings() {
               <Panel.ListItem>
                 <Panel.Field
                   title='Time format'
-                  description='Default time format to show in views 12 / 24 hours'
+
                   error={errors.timeFormat?.message}
                 />
                 <Select
@@ -121,7 +121,7 @@ export default function DisplaySettings() {
               <Panel.ListItem>
                 <Panel.Field
                   title='Views language'
-                  description='Language to be displayed in views'
+
                   error={errors.language?.message}
                 />
                 <Select

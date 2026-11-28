@@ -66,10 +66,7 @@ export default function CustomTranslationModal({ isOpen, onClose }: CustomTransl
       showBackdrop
       bodyElements={
         <Panel.Section as='form' onSubmit={handleSubmit(onSubmit)} id='custom-translations-form'>
-          <Info>
-            Provide custom translations for the public views of Ontime. <br />
-            You will need to activate this in the settings by selecting &quot;Custom&quot; as the views language.
-          </Info>
+          <Info>Select &quot;Custom&quot; as the views language to use these translations.</Info>
           <Panel.ListGroup>
             {Object.entries(langEn).map(([key, value]) => (
               <Panel.ListItem key={key}>

@@ -28,11 +28,10 @@ export default function McpSection() {
     <Panel.Section>
       <Panel.Card>
         <Panel.SubHeader>MCP server</Panel.SubHeader>
-        <Panel.Paragraph>Connect any MCP-compatible AI agent to Ontime using the endpoint below.</Panel.Paragraph>
         <Panel.Divider />
         <Panel.ListGroup>
           <Panel.ListItem>
-            <Panel.Field title='Endpoint URL' description='Add this URL to your MCP client settings' />
+            <Panel.Field title='Endpoint URL' description='For your MCP client settings' />
             {mcpEndpointUrl && <CopyTag copyValue={mcpEndpointUrl}>{mcpEndpointUrl}</CopyTag>}
           </Panel.ListItem>
           <Panel.ListItem>

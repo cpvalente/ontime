@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { IoArrowDown, IoArrowUp } from 'react-icons/io5';
 
-import Info from '../../../../common/components/info/Info';
 import { ProjectSortMode, useOrderedProjectList } from '../../../../common/hooks-query/useProjectList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ProjectListItem, { EditMode } from './ProjectListItem';
@@ -50,11 +49,6 @@ export default function ProjectList() {
 
   return (
     <>
-      {numProjects > 20 && (
-        <Info className={style.warningInfo} type='warning'>
-          You have {numProjects} projects. Consider deleting unused projects to improve performance.
-        </Info>
-      )}
       <Panel.Table>
         <thead>
           <tr>

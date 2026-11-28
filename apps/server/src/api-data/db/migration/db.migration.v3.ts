@@ -44,7 +44,8 @@ export function shouldUseThisMigration(jsonData: object): boolean {
 }
 
 export function migrateAllData(jsonData: object): Partial<DatabaseModel> {
-  const settings = migrateSettings(jsonData);
+  // rundown defaults are added by the settings parser
+  const settings = migrateSettings(jsonData) as DatabaseModel['settings'] | undefined;
   const viewSettings = migrateViewSettings(jsonData);
   const urlPresets = migrateURLPresets(jsonData);
   const project = migrateProjectData(jsonData);
@@ -70,7 +71,9 @@ type old_Settings = {
  * migrates a settings from v3 to v4
  * - update the version number
  */
-export function migrateSettings(jsonData: object): (Settings & { serverPort: number }) | undefined {
+export function migrateSettings(
+  jsonData: object,
+): (Omit<Settings, 'rundownDefaults'> & { serverPort: number }) | undefined {
   if (is.objectWithKeys(jsonData, ['settings']) && is.object(jsonData.settings)) {
     const { serverPort, editorKey, operatorKey, timeFormat, language } = structuredClone(
       jsonData.settings,

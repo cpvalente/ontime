@@ -16,7 +16,6 @@ import { deleteCustomField, editCustomField, postCustomField } from '../../../..
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
-import AppLink from '../../../../common/components/link/app-link/AppLink';
 import ExternalLink from '../../../../common/components/link/external-link/ExternalLink';
 import useCustomFields, { useReorderCustomFields } from '../../../../common/hooks-query/useCustomFields';
 import { customFieldsDocsUrl } from '../../../../externals';
@@ -111,15 +110,7 @@ export default function CustomFieldSettings() {
         <Panel.Divider />
         <Panel.Section>
           <Info>
-            <span>Custom fields allow for additional information to be added to an event.</span>
-            <span>
-              Drag the handle to reorder fields, or focus it and use Space and the arrow keys. This sets their order in
-              the entry editor and the default cuesheet column order.
-            </span>
-            <span>
-              To use custom fields as a data source in an{' '}
-              <AppLink search='settings=integrations__automations'>Automation</AppLink>, please note the generated key.
-            </span>
+            <span>Custom fields add your own columns to the rundown. Drag to reorder.</span>
             <ExternalLink href={customFieldsDocsUrl}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>

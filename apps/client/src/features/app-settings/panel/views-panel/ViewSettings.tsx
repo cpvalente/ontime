@@ -83,8 +83,6 @@ export default function ViewSettings() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Info>
-          You can customise the styles applied to Ontime views by providing overriding CSS rules.
-          <br />
           <ExternalLink href={cssOverrideDocsUrl}>See the docs</ExternalLink>
         </Info>
         <Panel.Section>

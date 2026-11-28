@@ -5,7 +5,6 @@ import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
-import Tag from '../../../../common/components/tag/Tag';
 import useServerPort from '../../../../common/hooks-query/useServerPort';
 import { preventEscape } from '../../../../common/utils/keyEvent';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -70,7 +69,6 @@ export default function ServerPortSettings() {
         <Panel.SubHeader>
           Server port
           <Panel.InlineElements>
-            <Tag>Ontime server</Tag>
             <Button disabled={!isDirty || isSubmitting} variant='ghosted' onClick={onReset}>
               Revert to saved
             </Button>
@@ -96,8 +94,8 @@ export default function ServerPortSettings() {
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field
-                title='Ontime server port'
-                description='Port ontime server listens in. Defaults to 4001 (needs app restart)'
+                title='Server port'
+                description='Defaults to 4001. Needs a restart'
                 error={errors.serverPort?.message}
               />
               <Input
