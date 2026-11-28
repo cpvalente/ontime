@@ -2,8 +2,8 @@
  * Gathers possible titles for view options
  */
 export enum OptionTitle {
-  ClockOptions = 'Clock Options',
-  TimerOptions = 'Timer Options',
+  ClockOptions = 'Clock options',
+  TimerOptions = 'Timer options',
   DataSources = 'Data sources',
   ElementVisibility = 'Element visibility',
   BehaviourOptions = 'View behaviour',

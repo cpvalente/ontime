@@ -9,6 +9,7 @@ import { useSearchParams } from 'react-router';
 
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import type { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
+import { makeViewParamsReader } from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { getScriptSourceLabel, makeScriptSourceOptions } from '../../common/utils/teleprompterScriptSource';
 import { isStringBoolean } from '../common/viewUtils';
@@ -57,6 +58,12 @@ const bounds = {
 
 const roles = ['local', 'controller', 'remote'] as const;
 
+const roleLabels: Record<TeleprompterRole, string> = {
+  local: 'Independent',
+  controller: 'Controller',
+  remote: 'Follower',
+};
+
 export const modeLabels: Record<TeleprompterMode, string> = {
   event: 'Event by event',
   script: 'Whole script',
@@ -64,7 +71,7 @@ export const modeLabels: Record<TeleprompterMode, string> = {
 
 const modes = (['event', 'script'] as const).map((value) => ({ value, label: modeLabels[value] }));
 
-const resetOnReload = 'Changes while playing reset on reload.';
+const resetOnReload = 'changes while playing reset on reload';
 
 export function getTeleprompterOptions(customFields: CustomFields, shared: TeleprompterSettings): ViewOption[] {
   const projectField = getScriptSourceLabel(shared.script, customFields);
@@ -77,15 +84,15 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'role',
           title: 'Role',
-          description: '',
+          description: 'How this screen shares playback with other screens',
           type: 'option',
-          values: roles.map((value) => ({ value, label: value })),
+          values: roles.map((value) => ({ value, label: roleLabels[value] })),
           defaultValue: defaults.role,
         },
         {
           id: 'source',
           title: 'Script field',
-          description: 'The field this screen reads its script from.',
+          description: 'The field this screen reads its script from',
           type: 'option',
           values: [
             { value: projectSource, label: `Same as the project (${projectField})` },
@@ -96,7 +103,7 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'mode',
           title: 'Starting mode',
-          description: `Follow the loaded event or read continuously. ${resetOnReload}`,
+          description: `Follow the loaded event or read continuously, ${resetOnReload}`,
           type: 'option',
           values: modes,
           defaultValue: defaults.mode,
@@ -104,14 +111,14 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'speed',
           title: 'Starting speed',
-          description: `Lines per minute, ${bounds.speed[0]}-${bounds.speed[1]}. ${resetOnReload}`,
+          description: `Lines per minute, ${bounds.speed[0]}-${bounds.speed[1]}, ${resetOnReload}`,
           type: 'number',
           defaultValue: defaults.speed,
         },
         {
           id: 'onlyLoaded',
           title: 'Show only the loaded event',
-          description: 'Other events stay hidden, including when navigating playback.',
+          description: 'Other events stay hidden, including when navigating playback',
           type: 'boolean',
           defaultValue: defaults.onlyLoaded,
         },
@@ -124,7 +131,7 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'hideHeadings',
           title: 'Hide event headings',
-          description: 'Hide heading text while keeping its spacing.',
+          description: 'Hides heading text while keeping its spacing',
           type: 'boolean',
           defaultValue: defaults.hideHeadings,
         },
@@ -137,42 +144,41 @@ export function getTeleprompterOptions(customFields: CustomFields, shared: Telep
         {
           id: 'textWidth',
           title: 'Text width',
-          description: `Width as a percentage of the screen, ${bounds.textWidth[0]}-${bounds.textWidth[1]}.`,
+          description: `Width as a percentage of the screen, ${bounds.textWidth[0]}-${bounds.textWidth[1]}`,
           type: 'number',
           defaultValue: defaults.textWidth,
         },
         {
           id: 'lineHeight',
           title: 'Line spacing',
-          description: `Spacing as a multiple of text size, ${bounds.lineHeight[0]}-${bounds.lineHeight[1]}.`,
+          description: `Spacing as a multiple of text size, ${bounds.lineHeight[0]}-${bounds.lineHeight[1]}`,
           type: 'number',
           defaultValue: defaults.lineHeight,
         },
         {
           id: 'hideReadingLine',
           title: 'Hide reading marker',
-          description: 'Hide the reading marker.',
           type: 'boolean',
           defaultValue: defaults.hideReadingLine,
         },
         {
           id: 'readingLinePos',
           title: 'Reading position',
-          description: `Position from the top of the screen, ${bounds.readingLinePos[0]}-${bounds.readingLinePos[1]}%.`,
+          description: `Position from the top of the screen, ${bounds.readingLinePos[0]}-${bounds.readingLinePos[1]}%`,
           type: 'number',
           defaultValue: defaults.readingLinePos,
         },
         {
           id: 'flipH',
           title: 'Mirror horizontally',
-          description: 'For reflected teleprompter displays.',
+          description: 'For reflected teleprompter displays',
           type: 'boolean',
           defaultValue: defaults.flipH,
         },
         {
           id: 'flipV',
           title: 'Mirror vertically',
-          description: 'Flip Screen in the navigation menu mirrors both ways and combines with these settings.',
+          description: 'Flip Screen in the navigation menu mirrors both ways and combines with these settings',
           type: 'boolean',
           defaultValue: defaults.flipV,
         },
@@ -196,23 +202,23 @@ export function getOptionsFromParams(
   searchParams: URLSearchParams,
   defaultValues?: URLSearchParams,
 ): TeleprompterOptions {
-  const getParam = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+  const params = makeViewParamsReader(searchParams, defaultValues);
 
-  const role = roles.find((value) => value === getParam('role')) ?? defaults.role;
+  const role = roles.find((value) => value === params.get('role')) ?? defaults.role;
 
   return {
     role,
-    source: getParam('source') || defaults.source,
-    onlyLoaded: role === 'local' && toBoolean(getParam('onlyLoaded'), defaults.onlyLoaded),
-    lineHeight: toNumber(getParam('lineHeight'), bounds.lineHeight, defaults.lineHeight),
-    textWidth: toNumber(getParam('textWidth'), bounds.textWidth, defaults.textWidth),
-    hideReadingLine: toBoolean(getParam('hideReadingLine'), defaults.hideReadingLine),
-    hideHeadings: toBoolean(getParam('hideHeadings'), defaults.hideHeadings),
-    readingLinePos: toNumber(getParam('readingLinePos'), bounds.readingLinePos, defaults.readingLinePos),
-    flipH: toBoolean(getParam('flipH'), defaults.flipH),
-    flipV: toBoolean(getParam('flipV'), defaults.flipV),
-    mode: modes.find(({ value }) => value === getParam('mode'))?.value ?? defaults.mode,
-    speed: toNumber(getParam('speed'), bounds.speed, defaults.speed),
+    source: params.get('source') || defaults.source,
+    onlyLoaded: role === 'local' && toBoolean(params.get('onlyLoaded'), defaults.onlyLoaded),
+    lineHeight: toNumber(params.get('lineHeight'), bounds.lineHeight, defaults.lineHeight),
+    textWidth: toNumber(params.get('textWidth'), bounds.textWidth, defaults.textWidth),
+    hideReadingLine: toBoolean(params.get('hideReadingLine'), defaults.hideReadingLine),
+    hideHeadings: toBoolean(params.get('hideHeadings'), defaults.hideHeadings),
+    readingLinePos: toNumber(params.get('readingLinePos'), bounds.readingLinePos, defaults.readingLinePos),
+    flipH: toBoolean(params.get('flipH'), defaults.flipH),
+    flipV: toBoolean(params.get('flipV'), defaults.flipV),
+    mode: modes.find(({ value }) => value === params.get('mode'))?.value ?? defaults.mode,
+    speed: toNumber(params.get('speed'), bounds.speed, defaults.speed),
   };
 }
 

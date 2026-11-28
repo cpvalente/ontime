@@ -2,14 +2,13 @@ import { CustomFields, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import {
-  getTimeOption,
-  getTimeOptionsFromParams,
-  TimeOptions,
-} from '../../common/components/view-params-editor/common.options';
+import { getTimeOption, TimeOptions } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
-import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
+import {
+  makeOptionsFromCustomFields,
+  makeViewParamsReader,
+} from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
@@ -20,7 +19,7 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
     { value: 'none', label: 'None' },
     { value: 'title', label: 'Title' },
     { value: 'note', label: 'Note' },
-    { value: 'parent', label: 'Group Title' },
+    { value: 'parent', label: 'Group title' },
   ]);
 
   return [
@@ -32,7 +31,6 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
         {
           id: 'main',
           title: 'Main text',
-          description: 'Select the data source for the main text',
           type: 'option',
           values: mainOptions,
           defaultValue: 'title',
@@ -40,7 +38,6 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
         {
           id: 'secondary-src',
           title: 'Secondary text',
-          description: 'Select the data source for the secondary text',
           type: 'option',
           values: secondaryOptions,
           defaultValue: 'none',
@@ -53,15 +50,14 @@ export const getTimelineOptions = (timeFormat: string, customFields: CustomField
       options: [
         {
           id: 'hidePast',
-          title: 'Hide Past Events',
-          description: 'Whether to hide events that have passed',
+          title: 'Hide past events',
           type: 'boolean',
           defaultValue: false,
         },
         {
           id: 'fixedSize',
           title: 'Fixed timeline size',
-          description: 'Timeline will have a fixed size to prevent scrolling',
+          description: 'Fits the timeline to the screen width to prevent scrolling',
           type: 'boolean',
           defaultValue: false,
         },
@@ -82,15 +78,14 @@ type TimelineOptions = {
  * the names and fallback are manually matched with getTimelineOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): TimelineOptions {
-  // Helper to get value from either source, prioritizing defaultValues
-  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
+  const params = makeViewParamsReader(searchParams, defaultValues);
 
   return {
-    mainSource: getValue('main') as keyof OntimeEvent | null,
-    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
-    hidePast: isStringBoolean(getValue('hidePast')),
-    fixedSize: isStringBoolean(getValue('fixedSize')),
-    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
+    mainSource: params.get('main') as keyof OntimeEvent | null,
+    secondarySource: params.get('secondary-src') as keyof OntimeEvent | null,
+    hidePast: isStringBoolean(params.get('hidePast')),
+    fixedSize: isStringBoolean(params.get('fixedSize')),
+    timeformat: params.get('timeformat'),
   };
 }
 

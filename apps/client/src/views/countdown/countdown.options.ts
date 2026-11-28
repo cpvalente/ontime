@@ -2,14 +2,13 @@ import { CustomFields, EntryId, OntimeEvent } from 'ontime-types';
 import { use, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
 
-import {
-  getTimeOption,
-  getTimeOptionsFromParams,
-  TimeOptions,
-} from '../../common/components/view-params-editor/common.options';
+import { getTimeOption, TimeOptions } from '../../common/components/view-params-editor/common.options';
 import { OptionTitle } from '../../common/components/view-params-editor/constants';
 import { ViewOption } from '../../common/components/view-params-editor/viewParams.types';
-import { makeOptionsFromCustomFields } from '../../common/components/view-params-editor/viewParams.utils';
+import {
+  makeOptionsFromCustomFields,
+  makeViewParamsReader,
+} from '../../common/components/view-params-editor/viewParams.utils';
 import { PresetContext } from '../../common/context/PresetContext';
 import { isStringBoolean } from '../common/viewUtils';
 
@@ -33,15 +32,14 @@ export const getCountdownOptions = (
         {
           id: 'main',
           title: 'Main text',
-          description: 'Select the data source for the main text',
           type: 'option',
           values: mainOptions,
           defaultValue: 'title',
         },
         {
           id: 'secondary-src',
-          title: 'Event secondary text',
-          description: 'Select the data source for auxiliary text shown in the card',
+          title: 'Secondary text',
+          description: 'Shown in the event card',
           type: 'option',
           values: secondaryOptions,
           defaultValue: 'none',
@@ -54,8 +52,8 @@ export const getCountdownOptions = (
       options: [
         {
           id: 'showExpected',
-          title: 'Show expected time',
-          description: 'Whether the times shown should account for the runtime offset.',
+          title: 'Show expected times',
+          description: 'Times account for the runtime offset',
           type: 'boolean',
           defaultValue: false,
         },
@@ -67,8 +65,7 @@ export const getCountdownOptions = (
       options: [
         {
           id: 'hidePast',
-          title: 'Hide Past Events',
-          description: 'Whether to hide events that have passed',
+          title: 'Hide past events',
           type: 'boolean',
           defaultValue: false,
         },
@@ -102,24 +99,15 @@ type CountdownOptions = {
  * the names and fallback are manually matched with timerOptions
  */
 function getOptionsFromParams(searchParams: URLSearchParams, defaultValues?: URLSearchParams): CountdownOptions {
-  // Helper to get single value from either source, prioritizing defaultValues
-  const getValue = (key: string) => defaultValues?.get(key) ?? searchParams.get(key);
-
-  // Helper to get array values from either source
-  const getArrayValues = (key: string): EntryId[] => {
-    if (defaultValues?.has(key)) {
-      return defaultValues.getAll(key) as EntryId[];
-    }
-    return searchParams.getAll(key) as EntryId[];
-  };
+  const params = makeViewParamsReader(searchParams, defaultValues);
 
   return {
-    subscriptions: getArrayValues('sub'),
-    mainSource: getValue('main') as keyof OntimeEvent | null,
-    secondarySource: getValue('secondary-src') as keyof OntimeEvent | null,
-    showExpected: isStringBoolean(getValue('showExpected')),
-    hidePast: isStringBoolean(getValue('hidePast')),
-    timeformat: getTimeOptionsFromParams(searchParams, defaultValues),
+    subscriptions: params.getAll('sub') as EntryId[],
+    mainSource: params.get('main') as keyof OntimeEvent | null,
+    secondarySource: params.get('secondary-src') as keyof OntimeEvent | null,
+    showExpected: isStringBoolean(params.get('showExpected')),
+    hidePast: isStringBoolean(params.get('hidePast')),
+    timeformat: params.get('timeformat'),
   };
 }
 
