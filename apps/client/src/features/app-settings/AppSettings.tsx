@@ -9,7 +9,6 @@ import ProjectPanel from './panel/project-panel/ProjectPanel';
 import RundownPanel from './panel/rundown-panel/RundownPanel';
 import ServerPanel from './panel/server-panel/ServerPanel';
 import SharingPanel from './panel/sharing-panel/SharingPanel';
-import ShutdownPanel from './panel/shutdown-panel/ShutdownPanel';
 import ViewsPanel from './panel/views-panel/ViewsPanel';
 import useAppSettingsNavigation from './useAppSettingsNavigation';
 
@@ -31,7 +30,6 @@ export default function AppSettings() {
           {panel === 'integrations' && <IntegrationsPanel location={location} />}
           {panel === 'server' && <ServerPanel location={location} />}
           {panel === 'about' && <AboutPanel />}
-          {panel === 'shutdown' && <ShutdownPanel />}
         </PanelContent>
       </ErrorBoundary>
     </div>

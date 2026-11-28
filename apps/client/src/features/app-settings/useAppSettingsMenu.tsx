@@ -50,24 +50,35 @@ export const staticOptions = [
       {
         id: 'rundown__rundowns',
         label: 'Rundowns',
-        keywords: ['manage rundowns', 'xlsx', 'load', 'export'],
+        keywords: ['manage rundowns', 'new rundown', 'rename', 'duplicate', 'delete', 'switch', 'load', 'export'],
       },
       {
         id: 'rundown__sheets',
         label: 'Import spreadsheet',
-        keywords: ['google sheet', 'sync', 'spreadsheet', 'xlsx', 'excel', 'csv'],
+        keywords: ['import', 'google sheet', 'sync', 'spreadsheet', 'xlsx', 'excel', 'csv'],
       },
       {
         id: 'rundown__custom',
         label: 'Custom fields',
-        keywords: ['metadata', 'columns', 'column', 'cuesheet', 'extra data', 'image field'],
+        keywords: ['metadata', 'column', 'cuesheet', 'extra data', 'image', 'option', 'dropdown', 'key', 'reorder'],
       },
       {
         id: 'rundown__defaults',
         label: 'Rundown defaults',
-        keywords: ['duration', 'warning', 'danger', 'defaults', 'colour', 'color', 'timer'],
+        keywords: [
+          'defaults',
+          'new event',
+          'duration',
+          'timer type',
+          'end action',
+          'link',
+          'colour',
+          'color',
+          'warning time',
+          'danger time',
+        ],
       },
-      { id: 'rundown__aux-timers', label: 'Aux timers', keywords: ['aux', 'auxiliary', 'timer'] },
+      { id: 'rundown__aux-timers', label: 'Aux timers', keywords: ['aux', 'auxiliary', 'timer', 'name', 'rename'] },
       {
         id: 'rundown__report',
         label: 'Runtime report',
@@ -80,17 +91,27 @@ export const staticOptions = [
     label: 'Views',
     secondary: [
       {
-        id: 'views__display',
-        label: 'Display',
-        keywords: ['language', 'translation', 'custom translation', 'time format', '12 hour', '24 hour', 'clock'],
-      },
-      {
         id: 'views__view',
         label: 'View settings',
-        keywords: ['css', 'style', 'theme', 'colour', 'color', 'freeze', 'overtime'],
+        keywords: [
+          'language',
+          'translation',
+          'custom translation',
+          'time format',
+          '12 hour',
+          '24 hour',
+          'css',
+          'style',
+          'stylesheet',
+          'theme',
+        ],
       },
-      { id: 'views__teleprompter', label: 'Teleprompter', keywords: ['prompter', 'script', 'autocue'] },
       { id: 'views__custom-views', label: 'Custom views', keywords: ['html', 'upload', 'external', 'embed'] },
+      {
+        id: 'views__teleprompter',
+        label: 'Teleprompter',
+        keywords: ['prompter', 'script', 'autocue', 'line length', 'heading'],
+      },
     ],
   },
   {
@@ -106,7 +127,7 @@ export const staticOptions = [
       {
         id: 'sharing__access',
         label: 'Access',
-        keywords: ['pin', 'editor pin', 'operator pin', 'password', 'lock'],
+        keywords: ['pin', 'editor pin', 'operator pin', 'password', 'security', 'lock'],
       },
     ],
   },
@@ -173,17 +194,13 @@ export const staticOptions = [
         label: 'Event log',
         keywords: ['debug', 'errors', 'console', 'export log', 'log'],
       },
+      { id: 'server__shutdown', label: 'Shutdown', keywords: ['quit', 'exit', 'stop', 'close ontime'] },
     ],
   },
   {
     id: 'about',
     label: 'About',
-    keywords: ['version', 'update', 'licence', 'license', 'credits'],
-  },
-  {
-    id: 'shutdown',
-    label: 'Shutdown',
-    keywords: ['quit', 'exit', 'close ontime'],
+    keywords: ['version', 'update', 'licence', 'license', 'docs', 'help', 'support', 'discord', 'github'],
   },
 ] as const;
 

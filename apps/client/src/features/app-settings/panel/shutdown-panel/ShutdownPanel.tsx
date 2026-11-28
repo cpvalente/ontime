@@ -15,7 +15,6 @@ export default function ShutdownPanel() {
 
   return (
     <>
-      <Panel.Header>Shutdown</Panel.Header>
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>Shutdown</Panel.SubHeader>
