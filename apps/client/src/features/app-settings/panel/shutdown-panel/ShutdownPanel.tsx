@@ -62,11 +62,7 @@ export default function ShutdownPanel() {
         title='Shutdown Ontime'
         showCloseButton
         onClose={handler.close}
-        bodyElements={
-          <Panel.Paragraph>
-            This will shutdown the Ontime server. <br /> Are you sure?
-          </Panel.Paragraph>
-        }
+        bodyElements={<Panel.Paragraph>Shut down the Ontime server?</Panel.Paragraph>}
         footerElements={
           <>
             <Button ref={cancelRef} onClick={handler.close} variant='ghosted-white'>

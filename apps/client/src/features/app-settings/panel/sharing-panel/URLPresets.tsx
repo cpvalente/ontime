@@ -53,12 +53,7 @@ export default function URLPresets() {
         <Panel.Divider />
         <Panel.Section>
           <Info>
-            URL presets are user pre-defined aliases to Ontime URLs.
-            <br />
-            This URL can contain full configuration including parameters, or simply route to a specific view.
-            <br />
-            <br />
-            The easiest way to get started is to copy an URL from your browser and paste it into the form.
+            A short alias for an Ontime URL, with its parameters. Paste a URL from your browser to start.
             <ExternalLink href={urlPresetsDocs}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>

@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
-import Info from '../../../../common/components/info/Info';
 import Input from '../../../../common/components/input/input/Input';
 import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
@@ -75,12 +74,11 @@ export default function AuxTimerSettings() {
         </Panel.SubHeader>
         <Panel.Divider />
         <Panel.Section>
-          <Info>Give the aux timers custom names. Names are shown across the editor controls and views.</Info>
           <Panel.Loader isLoading={isLoading} />
           <Panel.Error>{errors.root?.message}</Panel.Error>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='Aux timer 1' description='Custom name for aux timer 1' />
+              <Panel.Field title='Aux timer 1' />
               <Input
                 className={Panel.pendingClass(dirtyFields.auxTimerNames?.[0])}
                 maxLength={auxTimerNameMaxLength}
@@ -89,7 +87,7 @@ export default function AuxTimerSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Aux timer 2' description='Custom name for aux timer 2' />
+              <Panel.Field title='Aux timer 2' />
               <Input
                 className={Panel.pendingClass(dirtyFields.auxTimerNames?.[1])}
                 maxLength={auxTimerNameMaxLength}
@@ -98,7 +96,7 @@ export default function AuxTimerSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Aux timer 3' description='Custom name for aux timer 3' />
+              <Panel.Field title='Aux timer 3' />
               <Input
                 className={Panel.pendingClass(dirtyFields.auxTimerNames?.[2])}
                 maxLength={auxTimerNameMaxLength}

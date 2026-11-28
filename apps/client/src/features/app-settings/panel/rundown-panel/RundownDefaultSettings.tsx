@@ -84,10 +84,7 @@ export default function RundownDefaultSettings() {
           <Panel.Title>Default settings for new events</Panel.Title>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field
-                title='Link previous'
-                description='Whether the start time of new events should be linked to the previous event end time'
-              />
+              <Panel.Field title='Link previous' description='Start new events when the previous one ends' />
               <Switch
                 size='large'
                 className={Panel.pendingClass(dirtyFields.rundownDefaults?.linkPrevious)}
@@ -98,10 +95,7 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field
-                title='Inherit group colour'
-                description='Whether new events and milestones inherit the colour of their parent group'
-              />
+              <Panel.Field title='Inherit group colour' />
               <Switch
                 size='large'
                 className={Panel.pendingClass(dirtyFields.rundownDefaults?.inheritGroupColour)}
@@ -112,10 +106,7 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field
-                title='Timer strategy'
-                description='Which time should be maintained when event schedule is recalculated'
-              />
+              <Panel.Field title='Timer strategy' />
               <Select
                 triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.timeStrategy)}
                 value={rundownDefaults.timeStrategy}
@@ -132,7 +123,7 @@ export default function RundownDefaultSettings() {
           </Panel.ListGroup>
           <Panel.ListGroup>
             <Panel.ListItem>
-              <Panel.Field title='Default duration' description='Default duration for new events' />
+              <Panel.Field title='Default duration' />
               <TimeInput<'duration'>
                 name='duration'
                 className={Panel.pendingClass(dirtyFields.rundownDefaults?.duration)}
@@ -144,7 +135,7 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='Timer type' description='Default type of timer for new events' />
+              <Panel.Field title='Timer type' />
               <Select
                 triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.timerType)}
                 value={rundownDefaults.timerType}
@@ -161,7 +152,7 @@ export default function RundownDefaultSettings() {
               />
             </Panel.ListItem>
             <Panel.ListItem>
-              <Panel.Field title='End Action' description='Default end action for new events' />
+              <Panel.Field title='End Action' />
               <Select
                 triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.endAction)}
                 value={rundownDefaults.endAction}

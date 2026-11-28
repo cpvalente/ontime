@@ -90,16 +90,12 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
                 Select the sections from <span className={style.sourceFile}>{`"${fileName}"`}</span> that you want to
                 merge into the current project.
               </Panel.Description>
-              <div className={style.mergeSummary}>
-                Only the enabled sections are copied. Existing data stays intact.
-              </div>
             </div>
 
             <Info type='warning' className={style.mergeWarningInfo}>
               <Info.Title>Back up before merging</Info.Title>
               <Info.Body>
-                This action can overwrite project data. Create a duplicate project first if you want a recovery point.
-                Projects from older Ontime versions are migrated when read; the original file is not changed.
+                Merging can overwrite project data. Duplicate the project first to keep a recovery point.
               </Info.Body>
             </Info>
 

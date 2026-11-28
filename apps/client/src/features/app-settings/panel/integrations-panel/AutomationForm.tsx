@@ -309,12 +309,10 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
           <div className={style.innerColumn}>
             <h3>Outputs</h3>
             <Info>
-              Automation outputs can be used to send data from Ontime to external software <br />
-              or to change properties of Ontime itself. <br /> <br />
               <span>
-                Use Ontime runtime data in these fields with template strings. Type{' '}
-                <Panel.Highlight>{'{{'}</Panel.Highlight> to see autocomplete, or{' '}
-                <ExternalLink href={integrationsDocsUrl}>read the docs</ExternalLink>
+                {' '}
+                Type <Panel.Highlight>{'{{'}</Panel.Highlight> to insert runtime data.{' '}
+                <ExternalLink href={integrationsDocsUrl}>See the docs</ExternalLink>
               </span>
             </Info>
 

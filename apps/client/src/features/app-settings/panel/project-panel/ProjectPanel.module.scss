@@ -52,10 +52,6 @@
   }
 }
 
-.warningInfo {
-  margin-bottom: 1rem;
-}
-
 .loaderBox {
   height: 300px;
   position: relative;
@@ -77,12 +73,6 @@
   background-color: $white-3;
   color: $orange-400;
   white-space: nowrap;
-}
-
-.mergeSummary {
-  color: $gray-400;
-  font-size: calc(1rem - 2px);
-  line-height: 1.5;
 }
 
 .mergeWarningInfo {

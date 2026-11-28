@@ -56,7 +56,6 @@ export default function CustomViews() {
             <span>
               Upload one <strong>index.html</strong> per view to <strong>/external/&lt;name&gt;/</strong>.
             </span>
-            External imports are not allowed, include all assets inside the html file.
             <ExternalLink href={customViewsDocs}>See the docs</ExternalLink>
           </Info>
         </Panel.Section>

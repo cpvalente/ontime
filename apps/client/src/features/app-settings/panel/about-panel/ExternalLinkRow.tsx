@@ -6,7 +6,7 @@ import style from './ExternalLinkRow.module.scss';
 interface ExternalLinkRowProps {
   href: string;
   title: string;
-  description: string;
+  description?: string;
 }
 
 export default function ExternalLinkRow({ href, title, description }: ExternalLinkRowProps) {
