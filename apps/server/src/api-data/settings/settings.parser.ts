@@ -35,7 +35,7 @@ export function parseSettings(data: Partial<DatabaseModel>): Settings {
 }
 
 /**
- * Each field falls back to its default, files from before v5 have none
+ * Files from before v5 have none, each field falls back to its default
  */
 function parseRundownDefaults(maybeDefaults: unknown, defaults: RundownDefaults): RundownDefaults {
   if (typeof maybeDefaults !== 'object' || maybeDefaults === null) {

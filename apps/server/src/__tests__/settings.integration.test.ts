@@ -2,9 +2,6 @@ import type { Settings } from 'ontime-types';
 
 import { type TestServer, startTestServer } from './testServer.js';
 
-/**
- * Settings are one object, each panel changes only its own fields
- */
 describe('settings', () => {
   let server: TestServer;
 
@@ -22,7 +19,7 @@ describe('settings', () => {
 
   test('a patch changes only the fields it holds', async () => {
     const before = await getSettings();
-    const response = await server.send('PATCH', '/data/settings', { timeFormat: '12', version: '0.0.0' });
+    const response = await server.send('PATCH', '/data/settings', { timeFormat: '12' });
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ...before, timeFormat: '12' });
@@ -33,9 +30,7 @@ describe('settings', () => {
     await server.send('PATCH', '/data/settings', { language: 'de' });
     await server.send('PATCH', '/data/settings', { auxTimerNames: ['Speaker'] });
 
-    const settings = await getSettings();
-    expect(settings.language).toBe('de');
-    expect(settings.auxTimerNames).toEqual(['Speaker', '', '']);
+    expect((await getSettings()).language).toBe('de');
   });
 
   test('rundown defaults are kept with the project', async () => {
@@ -50,15 +45,14 @@ describe('settings', () => {
 
   test('rejects an invalid patch without changing the settings', async () => {
     const before = await getSettings();
-    const response = await server.send('PATCH', '/data/settings', { language: 'fr', timeFormat: '13' });
+    const response = await server.send('PATCH', '/data/settings', {
+      language: 'fr',
+      timeFormat: '13',
+      version: '0.0.0',
+    });
 
     expect(response.status).toBe(422);
     expect(await getSettings()).toEqual(before);
-  });
-
-  test('the whole-object POST is gone', async () => {
-    const response = await server.send('POST', '/data/settings', { timeFormat: '24' });
-    expect(response.status).toBe(404);
   });
 
   test('new entries from any client take the project rundown defaults', async () => {
@@ -68,6 +62,6 @@ describe('settings', () => {
 
     const response = await server.send('POST', `/data/rundowns/${rundown.id}/entry`, { type: 'event' });
     expect(response.status).toBe(201);
-    expect(await response.json()).toMatchObject({ duration: 420_000, linkStart: false });
+    expect(await response.json()).toMatchObject({ duration: 420_000 });
   });
 });

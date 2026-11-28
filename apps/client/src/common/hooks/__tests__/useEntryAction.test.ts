@@ -16,7 +16,7 @@ vi.mock('../../api/rundown', async (importOriginal) => ({
   requestFitGroupTarget: vi.fn<typeof requestFitGroupTarget>(),
 }));
 
-// new entries read the placeholder rundown defaults
+// never resolves: the hook only needs a settings query it can read the placeholder from
 vi.mock('../../api/settings', () => ({
   getSettings: vi.fn<() => Promise<never>>(() => new Promise(() => {})),
 }));

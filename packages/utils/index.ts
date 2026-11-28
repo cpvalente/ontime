@@ -131,7 +131,6 @@ export {
   resolvePhaseThresholds,
 } from './src/phase-thresholds/phaseThresholds.js';
 
-// rundown defaults
 export { defaultRundownDefaults } from './src/rundown-defaults/rundownDefaults.js';
 
 // teleprompter

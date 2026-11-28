@@ -12,10 +12,6 @@ export function getSettings(): Readonly<Settings> {
   return getDataProvider().getSettings();
 }
 
-/**
- * Applies a partial change to the stored settings: each given field replaces the stored one
- * The stored version is always kept
- */
 export async function editSettings(patch: SettingsPatch): Promise<Readonly<Settings>> {
   const settings = getDataProvider().getSettings();
   const data: Settings = { ...settings, ...patch, version: settings.version };

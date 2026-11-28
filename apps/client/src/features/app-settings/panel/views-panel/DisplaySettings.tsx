@@ -5,7 +5,6 @@ import { useForm } from 'react-hook-form';
 
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
-import Info from '../../../../common/components/info/Info';
 import Select from '../../../../common/components/select/Select';
 import useSettings, { useUpdateSettings } from '../../../../common/hooks-query/useSettings';
 import { preventEscape } from '../../../../common/utils/keyEvent';
@@ -39,11 +38,8 @@ export default function DisplaySettings() {
 
   const [isOpen, handler] = useDisclosure();
 
-  // update form if we get new data from server
   useEffect(() => {
-    if (data) {
-      reset(toDisplayFields(data));
-    }
+    reset(toDisplayFields(data));
   }, [data, reset]);
 
   const onSubmit = async (formData: DisplayFields) => {
@@ -95,7 +91,6 @@ export default function DisplaySettings() {
           {errors.root && <Panel.Error>{errors.root.message}</Panel.Error>}
           <Panel.Divider />
           <Panel.Section>
-            <Info>Changes to the views language does not affect the editor view</Info>
             <Panel.Loader isLoading={isLoading} />
             <Panel.ListGroup>
               <Panel.ListItem>

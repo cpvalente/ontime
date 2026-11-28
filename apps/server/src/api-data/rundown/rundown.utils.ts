@@ -43,13 +43,6 @@ import {
 import { InvalidEntryOperationError } from './rundown.errors.js';
 import { RundownMetadata } from './rundown.types.js';
 
-/**
- * Generates a fully formed RundownEntry of the patch type
- */
-/**
- * Finds the event a new entry follows in time, the last event before its insert position
- * @param afterId the sibling the entry is inserted after, null when it goes first in its list
- */
 export function getEventBeforeInsert(
   rundown: Rundown,
   afterId: EntryId | null,
@@ -75,9 +68,7 @@ export function getEventBeforeInsert(
 }
 
 /**
- * Fills the fields a new entry leaves out with the project rundown defaults
- * Fields given in the payload always win
- * An event without a start begins where the previous event ends, and links to it if the defaults say so
+ * An event without a start or end begins where the previous event ends, and links to it if the defaults say so
  * An event given a start keeps it, unless the payload asks to link
  */
 export function applyRundownDefaults<T extends Partial<OntimeEntry>>(
@@ -89,8 +80,8 @@ export function applyRundownDefaults<T extends Partial<OntimeEntry>>(
   const entry = { ...eventData };
 
   if (isOntimeEvent(entry)) {
-    if (entry.timeStart === undefined) {
-      if (previousEvent) entry.timeStart = previousEvent.timeEnd;
+    if (entry.timeStart === undefined && entry.timeEnd === undefined && previousEvent) {
+      entry.timeStart = previousEvent.timeEnd;
       entry.linkStart ??= defaults.linkPrevious;
     }
     entry.timerType ??= defaults.timerType;
@@ -108,6 +99,9 @@ export function applyRundownDefaults<T extends Partial<OntimeEntry>>(
   return entry;
 }
 
+/**
+ * Generates a fully formed RundownEntry of the patch type
+ */
 export function generateEvent(
   rundown: Rundown,
   eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,

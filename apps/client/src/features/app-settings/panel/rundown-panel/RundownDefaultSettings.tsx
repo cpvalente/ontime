@@ -36,11 +36,8 @@ export default function RundownDefaultSettings() {
     },
   });
 
-  // keep the form in sync with the project settings
   useEffect(() => {
-    if (data) {
-      reset(toRundownDefaultFields(data));
-    }
+    reset(toRundownDefaultFields(data));
   }, [data, reset]);
 
   const onSubmit = async (formData: RundownDefaultFields) => {
@@ -116,7 +113,7 @@ export default function RundownDefaultSettings() {
                 }}
                 options={[
                   { value: TimeStrategy.LockDuration, label: 'Duration' },
-                  { value: TimeStrategy.LockEnd, label: 'End Time' },
+                  { value: TimeStrategy.LockEnd, label: 'End time' },
                 ]}
               />
             </Panel.ListItem>

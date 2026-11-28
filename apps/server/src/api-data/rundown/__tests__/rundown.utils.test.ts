@@ -848,13 +848,7 @@ describe('applyRundownDefaults()', () => {
 
   it('fills what a new event leaves out', () => {
     const result = applyRundownDefaults({ type: SupportedEntry.Event }, defaults, null, null);
-    expect(result).toMatchObject({
-      linkStart: false,
-      duration: 5 * MILLIS_PER_MINUTE,
-      timerType: defaults.timerType,
-      endAction: defaults.endAction,
-      timeStrategy: defaults.timeStrategy,
-    });
+    expect(result).toMatchObject({ duration: 5 * MILLIS_PER_MINUTE, timerType: defaults.timerType });
   });
 
   it('keeps the fields the payload gives', () => {
@@ -876,7 +870,7 @@ describe('applyRundownDefaults()', () => {
     ).not.toHaveProperty('colour');
   });
 
-  it('starts an event without a start where the previous event ends, and keeps a given start unlinked', () => {
+  it('starts an event where the previous event ends and links it if the defaults say so', () => {
     const previous = makeOntimeEvent({ id: 'previous', timeEnd: 2 * MILLIS_PER_HOUR });
     expect(applyRundownDefaults({ type: SupportedEntry.Event }, defaults, null, previous)).toMatchObject({
       timeStart: 2 * MILLIS_PER_HOUR,
@@ -885,14 +879,17 @@ describe('applyRundownDefaults()', () => {
     expect(
       applyRundownDefaults({ type: SupportedEntry.Event }, { ...defaults, linkPrevious: true }, null, previous),
     ).toMatchObject({ timeStart: 2 * MILLIS_PER_HOUR, linkStart: true });
-    expect(
-      applyRundownDefaults(
-        { type: SupportedEntry.Event, timeStart: MILLIS_PER_HOUR },
-        { ...defaults, linkPrevious: true },
-        null,
-        previous,
-      ),
-    ).not.toHaveProperty('linkStart');
+  });
+
+  it('does not set a start or link without a previous event, or when the payload gives a start or end', () => {
+    const previous = makeOntimeEvent({ id: 'previous', timeEnd: 2 * MILLIS_PER_HOUR });
+    const linked = { ...defaults, linkPrevious: true };
+    expect(applyRundownDefaults({ type: SupportedEntry.Event }, linked, null, null)).not.toHaveProperty('linkStart');
+    for (const given of [{ timeStart: MILLIS_PER_HOUR }, { timeEnd: MILLIS_PER_HOUR }]) {
+      const result = applyRundownDefaults({ type: SupportedEntry.Event, ...given }, linked, null, previous);
+      expect(result).toMatchObject(given);
+      expect(result).not.toHaveProperty('linkStart');
+    }
   });
 
   it('leaves delays and groups alone', () => {

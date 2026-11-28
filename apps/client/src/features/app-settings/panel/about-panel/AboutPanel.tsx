@@ -16,7 +16,7 @@ import ExternalLinkRow from './ExternalLinkRow';
 export default function AboutPanel() {
   return (
     <>
-      <Panel.Header>About Ontime</Panel.Header>
+      <Panel.Header>About</Panel.Header>
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>Ontime</Panel.SubHeader>

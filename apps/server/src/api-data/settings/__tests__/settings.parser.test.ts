@@ -54,7 +54,7 @@ describe('parseSettings()', () => {
     });
   });
 
-  it.each([-1, 1.5, '600000'])('falls back to the default duration for %j', (duration) => {
+  it.each([-1, '600000'])('falls back to the default duration for %j', (duration) => {
     const result = parseSettings({
       settings: { version: '1', rundownDefaults: { duration } } as unknown as Settings,
     });

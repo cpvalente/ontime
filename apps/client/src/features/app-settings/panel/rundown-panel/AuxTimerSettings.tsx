@@ -33,9 +33,7 @@ export default function AuxTimerSettings() {
   });
 
   useEffect(() => {
-    if (data) {
-      reset(toAuxTimerFields(data));
-    }
+    reset(toAuxTimerFields(data));
   }, [data, reset]);
 
   const onSubmit = async (formData: AuxTimerFields) => {

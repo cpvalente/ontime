@@ -17,7 +17,6 @@ export type Settings = {
   auxTimerNames: [string, string, string];
   /** When timers enter warning and danger, events can override them */
   phaseThresholds: PhaseThresholds;
-  /** Values given to new events created in the rundown editor */
   rundownDefaults: RundownDefaults;
 };
 

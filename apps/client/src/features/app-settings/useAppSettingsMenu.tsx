@@ -165,7 +165,6 @@ export const staticOptions = [
           'connected',
           'screen',
           'device',
-          // the server port card sits above the clients, where the port can be changed
           ...(capabilities.canChangePort ? ['server port', 'network', 'address'] : []),
         ],
       },

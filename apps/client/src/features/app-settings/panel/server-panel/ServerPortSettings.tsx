@@ -32,10 +32,6 @@ export default function ServerPortSettings() {
   }, [data.pendingRestart, data.port, reset]);
 
   const onSubmit = async (formData: ServerPortForm) => {
-    if (formData.serverPort < 1024 || formData.serverPort > 65535) {
-      setError('serverPort', { message: 'Port must be within range 1024 - 65535' });
-      return;
-    }
     try {
       clearErrors('root');
       await mutateAsync(formData.serverPort);

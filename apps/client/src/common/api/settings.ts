@@ -14,9 +14,6 @@ export async function getSettings(options?: RequestOptions): Promise<Settings> {
   return res.data;
 }
 
-/**
- * HTTP request to change some of the application settings, returns all settings
- */
 export async function patchSettings(patch: SettingsPatch): Promise<Settings> {
   const res = await axios.patch<Settings>(settingsPath, patch);
   return res.data;

@@ -4,6 +4,7 @@ import sanitize from 'sanitize-filename';
 
 import { requestValidationFunction } from '../../middleware/validation.js';
 import { ensureJsonExtension } from '../../utils/fileManagement.js';
+import { rundownDefaultsSchema } from '../settings/settings.validation.js';
 
 /**
  * @description Validates request for a new project.
@@ -48,6 +49,10 @@ export const validatePatchProject = [
     .custom((input) => parsePhaseThresholds(input) !== null)
     .withMessage('phaseThresholds must hold a warning and a danger threshold')
     .customSanitizer(parsePhaseThresholds),
+  body('settings.rundownDefaults')
+    .optional()
+    .custom((input) => rundownDefaultsSchema.safeParse(input).success)
+    .withMessage('rundownDefaults must hold all the rundown defaults'),
   body('viewSettings').isObject().optional({ nullable: false }),
   body('urlPresets').isArray().optional({ nullable: false }),
   body('customFields').isArray().optional({ nullable: false }),
