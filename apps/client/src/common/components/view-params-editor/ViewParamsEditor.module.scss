@@ -80,7 +80,8 @@
 
 .body {
   flex: 1;
-  padding: 1rem;
+  // the first section header brings its own top padding
+  padding: 0 1rem 1rem;
   overflow-y: auto;
 
   &:focus-visible {
@@ -98,13 +99,17 @@
   justify-content: flex-end;
 
   background-color: $ui-black;
-  border-top: 1px solid $white-10;
+  border-top: 1px solid $white-7;
+}
+
+/** a secondary action, pushed away from Apply */
+.reset {
+  margin-right: auto;
 }
 
 .sectionList {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
 }
 
 .info {

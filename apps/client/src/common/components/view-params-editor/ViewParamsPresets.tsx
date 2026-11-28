@@ -2,10 +2,11 @@ import { OntimeView, URLPreset } from 'ontime-types';
 import { useSearchParams } from 'react-router';
 
 import { useViewUrlPresets } from '../../hooks-query/useUrlPresets';
+import { reservedParams } from '../../stores/savedViewParams';
 import { cx } from '../../utils/styleUtils';
 import { parseUrlPresetAlias } from '../../utils/urlPresets';
 import Button from '../buttons/Button';
-import Eyebrow from '../eyebrow/Eyebrow';
+import { SectionHeader } from './ViewParamsSection';
 
 import style from './ViewParamsPresets.module.scss';
 
@@ -19,6 +20,12 @@ export function ViewParamsPresets({ target }: { target: OntimeView }) {
 
   const handleRecall = (preset: URLPreset) => {
     const newSearch = new URLSearchParams(preset.search);
+    // keep the access token and navigation lock of the current URL
+    searchParams.forEach((value, key) => {
+      if (reservedParams.has(key)) {
+        newSearch.set(key, value);
+      }
+    });
     newSearch.set('alias', preset.alias);
     setSearchParams(newSearch);
   };
@@ -28,10 +35,8 @@ export function ViewParamsPresets({ target }: { target: OntimeView }) {
   }
 
   return (
-    <div className={style.presetSection}>
-      <div className={style.header}>
-        <Eyebrow>Saved presets</Eyebrow>
-      </div>
+    <section className={style.presetSection}>
+      <SectionHeader title='Saved presets' isCustomised={false} collapsed={false} />
       <div className={style.presetList}>
         {viewPresets.map((preset) => {
           const active = alias === preset.alias;
@@ -54,6 +59,6 @@ export function ViewParamsPresets({ target }: { target: OntimeView }) {
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

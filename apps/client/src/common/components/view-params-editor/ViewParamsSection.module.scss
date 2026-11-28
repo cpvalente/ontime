@@ -1,11 +1,11 @@
 .section {
-  overflow: hidden;
-
   color: $ui-white;
   font-size: 1rem;
-  background-color: $white-3;
-  border: 1px solid $gray-1100;
-  border-radius: $component-border-radius-md;
+  border-bottom: 1px solid $white-7;
+
+  &:last-of-type {
+    border-bottom: 0;
+  }
 }
 
 .sectionHeader {
@@ -13,16 +13,20 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  width: 100%;
+  // the header bleeds into the gutter so its hover background does not hug the text
+  box-sizing: border-box;
+  width: calc(100% + 1rem);
   min-height: 2.75rem;
-  padding: 0.5rem 1rem;
+  margin-inline: -0.5rem;
+  padding: 0.5rem;
 
   background: transparent;
   border: 0;
+  border-radius: $component-border-radius-md;
   font: inherit;
   text-align: left;
 
-  color: $gray-300;
+  color: $gray-500;
 
   &.collapsible {
     cursor: pointer;
@@ -45,6 +49,10 @@
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: $aux-text-size;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 /** marks a section which holds values coming from the URL */
@@ -67,15 +75,14 @@
 }
 
 .options {
-  padding: 0 1rem 0.5rem;
-  border-top: 1px solid $white-7;
+  padding-bottom: 0.75rem;
 }
 
 .label {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 0.25rem;
-  padding: 0.625rem 0;
+  padding: 0.375rem 0;
   font-size: $inner-section-text-size;
 }
 
@@ -106,9 +113,9 @@
 }
 
 .description {
-  color: $gray-400;
+  color: $gray-500;
   font-size: $aux-text-size;
-  line-height: 1.4;
+  line-height: 1.35;
 }
 
 .hidden {

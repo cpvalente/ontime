@@ -107,7 +107,7 @@ function ViewParamsEditor({ target, viewOptions }: EditFormDrawerProps) {
             </form>
           </div>
           <div className={style.footer}>
-            <Button variant='subtle' size='large' onClick={resetParams} type='reset'>
+            <Button variant='ghosted-white' size='large' onClick={resetParams} type='reset' className={style.reset}>
               Reset to default
             </Button>
             <Button
