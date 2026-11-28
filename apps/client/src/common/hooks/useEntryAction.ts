@@ -51,7 +51,7 @@ import {
   requestFitGroupTarget,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
-import { useEditorSettings } from '../stores/editorSettings';
+import useSettings from '../hooks-query/useSettings';
 import { isStaleRundown, optimisticDeleteEntries, patchEntry } from './entryAction.utils';
 
 export type EventOptions = Partial<{
@@ -77,8 +77,7 @@ export type EntryActions = ReturnType<typeof useEntryActions>;
  */
 export function useEntryActions(scopedRundownId: string) {
   const queryClient = useQueryClient();
-  const { linkPrevious, defaultTimeStrategy, defaultDuration, defaultTimerType, defaultEndAction, inheritGroupColour } =
-    useEditorSettings();
+  const { rundownDefaults } = useSettings().data;
 
   /**
    * Returns the currently loaded rundown
@@ -212,27 +211,31 @@ export function useEntryActions(scopedRundownId: string) {
           }
         }
 
-        // Override event with options from editor settings
-        newEntry.linkStart = options?.linkPrevious ?? linkPrevious;
+        // Override event with the project rundown defaults
+        newEntry.linkStart = options?.linkPrevious ?? rundownDefaults.linkPrevious;
 
         if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
-          newEntry.duration = parseUserTime(defaultDuration);
+          newEntry.duration = rundownDefaults.duration;
         }
 
         if (newEntry.timerType === undefined) {
-          newEntry.timerType = defaultTimerType;
+          newEntry.timerType = rundownDefaults.timerType;
         }
 
         if (newEntry.endAction === undefined) {
-          newEntry.endAction = defaultEndAction;
+          newEntry.endAction = rundownDefaults.endAction;
         }
 
         if (newEntry.timeStrategy === undefined) {
-          newEntry.timeStrategy = defaultTimeStrategy;
+          newEntry.timeStrategy = rundownDefaults.timeStrategy;
         }
       }
 
-      if (inheritGroupColour && (isOntimeEvent(newEntry) || isOntimeMilestone(newEntry)) && !newEntry.colour) {
+      if (
+        rundownDefaults.inheritGroupColour &&
+        (isOntimeEvent(newEntry) || isOntimeMilestone(newEntry)) &&
+        !newEntry.colour
+      ) {
         const parentId = resolveInsertParent(rundownData, newEntry);
         const maybeParent = parentId ? rundownData.entries[parentId] : null;
         if (maybeParent && isOntimeGroup(maybeParent)) {
@@ -246,16 +249,7 @@ export function useEntryActions(scopedRundownId: string) {
         logAxiosError('Failed adding event', error);
       }
     },
-    [
-      getCurrentRundownData,
-      linkPrevious,
-      defaultDuration,
-      defaultTimerType,
-      defaultEndAction,
-      defaultTimeStrategy,
-      inheritGroupColour,
-      addEntryMutation,
-    ],
+    [getCurrentRundownData, rundownDefaults, addEntryMutation],
   );
 
   /**

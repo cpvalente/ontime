@@ -96,6 +96,7 @@ describe('safeMerge', () => {
       language: 'pt',
       auxTimerNames: baseDb.settings.auxTimerNames,
       phaseThresholds: baseDb.settings.phaseThresholds,
+      rundownDefaults: baseDb.settings.rundownDefaults,
     });
   });
 

@@ -13,6 +13,10 @@ vi.mock('../../api/rundown', () => ({
   fetchProjectRundownList: vi.fn<() => Promise<never>>(() => new Promise(() => {})),
 }));
 
+vi.mock('../../api/settings', () => ({
+  getSettings: vi.fn<() => Promise<never>>(() => new Promise(() => {})),
+}));
+
 function makeRundown(id: string, eventIds: string[]): Rundown {
   return {
     id,

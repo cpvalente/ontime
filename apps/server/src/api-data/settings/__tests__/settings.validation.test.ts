@@ -1,4 +1,5 @@
 import type { Request, Response } from 'express';
+import { defaultRundownDefaults } from 'ontime-utils';
 
 import { validateServerPort, validateSettingsPatch } from '../settings.validation.js';
 
@@ -43,6 +44,33 @@ describe('validateSettingsPatch', () => {
 
   it.each([{ warning: { unit: 'percent', value: 20 } }, null, 'none'])('rejects phase thresholds %j', (thresholds) => {
     const { res, next } = validate(validateSettingsPatch, { phaseThresholds: thresholds });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+  });
+
+  it('accepts a full set of rundown defaults', () => {
+    const rundownDefaults = { ...defaultRundownDefaults, duration: 60000, timerType: 'count-up' };
+    const { req, next } = validate(validateSettingsPatch, { rundownDefaults });
+    expect(next).toHaveBeenCalled();
+    expect(req.body).toEqual({ rundownDefaults });
+  });
+
+  it.each([
+    { duration: -1 },
+    { duration: '00:10:00' },
+    { timeStrategy: 'lock-start' },
+    { endAction: 'stop' },
+    { linkPrevious: 'true' },
+  ])('rejects rundown defaults with %j', (change) => {
+    const { res, next } = validate(validateSettingsPatch, {
+      rundownDefaults: { ...defaultRundownDefaults, ...change },
+    });
+    expect(next).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(422);
+  });
+
+  it('rejects partial rundown defaults', () => {
+    const { res, next } = validate(validateSettingsPatch, { rundownDefaults: { linkPrevious: false } });
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(422);
   });

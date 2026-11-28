@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { DatabaseModel, Rundown } from 'ontime-types';
-import { defaultPhaseThresholds, defaultTeleprompterSettings, generateId } from 'ontime-utils';
+import { defaultPhaseThresholds, defaultRundownDefaults, defaultTeleprompterSettings, generateId } from 'ontime-utils';
 
 import { ONTIME_VERSION } from '../ONTIME_VERSION.js';
 
@@ -35,6 +35,7 @@ const dbModel: Omit<DatabaseModel, 'projectId'> = {
     language: 'en',
     auxTimerNames: ['', '', ''],
     phaseThresholds: structuredClone(defaultPhaseThresholds),
+    rundownDefaults: { ...defaultRundownDefaults },
   },
   viewSettings: {
     overrideStyles: false,

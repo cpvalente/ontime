@@ -38,6 +38,16 @@ describe('settings', () => {
     expect(settings.auxTimerNames).toEqual(['Speaker', '', '']);
   });
 
+  test('rundown defaults are kept with the project', async () => {
+    const rundownDefaults = { ...(await getSettings()).rundownDefaults, duration: 300_000, linkPrevious: false };
+    await server.send('PATCH', '/data/settings', { rundownDefaults });
+
+    await server.stop();
+    server = await startTestServer();
+
+    expect((await getSettings()).rundownDefaults).toEqual(rundownDefaults);
+  }, 15_000);
+
   test('rejects an invalid patch without changing the settings', async () => {
     const before = await getSettings();
     const response = await server.send('PATCH', '/data/settings', { language: 'fr', timeFormat: '13' });
