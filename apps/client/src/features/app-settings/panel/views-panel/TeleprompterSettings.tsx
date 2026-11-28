@@ -36,7 +36,7 @@ export default function TeleprompterSettings() {
     setError,
     setValue,
     watch,
-    formState: { isSubmitting, isDirty, errors },
+    formState: { isSubmitting, isDirty, errors, dirtyFields },
   } = useForm<TeleprompterSettingsType>({
     defaultValues: data,
     resetOptions: { keepDirtyValues: true },
@@ -97,6 +97,7 @@ export default function TeleprompterSettings() {
               <Select
                 fluid
                 aria-label='Script field'
+                triggerClassName={Panel.pendingClass(dirtyFields.script)}
                 value={watch('script')}
                 onValueChange={(value: string | null) => {
                   if (value !== null) setValue('script', value, { shouldDirty: true });
@@ -114,6 +115,7 @@ export default function TeleprompterSettings() {
                 type='number'
                 fluid
                 aria-label='Line length'
+                className={Panel.pendingClass(dirtyFields.charsPerLine)}
                 {...register('charsPerLine', {
                   valueAsNumber: true,
                   required: { value: true, message: 'Required field' },
@@ -128,6 +130,7 @@ export default function TeleprompterSettings() {
               <Select
                 fluid
                 aria-label='Event heading'
+                triggerClassName={Panel.pendingClass(dirtyFields.heading)}
                 value={watch('heading')}
                 onValueChange={(value: TeleprompterHeading | null) => {
                   if (value !== null) setValue('heading', value, { shouldDirty: true });

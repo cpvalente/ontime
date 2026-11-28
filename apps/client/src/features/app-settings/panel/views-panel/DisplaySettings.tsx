@@ -28,7 +28,7 @@ export default function DisplaySettings() {
     setError,
     watch,
     setValue,
-    formState: { isSubmitting, isDirty, isValid, errors },
+    formState: { isSubmitting, isDirty, isValid, errors, dirtyFields },
   } = useForm<DisplayFields>({
     mode: 'onChange',
     defaultValues: toDisplayFields(data),
@@ -105,6 +105,7 @@ export default function DisplaySettings() {
                   error={errors.timeFormat?.message}
                 />
                 <Select
+                  triggerClassName={Panel.pendingClass(dirtyFields.timeFormat)}
                   value={watch('timeFormat')}
                   onValueChange={(value: '12' | '24' | null) => {
                     if (value === null) return;
@@ -124,6 +125,7 @@ export default function DisplaySettings() {
                   error={errors.language?.message}
                 />
                 <Select
+                  triggerClassName={Panel.pendingClass(dirtyFields.language)}
                   value={watch('language')}
                   onValueChange={(value: string | null) => {
                     if (value === null) return;

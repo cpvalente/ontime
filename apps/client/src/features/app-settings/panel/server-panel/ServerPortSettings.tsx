@@ -22,7 +22,7 @@ export default function ServerPortSettings() {
     reset,
     setError,
     clearErrors,
-    formState: { isSubmitting, isDirty, isValid, errors },
+    formState: { isSubmitting, isDirty, isValid, errors, dirtyFields },
   } = useForm<ServerPortForm>({
     mode: 'onChange',
     defaultValues: { serverPort: 4001 },
@@ -102,6 +102,7 @@ export default function ServerPortSettings() {
               />
               <Input
                 id='serverPort'
+                className={Panel.pendingClass(dirtyFields.serverPort)}
                 type='number'
                 maxLength={5}
                 style={{ width: '75px' }}

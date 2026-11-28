@@ -25,7 +25,7 @@ export default function AuxTimerSettings() {
     register,
     reset,
     setError,
-    formState: { isSubmitting, isDirty, errors },
+    formState: { isSubmitting, isDirty, errors, dirtyFields },
   } = useForm<AuxTimerFields>({
     defaultValues: toAuxTimerFields(data),
     resetOptions: {
@@ -81,15 +81,30 @@ export default function AuxTimerSettings() {
           <Panel.ListGroup>
             <Panel.ListItem>
               <Panel.Field title='Aux timer 1' description='Custom name for aux timer 1' />
-              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 1' {...register('auxTimerNames.0')} />
+              <Input
+                className={Panel.pendingClass(dirtyFields.auxTimerNames?.[0])}
+                maxLength={auxTimerNameMaxLength}
+                placeholder='Aux 1'
+                {...register('auxTimerNames.0')}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Aux timer 2' description='Custom name for aux timer 2' />
-              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 2' {...register('auxTimerNames.1')} />
+              <Input
+                className={Panel.pendingClass(dirtyFields.auxTimerNames?.[1])}
+                maxLength={auxTimerNameMaxLength}
+                placeholder='Aux 2'
+                {...register('auxTimerNames.1')}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field title='Aux timer 3' description='Custom name for aux timer 3' />
-              <Input maxLength={auxTimerNameMaxLength} placeholder='Aux 3' {...register('auxTimerNames.2')} />
+              <Input
+                className={Panel.pendingClass(dirtyFields.auxTimerNames?.[2])}
+                maxLength={auxTimerNameMaxLength}
+                placeholder='Aux 3'
+                {...register('auxTimerNames.2')}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

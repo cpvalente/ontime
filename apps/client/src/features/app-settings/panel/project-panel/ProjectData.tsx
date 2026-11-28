@@ -11,6 +11,7 @@ import Input from '../../../../common/components/input/input/Input';
 import Textarea from '../../../../common/components/input/textarea/Textarea';
 import useProjectData, { useUpdateProjectData } from '../../../../common/hooks-query/useProjectData';
 import { preventEscape } from '../../../../common/utils/keyEvent';
+import { cx } from '../../../../common/utils/styleUtils';
 import { validateLogo } from '../../../../common/utils/uploadUtils';
 import { documentationUrl } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
@@ -32,7 +33,7 @@ export default function ProjectData() {
     handleSubmit,
     register,
     reset,
-    formState: { isSubmitting, isValid, isDirty, errors },
+    formState: { isSubmitting, isValid, isDirty, errors, dirtyFields },
     setError,
     clearErrors,
     watch,
@@ -175,6 +176,7 @@ export default function ProjectData() {
             Project title
             <Input
               fluid
+              className={Panel.pendingClass(dirtyFields.title)}
               maxLength={50}
               placeholder='Project title is shown in production views'
               {...register('title')}
@@ -194,7 +196,9 @@ export default function ProjectData() {
                 }}
                 onChange={handleUploadProjectLogo}
               />
-              <Panel.Card className={style.uploadLogoCard}>
+              <Panel.Card
+                className={cx([style.uploadLogoCard, Panel.pendingClass(Boolean(pendingLogo) || dirtyFields.logo)])}
+              >
                 {logo || pendingLogo ? (
                   <>
                     <img src={pendingLogo ? pendingLogo.previewUrl : `${projectLogoPath}/${logo}`} />
@@ -227,12 +231,19 @@ export default function ProjectData() {
 
           <label>
             Project description
-            <Input fluid maxLength={100} placeholder='Euro Love, Malmö 2024' {...register('description')} />
+            <Input
+              fluid
+              className={Panel.pendingClass(dirtyFields.description)}
+              maxLength={100}
+              placeholder='Euro Love, Malmö 2024'
+              {...register('description')}
+            />
           </label>
           <label>
             Project info
             <Textarea
               fluid
+              className={Panel.pendingClass(dirtyFields.info)}
               maxLength={150}
               placeholder='Wi-Fi password: 1234'
               resize='vertical'
@@ -241,7 +252,12 @@ export default function ProjectData() {
           </label>
           <label>
             Project QR code URL
-            <Input fluid placeholder={documentationUrl} {...register('url')} />
+            <Input
+              fluid
+              className={Panel.pendingClass(dirtyFields.url)}
+              placeholder={documentationUrl}
+              {...register('url')}
+            />
           </label>
           <Panel.Section style={{ marginTop: 0 }}>
             <Panel.ListItem>
@@ -265,6 +281,7 @@ export default function ProjectData() {
                         Title
                         <Input
                           fluid
+                          className={Panel.pendingClass(dirtyFields.custom?.[idx]?.title)}
                           defaultValue={field.title}
                           placeholder='Title of your custom data'
                           {...register(`custom.${idx}.title`, {
@@ -284,6 +301,7 @@ export default function ProjectData() {
                         fluid
                         rows={3}
                         resize='vertical'
+                        className={Panel.pendingClass(dirtyFields.custom?.[idx]?.value)}
                         defaultValue={field.value}
                         placeholder='Text of your custom data'
                         {...register(`custom.${idx}.value`, {
@@ -297,6 +315,7 @@ export default function ProjectData() {
                       <div className={style.customImage}>
                         <Input
                           fluid
+                          className={Panel.pendingClass(dirtyFields.custom?.[idx]?.url)}
                           defaultValue={field.url}
                           placeholder='Paste image URL (optional)'
                           {...register(`custom.${idx}.url`)}

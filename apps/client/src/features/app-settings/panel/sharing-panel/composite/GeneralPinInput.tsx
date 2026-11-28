@@ -15,15 +15,22 @@ interface GeneralPinInputProps {
   register: UseFormRegister<PinFields>;
   formName: keyof PinFields;
   disabled?: boolean;
+  className?: string;
 }
 
-export default function GeneralPinInput({ register, formName, disabled }: PropsWithChildren<GeneralPinInputProps>) {
+export default function GeneralPinInput({
+  register,
+  formName,
+  disabled,
+  className,
+}: PropsWithChildren<GeneralPinInputProps>) {
   const [isVisible, setVisible] = useState(false);
 
   return (
     <div className={style.container}>
       <Input
         type={isVisible ? 'text' : 'password'}
+        className={className}
         maxLength={4}
         {...register(formName, {
           pattern: {
