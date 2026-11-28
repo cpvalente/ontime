@@ -64,7 +64,7 @@ export default function AutomationsList({
           <AutomationForm automation={automationFormData} onClose={() => setAutomationFormData(null)} />
         )}
         <Panel.SubHeader>
-          Manage automations
+          Automations
           <Button onClick={() => setAutomationFormData(automationPlaceholder)}>
             New <IoAdd />
           </Button>

@@ -205,7 +205,7 @@ function makeSettingsMenu(redirectWindow) {
             click: () => redirectWindow('/editor?settings=project__data'),
           },
           {
-            label: 'Manage projects',
+            label: 'Projects',
             click: () => redirectWindow('/editor?settings=project__list'),
           },
         ],
@@ -214,15 +214,11 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Rundown',
         submenu: [
           {
-            label: 'Manage rundowns',
+            label: 'Rundowns',
             click: () => redirectWindow('/editor?settings=rundown__rundowns'),
           },
           {
             label: 'Import spreadsheet',
-            click: () => redirectWindow('/editor?settings=rundown__sheets'),
-          },
-          {
-            label: 'Sync with Google Sheet',
             click: () => redirectWindow('/editor?settings=rundown__sheets'),
           },
           {
@@ -247,7 +243,7 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Views',
         submenu: [
           {
-            label: 'Display (time format and language)',
+            label: 'Display',
             click: () => redirectWindow('/editor?settings=views__display'),
           },
           {
@@ -268,15 +264,15 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Sharing and access',
         submenu: [
           {
-            label: 'URL Presets',
+            label: 'URL presets',
             click: () => redirectWindow('/editor?settings=sharing__presets'),
           },
           {
-            label: 'Share link',
+            label: 'Share',
             click: () => redirectWindow('/editor?settings=sharing__link'),
           },
           {
-            label: 'Access (pin codes)',
+            label: 'Access',
             click: () => redirectWindow('/editor?settings=sharing__access'),
           },
         ],
@@ -289,7 +285,7 @@ function makeSettingsMenu(redirectWindow) {
             click: () => redirectWindow('/editor?settings=integrations__automations'),
           },
           {
-            label: 'MCP Server',
+            label: 'MCP server',
             click: () => redirectWindow('/editor?settings=integrations__mcp'),
           },
         ],
@@ -298,7 +294,7 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Server',
         submenu: [
           {
-            label: 'Manage clients',
+            label: 'Clients',
             click: () => redirectWindow('/editor?settings=server__clients'),
           },
           {

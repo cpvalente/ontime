@@ -21,7 +21,7 @@ test('project file upload', async ({ page }) => {
   await page.getByRole('button', { name: 'Delete all' }).click();
 
   await page.getByRole('button', { name: 'toggle settings' }).click();
-  await page.getByRole('button', { name: 'Manage projects' }).click();
+  await page.getByRole('button', { name: 'Projects', exact: true }).click();
 
   // workaround to upload file on hidden input
   // https://playwright.dev/docs/api/class-filechooser

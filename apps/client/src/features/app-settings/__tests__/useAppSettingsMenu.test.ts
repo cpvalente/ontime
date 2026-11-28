@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { matchesSettingsOptionQuery, staticOptions } from '../useAppSettingsMenu';
+import { filterSettingsOptions, matchesSettingsOptionQuery, staticOptions } from '../useAppSettingsMenu';
 
 describe('matchesSettingsOptionQuery', () => {
   const option = {
@@ -27,5 +27,16 @@ describe('settings menu', () => {
         option.secondary.forEach((child) => expect(child.id.startsWith(`${option.id}__`)).toBe(true));
       }
     }
+  });
+
+  it.each([
+    ['manage projects', 'project__list'],
+    ['manage rundowns', 'rundown__rundowns'],
+    ['share link', 'sharing__link'],
+    ['global triggers', 'integrations__automations'],
+    ['manage clients', 'server__clients'],
+  ])('finds an item by its old name %j', (query, id) => {
+    const found = filterSettingsOptions(staticOptions, query).flatMap((option) => option.secondary ?? []);
+    expect(found.map((option) => option.id)).toContain(id);
   });
 });

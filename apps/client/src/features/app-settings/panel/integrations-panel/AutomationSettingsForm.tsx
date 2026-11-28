@@ -71,7 +71,7 @@ export default function AutomationSettingsForm({
       <Panel.Card>
         <Panel.Loader isLoading={Boolean(isLoading)} />
         <Panel.SubHeader>
-          Automation settings
+          Automation and OSC input
           <Panel.InlineElements>
             <Button variant='ghosted' onClick={onReset} disabled={!canSubmit}>
               Revert to saved

@@ -72,7 +72,7 @@ export function RedirectClientModal({ id, isOpen, name, currentPath, origin, onC
               Remotely redirect the client to a different URL. Choose a custom path or select a URL Preset.
             </Info.Body>
             <Info.Footer>
-              <ExternalLink href={settingsUrl}>Manage URL Presets</ExternalLink>
+              <ExternalLink href={settingsUrl}>Manage URL presets</ExternalLink>
             </Info.Footer>
           </Info>
           <section className={style.section}>

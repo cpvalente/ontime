@@ -75,7 +75,7 @@ export default function TriggersList({ triggers, automations, enabledAutomations
           />
         )}
         <Panel.SubHeader>
-          Global triggers
+          Triggers
           <Button disabled={!canAdd} onClick={openNewForm}>
             New <IoAdd />
           </Button>
