@@ -69,6 +69,8 @@ import {
 } from './rundown.errors.js';
 import { parseRundown } from './rundown.parser.js';
 import {
+  applyRundownDefaults,
+  getEventBeforeInsert,
   cleanupCustomFields,
   cloneRundown,
   getDuplicatedRundownTitle,
@@ -126,8 +128,11 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
     return { afterId: null, beforeId: null, cueAfterId: getLastInsertId(rundown, parent) };
   })();
 
-  // generate a fully formed entry from the patch
-  const newEntry = generateEvent(rundown, eventData, insertPosition.cueAfterId, parent?.id);
+  // generate a fully formed entry from the patch, filling what it leaves out with the project defaults
+  const { rundownDefaults } = getDataProvider().getSettings();
+  const previousEvent = getEventBeforeInsert(rundown, insertPosition.cueAfterId, parent);
+  const entryData = applyRundownDefaults(eventData, rundownDefaults, parent, previousEvent);
+  const newEntry = generateEvent(rundown, entryData, insertPosition.cueAfterId, parent?.id);
   if (parent && isOntimeGroup(newEntry)) {
     throw new InvalidEntryOperationError('Cannot add a group to another group');
   }

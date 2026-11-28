@@ -60,4 +60,14 @@ describe('settings', () => {
     const response = await server.send('POST', '/data/settings', { timeFormat: '24' });
     expect(response.status).toBe(404);
   });
+
+  test('new entries from any client take the project rundown defaults', async () => {
+    const rundownDefaults = { ...(await getSettings()).rundownDefaults, duration: 420_000, linkPrevious: false };
+    await server.send('PATCH', '/data/settings', { rundownDefaults });
+    const rundown = await (await server.get('/data/rundowns/current')).json();
+
+    const response = await server.send('POST', `/data/rundowns/${rundown.id}/entry`, { type: 'event' });
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ duration: 420_000, linkStart: false });
+  });
 });

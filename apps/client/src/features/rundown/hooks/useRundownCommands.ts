@@ -109,7 +109,6 @@ export function useRundownCommands({
       addEntry(patch, {
         after: id && !above ? id : undefined,
         before: id && above ? id : undefined,
-        lastEventId: id && !above ? id : undefined,
       });
     },
     [addEntry],

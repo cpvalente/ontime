@@ -5,6 +5,7 @@ import {
   OntimeEvent,
   OntimeGroup,
   OntimeMilestone,
+  SupportedEntry,
   TimeStrategy,
   TimerLifeCycle,
   TimerType,
@@ -17,6 +18,7 @@ import {
   createEvent,
   createGroup,
   createMilestone,
+  defaultRundownDefaults,
 } from 'ontime-utils';
 import { assertType } from 'vitest';
 
@@ -29,6 +31,7 @@ import {
 } from '../__mocks__/rundown.mocks.js';
 import { parseRundown } from '../rundown.parser.js';
 import {
+  applyRundownDefaults,
   calculateDayOffset,
   cleanupCustomFields,
   cloneEntryData,
@@ -830,6 +833,71 @@ describe('cleanupCustomFields()', () => {
     cleanupCustomFields(event.custom, knownFields);
     expect(event.custom).toStrictEqual({
       lighting: 'on',
+    });
+  });
+});
+
+describe('applyRundownDefaults()', () => {
+  const defaults = {
+    ...defaultRundownDefaults,
+    duration: 5 * MILLIS_PER_MINUTE,
+    linkPrevious: false,
+    inheritGroupColour: true,
+  };
+  const parent = makeOntimeGroup({ colour: '#f00' });
+
+  it('fills what a new event leaves out', () => {
+    const result = applyRundownDefaults({ type: SupportedEntry.Event }, defaults, null, null);
+    expect(result).toMatchObject({
+      linkStart: false,
+      duration: 5 * MILLIS_PER_MINUTE,
+      timerType: defaults.timerType,
+      endAction: defaults.endAction,
+      timeStrategy: defaults.timeStrategy,
+    });
+  });
+
+  it('keeps the fields the payload gives', () => {
+    const result = applyRundownDefaults(
+      { type: SupportedEntry.Event, linkStart: true, timeEnd: MILLIS_PER_HOUR, colour: '#0f0' },
+      defaults,
+      parent,
+      null,
+    );
+    expect(result).toMatchObject({ linkStart: true, timeEnd: MILLIS_PER_HOUR, colour: '#0f0' });
+    expect(result).not.toHaveProperty('duration');
+  });
+
+  it('takes the colour of the parent group for events and milestones', () => {
+    expect(applyRundownDefaults({ type: SupportedEntry.Event }, defaults, parent, null).colour).toBe('#f00');
+    expect(applyRundownDefaults({ type: SupportedEntry.Milestone }, defaults, parent, null).colour).toBe('#f00');
+    expect(
+      applyRundownDefaults({ type: SupportedEntry.Event }, { ...defaults, inheritGroupColour: false }, parent, null),
+    ).not.toHaveProperty('colour');
+  });
+
+  it('starts an event without a start where the previous event ends, and keeps a given start unlinked', () => {
+    const previous = makeOntimeEvent({ id: 'previous', timeEnd: 2 * MILLIS_PER_HOUR });
+    expect(applyRundownDefaults({ type: SupportedEntry.Event }, defaults, null, previous)).toMatchObject({
+      timeStart: 2 * MILLIS_PER_HOUR,
+      linkStart: false,
+    });
+    expect(
+      applyRundownDefaults({ type: SupportedEntry.Event }, { ...defaults, linkPrevious: true }, null, previous),
+    ).toMatchObject({ timeStart: 2 * MILLIS_PER_HOUR, linkStart: true });
+    expect(
+      applyRundownDefaults(
+        { type: SupportedEntry.Event, timeStart: MILLIS_PER_HOUR },
+        { ...defaults, linkPrevious: true },
+        null,
+        previous,
+      ),
+    ).not.toHaveProperty('linkStart');
+  });
+
+  it('leaves delays and groups alone', () => {
+    expect(applyRundownDefaults({ type: SupportedEntry.Delay }, defaults, parent, null)).toEqual({
+      type: SupportedEntry.Delay,
     });
   });
 });

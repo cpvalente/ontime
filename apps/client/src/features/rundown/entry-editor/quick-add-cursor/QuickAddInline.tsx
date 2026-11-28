@@ -34,7 +34,6 @@ function QuickAddInline({ referenceEntryId, parentGroup, placement }: QuickAddIn
       addEntry(
         { type, parent: type !== SupportedEntry.Group ? parentGroup : null },
         {
-          lastEventId: referenceEntryId,
           after: referenceEntryId,
         },
       );
