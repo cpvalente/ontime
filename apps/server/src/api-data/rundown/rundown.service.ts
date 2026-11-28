@@ -128,7 +128,6 @@ export async function addEntry(rundownId: string, eventData: EventPostPayload): 
     return { afterId: null, beforeId: null, cueAfterId: getLastInsertId(rundown, parent) };
   })();
 
-  // generate a fully formed entry from the patch, filling what it leaves out with the project defaults
   const { rundownDefaults } = getDataProvider().getSettings();
   const previousEvent = getEventBeforeInsert(rundown, insertPosition.cueAfterId, parent);
   const entryData = applyRundownDefaults(eventData, rundownDefaults, parent, previousEvent);

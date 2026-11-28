@@ -32,11 +32,8 @@ export default function AccessSettings() {
     },
   });
 
-  // update form if we get new data from server
   useEffect(() => {
-    if (data) {
-      reset(toAccessFields(data));
-    }
+    reset(toAccessFields(data));
   }, [data, reset]);
 
   const onSubmit = async (formData: AccessFields) => {

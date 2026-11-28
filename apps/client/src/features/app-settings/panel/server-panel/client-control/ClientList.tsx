@@ -58,11 +58,11 @@ export default function ClientList() {
         />
       )}
       <Panel.Section>
-        <Panel.Title>Ontime Clients ({ontimeClients.length})</Panel.Title>
+        <Panel.Title>Ontime clients ({ontimeClients.length})</Panel.Title>
         <Panel.Table>
           <thead>
             <tr>
-              <td style={{ width: '20%' }}>Client Name</td>
+              <td style={{ width: '20%' }}>Name</td>
               <td>Path</td>
               <td className={style.actionsHeader} />
             </tr>
@@ -128,7 +128,7 @@ export default function ClientList() {
         <Panel.Table>
           <thead>
             <tr>
-              <td className={style.halfWidthNoWrap}>Client Name</td>
+              <td className={style.halfWidthNoWrap}>Name</td>
               <td className={style.halfWidthNoWrap}>Client type</td>
             </tr>
           </thead>

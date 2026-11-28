@@ -4,7 +4,6 @@ import { z } from 'zod';
 
 import { validateBody } from '../../middleware/validation.js';
 
-/** A pin is up to 4 alphanumeric characters, an empty pin is stored as null */
 const pinSchema = z
   .string()
   .max(4)
@@ -21,8 +20,8 @@ const phaseThresholdsSchema = z.unknown().transform((input, context) => {
   return thresholds;
 });
 
-/** The whole set of defaults is sent together */
-const rundownDefaultsSchema = z.object({
+/** Sent whole: a partial set would leave fields undefined on new events */
+export const rundownDefaultsSchema = z.object({
   duration: z.number().int().min(0).max(dayInMs),
   linkPrevious: z.boolean(),
   timeStrategy: z.enum(TimeStrategy),
@@ -31,10 +30,7 @@ const rundownDefaultsSchema = z.object({
   inheritGroupColour: z.boolean(),
 });
 
-/**
- * Any subset of the settings, each field replaces the stored one
- * Unknown keys, including version, are stripped
- */
+/** Top-level fields replace the stored ones, nested objects are sent whole */
 const settingsPatchSchema = z
   .object({
     editorKey: pinSchema,
@@ -45,6 +41,7 @@ const settingsPatchSchema = z
     phaseThresholds: phaseThresholdsSchema,
     rundownDefaults: rundownDefaultsSchema,
   })
-  .partial() satisfies z.ZodType<SettingsPatch>;
+  .partial()
+  .strict() satisfies z.ZodType<SettingsPatch>;
 
 export const validateSettingsPatch = validateBody(settingsPatchSchema);
