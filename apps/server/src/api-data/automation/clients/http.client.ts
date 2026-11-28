@@ -1,19 +1,19 @@
-import { HTTPOutput, RuntimeStore } from 'ontime-types';
+import { HTTPOutput } from 'ontime-types';
 import { DeepReadonly } from 'ts-essentials';
 
-import { parseTemplateNested } from '../automation.utils.js';
+import { type AutomationState, parseTemplateNested } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
 /**
  * Expose possibility to send a message using HTTP protocol
  */
-export function emitHTTP(output: HTTPOutput, store: DeepReadonly<RuntimeStore>) {
+export function emitHTTP(output: HTTPOutput, store: DeepReadonly<AutomationState>) {
   const url = preparePayload(output, store);
   emit(url);
 }
 
 /** Parses the state and prepares payload to be emitted */
-function preparePayload(output: HTTPOutput, state: DeepReadonly<RuntimeStore>): string {
+function preparePayload(output: HTTPOutput, state: DeepReadonly<AutomationState>): string {
   const parsedUrl = parseTemplateNested(output.url, state);
   return parsedUrl;
 }

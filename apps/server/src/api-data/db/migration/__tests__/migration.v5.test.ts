@@ -2,6 +2,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { AutomationSettings } from 'ontime-types';
+
 import { ONTIME_VERSION } from '../../../../ONTIME_VERSION.js';
 import { parseDatabaseModel } from '../../db.parser.js';
 import * as v5 from '../db.migration.v5.js';
@@ -113,12 +115,40 @@ describe('migrateToV5()', () => {
     });
     expect(migrated.rundowns!.default.entries.a).toMatchObject({ timeWarning: null, timeDanger: null });
   });
+  test('automations read offset.current instead of the absolute and relative offset', () => {
+    const automation: AutomationSettings = {
+      enabledAutomations: true,
+      enabledOscIn: false,
+      oscPortIn: 8888,
+      triggers: [],
+      automations: {
+        one: {
+          id: 'one',
+          title: 'one',
+          filterRule: 'all',
+          filters: [{ field: 'offset.absolute', operator: 'greater_than', value: '0' }],
+          outputs: [
+            {
+              type: 'http',
+              url: 'http://localhost/?a={{offset.absolute}}&b={{offset.relative}}&c={{offset.expectedRundownEnd}}',
+            },
+          ],
+        },
+      },
+    };
+
+    const { automations } = v5.migrateToV5({ automation }).automation!;
+
+    expect(automations.one.filters).toStrictEqual([{ field: 'offset.current', operator: 'greater_than', value: '0' }]);
+    expect(automations.one.outputs).toStrictEqual([
+      {
+        type: 'http',
+        url: 'http://localhost/?a={{offset.current}}&b={{offset.current}}&c={{offset.expectedRundownEnd}}',
+      },
+    ]);
+  });
 });
 
-/**
- * v4 project files must load in v5
- * each v5 migration should extend these expectations
- */
 describe('v4 project files load in v5', () => {
   test.each(['v4.0.json', 'v4.15.json'])('%s loads and is stamped with v5', (fileName) => {
     const { data, errors } = parseDatabaseModel(readFixture(fileName));

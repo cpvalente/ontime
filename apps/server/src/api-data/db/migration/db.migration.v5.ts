@@ -19,11 +19,25 @@ export function shouldMigrateToV5(jsonData: Partial<DatabaseModel>): boolean {
  * - custom fields go from a record by key to a list, each field holding its key
  *   the record lists the fields in the order they were made, which becomes the user defined order
  * - event warning and danger times move to the project thresholds, see migratePhaseThresholds()
+ * - automations read offset.current, see migrateOffsetPaths()
  */
 export function migrateToV5(jsonData: Partial<DatabaseModel>): Partial<DatabaseModel> {
   const record: object = is.object(jsonData.customFields) ? jsonData.customFields : {};
   const customFields = Object.entries(record).map(([key, field]) => ({ ...field, key }));
-  return migratePhaseThresholds({ ...jsonData, customFields });
+  return migrateOffsetPaths(migratePhaseThresholds({ ...jsonData, customFields }));
+}
+
+/**
+ * v4 automations could read the offset from the plan or since start, v5 offers the one offset users see
+ * Covers templates and filter fields, which have nothing JSON escapes
+ */
+function migrateOffsetPaths(jsonData: Partial<DatabaseModel>): Partial<DatabaseModel> {
+  if (jsonData.automation === undefined) return jsonData;
+  const automation = JSON.stringify(jsonData.automation).replace(
+    /\boffset\.(?:absolute|relative)\b/g,
+    'offset.current',
+  );
+  return { ...jsonData, automation: JSON.parse(automation) };
 }
 
 /**

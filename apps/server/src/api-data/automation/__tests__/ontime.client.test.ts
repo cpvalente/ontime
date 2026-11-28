@@ -1,6 +1,7 @@
 import { runtimeStorePlaceholder } from 'ontime-types';
 
 import * as messageService from '../../../services/message-service/message.service.js';
+import { toAutomationState } from '../automation.utils.js';
 import { toOntimeAction } from '../clients/ontime.client.js';
 
 vi.mock('../../../services/message-service/message.service.js', () => ({
@@ -20,13 +21,13 @@ describe('toOntimeAction()', () => {
         text: 'Current: {{timer.current}}',
         visible: true,
       },
-      {
+      toAutomationState({
         ...runtimeStorePlaceholder,
         timer: {
           ...runtimeStorePlaceholder.timer,
           current: 42,
         },
-      },
+      }),
     );
 
     expect(messageService.patch).toHaveBeenCalledWith({

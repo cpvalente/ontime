@@ -1,6 +1,7 @@
 import { runtimeStorePlaceholder } from 'ontime-types';
 
 import * as logger from '../../logs/logs.service.js';
+import { toAutomationState } from '../automation.utils.js';
 import { emitHTTP } from '../clients/http.client.js';
 
 vi.mock('../../logs/logs.service.js', () => ({
@@ -18,7 +19,10 @@ describe('emitHTTP()', () => {
     });
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(failure));
 
-    emitHTTP({ type: 'http', url: 'http://10.0.0.5/hooks/secret?token=secret' }, runtimeStorePlaceholder);
+    emitHTTP(
+      { type: 'http', url: 'http://10.0.0.5/hooks/secret?token=secret' },
+      toAutomationState(runtimeStorePlaceholder),
+    );
 
     await vi.waitFor(() => expect(logger.warning).toHaveBeenCalled());
     expect(logger.warning).toHaveBeenCalledWith('AUTOMATION', 'HTTP send failed', {

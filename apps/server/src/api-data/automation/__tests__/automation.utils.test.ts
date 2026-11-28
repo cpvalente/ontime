@@ -1,7 +1,13 @@
-import { ProjectRundowns, TimerLifeCycle } from 'ontime-types';
+import { ProjectRundowns, TimerLifeCycle, runtimeStorePlaceholder } from 'ontime-types';
 
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
-import { isAutomationUsed, isHostname, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import {
+  isAutomationUsed,
+  isHostname,
+  parseTemplateNested,
+  stringToOSCArgs,
+  toAutomationState,
+} from '../automation.utils.js';
 
 describe('isHostname()', () => {
   it.each(['localhost', 'qlab', 'osc.example.com', 'osc-target.example'])('accepts %s', (hostname) => {
@@ -365,5 +371,22 @@ describe('isAutomationUsed()', () => {
 
     const result = isAutomationUsed(projectRundowns, automationId);
     expect(result).toBeUndefined();
+  });
+});
+
+describe('toAutomationState()', () => {
+  const state = toAutomationState({
+    ...runtimeStorePlaceholder,
+    offset: { ...runtimeStorePlaceholder.offset, absolute: 40, relative: 10, expectedRundownEnd: 500 },
+  });
+
+  test('offers the offset since the last reset as offset.current', () => {
+    expect(parseTemplateNested('{{offset.current}} {{offset.expectedRundownEnd}}', state)).toBe('10 500');
+  });
+
+  test('does not offer offset.absolute or offset.relative', () => {
+    expect(parseTemplateNested('{{offset.absolute}} {{offset.relative}}', state)).toBe(
+      '{{offset.absolute}} {{offset.relative}}',
+    );
   });
 });
