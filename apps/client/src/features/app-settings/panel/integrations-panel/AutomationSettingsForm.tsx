@@ -39,7 +39,7 @@ export default function AutomationSettingsForm({
     setError,
     watch,
     setValue,
-    formState: { errors, isSubmitting, isDirty, isValid },
+    formState: { errors, isSubmitting, isDirty, isValid, dirtyFields },
   } = useForm<AutomationSettingsProps>({
     mode: 'onChange',
     defaultValues: { enabledAutomations, enabledOscIn, oscPortIn },
@@ -127,6 +127,7 @@ export default function AutomationSettingsForm({
               />
               <Switch
                 size='large'
+                className={Panel.pendingClass(dirtyFields.enabledAutomations)}
                 checked={automationsEnabled}
                 onCheckedChange={(value: boolean) =>
                   setValue('enabledAutomations', value, { shouldDirty: true, shouldValidate: true })
@@ -158,6 +159,7 @@ export default function AutomationSettingsForm({
               />
               <Switch
                 size='large'
+                className={Panel.pendingClass(dirtyFields.enabledOscIn)}
                 checked={oscInputEnabled}
                 onCheckedChange={(value: boolean) =>
                   setValue('enabledOscIn', value, { shouldDirty: true, shouldValidate: true })
@@ -172,6 +174,7 @@ export default function AutomationSettingsForm({
               />
               <Input
                 id='oscPortIn'
+                className={Panel.pendingClass(dirtyFields.oscPortIn)}
                 placeholder='8888'
                 maxLength={5}
                 style={{ textAlign: 'right', width: '5rem' }}

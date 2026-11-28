@@ -2,6 +2,7 @@ import { PhaseThreshold } from 'ontime-types';
 import { formatPhaseThreshold, parsePhaseThresholdInput } from 'ontime-utils';
 import { FocusEvent, KeyboardEvent } from 'react';
 
+import { cx } from '../../../utils/styleUtils';
 import Input from '../input/Input';
 
 import style from './PhaseThresholdInput.module.scss';
@@ -12,13 +13,21 @@ interface PhaseThresholdInputProps {
   value: PhaseThreshold;
   onChange: (value: PhaseThreshold) => void;
   disabled?: boolean;
+  className?: string;
 }
 
 /**
  * A time input which also takes a percentage of the event duration, eg: 2m or 20%
  * Uncontrolled, the key resets the draft whenever the saved value changes
  */
-export default function PhaseThresholdInput({ name, label, value, onChange, disabled }: PhaseThresholdInputProps) {
+export default function PhaseThresholdInput({
+  name,
+  label,
+  value,
+  onChange,
+  disabled,
+  className,
+}: PhaseThresholdInputProps) {
   const shown = formatPhaseThreshold(value);
 
   const submit = (event: FocusEvent<HTMLInputElement>) => {
@@ -50,7 +59,7 @@ export default function PhaseThresholdInput({ name, label, value, onChange, disa
       key={shown}
       id={name}
       aria-label={label}
-      className={style.thresholdInput}
+      className={cx([style.thresholdInput, className])}
       defaultValue={shown}
       disabled={disabled}
       onFocus={(event) => event.currentTarget.select()}

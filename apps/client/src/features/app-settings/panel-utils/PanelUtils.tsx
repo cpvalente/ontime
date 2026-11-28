@@ -88,6 +88,21 @@ export function TableEmpty(props: EmptyStateProps) {
   );
 }
 
+/**
+ * Outlines a field holding a change that is not saved yet
+ * Takes the field's entry in react-hook-form dirtyFields, which nests for object and array values
+ */
+export function pendingClass(dirtyField: unknown): string | undefined {
+  return hasDirtyLeaf(dirtyField) ? style.pending : undefined;
+}
+
+function hasDirtyLeaf(dirtyField: unknown): boolean {
+  if (typeof dirtyField === 'object' && dirtyField !== null) {
+    return Object.values(dirtyField).some(hasDirtyLeaf);
+  }
+  return dirtyField === true;
+}
+
 export function ListGroup({ className, children }: { className?: string; children: ReactNode }) {
   return <ul className={cx([style.listGroup, className])}>{children}</ul>;
 }

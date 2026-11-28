@@ -28,7 +28,7 @@ export default function ViewSettings() {
     reset,
     setValue,
     watch,
-    formState: { isSubmitting, isDirty, errors },
+    formState: { isSubmitting, isDirty, errors, dirtyFields },
   } = useForm<ViewSettingsType>({
     defaultValues: data,
     resetOptions: {
@@ -109,6 +109,7 @@ export default function ViewSettings() {
               />
               <Switch
                 size='large'
+                className={Panel.pendingClass(dirtyFields.overrideStyles)}
                 checked={overrideStylesEnabled}
                 onCheckedChange={(value: boolean) => setValue('overrideStyles', value, { shouldDirty: true })}
               />

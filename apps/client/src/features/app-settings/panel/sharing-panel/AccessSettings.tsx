@@ -23,7 +23,7 @@ export default function AccessSettings() {
     register,
     reset,
     setError,
-    formState: { isSubmitting, isDirty, isValid, errors },
+    formState: { isSubmitting, isDirty, isValid, errors, dirtyFields },
   } = useForm<AccessFields>({
     mode: 'onChange',
     defaultValues: toAccessFields(data),
@@ -94,7 +94,12 @@ export default function AccessSettings() {
                 description='Protect the editor view with a pin code'
                 error={errors.editorKey?.message}
               />
-              <GeneralPinInput register={register} formName='editorKey' disabled={disableInputs} />
+              <GeneralPinInput
+                register={register}
+                formName='editorKey'
+                disabled={disableInputs}
+                className={Panel.pendingClass(dirtyFields.editorKey)}
+              />
             </Panel.ListItem>
             <Panel.ListItem>
               <Panel.Field
@@ -102,7 +107,12 @@ export default function AccessSettings() {
                 description='Protect the operator and cuesheet views with a pin code'
                 error={errors.operatorKey?.message}
               />
-              <GeneralPinInput register={register} formName='operatorKey' disabled={disableInputs} />
+              <GeneralPinInput
+                register={register}
+                formName='operatorKey'
+                disabled={disableInputs}
+                className={Panel.pendingClass(dirtyFields.operatorKey)}
+              />
             </Panel.ListItem>
           </Panel.ListGroup>
         </Panel.Section>

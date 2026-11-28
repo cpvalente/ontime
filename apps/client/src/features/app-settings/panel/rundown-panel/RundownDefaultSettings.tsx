@@ -28,7 +28,7 @@ export default function RundownDefaultSettings() {
     setError,
     setValue,
     watch,
-    formState: { isSubmitting, isDirty, errors },
+    formState: { isSubmitting, isDirty, errors, dirtyFields },
   } = useForm<RundownDefaultFields>({
     defaultValues: toRundownDefaultFields(data),
     resetOptions: {
@@ -90,6 +90,7 @@ export default function RundownDefaultSettings() {
               />
               <Switch
                 size='large'
+                className={Panel.pendingClass(dirtyFields.rundownDefaults?.linkPrevious)}
                 checked={rundownDefaults.linkPrevious}
                 onCheckedChange={(value: boolean) =>
                   setValue('rundownDefaults.linkPrevious', value, { shouldDirty: true })
@@ -103,6 +104,7 @@ export default function RundownDefaultSettings() {
               />
               <Switch
                 size='large'
+                className={Panel.pendingClass(dirtyFields.rundownDefaults?.inheritGroupColour)}
                 checked={rundownDefaults.inheritGroupColour}
                 onCheckedChange={(value: boolean) =>
                   setValue('rundownDefaults.inheritGroupColour', value, { shouldDirty: true })
@@ -115,6 +117,7 @@ export default function RundownDefaultSettings() {
                 description='Which time should be maintained when event schedule is recalculated'
               />
               <Select
+                triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.timeStrategy)}
                 value={rundownDefaults.timeStrategy}
                 onValueChange={(value: TimeStrategy | null) => {
                   if (value === null) return;
@@ -132,6 +135,7 @@ export default function RundownDefaultSettings() {
               <Panel.Field title='Default duration' description='Default duration for new events' />
               <TimeInput<'duration'>
                 name='duration'
+                className={Panel.pendingClass(dirtyFields.rundownDefaults?.duration)}
                 submitHandler={(_field, value) =>
                   setValue('rundownDefaults.duration', parseUserTime(value), { shouldDirty: true })
                 }
@@ -142,6 +146,7 @@ export default function RundownDefaultSettings() {
             <Panel.ListItem>
               <Panel.Field title='Timer type' description='Default type of timer for new events' />
               <Select
+                triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.timerType)}
                 value={rundownDefaults.timerType}
                 onValueChange={(value: TimerType | null) => {
                   if (value === null) return;
@@ -158,6 +163,7 @@ export default function RundownDefaultSettings() {
             <Panel.ListItem>
               <Panel.Field title='End Action' description='Default end action for new events' />
               <Select
+                triggerClassName={Panel.pendingClass(dirtyFields.rundownDefaults?.endAction)}
                 value={rundownDefaults.endAction}
                 onValueChange={(value: EndAction | null) => {
                   if (value === null) return;
@@ -177,6 +183,7 @@ export default function RundownDefaultSettings() {
               <PhaseThresholdInput
                 name='projectWarning'
                 label='Warning'
+                className={Panel.pendingClass(dirtyFields.phaseThresholds?.warning)}
                 disabled={status !== 'success'}
                 value={phaseThresholds.warning}
                 onChange={(threshold) => setValue('phaseThresholds.warning', threshold, { shouldDirty: true })}
@@ -187,6 +194,7 @@ export default function RundownDefaultSettings() {
               <PhaseThresholdInput
                 name='projectDanger'
                 label='Danger'
+                className={Panel.pendingClass(dirtyFields.phaseThresholds?.danger)}
                 disabled={status !== 'success'}
                 value={phaseThresholds.danger}
                 onChange={(threshold) => setValue('phaseThresholds.danger', threshold, { shouldDirty: true })}

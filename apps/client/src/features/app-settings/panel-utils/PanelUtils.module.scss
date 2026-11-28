@@ -186,6 +186,13 @@ $card-padding: 2rem;
   color: $orange-500;
 }
 
+// changed, not saved yet, the same dashed outline as pending changes in the editor controls
+// a focused field keeps its focus ring
+.pending:not(:focus-visible) {
+  outline: 1px dashed $blue-500;
+  outline-offset: 2px;
+}
+
 .fieldError {
   font-size: calc(1rem - 2px);
   color: $red-500;
