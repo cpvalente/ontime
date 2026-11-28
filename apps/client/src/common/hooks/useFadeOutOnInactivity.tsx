@@ -5,12 +5,12 @@ import { throttle } from '../utils/throttle';
 const inactiveTime = 3000; // 3 seconds
 
 /**
- * Provides whether there has been mouse movement in the page in the last <inactiveTime>
+ * Provides whether there has been pointer or keyboard activity in the page in the last <inactiveTime>
  */
 export const useFadeOutOnInactivity = (initialState = false) => {
   const [isUserActive, setIsUserActive] = useState(initialState);
 
-  // show on mouse move
+  // show on user activity; pointerdown covers touch screens, which do not fire mousemove
   useEffect(() => {
     let fadeOut: NodeJS.Timeout | null = null;
     const setShowMenuTrue = () => {
@@ -28,10 +28,12 @@ export const useFadeOutOnInactivity = (initialState = false) => {
 
     document.addEventListener('mousemove', throttledShowMenu);
     document.addEventListener('keydown', throttledShowMenu);
+    document.addEventListener('pointerdown', throttledShowMenu);
 
     return () => {
       document.removeEventListener('mousemove', throttledShowMenu);
       document.removeEventListener('keydown', throttledShowMenu);
+      document.removeEventListener('pointerdown', throttledShowMenu);
       if (fadeOut) {
         clearTimeout(fadeOut);
       }

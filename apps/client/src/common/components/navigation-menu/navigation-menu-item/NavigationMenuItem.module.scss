@@ -2,9 +2,10 @@
   display: flex;
   align-items: center;
 
-  padding: 0.625rem 1.25rem;
+  padding: 0.625rem 1.25rem 0.625rem calc(1.25rem - 3px);
   gap: 0.625rem;
   width: 100%;
+  min-height: 2.5rem;
 
   border-left: 3px solid transparent;
   color: $gray-200;
@@ -17,20 +18,11 @@
   transition-property: color, background-color;
   transition-duration: $transition-time-action;
 
-  // keep icons on a fixed box so labels align regardless of the glyph
-  > svg {
-    flex-shrink: 0;
-    width: 1.125rem;
-    height: 1.125rem;
-    color: $gray-500;
-    transition: color $transition-time-action;
-  }
-
   &:hover {
     background-color: $white-3;
     color: $ui-white;
 
-    > svg {
+    .icon {
       color: $gray-300;
     }
   }
@@ -56,10 +48,33 @@
     color: $ui-white;
     font-weight: 600;
 
-    > svg {
+    .icon {
       color: $blue-300;
     }
   }
+}
+
+// a fixed leading box, present with or without a glyph, so every label starts at the same offset
+.icon {
+  flex-shrink: 0;
+  display: grid;
+  place-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: $gray-500;
+  transition: color $transition-time-action;
+
+  > svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.protected {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: $gray-700;
+  font-size: $aux-text-size;
 }
 
 .label {

@@ -35,7 +35,7 @@ test.describe('URL Preset', () => {
     expect(page.url().includes('alias=testing')).not.toBeTruthy();
 
     // open settings
-    await page.getByRole('button', { name: 'Toggle settings' }).click();
+    await page.getByRole('button', { name: 'Customise view' }).click();
     await page
       .locator('div')
       .filter({ hasText: /^testingApply$/ })

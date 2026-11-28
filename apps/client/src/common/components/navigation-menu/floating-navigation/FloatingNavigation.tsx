@@ -1,8 +1,10 @@
 import { IoApps, IoSettingsOutline } from 'react-icons/io5';
 
 import { useFadeOutOnInactivity } from '../../../hooks/useFadeOutOnInactivity';
+import { deviceMod } from '../../../utils/deviceUtils';
 import { cx } from '../../../utils/styleUtils';
 import IconButton from '../../buttons/IconButton';
+import Tooltip from '../../tooltip/Tooltip';
 
 import style from './FloatingNavigation.module.scss';
 
@@ -21,29 +23,39 @@ export default function FloatingNavigation({ toggleMenu, toggleSettings, hasSave
       className={cx([style.fadeable, style.buttonContainer, !isButtonShown && style.hidden])}
     >
       {toggleMenu && (
-        <div className={style.buttonWithIndicator}>
-          <IconButton
-            variant='subtle-white'
-            size='xlarge'
-            onClick={toggleMenu}
-            aria-label='toggle menu'
-            data-testid='navigation__toggle-menu'
-          >
-            <IoApps />
-          </IconButton>
-          {hasSavedChanges && <span className={style.indicator} data-testid='navigation__saved-indicator' />}
-        </div>
+        <Tooltip
+          text='Open menu'
+          render={
+            <IconButton
+              variant='subtle-white'
+              size='xlarge'
+              onClick={toggleMenu}
+              aria-label='Open menu'
+              data-testid='navigation__toggle-menu'
+            />
+          }
+        >
+          <IoApps />
+        </Tooltip>
       )}
       {toggleSettings && (
-        <IconButton
-          variant='subtle-white'
-          size='xlarge'
-          onClick={toggleSettings}
-          aria-label='toggle settings'
-          data-testid='navigation__toggle-settings'
-        >
-          <IoSettingsOutline />
-        </IconButton>
+        <div className={style.buttonWithIndicator}>
+          <Tooltip
+            text={`Customise view (${deviceMod} + ,)`}
+            render={
+              <IconButton
+                variant='subtle-white'
+                size='xlarge'
+                onClick={toggleSettings}
+                aria-label='Customise view'
+                data-testid='navigation__toggle-settings'
+              />
+            }
+          >
+            <IoSettingsOutline />
+          </Tooltip>
+          {hasSavedChanges && <span className={style.indicator} data-testid='navigation__saved-indicator' />}
+        </div>
       )}
     </div>
   );
