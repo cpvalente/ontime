@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import FollowButton from '../../common/components/follow-button/FollowButton';
 import EmptyFill from '../../common/components/state/EmptyFill';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import useFollowComponent from '../../common/hooks/useFollowComponent';
 import { useSelectedEventId } from '../../common/hooks/useSocket';
@@ -13,6 +12,7 @@ import { throttle } from '../../common/utils/throttle';
 import { getDefaultFormat } from '../../common/utils/time';
 import { isTouchDevice } from '../../externals';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../../views/common/load-error/ViewLoadError';
 import Loader from '../../views/common/loader/Loader';
 import CustomFieldEditModal from './custom-field-edit-modal/CustomFieldEditModal';
 import OperatorEvent from './operator-event/OperatorEvent';
@@ -32,7 +32,6 @@ const followTolerance = 50;
 
 export default function OperatorLoader() {
   const { data, status } = useOperatorData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Operator');
 
@@ -41,7 +40,7 @@ export default function OperatorLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <Operator {...data} />;

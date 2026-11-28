@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react';
+import { CSSProperties, PropsWithChildren } from 'react';
 
 import Empty from './Empty';
 
@@ -10,10 +10,12 @@ interface EmptyPageProps {
   variant?: 'error';
 }
 
-export default function EmptyPage({ text, injectedStyles, variant }: EmptyPageProps) {
+export default function EmptyPage({ text, injectedStyles, variant, children }: PropsWithChildren<EmptyPageProps>) {
   return (
     <div className={style.page}>
-      <Empty text={text} injectedStyles={injectedStyles} variant={variant} />
+      <Empty text={text} injectedStyles={injectedStyles} variant={variant}>
+        {children}
+      </Empty>
     </div>
   );
 }

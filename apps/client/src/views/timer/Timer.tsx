@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 
 import { FitText } from '../../common/components/fit-text/FitText';
 import MultiPartProgressBar from '../../common/components/multi-part-progress-bar/MultiPartProgressBar';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import TitleCard from '../../common/components/title-card/TitleCard';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
@@ -14,6 +13,7 @@ import { useAutoTickingClock } from '../../common/stores/clockStore';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getFormattedTimer, getTimerByType } from '../common/viewUtils';
@@ -32,13 +32,12 @@ import {
   getTotalTime,
 } from './timer.utils';
 import { TimerData, useTimerData } from './useTimerData';
-import { useTimerSound } from './useTimerSound';
 
 import './Timer.scss';
+import { useTimerSound } from './useTimerSound';
 
 export default function TimerLoader() {
   const { data, status } = useTimerData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Timer');
 
@@ -47,7 +46,7 @@ export default function TimerLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <Timer {...data} />;

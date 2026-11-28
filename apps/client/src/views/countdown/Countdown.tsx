@@ -4,7 +4,6 @@ import { IoAdd } from 'react-icons/io5';
 
 import Button from '../../common/components/buttons/Button';
 import Empty from '../../common/components/state/Empty';
-import EmptyPage from '../../common/components/state/EmptyPage';
 import ViewLogo from '../../common/components/view-logo/ViewLogo';
 import ViewParamsEditor from '../../common/components/view-params-editor/ViewParamsEditor';
 import { useWindowTitle } from '../../common/hooks/useWindowTitle';
@@ -13,6 +12,7 @@ import { ExtendedEntry } from '../../common/utils/rundownMetadata';
 import { cx } from '../../common/utils/styleUtils';
 import { formatTime, getDefaultFormat } from '../../common/utils/time';
 import { useTranslation } from '../../translation/TranslationProvider';
+import ViewLoadError from '../common/load-error/ViewLoadError';
 import Loader from '../common/loader/Loader';
 import SuperscriptTime from '../common/superscript-time/SuperscriptTime';
 import { getCountdownOptions, useCountdownOptions } from './countdown.options';
@@ -20,13 +20,12 @@ import { getCountdownCandidates, getOrderedSubscriptions, resolveSubscriptionTar
 import CountdownSelect from './CountdownSelect';
 import CountdownSubscriptions from './CountdownSubscriptions';
 import SingleEventCountdown from './SingleEventCountdown';
-import { CountdownData, useCountdownData } from './useCountdownData';
 
 import './Countdown.scss';
+import { CountdownData, useCountdownData } from './useCountdownData';
 
 export default function CountdownLoader() {
   const { data, status } = useCountdownData();
-  const { getLocalizedString } = useTranslation();
 
   useWindowTitle('Countdown');
 
@@ -35,7 +34,7 @@ export default function CountdownLoader() {
   }
 
   if (status === 'error') {
-    return <EmptyPage variant='error' text={getLocalizedString('common.data_error')} />;
+    return <ViewLoadError />;
   }
 
   return <Countdown {...data} />;
