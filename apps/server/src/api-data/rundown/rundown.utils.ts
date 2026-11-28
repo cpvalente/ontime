@@ -14,6 +14,7 @@ import {
   ProjectRundown,
   ProjectRundowns,
   Rundown,
+  RundownDefaults,
   RundownEntries,
   SupportedEntry,
   TimeStrategy,
@@ -45,6 +46,68 @@ import { RundownMetadata } from './rundown.types.js';
 /**
  * Generates a fully formed RundownEntry of the patch type
  */
+/**
+ * Finds the event a new entry follows in time, the last event before its insert position
+ * @param afterId the sibling the entry is inserted after, null when it goes first in its list
+ */
+export function getEventBeforeInsert(
+  rundown: Rundown,
+  afterId: EntryId | null,
+  parent: OntimeGroup | null,
+): OntimeEvent | null {
+  let index: number;
+  if (afterId !== null) {
+    // after a group means after its last child
+    const anchor = rundown.entries[afterId];
+    const lastId = isOntimeGroup(anchor) && anchor.entries.length > 0 ? anchor.entries.at(-1)! : afterId;
+    index = rundown.flatOrder.indexOf(lastId);
+  } else if (parent) {
+    index = rundown.flatOrder.indexOf(parent.id) - 1;
+  } else {
+    return null;
+  }
+
+  for (let i = index; i >= 0; i--) {
+    const entry = rundown.entries[rundown.flatOrder[i]];
+    if (isOntimeEvent(entry)) return entry;
+  }
+  return null;
+}
+
+/**
+ * Fills the fields a new entry leaves out with the project rundown defaults
+ * Fields given in the payload always win
+ * An event without a start begins where the previous event ends, and links to it if the defaults say so
+ * An event given a start keeps it, unless the payload asks to link
+ */
+export function applyRundownDefaults<T extends Partial<OntimeEntry>>(
+  eventData: T,
+  defaults: RundownDefaults,
+  parent: OntimeGroup | null,
+  previousEvent: OntimeEvent | null,
+): T {
+  const entry = { ...eventData };
+
+  if (isOntimeEvent(entry)) {
+    if (entry.timeStart === undefined) {
+      if (previousEvent) entry.timeStart = previousEvent.timeEnd;
+      entry.linkStart ??= defaults.linkPrevious;
+    }
+    entry.timerType ??= defaults.timerType;
+    entry.endAction ??= defaults.endAction;
+    entry.timeStrategy ??= defaults.timeStrategy;
+    if (entry.duration === undefined && entry.timeEnd === undefined) {
+      entry.duration = defaults.duration;
+    }
+  }
+
+  if (defaults.inheritGroupColour && parent && (isOntimeEvent(entry) || isOntimeMilestone(entry)) && !entry.colour) {
+    entry.colour = parent.colour;
+  }
+
+  return entry;
+}
+
 export function generateEvent(
   rundown: Rundown,
   eventData: Partial<OntimeEvent> | Partial<OntimeDelay> | Partial<OntimeGroup> | Partial<OntimeMilestone>,

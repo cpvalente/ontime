@@ -14,7 +14,6 @@ import {
   TimeStrategy,
   isOntimeEvent,
   isOntimeGroup,
-  isOntimeMilestone,
 } from 'ontime-types';
 import {
   MILLIS_PER_SECOND,
@@ -51,17 +50,12 @@ import {
   requestFitGroupTarget,
 } from '../api/rundown';
 import { logAxiosError } from '../api/utils';
-import useSettings from '../hooks-query/useSettings';
 import { isStaleRundown, optimisticDeleteEntries, patchEntry } from './entryAction.utils';
 
 export type EventOptions = Partial<{
   // options of any new entries (event / delay / group)
   after: MaybeString;
   before: MaybeString;
-  // options of entries of type OntimeEvent
-  linkPrevious: boolean;
-  /** the timing reference for the new entry, usually the same as after */
-  lastEventId: MaybeString;
 }>;
 
 type ClientInsertOptions = {
@@ -77,7 +71,6 @@ export type EntryActions = ReturnType<typeof useEntryActions>;
  */
 export function useEntryActions(scopedRundownId: string) {
   const queryClient = useQueryClient();
-  const { rundownDefaults } = useSettings().data;
 
   /**
    * Returns the currently loaded rundown
@@ -201,55 +194,13 @@ export function useEntryActions(scopedRundownId: string) {
         newEntry.before = options.before;
       }
 
-      // ************* CHECK OPTIONS specific to events
-      if (isOntimeEvent(newEntry)) {
-        // last event id is the timing reference of the previous OntimeEvent in rundown
-        if (options?.lastEventId) {
-          const previousEvent = rundownData.entries[options?.lastEventId];
-          if (isOntimeEvent(previousEvent)) {
-            newEntry.timeStart = previousEvent.timeEnd;
-          }
-        }
-
-        // Override event with the project rundown defaults
-        newEntry.linkStart = options?.linkPrevious ?? rundownDefaults.linkPrevious;
-
-        if (newEntry.duration === undefined && newEntry.timeEnd === undefined) {
-          newEntry.duration = rundownDefaults.duration;
-        }
-
-        if (newEntry.timerType === undefined) {
-          newEntry.timerType = rundownDefaults.timerType;
-        }
-
-        if (newEntry.endAction === undefined) {
-          newEntry.endAction = rundownDefaults.endAction;
-        }
-
-        if (newEntry.timeStrategy === undefined) {
-          newEntry.timeStrategy = rundownDefaults.timeStrategy;
-        }
-      }
-
-      if (
-        rundownDefaults.inheritGroupColour &&
-        (isOntimeEvent(newEntry) || isOntimeMilestone(newEntry)) &&
-        !newEntry.colour
-      ) {
-        const parentId = resolveInsertParent(rundownData, newEntry);
-        const maybeParent = parentId ? rundownData.entries[parentId] : null;
-        if (maybeParent && isOntimeGroup(maybeParent)) {
-          newEntry.colour = maybeParent.colour;
-        }
-      }
-
       try {
         await addEntryMutation([rundownId, newEntry]);
       } catch (error) {
         logAxiosError('Failed adding event', error);
       }
     },
-    [getCurrentRundownData, rundownDefaults, addEntryMutation],
+    [getCurrentRundownData, addEntryMutation],
   );
 
   /**

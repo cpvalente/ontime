@@ -19,7 +19,7 @@ interface QuickAddButtonsProps {
 export default memo(QuickAddButtons);
 function QuickAddButtons({ previousEventId, nextEventId, parentGroup, backgroundColor }: QuickAddButtonsProps) {
   const { addEntry } = useEntryActionsContext();
-  const appendOptions = previousEventId ? { after: previousEventId, lastEventId: previousEventId } : undefined;
+  const appendOptions = previousEventId ? { after: previousEventId } : undefined;
   const prependOptions = nextEventId ? { before: nextEventId } : undefined;
   const insertionOptions = appendOptions ?? prependOptions;
 
