@@ -1,6 +1,6 @@
 import useScrollIntoView from '../../../../common/hooks/useScrollIntoView';
 import { usePing } from '../../../../common/hooks/useSocket';
-import { isDocker } from '../../../../externals';
+import { capabilities, isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
 import ClientControlPanel from './client-control/ClientControlPanel';
@@ -20,7 +20,7 @@ export default function ServerPanel({ location }: PanelBaseProps) {
         </Panel.Section>
       )}
       <div ref={clientsRef}>
-        {!isDocker && <ServerPortSettings />}
+        {capabilities.canChangePort && <ServerPortSettings />}
         <ClientControlPanel />
       </div>
       <div ref={logRef}>

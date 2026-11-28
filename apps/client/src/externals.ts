@@ -30,6 +30,18 @@ export const isOntimeCloud = document.querySelector('base')?.hasAttribute('data-
 // written by the server next to data-is-cloud, absent when not provided
 export const dashboardUrl = document.querySelector('base')?.getAttribute('data-dashboard-url') || undefined;
 
+/**
+ * What the settings can offer where Ontime runs
+ * Docker and Ontime Cloud set the port, Ontime Cloud also runs the server and keeps it off the local network
+ */
+export const capabilities = {
+  canChangePort: !isDocker && !isOntimeCloud,
+  canShutdown: !isOntimeCloud,
+  canListNetworkInterfaces: !isOntimeCloud,
+  canUseOsc: !isOntimeCloud,
+  canDownloadUpdates: !isOntimeCloud,
+} as const;
+
 export const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 export const supportsFullscreen = document.fullscreenEnabled;
 

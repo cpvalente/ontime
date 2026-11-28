@@ -17,7 +17,7 @@ import { canCopyToClipboard, copyToClipboard, safeCopyPendingToClipboard } from 
 import { isLoopbackAddress } from '../../common/utils/linkUtils';
 import { isUrlSafe } from '../../common/utils/regex';
 import { cx } from '../../common/utils/styleUtils';
-import { isOntimeCloud, serverURL } from '../../externals';
+import { capabilities, serverURL } from '../../externals';
 import * as Panel from '../app-settings/panel-utils/PanelUtils';
 import CuesheetLinkOptions, { CuesheetPermissionValues } from './composite/CuesheetLinkOptions';
 
@@ -245,9 +245,7 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                 />
               </Panel.ListItem>
             )}
-            {isOntimeCloud ? (
-              <input hidden readOnly name='baseUrl' value={serverURL} />
-            ) : (
+            {capabilities.canListNetworkInterfaces ? (
               <Panel.ListItem>
                 <Panel.Field title='Host IP' description='The network address recipients use to reach Ontime' />
                 <Select
@@ -259,8 +257,10 @@ export default function GenerateLinkForm({ hostOptions, pathOptions, presets, is
                   }}
                 />
               </Panel.ListItem>
+            ) : (
+              <input hidden readOnly name='baseUrl' value={serverURL} />
             )}
-            {!isOntimeCloud && isLoopbackBaseUrl(watch('baseUrl')) && (
+            {capabilities.canListNetworkInterfaces && isLoopbackBaseUrl(watch('baseUrl')) && (
               <Info type='warning'>This address only works on this computer. Select a network address to share.</Info>
             )}
 

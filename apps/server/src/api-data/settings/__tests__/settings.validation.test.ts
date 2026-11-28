@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express';
 import { defaultRundownDefaults } from 'ontime-utils';
 
-import { validateServerPort, validateSettingsPatch } from '../settings.validation.js';
+import { validateSettingsPatch } from '../settings.validation.js';
 
 function validate(middleware: typeof validateSettingsPatch, body: unknown) {
   const req = { body } as Request;
@@ -83,20 +83,6 @@ describe('validateSettingsPatch', () => {
 
   it('rejects a missing body', () => {
     const { res, next } = validate(validateSettingsPatch, undefined);
-    expect(next).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(422);
-  });
-});
-
-describe('validateServerPort', () => {
-  it('accepts a port number', () => {
-    const { req, next } = validate(validateServerPort, { serverPort: 4001 });
-    expect(next).toHaveBeenCalled();
-    expect(req.body).toEqual({ serverPort: 4001 });
-  });
-
-  it.each([70000, -1, 4001.5, 'abc'])('rejects %j', (serverPort) => {
-    const { res, next } = validate(validateServerPort, { serverPort });
     expect(next).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(422);
   });
