@@ -63,7 +63,7 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
   test('a project which fails to load is replaced, and the editor is told, even with the dialog turned off', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
-    await firstRun.send('POST', '/data/app-state/welcome-dialog', { show: false });
+    await firstRun.send('POST', '/data/session/welcome-dialog', { show: false });
     const project = await loadedProject(firstRun);
     await firstRun.stop();
 
@@ -83,8 +83,8 @@ describe('welcome dialog', { timeout: 15_000 }, () => {
   test('the startup preference is saved, and turned off hides the dialog on the next start', async () => {
     const firstRun = await startTestServer();
     onTestFinished(() => firstRun.stop());
-    await firstRun.send('POST', '/data/app-state/welcome-dialog', { show: false });
-    expect(await (await firstRun.get('/data/app-state/welcome-dialog')).json()).toEqual({ show: false });
+    await firstRun.send('POST', '/data/session/welcome-dialog', { show: false });
+    expect(await (await firstRun.get('/data/session/welcome-dialog')).json()).toEqual({ show: false });
     await firstRun.stop();
 
     const secondRun = await startTestServer();

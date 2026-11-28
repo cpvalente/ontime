@@ -3,7 +3,7 @@ import { PortInfo } from 'ontime-types';
 
 import { queryRefetchIntervalSlow } from '../../ontimeConfig';
 import { APP_SERVER_PORT } from '../api/constants';
-import { getServerPort, postServerPort } from '../api/serverPort';
+import { getServerPort, postServerPort } from '../api/session';
 import { ontimeQueryClient } from '../queryClient';
 
 const serverPortPlaceholder: PortInfo = {
