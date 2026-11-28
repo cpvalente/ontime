@@ -27,7 +27,7 @@ export default function McpSection() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>MCP Server</Panel.SubHeader>
+        <Panel.SubHeader>MCP server</Panel.SubHeader>
         <Panel.Paragraph>Connect any MCP-compatible AI agent to Ontime using the endpoint below.</Panel.Paragraph>
         <Panel.Divider />
         <Panel.ListGroup>

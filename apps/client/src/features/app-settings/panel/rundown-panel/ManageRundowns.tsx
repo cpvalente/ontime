@@ -120,7 +120,7 @@ export default function ManageRundowns() {
       <Panel.Section>
         <Panel.Card>
           <Panel.SubHeader>
-            Manage rundowns
+            Rundowns
             <Panel.InlineElements>
               <Button onClick={handleDownloadAll}>
                 Export all .xlsx <IoDocumentOutline />

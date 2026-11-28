@@ -22,7 +22,7 @@ export default function ManageProjects() {
       <input {...inputProps} />
       <Panel.Card>
         <Panel.SubHeader>
-          Manage projects
+          Projects
           <Panel.InlineElements>
             <Button onClick={handleImport} disabled={isImporting} loading={isImporting}>
               Import

@@ -8,7 +8,7 @@ export default function ShareLink() {
   return (
     <Panel.Section>
       <Panel.Card>
-        <Panel.SubHeader>Share link</Panel.SubHeader>
+        <Panel.SubHeader>Share</Panel.SubHeader>
         {!isOntimeCloud && (
           <>
             <Panel.Paragraph>Ontime is streaming on the following network interfaces</Panel.Paragraph>

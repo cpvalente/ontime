@@ -10,10 +10,10 @@ test.describe('URL Preset', () => {
 
     // Create the preset that will be used by other tests
     await page.getByRole('button', { name: 'Toggle settings' }).click();
-    await page.getByRole('button', { name: 'URL Presets' }).click();
+    await page.getByRole('button', { name: 'URL presets' }).click();
 
-    await page.getByRole('heading', { name: 'URL Presets New' }).getByRole('button').scrollIntoViewIfNeeded();
-    await page.getByRole('heading', { name: 'URL Presets New' }).getByRole('button').click();
+    await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').scrollIntoViewIfNeeded();
+    await page.getByRole('heading', { name: 'URL presets New' }).getByRole('button').click();
 
     await page.locator('input[name="alias"]').click();
     await page.locator('input[name="alias"]').fill(aliasName);
@@ -53,7 +53,7 @@ test.describe('URL Preset', () => {
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
-    await page.getByRole('button', { name: 'Share link' }).click();
+    await page.getByRole('button', { name: 'Share', exact: true }).click();
 
     // select options
     await page.getByRole('combobox').filter({ hasText: 'Timer' }).click();
@@ -84,7 +84,7 @@ test.describe('URL Preset', () => {
 
     // open settings
     await page.getByRole('button', { name: 'Toggle settings' }).click();
-    await page.getByRole('button', { name: 'Share link' }).click();
+    await page.getByRole('button', { name: 'Share', exact: true }).click();
 
     // select options
     await page.getByRole('combobox').filter({ hasText: 'Timer' }).click();

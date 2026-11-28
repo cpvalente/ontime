@@ -25,8 +25,9 @@ export const staticOptions = [
       },
       {
         id: 'project__list',
-        label: 'Manage projects',
+        label: 'Projects',
         keywords: [
+          'manage projects',
           'load',
           'open',
           'rename',
@@ -48,8 +49,8 @@ export const staticOptions = [
     secondary: [
       {
         id: 'rundown__rundowns',
-        label: 'Manage rundowns',
-        keywords: ['rundown', 'xlsx', 'load', 'export'],
+        label: 'Rundowns',
+        keywords: ['manage rundowns', 'xlsx', 'load', 'export'],
       },
       {
         id: 'rundown__sheets',
@@ -96,11 +97,11 @@ export const staticOptions = [
     id: 'sharing',
     label: 'Sharing and access',
     secondary: [
-      { id: 'sharing__presets', label: 'URL Presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
+      { id: 'sharing__presets', label: 'URL presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
       {
         id: 'sharing__link',
-        label: 'Share link',
-        keywords: ['qr code', 'guest', 'cuesheet link', 'permissions', 'read only', 'ip'],
+        label: 'Share',
+        keywords: ['share link', 'qr code', 'guest', 'cuesheet link', 'permissions', 'read only', 'ip'],
       },
       {
         id: 'sharing__access',
@@ -117,6 +118,9 @@ export const staticOptions = [
         id: 'integrations__automations',
         label: 'Automations',
         keywords: [
+          'manage automations',
+          'automation settings',
+          'global triggers',
           'osc input',
           'osc',
           'port',
@@ -141,7 +145,7 @@ export const staticOptions = [
       },
       {
         id: 'integrations__mcp',
-        label: 'MCP Server',
+        label: 'MCP server',
         keywords: ['ai', 'agent', 'model', 'llm'],
       },
     ],
@@ -152,8 +156,9 @@ export const staticOptions = [
     secondary: [
       {
         id: 'server__clients',
-        label: 'Manage clients',
+        label: 'Clients',
         keywords: [
+          'manage clients',
           'redirect',
           'identify',
           'rename client',

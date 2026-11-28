@@ -146,7 +146,7 @@ export default function ProjectMergeForm({ onClose, fileName }: ProjectMergeFrom
               <Panel.ListItem>
                 <label className={style.optionRow}>
                   <div className={style.optionCopy}>
-                    <span className={style.optionTitle}>URL Presets</span>
+                    <span className={style.optionTitle}>URL presets</span>
                     <span className={style.optionBody}>Saved links and preset launch parameters.</span>
                   </div>
                   <Switch
