@@ -243,20 +243,16 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Views',
         submenu: [
           {
-            label: 'Display',
-            click: () => redirectWindow('/editor?settings=views__display'),
-          },
-          {
             label: 'View settings',
             click: () => redirectWindow('/editor?settings=views__view'),
           },
           {
-            label: 'Teleprompter',
-            click: () => redirectWindow('/editor?settings=views__teleprompter'),
-          },
-          {
             label: 'Custom views',
             click: () => redirectWindow('/editor?settings=views__custom-views'),
+          },
+          {
+            label: 'Teleprompter',
+            click: () => redirectWindow('/editor?settings=views__teleprompter'),
           },
         ],
       },
@@ -304,6 +300,10 @@ function makeSettingsMenu(redirectWindow) {
           {
             label: 'Server port',
             click: () => redirectWindow('/editor?settings=server'),
+          },
+          {
+            label: 'Shutdown',
+            click: () => redirectWindow('/editor?settings=server__shutdown'),
           },
         ],
       },

@@ -3,6 +3,7 @@ import { usePing } from '../../../../common/hooks/useSocket';
 import { capabilities, isDocker } from '../../../../externals';
 import type { PanelBaseProps } from '../../panel-list/PanelList';
 import * as Panel from '../../panel-utils/PanelUtils';
+import ShutdownPanel from '../shutdown-panel/ShutdownPanel';
 import ClientControlPanel from './client-control/ClientControlPanel';
 import LogExport from './NetworkLogExport';
 import ServerPortSettings from './ServerPortSettings';
@@ -10,6 +11,7 @@ import ServerPortSettings from './ServerPortSettings';
 export default function ServerPanel({ location }: PanelBaseProps) {
   const clientsRef = useScrollIntoView<HTMLDivElement>('clients', location);
   const logRef = useScrollIntoView<HTMLDivElement>('log', location);
+  const shutdownRef = useScrollIntoView<HTMLDivElement>('shutdown', location);
 
   return (
     <>
@@ -25,6 +27,9 @@ export default function ServerPanel({ location }: PanelBaseProps) {
       </div>
       <div ref={logRef}>
         <LogExport />
+      </div>
+      <div ref={shutdownRef}>
+        <ShutdownPanel />
       </div>
     </>
   );
