@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getShowWelcomeDialog, postShowWelcomeDialog } from '../api/appState';
 import { WELCOME_DIALOG } from '../api/constants';
+import { getShowWelcomeDialog, postShowWelcomeDialog } from '../api/session';
 import { ontimeQueryClient } from '../queryClient';
 
 /**
