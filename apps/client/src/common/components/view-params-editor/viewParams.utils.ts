@@ -82,7 +82,7 @@ function sanitiseColour(colour: string) {
 }
 
 type FieldMetadata = {
-  defaultValues: Record<string, string>;
+  defaultValues: Record<string, string[]>;
   colorFields: Set<string>;
   booleanFields: Set<string>;
   isPersistedField: Set<string>;
@@ -111,8 +111,12 @@ function collectFieldMetadata(paramFields: ViewOption[]): FieldMetadata {
         if (option.values) {
           metadata.persistedValues[option.id] = option.values;
         }
-      } else {
-        metadata.defaultValues[option.id] = String(option.defaultValue);
+      } else if (option.type === 'multi-option') {
+        if (option.defaultValue) {
+          metadata.defaultValues[option.id] = option.defaultValue;
+        }
+      } else if (option.defaultValue !== undefined) {
+        metadata.defaultValues[option.id] = [String(option.defaultValue)];
       }
 
       if (option.type === 'colour') {
@@ -127,7 +131,20 @@ function collectFieldMetadata(paramFields: ViewOption[]): FieldMetadata {
 }
 
 /**
+ * Whether two lists hold the same values, regardless of order or repetition
+ */
+function isSameValueSet(values: string[], other: string[] | undefined): boolean {
+  if (!other) {
+    return false;
+  }
+  const valueSet = new Set(values);
+  const otherSet = new Set(other);
+  return valueSet.size === otherSet.size && [...valueSet].every((value) => otherSet.has(value));
+}
+
+/**
  * Makes a new URLSearchParams object from the given params object
+ * Values equal to the field default are omitted, so share links only carry customisation
  * @param paramsObj - The object containing parameters to be converted
  * @param paramFields - The view options that define the parameters
  * @returns A new URLSearchParams object with the parameters
@@ -157,35 +174,36 @@ export function getURLSearchParamsFromObj(paramsObj: ViewParamsObj, paramFields:
 
   // Then process user-provided values
   Object.entries(paramsObj).forEach(([id, value]) => {
-    if (typeof value === 'string' && value.length) {
-      // For persisted fields, clear existing values before adding new ones
-      if (metadata.isPersistedField.has(id)) {
-        // Clear tracking of previous values for this field
-        Array.from(addedPairs).forEach((pair) => {
-          if (pair.startsWith(`${id}:`)) {
-            addedPairs.delete(pair);
-          }
-        });
-        newSearchParams.delete(id);
-      }
+    if (typeof value !== 'string' || !value.length) {
+      return;
+    }
 
-      // Process and add new values
-      value.split(',').forEach((v) => {
-        // some field types need extra processing
-        const processedValue = (() => {
-          if (metadata.colorFields.has(id)) {
-            return sanitiseColour(v);
-          }
-          if (metadata.booleanFields.has(id)) {
-            return v === 'on' ? 'true' : 'false';
-          }
-          return v;
-        })();
-        if (metadata.isPersistedField.has(id) || metadata.defaultValues[id] !== processedValue) {
-          addUniqueParam(id, processedValue);
+    if (metadata.isPersistedField.has(id)) {
+      // For persisted fields, clear existing values before adding new ones
+      Array.from(addedPairs).forEach((pair) => {
+        if (pair.startsWith(`${id}:`)) {
+          addedPairs.delete(pair);
         }
       });
+      newSearchParams.delete(id);
     }
+
+    // some field types need extra processing
+    const processedValues = value.split(',').map((v) => {
+      if (metadata.colorFields.has(id)) {
+        return sanitiseColour(v);
+      }
+      if (metadata.booleanFields.has(id)) {
+        return v === 'on' ? 'true' : 'false';
+      }
+      return v;
+    });
+
+    if (!metadata.isPersistedField.has(id) && isSameValueSet(processedValues, metadata.defaultValues[id])) {
+      return;
+    }
+
+    processedValues.forEach((v) => addUniqueParam(id, v));
   });
 
   return newSearchParams;
@@ -211,5 +229,19 @@ export function getPreservedSearchParams(currentParams: URLSearchParams, paramFi
       preserved.append(key, value);
     }
   });
+  // edited params no longer match the preset, so the alias marking it as current is dropped
+  preserved.delete('alias');
   return preserved;
+}
+
+/**
+ * Reads view params, giving the values of a preset priority over the URL
+ * @param searchParams - The current URL search params
+ * @param presetParams - The search params of the preset the view is loaded from, if any
+ */
+export function makeViewParamsReader(searchParams: URLSearchParams, presetParams?: URLSearchParams) {
+  return {
+    get: (key: string): string | null => presetParams?.get(key) ?? searchParams.get(key),
+    getAll: (key: string): string[] => (presetParams?.has(key) ? presetParams : searchParams).getAll(key),
+  };
 }

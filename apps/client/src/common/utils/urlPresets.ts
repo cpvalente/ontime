@@ -196,6 +196,8 @@ export function generateUrlPresetOptions(alias: string, userUrl: string): URLPre
 
   // presets never store access tokens, the server would drop them on save
   url.searchParams.delete('token');
+  // a URL copied from another preset names that preset, the new preset gets its own alias when unwrapped
+  url.searchParams.delete('alias');
 
   return {
     alias,

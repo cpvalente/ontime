@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 
-// params that are auth/preset markers, not user view customisation (see common/utils/urlPresets.ts)
+/**
+ * Params which mark auth or preset state in a view URL, not view customisation
+ * - token: access token of the session
+ * - n: navigation is locked
+ * - alias: the preset the view was unwrapped from
+ */
 export const reservedParams = new Set(['token', 'n', 'alias']);
 
 interface SavedViewParamsStore {

@@ -3,7 +3,12 @@ import { describe, expect, it } from 'vitest';
 
 import { OptionTitle } from '../constants';
 import type { ViewOption } from '../viewParams.types';
-import { getURLSearchParamsFromObj, makeOptionsFromCustomFields } from '../viewParams.utils';
+import {
+  getPreservedSearchParams,
+  getURLSearchParamsFromObj,
+  makeOptionsFromCustomFields,
+  makeViewParamsReader,
+} from '../viewParams.utils';
 
 describe('makeOptionsFromCustomFields()', () => {
   const testCustomFields: CustomFields = [
@@ -205,7 +210,7 @@ describe('getURLSearchParamsFromObj()', () => {
     expect(result.getAll('sub')).toEqual(['value1', 'value2', 'value3']);
   });
 
-  it('converts on-off from toggle to boolean', () => {
+  it('converts the switch values to booleans, omitting defaults', () => {
     const mockOptionsWithBooleans: ViewOption[] = [
       {
         title: OptionTitle.StyleOverride,
@@ -227,12 +232,83 @@ describe('getURLSearchParamsFromObj()', () => {
         ],
       },
     ];
-    const params = {
-      bool1: 'off',
-      bool2: 'on',
-    };
-    const result = getURLSearchParamsFromObj(params, mockOptionsWithBooleans);
-    expect(result.get('bool1')).toBe('false');
-    expect(result.get('bool2')).toBe('true');
+    // a checked switch submits 'on', an unchecked one submits its unchecked value 'false'
+    expect(getURLSearchParamsFromObj({ bool1: 'false', bool2: 'on' }, mockOptionsWithBooleans).toString()).toBe(
+      'bool1=false&bool2=true',
+    );
+    expect(getURLSearchParamsFromObj({ bool1: 'on', bool2: 'false' }, mockOptionsWithBooleans).toString()).toBe('');
+  });
+
+  describe('multi-option fields', () => {
+    const mockOptionsWithMultiOption: ViewOption[] = [
+      {
+        title: OptionTitle.ElementVisibility,
+        options: [
+          {
+            id: 'fields',
+            title: 'Fields',
+            type: 'multi-option',
+            values: [
+              { value: 'a', label: 'A', colour: '' },
+              { value: 'b', label: 'B', colour: '' },
+              { value: 'c', label: 'C', colour: '' },
+            ],
+            defaultValue: ['a', 'b'],
+          },
+        ],
+      },
+    ];
+
+    it('omits a selection equal to the default, in any order', () => {
+      const result = getURLSearchParamsFromObj({ fields: 'b,a' }, mockOptionsWithMultiOption);
+      expect(result.has('fields')).toBe(false);
+    });
+
+    it('keeps every value of a selection which differs from the default', () => {
+      const result = getURLSearchParamsFromObj({ fields: 'a' }, mockOptionsWithMultiOption);
+      expect(result.getAll('fields')).toEqual(['a']);
+    });
+  });
+
+  it("does not treat the string 'undefined' as the default of a field without one", () => {
+    const mockOptionsWithoutDefault: ViewOption[] = [
+      {
+        title: OptionTitle.ClockOptions,
+        options: [{ id: 'timeformat', title: 'Time format', type: 'string' }],
+      },
+    ];
+    const result = getURLSearchParamsFromObj({ timeformat: 'undefined' }, mockOptionsWithoutDefault);
+    expect(result.get('timeformat')).toBe('undefined');
+  });
+});
+
+describe('getPreservedSearchParams()', () => {
+  it('keeps params the view does not manage, except the preset alias', () => {
+    const viewOptions: ViewOption[] = [
+      {
+        title: OptionTitle.ElementVisibility,
+        options: [{ id: 'hideCards', title: 'Hide cards', type: 'boolean', defaultValue: false }],
+      },
+    ];
+    const current = new URLSearchParams('hideCards=true&token=abc&n=1&alias=stage');
+    expect(getPreservedSearchParams(current, viewOptions).toString()).toBe('token=abc&n=1');
+  });
+});
+
+describe('makeViewParamsReader()', () => {
+  const searchParams = new URLSearchParams('main=note&sub=1&sub=2&hidePast=true');
+
+  it('reads the URL when there is no preset', () => {
+    const params = makeViewParamsReader(searchParams);
+    expect(params.get('main')).toBe('note');
+    expect(params.getAll('sub')).toEqual(['1', '2']);
+    expect(params.get('missing')).toBeNull();
+  });
+
+  it('gives the preset values priority over the URL', () => {
+    const params = makeViewParamsReader(searchParams, new URLSearchParams('main=title&sub=3'));
+    expect(params.get('main')).toBe('title');
+    expect(params.getAll('sub')).toEqual(['3']);
+    expect(params.get('hidePast')).toBe('true');
   });
 });
