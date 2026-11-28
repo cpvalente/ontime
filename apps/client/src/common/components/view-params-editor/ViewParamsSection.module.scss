@@ -1,11 +1,10 @@
 .section {
+  overflow: hidden;
+  padding-inline: 1rem;
   color: $ui-white;
   font-size: 1rem;
-  border-bottom: 1px solid $white-7;
-
-  &:last-of-type {
-    border-bottom: 0;
-  }
+  background-color: $white-3;
+  border-radius: $component-border-radius-md;
 }
 
 .sectionHeader {
@@ -13,16 +12,15 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  // the header bleeds into the gutter so its hover background does not hug the text
+  // the header spans the card so its hover background fills the top of it
   box-sizing: border-box;
-  width: calc(100% + 1rem);
+  width: calc(100% + 2rem);
   min-height: 2.75rem;
-  margin-inline: -0.5rem;
-  padding: 0.5rem;
+  margin-inline: -1rem;
+  padding: 0.5rem 1rem;
 
   background: transparent;
   border: 0;
-  border-radius: $component-border-radius-md;
   font: inherit;
   text-align: left;
 
@@ -82,7 +80,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 0.25rem;
-  padding: 0.375rem 0;
+  padding: 0.5rem 0;
   font-size: $inner-section-text-size;
 }
 

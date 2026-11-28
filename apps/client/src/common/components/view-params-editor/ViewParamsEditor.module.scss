@@ -80,8 +80,7 @@
 
 .body {
   flex: 1;
-  // the first section header brings its own top padding
-  padding: 0 1rem 1rem;
+  padding: 1rem;
   overflow-y: auto;
 
   &:focus-visible {
@@ -110,6 +109,7 @@
 .sectionList {
   display: flex;
   flex-direction: column;
+  gap: 0.75rem;
 }
 
 .info {

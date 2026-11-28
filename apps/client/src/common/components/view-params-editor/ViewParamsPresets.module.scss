@@ -1,7 +1,9 @@
-// matches the layout of ViewParamsSection so that presets read as one more section
+// matches the card of ViewParamsSection so that presets read as one more section
 .presetSection {
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid $white-7;
+  margin-bottom: 0.75rem;
+  padding: 0 1rem 0.75rem;
+  background-color: $white-3;
+  border-radius: $component-border-radius-md;
 }
 
 // the rows bleed into the gutter so the active background does not hug the text
