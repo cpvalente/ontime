@@ -218,6 +218,14 @@ function makeSettingsMenu(redirectWindow) {
             click: () => redirectWindow('/editor?settings=rundown__rundowns'),
           },
           {
+            label: 'Import spreadsheet',
+            click: () => redirectWindow('/editor?settings=rundown__sheets'),
+          },
+          {
+            label: 'Sync with Google Sheet',
+            click: () => redirectWindow('/editor?settings=rundown__sheets'),
+          },
+          {
             label: 'Custom fields',
             click: () => redirectWindow('/editor?settings=rundown__custom'),
           },
@@ -227,21 +235,13 @@ function makeSettingsMenu(redirectWindow) {
           },
           {
             label: 'Aux timers',
-            click: () => redirectWindow('/editor?settings=rundown__defaults'),
+            click: () => redirectWindow('/editor?settings=rundown__aux-timers'),
           },
           {
             label: 'Runtime report',
             click: () => redirectWindow('/editor?settings=rundown__report'),
           },
         ],
-      },
-      {
-        label: 'Import spreadsheet',
-        click: () => redirectWindow('/editor?settings=import'),
-      },
-      {
-        label: 'Sync with Google Sheet',
-        click: () => redirectWindow('/editor?settings=import'),
       },
       {
         label: 'Views',
@@ -268,7 +268,7 @@ function makeSettingsMenu(redirectWindow) {
         label: 'Sharing and access',
         submenu: [
           {
-            label: 'URL presets',
+            label: 'URL Presets',
             click: () => redirectWindow('/editor?settings=sharing__presets'),
           },
           {

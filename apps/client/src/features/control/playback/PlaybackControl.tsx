@@ -42,7 +42,7 @@ export default function PlaybackControl() {
                 size='small'
                 variant='subtle-white'
                 aria-label='Name aux timers'
-                onClick={() => setLocation('rundown__defaults')}
+                onClick={() => setLocation('rundown__aux-timers')}
               />
             }
           >

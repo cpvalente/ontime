@@ -52,26 +52,27 @@ export const staticOptions = [
         keywords: ['rundown', 'xlsx', 'load', 'export'],
       },
       {
+        id: 'rundown__sheets',
+        label: 'Import spreadsheet',
+        keywords: ['google sheet', 'sync', 'spreadsheet', 'xlsx', 'excel', 'csv'],
+      },
+      {
         id: 'rundown__custom',
         label: 'Custom fields',
         keywords: ['metadata', 'columns', 'column', 'cuesheet', 'extra data', 'image field'],
       },
       {
         id: 'rundown__defaults',
-        label: 'Defaults and aux timers',
-        keywords: ['duration', 'warning', 'danger', 'defaults', 'colour', 'color', 'timer', 'aux', 'auxiliary'],
+        label: 'Rundown defaults',
+        keywords: ['duration', 'warning', 'danger', 'defaults', 'colour', 'color', 'timer'],
       },
+      { id: 'rundown__aux-timers', label: 'Aux timers', keywords: ['aux', 'auxiliary', 'timer'] },
       {
         id: 'rundown__report',
         label: 'Runtime report',
         keywords: ['actual times', 'csv', 'export', 'history'],
       },
     ],
-  },
-  {
-    id: 'import',
-    label: 'Import',
-    keywords: ['spreadsheet', 'google sheet', 'sync', 'xlsx', 'excel', 'csv'],
   },
   {
     id: 'views',
@@ -95,7 +96,7 @@ export const staticOptions = [
     id: 'sharing',
     label: 'Sharing and access',
     secondary: [
-      { id: 'sharing__presets', label: 'URL presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
+      { id: 'sharing__presets', label: 'URL Presets', keywords: ['alias', 'link', 'url', 'shortcut'] },
       {
         id: 'sharing__link',
         label: 'Share link',
