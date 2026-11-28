@@ -16,7 +16,8 @@ test('imports spreadsheet and applies imported rundown to editor', async ({ page
 
   // open the spreadsheet
   await page.getByRole('button', { name: 'Toggle settings' }).click();
-  await page.getByRole('list').getByRole('button', { name: 'Import', exact: true }).click();
+  await page.getByRole('button', { name: 'Rundown', exact: true }).click();
+  await page.getByRole('button', { name: 'Import spreadsheet' }).first().click();
   await expect(page.getByRole('heading', { name: 'Import spreadsheet' })).toBeVisible();
 
   // upload the spreadsheet
