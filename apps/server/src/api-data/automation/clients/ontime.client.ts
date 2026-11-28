@@ -1,4 +1,4 @@
-import { LogOrigin, OntimeAction, RuntimeStore } from 'ontime-types';
+import { LogOrigin, OntimeAction } from 'ontime-types';
 import { parseUserTime } from 'ontime-utils';
 import { DeepReadonly } from 'ts-essentials';
 
@@ -6,9 +6,9 @@ import { auxTimerService } from '../../../services/aux-timer-service/auxTimer.se
 import * as messageService from '../../../services/message-service/message.service.js';
 import { runtimeService } from '../../../services/runtime-service/runtime.service.js';
 import * as logger from '../../logs/logs.service.js';
-import { parseTemplateNested } from '../automation.utils.js';
+import { type AutomationState, parseTemplateNested } from '../automation.utils.js';
 
-export function toOntimeAction(action: OntimeAction, store: DeepReadonly<RuntimeStore>) {
+export function toOntimeAction(action: OntimeAction, store: DeepReadonly<AutomationState>) {
   const actionType = action.action;
   switch (actionType) {
     // Aux timer actions

@@ -1,6 +1,7 @@
 import { PlayableEvent, TimerLifeCycle } from 'ontime-types';
 
 import { makeRuntimeStoreData } from '../../../stores/__mocks__/runtimeStore.mocks.js';
+import { eventStore } from '../../../stores/EventStore.js';
 import { RuntimeState } from '../../../stores/runtimeState.js';
 import * as logger from '../../logs/logs.service.js';
 import { makeOntimeEvent } from '../../rundown/__mocks__/rundown.mocks.js';
@@ -48,14 +49,7 @@ describe('triggerAction()', () => {
   let httpSpy = vi.spyOn(httpClient, 'emitHTTP');
 
   beforeAll(() => {
-    vi.doMock('../../../stores/EventStore.js', () => {
-      // Create a small mock store
-      return {
-        eventStore: {
-          poll: vi.fn().mockImplementation(() => makeRuntimeStoreData()),
-        },
-      };
-    });
+    eventStore.init(makeRuntimeStoreData());
   });
 
   beforeEach(async () => {

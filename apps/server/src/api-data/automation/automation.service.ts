@@ -3,7 +3,6 @@ import {
   type AutomationOutput,
   type FilterRule,
   LogOrigin,
-  RuntimeStore,
   TimerLifeCycle,
   isHTTPOutput,
   isOSCOutput,
@@ -15,7 +14,14 @@ import { isOntimeCloud } from '../../setup/environment.js';
 import { eventStore } from '../../stores/EventStore.js';
 import * as logger from '../logs/logs.service.js';
 import { getAutomationTriggers, getAutomations, getAutomationsEnabled } from './automation.dao.js';
-import { isContained, isEquivalent, isGreaterThan, isLessThan } from './automation.utils.js';
+import {
+  type AutomationState,
+  isContained,
+  isEquivalent,
+  isGreaterThan,
+  isLessThan,
+  toAutomationState,
+} from './automation.utils.js';
 import { emitHTTP } from './clients/http.client.js';
 import { toOntimeAction } from './clients/ontime.client.js';
 import { emitOSC } from './clients/osc.client.js';
@@ -30,7 +36,7 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
   if (!getAutomationsEnabled()) {
     return;
   }
-  const store = eventStore.poll();
+  const store = toAutomationState(eventStore.poll());
 
   let triggers = getAutomationTriggers();
 
@@ -85,7 +91,7 @@ export function triggerAutomations(cycle: TimerLifeCycle) {
  * Exposes a method for bypassing the condition check and testing the sending of an output
  */
 export function testOutput(payload: AutomationOutput) {
-  const store = eventStore.poll();
+  const store = toAutomationState(eventStore.poll());
   send([payload].filter(isAvailable), store);
 }
 
@@ -97,11 +103,7 @@ function isAvailable(output: AutomationOutput): boolean {
 /**
  * Checks whether the automation conditions are met
  */
-export function testConditions(
-  filters: AutomationFilter[],
-  filterRule: FilterRule,
-  store: Partial<RuntimeStore>,
-): boolean {
+export function testConditions(filters: AutomationFilter[], filterRule: FilterRule, store: object): boolean {
   if (filters.length === 0) {
     return true;
   }
@@ -144,7 +146,7 @@ export function testConditions(
  * Handles preparing and sending of the data
  * Returns a boolean indicating whether a message was sent
  */
-function send(output: AutomationOutput[], store: RuntimeStore) {
+function send(output: AutomationOutput[], store: AutomationState) {
   output.forEach((payload) => {
     if (isOSCOutput(payload)) {
       emitOSC(payload, store);

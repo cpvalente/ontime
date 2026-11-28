@@ -1,11 +1,11 @@
 import * as dgram from 'node:dgram';
 
-import { OSCOutput, RuntimeStore } from 'ontime-types';
+import { OSCOutput } from 'ontime-types';
 import { getErrorMessage } from 'ontime-utils';
 import { type OscPacketInput, toBuffer as oscPacketToBuffer } from 'osc-min';
 import { DeepReadonly } from 'ts-essentials';
 
-import { parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
+import { type AutomationState, parseTemplateNested, stringToOSCArgs } from '../automation.utils.js';
 import { reportSendFailure, reportSendSuccess } from './sendFailures.js';
 
 /** opened on the first send, so a server which never sends OSC, eg: Ontime Cloud, never opens it */
@@ -14,14 +14,14 @@ let udpClient: dgram.Socket | null = null;
 /**
  * Expose possibility to send a message using OSC protocol
  */
-export function emitOSC(output: OSCOutput, store: DeepReadonly<RuntimeStore>) {
+export function emitOSC(output: OSCOutput, store: DeepReadonly<AutomationState>) {
   const message = preparePayload(output, store);
   const targetIP = parseTemplateNested(output.targetIP, store);
   emit(targetIP, output.targetPort, message);
 }
 
 /** Parses the state and prepares payload to be emitted */
-function preparePayload(output: OSCOutput, store: DeepReadonly<RuntimeStore>): OscPacketInput {
+function preparePayload(output: OSCOutput, store: DeepReadonly<AutomationState>): OscPacketInput {
   // check for templates in the address
   const parsedAddress = parseTemplateNested(output.address, store);
 

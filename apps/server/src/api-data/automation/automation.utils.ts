@@ -3,9 +3,11 @@ import {
   EntryId,
   FilterRule,
   MaybeNumber,
+  Offset,
   OntimeAction,
   ProjectRundowns,
   RundownEntries,
+  RuntimeStore,
   isOntimeEvent,
   ontimeActionKeyValues,
 } from 'ontime-types';
@@ -13,6 +15,16 @@ import { getPropertyFromPath, millisToString, removeLeadingZero, splitWhitespace
 import type { OscArgInput, OscArgOrArrayInput } from 'osc-min';
 
 type FilterOperator = AutomationFilter['operator'];
+
+/** The runtime store with the one offset users see, the offset from the plan stays in the runtime */
+export type AutomationState = Omit<RuntimeStore, 'offset'> & {
+  offset: Omit<Offset, 'absolute' | 'relative'> & { current: number };
+};
+
+export function toAutomationState({ offset, ...store }: RuntimeStore): AutomationState {
+  const { relative, expectedGroupEnd, expectedRundownEnd, expectedFlagStart } = offset;
+  return { ...store, offset: { current: relative, expectedGroupEnd, expectedRundownEnd, expectedFlagStart } };
+}
 
 const hostnameRegex = /^(?=.{1,253}$)[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,61}[a-z\d])?)*$/i;
 
