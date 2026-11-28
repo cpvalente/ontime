@@ -3,12 +3,38 @@ import { useState } from 'react';
 import { UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 import Input from '../../../../common/components/input/input/Input';
-import Select from '../../../../common/components/select/Select';
+import Select, { type SelectOption } from '../../../../common/components/select/Select';
 import * as Panel from '../../panel-utils/PanelUtils';
 import type { OutputErrors } from './automationUtils';
 import TemplateInput from './template-input/TemplateInput';
 
 import style from './AutomationForm.module.scss';
+
+const actionOptions: SelectOption<OntimeActionKey>[] = [
+  { group: 'Playback', value: 'playback-start', label: 'Start playback' },
+  { group: 'Playback', value: 'playback-pause', label: 'Pause playback' },
+  { group: 'Playback', value: 'playback-stop', label: 'Stop playback' },
+  { group: 'Playback', value: 'playback-roll', label: 'Roll playback' },
+
+  { group: 'Offset', value: 'offset-reset', label: 'Reset offset' },
+  { group: 'Offset', value: 'offset-plan', label: 'Undo offset reset' },
+
+  { group: 'Aux timers', value: 'aux1-start', label: 'Start aux 1' },
+  { group: 'Aux timers', value: 'aux1-pause', label: 'Pause aux 1' },
+  { group: 'Aux timers', value: 'aux1-stop', label: 'Stop aux 1' },
+  { group: 'Aux timers', value: 'aux1-set', label: 'Set aux 1' },
+  { group: 'Aux timers', value: 'aux2-start', label: 'Start aux 2' },
+  { group: 'Aux timers', value: 'aux2-pause', label: 'Pause aux 2' },
+  { group: 'Aux timers', value: 'aux2-stop', label: 'Stop aux 2' },
+  { group: 'Aux timers', value: 'aux2-set', label: 'Set aux 2' },
+  { group: 'Aux timers', value: 'aux3-start', label: 'Start aux 3' },
+  { group: 'Aux timers', value: 'aux3-pause', label: 'Pause aux 3' },
+  { group: 'Aux timers', value: 'aux3-stop', label: 'Stop aux 3' },
+  { group: 'Aux timers', value: 'aux3-set', label: 'Set aux 3' },
+
+  { group: 'Messages', value: 'message-set', label: 'Set timer message' },
+  { group: 'Messages', value: 'message-secondary', label: 'Set secondary message' },
+];
 
 interface OntimeActionFormProps {
   index: number;
@@ -44,33 +70,7 @@ export default function OntimeActionForm({
             handleSetAction(value);
           }}
           value={watch(`outputs.${index}.action`)}
-          options={[
-            { value: 'aux1-pause', label: 'Aux 1: pause' },
-            { value: 'aux2-pause', label: 'Aux 2: pause' },
-            { value: 'aux3-pause', label: 'Aux 3: pause' },
-
-            { value: 'aux1-start', label: 'Aux 1: start' },
-            { value: 'aux2-start', label: 'Aux 2: start' },
-            { value: 'aux3-start', label: 'Aux 3: start' },
-
-            { value: 'aux1-stop', label: 'Aux 1: stop' },
-            { value: 'aux2-stop', label: 'Aux 2: stop' },
-            { value: 'aux3-stop', label: 'Aux 3: stop' },
-
-            { value: 'aux1-set', label: 'Aux 1: set' },
-            { value: 'aux2-set', label: 'Aux 2: set' },
-            { value: 'aux3-set', label: 'Aux 3: set' },
-
-            { value: 'playback-start', label: 'Playback: start' },
-            { value: 'playback-stop', label: 'Playback: stop' },
-            { value: 'playback-pause', label: 'Playback: pause' },
-            { value: 'playback-roll', label: 'Playback: roll' },
-            { value: 'offset-reset', label: 'Offset: reset' },
-            { value: 'offset-plan', label: 'Offset: back to plan' },
-
-            { value: 'message-set', label: 'Primary Message' },
-            { value: 'message-secondary', label: 'Secondary Message' },
-          ]}
+          options={actionOptions}
         />
         <Panel.Error>{rowErrors?.action?.message}</Panel.Error>
       </label>

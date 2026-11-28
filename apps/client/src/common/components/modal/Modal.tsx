@@ -42,7 +42,7 @@ export default function Modal({
           <div className={style.title}>
             {title ? <BaseDialog.Title className={style.titleText}>{title}</BaseDialog.Title> : <div />}
             {showCloseButton && (
-              <IconButton variant='subtle-white' onClick={onClose}>
+              <IconButton variant='subtle-white' aria-label='Close' onClick={onClose}>
                 <IoClose />
               </IconButton>
             )}

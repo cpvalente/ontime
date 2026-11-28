@@ -1,0 +1,32 @@
+.groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1.5rem 1rem;
+  padding-block: 0.5rem;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.software {
+  margin-bottom: 0.25rem;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.recipe {
+  justify-content: flex-start;
+}
+
+.when {
+  margin-left: auto;
+  padding-left: 0.5rem;
+  color: $label-gray;
+  font-size: calc(1rem - 3px);
+}

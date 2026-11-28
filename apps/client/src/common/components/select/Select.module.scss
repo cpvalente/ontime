@@ -109,6 +109,14 @@
   }
 }
 
+.groupLabel {
+  padding: 0.5rem 0.5rem 0.25rem 1.25rem;
+  color: $gray-500;
+  font-size: calc(1rem - 4px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .itemIndicator {
   grid-column-start: 1;
 }

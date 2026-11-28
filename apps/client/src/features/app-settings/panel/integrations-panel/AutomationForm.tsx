@@ -1,9 +1,9 @@
-import { Automation, AutomationDTO, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
-import { useEffect, useMemo, useState } from 'react';
+import { Automation, AutomationDTO, TimerLifeCycle, isHTTPOutput, isOSCOutput, isOntimeAction } from 'ontime-types';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { IoAdd, IoTrash } from 'react-icons/io5';
 
-import { addAutomation, editAutomation, testOutput } from '../../../../common/api/automation';
+import { addAutomation, addTrigger, editAutomation, testOutput } from '../../../../common/api/automation';
 import { maybeAxiosError } from '../../../../common/api/utils';
 import Button from '../../../../common/components/buttons/Button';
 import IconButton from '../../../../common/components/buttons/IconButton';
@@ -18,7 +18,7 @@ import useAutomationSettings from '../../../../common/hooks-query/useAutomationS
 import useCustomFields from '../../../../common/hooks-query/useCustomFields';
 import { capabilities } from '../../../../externals';
 import * as Panel from '../../panel-utils/PanelUtils';
-import { isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
+import { cycles, isAutomation, makeFieldList, operators, type OutputErrors } from './automationUtils';
 import HttpOutputForm from './HttpOutputForm';
 import OntimeActionForm from './OntimeActionForm';
 import OscOutputForm from './OscOutputForm';
@@ -29,18 +29,25 @@ import style from './AutomationForm.module.scss';
 const integrationsDocsUrl = 'https://docs.getontime.no/api/automation/#using-variables-in-automation';
 const formId = 'automation-form';
 
+const triggerOptions = [{ value: null, label: 'None' }, ...cycles];
+
 interface AutomationFormProps {
   automation: Automation | AutomationDTO;
+  /** creating an automation can also add a global trigger for it */
+  trigger?: TimerLifeCycle;
   onClose: () => void;
 }
 
-export default function AutomationForm({ automation, onClose }: AutomationFormProps) {
+export default function AutomationForm({ automation, trigger, onClose }: AutomationFormProps) {
   const isEdit = isAutomation(automation);
   const { data: customFields } = useCustomFields();
   const { refetch } = useAutomationSettings();
   const fieldList = useMemo(() => makeFieldList(customFields), [customFields]);
   const [testResults, setTestResults] = useState<Record<string, { state: TestState; input: string }>>({});
   const [submitError, setSubmitError] = useState<string>();
+  const [globalTrigger, setGlobalTrigger] = useState<TimerLifeCycle | null>(trigger ?? null);
+  // a retry after the trigger failed must not create the automation twice
+  const createdId = useRef<string | null>(null);
 
   const {
     control,
@@ -84,8 +91,8 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
 
   // give initial focus to the title field
   useEffect(() => {
-    setFocus('title');
-  }, [setFocus]);
+    setFocus('title', { shouldSelect: trigger !== undefined });
+  }, [setFocus, trigger]);
 
   const getOutputErrors = (index: number) => errors.outputs?.[index] as OutputErrors | undefined;
 
@@ -133,33 +140,30 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
 
   const onSubmit = async (values: AutomationDTO) => {
     setSubmitError(undefined);
-    if (isAutomation(automation)) {
-      await handleEdit(automation.id, { id: automation.id, ...values });
-    } else {
-      await handleCreate(values);
-    }
-    refetch();
-
-    async function handleEdit(id: string, values: Automation) {
-      try {
-        await editAutomation(id, values);
-        onClose();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
+    try {
+      if (isAutomation(automation)) {
+        await editAutomation(automation.id, { id: automation.id, ...values });
+      } else {
+        if (createdId.current === null) {
+          createdId.current = (await addAutomation(values)).id;
+        } else {
+          await editAutomation(createdId.current, { id: createdId.current, ...values });
+        }
+        if (globalTrigger !== null) {
+          await addTrigger({ title: values.title, trigger: globalTrigger, automationId: createdId.current });
+        }
       }
-    }
-
-    async function handleCreate(values: AutomationDTO) {
-      try {
-        await addAutomation(values);
-        onClose();
-      } catch (error) {
-        setSubmitError(maybeAxiosError(error));
-      }
+      onClose();
+    } catch (error) {
+      const message = maybeAxiosError(error);
+      setSubmitError(createdId.current === null ? message : `Automation saved, but its trigger failed: ${message}`);
+    } finally {
+      refetch();
     }
   };
 
-  const canSubmit = !isSubmitting && isDirty && isValid;
+  // a new automation can be saved as it was filled in, eg: from a recipe
+  const canSubmit = !isSubmitting && isValid && (isDirty || !isEdit);
   const addOutputMenu = (
     <DropdownMenu
       render={<Button />}
@@ -198,7 +202,7 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
       onClose={onClose}
       showBackdrop
       showCloseButton
-      title={isEdit ? 'Edit automation' : 'Create automation'}
+      title={isEdit ? 'Edit automation' : trigger ? 'New automation from a recipe' : 'Create automation'}
       bodyElements={
         <form id={formId} onSubmit={handleSubmit(onSubmit)} className={style.outerColumn}>
           <div className={style.innerColumn}>
@@ -211,8 +215,19 @@ export default function AutomationForm({ automation, onClose }: AutomationFormPr
                   fluid
                   placeholder='Automation title'
                 />
+                <Panel.Error>{errors.title?.message}</Panel.Error>
               </label>
-              <Panel.Error>{errors.title?.message}</Panel.Error>
+              {!isEdit && (
+                <label>
+                  Also run automatically on
+                  <Select<TimerLifeCycle | null>
+                    value={globalTrigger}
+                    onValueChange={setGlobalTrigger}
+                    options={triggerOptions}
+                    fluid
+                  />
+                </label>
+              )}
             </div>
           </div>
 

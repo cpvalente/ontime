@@ -51,6 +51,9 @@
 
 .titleSection {
   grid-template-columns: 1fr;
+  grid-auto-columns: 12rem;
+  grid-auto-flow: column;
+  align-items: start;
 }
 
 .filterSection {
